@@ -17096,14 +17096,6 @@ else
   BUILD_SAVE_TO_FILE_FALSE=
 fi
 
- if test "x$arg_stf" = "xno"; then
-  BUILD_SAVE_TO_FILE_TRUE=
-  BUILD_SAVE_TO_FILE_FALSE='#'
-else
-  BUILD_SAVE_TO_FILE_TRUE='#'
-  BUILD_SAVE_TO_FILE_FALSE=
-fi
-
 
 ac_config_files="$ac_config_files Makefile src/Makefile src/gtk/Makefile src/gtk/Ask_For_Pass/Makefile src/qt/Makefile src/qt/Ask_For_Pass/Makefile src/kde/Makefile src/kde/KWallet/Makefile src/portable/Makefile src/portable/SaveToFile/Makefile src/portable/SaveToFile/encrypted/Makefile src/portable/SaveToFile/plain_text/Makefile"
 
@@ -17292,13 +17284,6 @@ if test -z "${KDE4_FOUND_TRUE}" && test -z "${KDE4_FOUND_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"KDE4_FOUND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"KDE4_FOUND\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${BUILD_SAVE_TO_FILE_TRUE}" && test -z "${BUILD_SAVE_TO_FILE_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"BUILD_SAVE_TO_FILE\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"BUILD_SAVE_TO_FILE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi

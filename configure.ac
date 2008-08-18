@@ -71,7 +71,6 @@ else
 fi
 
 AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" != "xno"])
-AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" = "xno"])
 
 AC_OUTPUT(
 [Makefile

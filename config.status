@@ -918,8 +918,8 @@ S["QTGUI_LIBS"]="-pthread -L/usr/X11R6/lib -lQtGui -lpng -lSM -lICE -lQtCore -lz
 S["KDE4_FOUND_TRUE"]=""
 S["KDE4_FOUND_FALSE"]="#"
 S["KDE4CONFIG"]="yes"
-S["BUILD_SAVE_TO_FILE_TRUE"]="#"
-S["BUILD_SAVE_TO_FILE_FALSE"]=""
+S["BUILD_SAVE_TO_FILE_TRUE"]=""
+S["BUILD_SAVE_TO_FILE_FALSE"]="#"
 S["LIBOBJS"]=""
 S["LTLIBOBJS"]=""
 _ACAWK

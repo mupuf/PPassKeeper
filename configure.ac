@@ -45,7 +45,7 @@ AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
 if test "x$arg_gtk" = "xno"; then
   AM_CONDITIONAL([GTK2_FOUND], [false])
 else
-  PKG_CHECK_MODULES([GTK2], [gtk+-2.0], [GTK2_FOUND="yes"])
+  PKG_CHECK_MODULES([GTK2], [gtk+-2.0], [GTK2_FOUND="yes"], [echo "$GTK2_PKG_ERRORS"])
   AM_CONDITIONAL([GTK2_FOUND], [test "x$GTK2_FOUND" = "xyes"])
 fi
 
@@ -53,8 +53,8 @@ if test "x$arg_qt" = "xno"; then
   AM_CONDITIONAL([QTCORE_FOUND], [false])
   AM_CONDITIONAL([QTGUI_FOUND], [false])
 else
-  PKG_CHECK_MODULES([QTCORE], [QtCore], [QTCORE_FOUND="yes"])
-  PKG_CHECK_MODULES([QTGUI], [QtGui], [QTGUI_FOUND="yes"])
+  PKG_CHECK_MODULES([QTCORE], [QtCore], [QTCORE_FOUND="yes"], [echo "$QTCORE_PKG_ERRORS"])
+  PKG_CHECK_MODULES([QTGUI], [QtGui], [QTGUI_FOUND="yes"], [echo "$QTGUI_PKG_ERRORS"])
   AM_CONDITIONAL([QTCORE_FOUND], [test "x$QTCORE_FOUND" = "xyes"])
   AM_CONDITIONAL([QTGUI_FOUND], [test "x$QTGUI_FOUND" = "xyes"])
 fi

@@ -63,9 +63,7 @@ if test "x$arg_kde" = "xno"; then
   AM_CONDITIONAL([KDE4_FOUND], [false])
 else
   AC_CHECK_PROG([KDE4CONFIG], [kde4-config], "yes")
-  if test "x$KDE4CONFIG" = "xyes"; then
-    AM_CONDITIONAL([KDE4_FOUND], [test "x$KDE4CONFIG" = "xyes"])
-  fi
+  AM_CONDITIONAL([KDE4_FOUND], [test "x$KDE4CONFIG" = "xyes"])
 fi
 
 AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" != "xno"])

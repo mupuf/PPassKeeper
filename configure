@@ -16927,8 +16927,7 @@ $as_echo "no" >&6; }
 fi
 
 
-  if test "x$KDE4CONFIG" = "xyes"; then
-     if test "x$KDE4CONFIG" = "xyes"; then
+   if test "x$KDE4CONFIG" = "xyes"; then
   KDE4_FOUND_TRUE=
   KDE4_FOUND_FALSE='#'
 else
@@ -16936,7 +16935,6 @@ else
   KDE4_FOUND_FALSE=
 fi
 
-  fi
 fi
 
  if test "x$arg_stf" != "xno"; then

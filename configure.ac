@@ -27,7 +27,8 @@ AC_C_INLINE
 # Checks for library functions.
 AC_CHECK_FUNCS([mkdir])
 
-AC_PROG_LIBTOOL
+LT_INIT([win32-dll])
+LT_OUTPUT
 LT_LIB_DLLOAD
 
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])

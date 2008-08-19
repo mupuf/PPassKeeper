@@ -57,6 +57,9 @@ am__libppasskeeper_la_SOURCES_DIST = ppasskeeper.cpp \
 @BUILD_PPKLIB_TRUE@am_libppasskeeper_la_OBJECTS = ppasskeeper.lo \
 @BUILD_PPKLIB_TRUE@	ppk_modules.lo
 libppasskeeper_la_OBJECTS = $(am_libppasskeeper_la_OBJECTS)
+libppasskeeper_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libppasskeeper_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILD_PPKLIB_TRUE@am_libppasskeeper_la_rpath = -rpath $(libdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -97,6 +100,7 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -114,6 +118,7 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLIBDIR = @DLLIBDIR@
+DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -149,6 +154,7 @@ MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
@@ -227,6 +233,7 @@ SUBDIRS = gtk qt kde portable
 @BUILD_PPKLIB_TRUE@lib_LTLIBRARIES = libppasskeeper.la
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_SOURCES = ppasskeeper.cpp ppasskeeper-module.h ppasskeeper.h settings.h tokenizer.h ppk_modules.h ppk_modules.cpp
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_LIBADD = @LIBADD_DLOPEN@
+@BUILD_PPKLIB_TRUE@libppasskeeper_la_LDFLAGS = -no-undefined
 @BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
 all: all-recursive
 
@@ -289,7 +296,7 @@ clean-libLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libppasskeeper.la: $(libppasskeeper_la_OBJECTS) $(libppasskeeper_la_DEPENDENCIES) 
-	$(CXXLINK) $(am_libppasskeeper_la_rpath) $(libppasskeeper_la_OBJECTS) $(libppasskeeper_la_LIBADD) $(LIBS)
+	$(libppasskeeper_la_LINK) $(am_libppasskeeper_la_rpath) $(libppasskeeper_la_OBJECTS) $(libppasskeeper_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

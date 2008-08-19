@@ -60,6 +60,10 @@ am__libppk_savetofile_enc_la_SOURCES_DIST = ../savetofile.cpp \
 @BUILD_SAVE_TO_FILE_TRUE@	savetofile_encrypted.lo
 libppk_savetofile_enc_la_OBJECTS =  \
 	$(am_libppk_savetofile_enc_la_OBJECTS)
+libppk_savetofile_enc_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libppk_savetofile_enc_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 @BUILD_SAVE_TO_FILE_TRUE@am_libppk_savetofile_enc_la_rpath = -rpath \
 @BUILD_SAVE_TO_FILE_TRUE@	$(dllibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -211,6 +215,7 @@ top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
 @BUILD_SAVE_TO_FILE_TRUE@dllib_LTLIBRARIES = libppk_savetofile_enc.la
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_enc_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_encrypted.cpp
+@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_enc_la_LDFLAGS = -module -shared
 all: all-am
 
 .SUFFIXES:
@@ -272,7 +277,7 @@ clean-dllibLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libppk_savetofile_enc.la: $(libppk_savetofile_enc_la_OBJECTS) $(libppk_savetofile_enc_la_DEPENDENCIES) 
-	$(CXXLINK) $(am_libppk_savetofile_enc_la_rpath) $(libppk_savetofile_enc_la_OBJECTS) $(libppk_savetofile_enc_la_LIBADD) $(LIBS)
+	$(libppk_savetofile_enc_la_LINK) $(am_libppk_savetofile_enc_la_rpath) $(libppk_savetofile_enc_la_OBJECTS) $(libppk_savetofile_enc_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

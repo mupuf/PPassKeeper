@@ -30,8 +30,6 @@ AC_CHECK_FUNCS([mkdir])
 AC_PROG_LIBTOOL
 LT_LIB_DLLOAD
 
-AC_DISABLE_STATIC
-
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])

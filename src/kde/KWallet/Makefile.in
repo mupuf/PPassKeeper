@@ -208,7 +208,7 @@ dllibdir = @DLLIBDIR@
 @KDE4_FOUND_TRUE@dllib_LTLIBRARIES = libppk_kwallet.la
 @KDE4_FOUND_TRUE@libppk_kwallet_la_SOURCES = kwallet.cpp
 @KDE4_FOUND_TRUE@libppk_kwallet_la_LIBADD = -lkdeui -lkdeinit4_kwalletd
-@KDE4_FOUND_TRUE@libppk_kwallet_la_LDFLAGS = -L`kde4-config --prefix`/lib
+@KDE4_FOUND_TRUE@libppk_kwallet_la_LDFLAGS = -module -shared -L`kde4-config --prefix`/lib
 @KDE4_FOUND_TRUE@INCLUDES = -I`kde4-config --prefix`/include
 all: all-am
 

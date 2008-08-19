@@ -227,7 +227,7 @@ SUBDIRS = gtk qt kde portable
 @BUILD_PPKLIB_TRUE@lib_LTLIBRARIES = libppasskeeper.la
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_SOURCES = ppasskeeper.cpp ppasskeeper-module.h ppasskeeper.h settings.h tokenizer.h ppk_modules.h ppk_modules.cpp
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_LIBADD = @LIBADD_DLOPEN@
-@BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -rdynamic -DDIRECTORY_PATH=\"@DLLIBDIR@\"
+@BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
 all: all-recursive
 
 .SUFFIXES:

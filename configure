@@ -16580,35 +16580,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Check whether --enable-static was given.
-if test "${enable_static+set}" = set; then
-  enableval=$enable_static; p=${PACKAGE-default}
-    case $enableval in
-    yes) enable_static=yes ;;
-    no) enable_static=no ;;
-    *)
-     enable_static=no
-      # Look at the argument we got.  We use all the common list separators.
-      lt_save_ifs="$IFS"; IFS="${IFS}$PATH_SEPARATOR,"
-      for pkg in $enableval; do
-	IFS="$lt_save_ifs"
-	if test "X$pkg" = "X$p"; then
-	  enable_static=yes
-	fi
-      done
-      IFS="$lt_save_ifs"
-      ;;
-    esac
-else
-  enable_static=no
-fi
-
-
-
-
-
-
-
 # Check whether --enable-ppk-lib was given.
 if test "${enable_ppk_lib+set}" = set; then
   enableval=$enable_ppk_lib; arg_ppklib=$enableval

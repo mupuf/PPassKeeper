@@ -55,6 +55,9 @@ am__libppk_ask_pass_gtk_la_SOURCES_DIST = ask_for_pass_gtk.cpp
 @GTK2_FOUND_TRUE@am_libppk_ask_pass_gtk_la_OBJECTS =  \
 @GTK2_FOUND_TRUE@	ask_for_pass_gtk.lo
 libppk_ask_pass_gtk_la_OBJECTS = $(am_libppk_ask_pass_gtk_la_OBJECTS)
+libppk_ask_pass_gtk_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libppk_ask_pass_gtk_la_LDFLAGS) $(LDFLAGS) -o $@
 @GTK2_FOUND_TRUE@am_libppk_ask_pass_gtk_la_rpath = -rpath $(dllibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -206,6 +209,7 @@ dllibdir = @DLLIBDIR@
 @GTK2_FOUND_TRUE@dllib_LTLIBRARIES = libppk_ask_pass_gtk.la
 @GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_SOURCES = ask_for_pass_gtk.cpp
 @GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_LIBADD = @GTK2_LIBS@
+@GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_LDFLAGS = -module -shared
 @GTK2_FOUND_TRUE@INCLUDES = @GTK2_CFLAGS@
 all: all-am
 
@@ -268,7 +272,7 @@ clean-dllibLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libppk_ask_pass_gtk.la: $(libppk_ask_pass_gtk_la_OBJECTS) $(libppk_ask_pass_gtk_la_DEPENDENCIES) 
-	$(CXXLINK) $(am_libppk_ask_pass_gtk_la_rpath) $(libppk_ask_pass_gtk_la_OBJECTS) $(libppk_ask_pass_gtk_la_LIBADD) $(LIBS)
+	$(libppk_ask_pass_gtk_la_LINK) $(am_libppk_ask_pass_gtk_la_rpath) $(libppk_ask_pass_gtk_la_OBJECTS) $(libppk_ask_pass_gtk_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

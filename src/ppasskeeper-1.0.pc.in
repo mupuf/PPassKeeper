@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: ppasskeeper
+Description: PPasskeeper is a library that means to create a portable password-storing interface.
+Requires: 
+Version: @VERSION@
+Libs: -L${libdir} -lppasskeeper
+Cflags: -I${includedir}
+

@@ -5,7 +5,13 @@ if BUILD_PPKLIB
 
   libppasskeeper_la_SOURCES = ppasskeeper.cpp ppasskeeper-module.h ppasskeeper.h settings.h tokenizer.h ppk_modules.h ppk_modules.cpp
   libppasskeeper_la_LIBADD = @LIBADD_DLOPEN@
-  libppasskeeper_la_LDFLAGS = -no-undefined
+  libppasskeeper_la_LDFLAGS = -no-undefined -version-info 1:0:0
+
+  library_includedir=$(includedir)
+  library_include_HEADERS = ppasskeeper.h
+
+  pkgconfigdir = $(libdir)/pkgconfig
+  pkgconfig_DATA = ppasskeeper-1.0.pc
 
   AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
 endif

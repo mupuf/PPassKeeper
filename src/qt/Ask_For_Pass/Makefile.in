@@ -212,7 +212,7 @@ dllibdir = @DLLIBDIR@
 @QTGUI_FOUND_TRUE@dllib_LTLIBRARIES = libppk_ask_pass_qt.la
 @QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_SOURCES = ask_for_pass_qt.cpp
 @QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_LIBADD = @QTCORE_LIBS@ @QTGUI_LIBS@
-@QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_LDFLAGS = -module -shared -no-undefined
+@QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_LDFLAGS = -module -shared -no-undefined -version-info 1:0:0
 @QTGUI_FOUND_TRUE@INCLUDES = @QTCORE_CFLAGS@ @QTGUI_CFLAGS@
 all: all-am
 

@@ -24,6 +24,11 @@ extern "C" const char* getModuleName()
 	return "Ask for the password through a GTK window";
 }
 
+extern "C" const int getABIVersion()
+{
+	return 1;
+}
+
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
 {
 	bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", last_pwd);

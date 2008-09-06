@@ -18816,7 +18816,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/gtk/Makefile src/gtk/Ask_For_Pass/Makefile src/qt/Makefile src/qt/Ask_For_Pass/Makefile src/kde/Makefile src/kde/KWallet/Makefile src/portable/Makefile src/portable/SaveToFile/Makefile src/portable/SaveToFile/encrypted/Makefile src/portable/SaveToFile/plain_text/Makefile src/ppasskeeper-1.0.pc"
+ac_config_files="$ac_config_files Makefile src/Makefile src/gtk/Makefile src/gtk/Ask_For_Pass/Makefile src/qt/Makefile src/qt/Ask_For_Pass/Makefile src/kde/Makefile src/kde/KWallet/Makefile src/portable/Makefile src/portable/SaveToFile/Makefile src/portable/SaveToFile/encrypted/Makefile src/portable/SaveToFile/plain_text/Makefile src/ppasskeeper.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -19879,7 +19879,7 @@ do
     "src/portable/SaveToFile/Makefile") CONFIG_FILES="$CONFIG_FILES src/portable/SaveToFile/Makefile" ;;
     "src/portable/SaveToFile/encrypted/Makefile") CONFIG_FILES="$CONFIG_FILES src/portable/SaveToFile/encrypted/Makefile" ;;
     "src/portable/SaveToFile/plain_text/Makefile") CONFIG_FILES="$CONFIG_FILES src/portable/SaveToFile/plain_text/Makefile" ;;
-    "src/ppasskeeper-1.0.pc") CONFIG_FILES="$CONFIG_FILES src/ppasskeeper-1.0.pc" ;;
+    "src/ppasskeeper.pc") CONFIG_FILES="$CONFIG_FILES src/ppasskeeper.pc" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

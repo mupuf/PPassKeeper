@@ -218,7 +218,7 @@ top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
 @BUILD_SAVE_TO_FILE_TRUE@dllib_LTLIBRARIES = libppk_savetofile_pt.la
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_plain_text.cpp
-@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_LDFLAGS = -module -shared -no-undefined
+@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_LDFLAGS = -module -shared -no-undefined -version-info 1:0:0
 all: all-am
 
 .SUFFIXES:

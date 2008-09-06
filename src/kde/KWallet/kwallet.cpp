@@ -152,6 +152,11 @@ extern "C" const char* getModuleName()
 	return "KWallet - Store it into KDE's Wallet";
 }
 
+extern "C" const int getABIVersion()
+{
+	return 1;
+}
+
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
 {
 	return getPassword(generateNetworkKey(server, port, username).c_str());

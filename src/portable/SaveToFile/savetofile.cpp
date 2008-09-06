@@ -40,6 +40,11 @@ std::string generateItemPath(std::string key)
 //functions
 extern "C" const char* getModuleName();
 
+extern "C" const int getABIVersion()
+{
+	return 1;
+}
+
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
 {
 	return getPassword(generateNetworkPath(server, port, username).c_str());

@@ -82,7 +82,7 @@ src/portable/Makefile
 src/portable/SaveToFile/Makefile
 src/portable/SaveToFile/encrypted/Makefile
 src/portable/SaveToFile/plain_text/Makefile
-src/ppasskeeper-1.0.pc]
+src/ppasskeeper.pc]
 )
 
 echo

@@ -79,12 +79,14 @@ void PPK_Modules::loadPlugin(std::string filename)
 			tm.dlhandle=dlhandle;
 			tm.getModuleID=(_getModuleID)loadSymbol(dlhandle, "getModuleID");			if(tm.getModuleID==NULL)std::cout << "missing : getModuleID()";
 			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");		if(tm.getModuleName==NULL)std::cout << "missing : getModuleName()";
+			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");		if(tm.getABIVersion==NULL)std::cout << "missing : getABIVersion()";
 			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword"); if(tm.getNetworkPassword==NULL)std::cout << "missing : getNetworkPassword()";
 			tm.setNetworkPassword=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword"); if(tm.setNetworkPassword==NULL)std::cout << "missing : setNetworkPassword()";
 			tm.getApplicationPassword=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword"); if(tm.getApplicationPassword==NULL)std::cout << "missing : getApplicationPassword()";
 			tm.setApplicationPassword=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword"); if(tm.setApplicationPassword==NULL)std::cout << "missing : setApplicationPassword()";
 			tm.getItem=(_getitem)loadSymbol(dlhandle, "getItem");	if(tm.getItem==NULL)std::cout << "missing : getItem()";
 			tm.setItem=(_setItem)loadSymbol(dlhandle, "setItem");	if(tm.setItem==NULL)std::cout << "missing : setItem()";
+			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");	if(tm.getLastError==NULL)std::cout << "missing : getLastError()";
 			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");	if(tm.getLastError==NULL)std::cout << "missing : getLastError()";
 
 			//if everything went fine, get the ID of the library and add it to the list

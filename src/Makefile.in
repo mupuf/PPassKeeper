@@ -37,14 +37,14 @@ host_triplet = @host@
 subdir = src
 DIST_COMMON = $(am__library_include_HEADERS_DIST) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/ppasskeeper-1.0.pc.in
+	$(srcdir)/ppasskeeper.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = ppasskeeper-1.0.pc
+CONFIG_CLEAN_FILES = ppasskeeper.pc
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -247,7 +247,7 @@ SUBDIRS = gtk qt kde portable
 @BUILD_PPKLIB_TRUE@library_includedir = $(includedir)
 @BUILD_PPKLIB_TRUE@library_include_HEADERS = ppasskeeper.h
 @BUILD_PPKLIB_TRUE@pkgconfigdir = $(libdir)/pkgconfig
-@BUILD_PPKLIB_TRUE@pkgconfig_DATA = ppasskeeper-1.0.pc
+@BUILD_PPKLIB_TRUE@pkgconfig_DATA = ppasskeeper.pc
 @BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
 all: all-recursive
 
@@ -282,7 +282,7 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-ppasskeeper-1.0.pc: $(top_builddir)/config.status $(srcdir)/ppasskeeper-1.0.pc.in
+ppasskeeper.pc: $(top_builddir)/config.status $(srcdir)/ppasskeeper.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)

@@ -11,7 +11,7 @@ if BUILD_PPKLIB
   library_include_HEADERS = ppasskeeper.h
 
   pkgconfigdir = $(libdir)/pkgconfig
-  pkgconfig_DATA = ppasskeeper-1.0.pc
+  pkgconfig_DATA = ppasskeeper.pc
 
   AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
 endif

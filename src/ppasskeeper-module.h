@@ -21,6 +21,11 @@ extern "C"
 	*/
 	typedef const char* (*_getModuleName)(void);
 
+	/*
+	This function should return the version of ppasskeeper interface's version that has been used when the module was created.
+	It should be an integer higher or equal to 1.
+	*/
+	typedef const int (*_getABIVersion)(void);
 
 	/*
 	This function should get the previously stored password using setNetworkPassword.
@@ -104,6 +109,7 @@ extern "C"
 		const char* display_name;
 		_getModuleID getModuleID;
 		_getModuleName getModuleName;
+		_getABIVersion getABIVersion;
 		_getNetworkPassword getNetworkPassword;
 		_setNetworkPassword setNetworkPassword;
 		_getApplicationPassword getApplicationPassword;

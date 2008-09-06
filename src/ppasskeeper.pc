@@ -1,4 +1,4 @@
-prefix=/opt/ppasskeeper-test
+prefix=/opt/ppasskeeper
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

@@ -212,7 +212,7 @@ dllibdir = @DLLIBDIR@
 @GTK2_FOUND_TRUE@dllib_LTLIBRARIES = libppk_ask_pass_gtk.la
 @GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_SOURCES = ask_for_pass_gtk.cpp
 @GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_LIBADD = @GTK2_LIBS@
-@GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_LDFLAGS = -module -shared -no-undefined -version-info 1:0:0
+@GTK2_FOUND_TRUE@libppk_ask_pass_gtk_la_LDFLAGS = -module -shared -no-undefined -avoid-version
 @GTK2_FOUND_TRUE@INCLUDES = @GTK2_CFLAGS@
 all: all-am
 

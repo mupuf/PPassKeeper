@@ -46,11 +46,12 @@ KWallet::Wallet* openWallet()
 
 const char* _getPassword(const char* key)
 {
+	static QString pwd;
+
 	KWallet::Wallet* wallet=openWallet();
 	if(wallet!=NULL)
 	{
 		//Get the password
-		static QString pwd;	
 		if(wallet->readPassword(key,pwd)==0)
 			return pwd.toAscii().data();
 		else
@@ -83,36 +84,24 @@ bool _setPassword(const char* key, const char* pwd)
 
 const char* getPassword(const char* key)
 {
-	//if KApplication is already running, don't start another one
-	if(KApplication::instance()==NULL)
-	{
 		//Init KDE Application
 		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-		KCmdLineArgs::init(&about);
-		KApplication app(false);
+		KComponentData kcd(about);
+		KComponentData kcdZ(about);
 
 		//Ask the password and return it
-		return _getPassword(key);
-	}
-	else
 		return _getPassword(key);
 }
 
 bool setPassword(const char* key, const char* pwd)
 {
-	//if KApplication is already running, don't start another one
-	if(KApplication::instance()==NULL)
-	{
-		//Init KDE Application
-		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-		KCmdLineArgs::init(&about);
-		KApplication app(false);
+	//Init KDE Application
+	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+	KComponentData kcd(about);
+	KComponentData kcdZ(about);
 
-		//Ask the password and return it
-		return _setPassword(key, pwd);
-	}
-	else
-		return _setPassword(key, pwd);
+	//Ask the password and return it
+	return _setPassword(key, pwd);
 }
 
 std::string generateNetworkKey(std::string server, int port, std::string username)

@@ -5,19 +5,20 @@
 //global variables
 PPK_Modules modules;
 
+
 //Public functions
-int getAvailableModulesCount()
+int ppk::getAvailableModulesCount()
 {
 	return modules.size();
 }
 
-int getAvailableModules(ppk::PPassKeeper_Module* pmodules, unsigned int nbModules)
+int ppk::getAvailableModules(PPassKeeper_Module* pmodules, unsigned int nbModules)
 {
 	return modules.getModulesList(pmodules,nbModules);
 }
 
 //Non-silent operations
-const char* getNetworkPassword(const char* module_id, const char* server, int port, const char* username)
+const char* ppk::getNetworkPassword(const char* module_id, const char* server, int port, const char* username)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -26,7 +27,7 @@ const char* getNetworkPassword(const char* module_id, const char* server, int po
 		return NULL;
 }
 
-int setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
+int ppk::setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -35,7 +36,7 @@ int setNetworkPassword(const char* module_id, const char* server, int port, cons
 		return -1;
 }
 
-const char* getApplicationPassword(const char* module_id, const char* application_name, const char* username)
+const char* ppk::getApplicationPassword(const char* module_id, const char* application_name, const char* username)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -44,7 +45,7 @@ const char* getApplicationPassword(const char* module_id, const char* applicatio
 		return NULL;
 }
 
-int setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd)
+int ppk::setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -53,7 +54,7 @@ int setApplicationPassword(const char* module_id, const char* application_name, 
 		return -1;
 }
 
-const char* getItem(const char* module_id, const char* key)
+const char* ppk::getItem(const char* module_id, const char* key)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -62,7 +63,7 @@ const char* getItem(const char* module_id, const char* key)
 		return NULL;
 }
 
-int setItem(const char* module_id, const char* key, const char* item)
+int ppk::setItem(const char* module_id, const char* key, const char* item)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -72,7 +73,7 @@ int setItem(const char* module_id, const char* key, const char* item)
 }
 
 //silent operations
-const char* getNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username)
+const char* ppk::getNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -81,7 +82,7 @@ const char* getNetworkPassword_silent(const char* module_id, const char* server,
 		return NULL;
 }
 
-int setNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
+int ppk::setNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -90,7 +91,7 @@ int setNetworkPassword_silent(const char* module_id, const char* server, int por
 		return -1;
 }
 
-const char* getApplicationPassword_silent(const char* module_id, const char* application_name, const char* username)
+const char* ppk::getApplicationPassword_silent(const char* module_id, const char* application_name, const char* username)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -99,7 +100,7 @@ const char* getApplicationPassword_silent(const char* module_id, const char* app
 		return NULL;
 }
 
-int setApplicationPassword_silent(const char* module_id, const char* application_name, const char* username,  const char* pwd)
+int ppk::setApplicationPassword_silent(const char* module_id, const char* application_name, const char* username,  const char* pwd)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -108,7 +109,7 @@ int setApplicationPassword_silent(const char* module_id, const char* application
 		return -1;
 }
 
-const char* getItem_silent(const char* module_id, const char* key)
+const char* ppk::getItem_silent(const char* module_id, const char* key)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -117,7 +118,7 @@ const char* getItem_silent(const char* module_id, const char* key)
 		return NULL;
 }
 
-int setItem_silent(const char* module_id, const char* key, const char* item)
+int ppk::setItem_silent(const char* module_id, const char* key, const char* item)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
@@ -127,7 +128,7 @@ int setItem_silent(const char* module_id, const char* key, const char* item)
 }
 
 //Errors
-const char* getLastError(const char* module_id)
+const char* ppk::getLastError(const char* module_id)
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)

@@ -2,15 +2,15 @@
 #include "../../tokenizer.h"
 #include <string>
 
-//Local definitions
-std::string last_error;
-std::string last_pwd;
-
 //local functions
+extern "C" const char* getLastError()
+{
+	return last_error()->c_str();
+}
 bool WIN32_Get_Password(std::string title, std::string label, std::string& pwd);
 void setError(std::string error)
 {
-	last_error="PPK_Ask_For_Pass_WIN32 : " + error;
+	*(last_error())="PPK_Ask_For_Pass_WIN32 : " + error;
 }
 
 //constructors & destructors
@@ -43,13 +43,15 @@ extern "C" const int getABIVersion()
 
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
 {
-	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", last_pwd);
+	static std::string pwd;
+
+	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
 
 	//if everything went fine
 	if(res)
 	{
 		setError("");
-		return last_pwd.c_str();
+		return pwd.c_str();
 	}
 	else
 	{
@@ -65,13 +67,15 @@ extern "C" int setNetworkPassword(const char* server, int port, const char* user
 
 extern "C" const char* getApplicationPassword(const char* application_name, const char* username)
 {
-	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", last_pwd);
+	static std::string pwd;
+
+	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
 
 	//if everything went fine
 	if(res)
 	{
 		setError("");
-		return last_pwd.c_str();
+		return pwd.c_str();
 	}
 	else
 	{
@@ -87,13 +91,15 @@ extern "C" int setApplicationPassword(const char* application_name, const char* 
 
 extern "C" const char* getItem(const char* key)
 {
-	bool res=WIN32_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ",last_pwd);
+	static std::string pwd;
+
+	bool res=WIN32_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ", pwd);
 
 	//if everything went fine
 	if(res)
 	{
 		setError("");
-		return last_pwd.c_str();
+		return pwd.c_str();
 	}
 	else
 	{
@@ -109,7 +115,7 @@ extern "C" int setItem(const char* key, const char* item)
 
 extern "C" const char* getLastError()
 {
-	return last_error.c_str();
+	return last_error()->c_str();
 }
 
 /*************************************************************************************************

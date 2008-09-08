@@ -75,9 +75,13 @@ int ppk::setItem(const char* module_id, const char* key, const char* item)
 //silent operations
 const char* ppk::getNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username)
 {
+	static std::string pwd;
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->getNetworkPassword_silent(server,port,username);
+	{
+		pwd=mod->getNetworkPassword_silent(server,port,username);
+		return pwd.c_str();
+	}
 	else
 		return NULL;
 }
@@ -93,9 +97,13 @@ int ppk::setNetworkPassword_silent(const char* module_id, const char* server, in
 
 const char* ppk::getApplicationPassword_silent(const char* module_id, const char* application_name, const char* username)
 {
+	static std::string pwd;
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->getApplicationPassword_silent(application_name,username);
+	{
+		pwd=mod->getApplicationPassword_silent(application_name, username);
+		return pwd.c_str();
+	}
 	else
 		return NULL;
 }
@@ -111,9 +119,13 @@ int ppk::setApplicationPassword_silent(const char* module_id, const char* applic
 
 const char* ppk::getItem_silent(const char* module_id, const char* key)
 {
+	static std::string pwd;
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->getItem_silent(key);
+	{
+		pwd=mod->getItem_silent(key);
+		return pwd.c_str();
+	}
 	else
 		return NULL;
 }

@@ -11,8 +11,6 @@
 	#include <errno.h>
 #endif
 
-std::string last_pwd;
-
 //functions
 extern void setError(std::string error);
 bool mkdir(std::string path);
@@ -58,17 +56,19 @@ std::string decrypt(std::string pwd_enc)
 
 const char* getPassword(std::string filepath)
 {
+	static std::string pwd;
+
 	//open the file
 	std::ifstream inputfile(filepath.c_str());
 	if(inputfile.is_open())
 	{
 		//Read the password from the file
-		getline (inputfile,last_pwd);
+		getline (inputfile, pwd);
 
 		//close the file
 		inputfile.close();
 
-		return decrypt(last_pwd).c_str();
+		return decrypt(pwd).c_str();
 	}
 	else
 	{

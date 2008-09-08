@@ -5,18 +5,22 @@
 
 
 //Local definitions
-std::string last_error;
-std::string last_pwd;
 static const char* baseKey="Software\\PPassKeeper\\";
 
 //local functions
+extern "C" const char* getLastError()
+{
+	return last_error()->c_str();
+}
 void setError(std::string error)
 {
-	last_error="PPK_SaveToRegistry : " + error;
+	*(last_error())="PPK_SaveToRegistry : " + error;
 }
 
 const char* getPassword(const char* key)
 {
+	static std::string pwd;
+
 	HKEY hk;
 	static char tmpBuf[101];
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
@@ -25,7 +29,8 @@ const char* getPassword(const char* key)
 		RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
 		RegCloseKey(hk);
 		
-		return tmpBuf;
+		pwd=tmpBuf;
+		return pwd.c_str();
 	}
 	else
 		return "";
@@ -106,5 +111,5 @@ extern "C" int setItem(const char* key, const char* item)
 
 extern "C" const char* getLastError()
 {
-	return last_error.c_str();
+	return last_error()->c_str();
 }

@@ -3,9 +3,6 @@
 #include <string>
 #include <iostream>
 
-//Local definitions
-std::string last_error;
-
 //local functions
 std::string shortName();
 const char* getPassword(std::string filepath);
@@ -15,10 +12,15 @@ bool setPassword(std::string filepath, std::string secret);
 std::string dir();
 bool mkdir(std::string path);
 
+std::string* last_error()
+{
+	static std::string last_err;
+	return &last_err;
+}
 extern "C" const char* getModuleID();
 void setError(std::string error)
 {
-	last_error="PPK_"+toString(getModuleID())+" : "+error; 
+	*(last_error())="PPK_"+toString(getModuleID())+" : " + error;
 }
 
 
@@ -110,5 +112,5 @@ extern "C" int setItem_silent(const char* key, const char* item)
 
 extern "C" const char* getLastError()
 {
-	return last_error.c_str();
+	return last_error()->c_str();
 }

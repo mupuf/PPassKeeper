@@ -11,8 +11,6 @@
 	#include <errno.h>
 #endif
 
-std::string last_pwd;
-
 //functions
 extern void setError(std::string error);
 bool mkdir(std::string path);
@@ -36,6 +34,8 @@ extern "C" const char* getModuleName()
 
 const char* getPassword(std::string filepath)
 {
+	static std::string pwd;
+
 	//try to create the wanted directory
 	mkdir(dir());
 
@@ -44,12 +44,12 @@ const char* getPassword(std::string filepath)
 	if(inputfile.is_open())
 	{
 		//Read the password from the file
-		getline (inputfile,last_pwd);
+		getline (inputfile,pwd);
 
 		//close the file
 		inputfile.close();
 
-		return last_pwd.c_str();
+		return pwd.c_str();
 	}
 	else
 	{

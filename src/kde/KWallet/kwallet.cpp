@@ -8,14 +8,16 @@
 #include <kaboutdata.h>
 #include <klocale.h>
 
-//Local definitions
-std::string last_error;
-std::string last_pwd;
-
 //local functions
+std::string* last_error()
+{
+	static std::string last_err;
+	return &last_err;
+}
+
 void setError(std::string error)
 {
-	last_error="PPK_KWallet : " + error;
+	*(last_error())="PPK_KWallet : " + error;
 }
 
 KWallet::Wallet* openWallet()
@@ -48,7 +50,7 @@ const char* _getPassword(const char* key)
 	if(wallet!=NULL)
 	{
 		//Get the password
-		QString pwd;	
+		static QString pwd;	
 		if(wallet->readPassword(key,pwd)==0)
 			return pwd.toAscii().data();
 		else
@@ -221,5 +223,5 @@ extern "C" int setItem_silent(const char* key, const char* item)
 
 extern "C" const char* getLastError()
 {
-	return last_error.c_str();
+	return last_error()->c_str();
 }

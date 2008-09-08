@@ -31,7 +31,7 @@ extern "C" const char* getModuleID()
 
 extern "C" const char* getModuleName()
 {
-	return "Poorly-encrypted storing";
+	return "Poorly-encrypted storage";
 }
 
 std::string encrypt(std::string pwd)

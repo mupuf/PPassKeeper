@@ -157,6 +157,7 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
+//Non-Silent operations
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
 {
 	return getPassword(generateNetworkKey(server, port, username).c_str());
@@ -185,6 +186,37 @@ extern "C" const char* getItem(const char* key)
 extern "C" int setItem(const char* key, const char* item)
 {
 	return setPassword(generateItemKey(key).c_str(), item)?0:-1;
+}
+
+//Silent operations
+extern "C" const char* getNetworkPassword_silent(const char* server, int port, const char* username)
+{
+	return NULL;
+}
+
+extern "C" int setNetworkPassword_silent(const char* server, int port, const char* username,  const char* pwd)
+{
+	return 0;
+}
+
+extern "C" const char* getApplicationPassword_silent(const char* application_name, const char* username)
+{
+	return NULL;
+}
+
+extern "C" int setApplicationPassword_silent(const char* application_name, const char* username,  const char* pwd)
+{
+	return 0;
+}
+
+extern "C" const char* getItem_silent(const char* key)
+{
+	return NULL;
+}
+
+extern "C" int setItem_silent(const char* key, const char* item)
+{
+	return 0;
 }
 
 extern "C" const char* getLastError()

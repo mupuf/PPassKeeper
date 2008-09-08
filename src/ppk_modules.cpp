@@ -77,20 +77,59 @@ void PPK_Modules::loadPlugin(std::string filename)
 
 			//Try to fill the module structure with the symbols
 			tm.dlhandle=dlhandle;
-			tm.getModuleID=(_getModuleID)loadSymbol(dlhandle, "getModuleID");			if(tm.getModuleID==NULL)std::cout << "missing : getModuleID()";
-			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");		if(tm.getModuleName==NULL)std::cout << "missing : getModuleName()";
-			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");		if(tm.getABIVersion==NULL)std::cout << "missing : getABIVersion()";
-			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword"); if(tm.getNetworkPassword==NULL)std::cout << "missing : getNetworkPassword()";
-			tm.setNetworkPassword=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword"); if(tm.setNetworkPassword==NULL)std::cout << "missing : setNetworkPassword()";
-			tm.getApplicationPassword=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword"); if(tm.getApplicationPassword==NULL)std::cout << "missing : getApplicationPassword()";
-			tm.setApplicationPassword=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword"); if(tm.setApplicationPassword==NULL)std::cout << "missing : setApplicationPassword()";
-			tm.getItem=(_getitem)loadSymbol(dlhandle, "getItem");	if(tm.getItem==NULL)std::cout << "missing : getItem()";
-			tm.setItem=(_setItem)loadSymbol(dlhandle, "setItem");	if(tm.setItem==NULL)std::cout << "missing : setItem()";
-			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");	if(tm.getLastError==NULL)std::cout << "missing : getLastError()";
-			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");	if(tm.getLastError==NULL)std::cout << "missing : getLastError()";
+			tm.getModuleID=(_getModuleID)loadSymbol(dlhandle, "getModuleID");
+			if(tm.getModuleID==NULL)std::cout << "missing : getModuleID();";
 
-			//if everything went fine, get the ID of the library and add it to the list
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getLastError!=NULL)
+			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");
+			if(tm.getModuleName==NULL)std::cout << "missing : getModuleName();";
+
+			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");
+			if(tm.getABIVersion==NULL)std::cout << "missing : getABIVersion();";
+
+			//Non-silent operations
+			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword");
+			if(tm.getNetworkPassword==NULL)std::cout << "missing : getNetworkPassword();";
+
+			tm.setNetworkPassword=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword");
+			if(tm.setNetworkPassword==NULL)std::cout << "missing : setNetworkPassword();";
+			
+			tm.getApplicationPassword=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword");
+			if(tm.getApplicationPassword==NULL)std::cout << "missing : getApplicationPassword();";
+
+			tm.setApplicationPassword=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword");
+			if(tm.setApplicationPassword==NULL)std::cout << "missing : setApplicationPassword();";
+
+			tm.getItem=(_getItem)loadSymbol(dlhandle, "getItem");
+			if(tm.getItem==NULL)std::cout << "missing : getItem();";
+
+			tm.setItem=(_setItem)loadSymbol(dlhandle, "setItem");
+			if(tm.setItem==NULL)std::cout << "missing : setItem();";
+
+			//Silent operations
+			tm.getNetworkPassword_silent=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword_silent");
+			if(tm.getNetworkPassword_silent==NULL)std::cout << "missing : getNetworkPassword_silent();";
+
+			tm.setNetworkPassword_silent=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword_silent");
+			if(tm.setNetworkPassword_silent==NULL)std::cout << "missing : setNetworkPassword_silent();";
+			
+			tm.getApplicationPassword_silent=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword_silent");
+			if(tm.getApplicationPassword_silent==NULL)std::cout << "missing : getApplicationPassword_silent();";
+
+			tm.setApplicationPassword_silent=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword_silent");
+			if(tm.setApplicationPassword_silent==NULL)std::cout << "missing : setApplicationPassword_silent();";
+
+			tm.getItem_silent=(_getItem_silent)loadSymbol(dlhandle, "getItem_silent");
+			if(tm.getItem_silent==NULL)std::cout << "missing : getItem_silent();";
+
+			tm.setItem_silent=(_setItem_silent)loadSymbol(dlhandle, "setItem_silent");
+			if(tm.setItem_silent==NULL)std::cout << "missing : setItem_silent();";
+
+			//errors
+			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");
+			if(tm.getLastError==NULL)std::cout << "missing : getLastError();";
+
+			//if minimal functions are here, add the lib to available modules
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getNetworkPassword_silent!=NULL && tm.setNetworkPassword_silent!=NULL && tm.getApplicationPassword_silent!=NULL && tm.setApplicationPassword_silent!=NULL && tm.getItem_silent!=NULL && tm.setItem_silent!=NULL && tm.getLastError!=NULL)
 			{
 				//Get the ID of the library
 				tm.id=(tm.getModuleID)();
@@ -124,13 +163,13 @@ unsigned int PPK_Modules::size()
 	return modules.size();
 }
 
-unsigned int PPK_Modules::getModulesList(PPassKeeper_Module* pmodules, unsigned int nbModules)
+unsigned int PPK_Modules::getModulesList(ppk::PPassKeeper_Module* pmodules, unsigned int ModulesCount)
 {
 	if(modules.size()>0)
 	{
 		std::map<std::string,_module>::iterator iter;
 		unsigned int i;
-		for(i=0,iter=modules.begin(); i<nbModules && iter!=modules.end(); i++,iter++)
+		for(i=0,iter=modules.begin(); i<ModulesCount && iter!=modules.end(); i++,iter++)
 		{
 			pmodules[i].id=iter->second.id;
 			pmodules[i].display_name=iter->second.display_name;

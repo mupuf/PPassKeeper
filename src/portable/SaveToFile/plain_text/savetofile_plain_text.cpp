@@ -31,7 +31,7 @@ extern "C" const char* getModuleID()
 
 extern "C" const char* getModuleName()
 {
-	return "Plain-text storing";
+	return "Plain-text storage";
 }
 
 const char* getPassword(std::string filepath)
@@ -61,12 +61,9 @@ const char* getPassword(std::string filepath)
 bool setPassword(std::string filepath, std::string secret)
 {
 	//open the file
-	std::cout << "File '" << filepath << "' wiil be oppenned !" << std::endl;
 	std::ofstream outputfile(filepath.c_str());
 	if(outputfile.is_open())
-	{
-		std::cout << "File '" << filepath << "' oppenned !" << std::endl;
-		
+	{		
 		//Save it
 		outputfile << secret;
 
@@ -90,5 +87,3 @@ bool setPassword(std::string filepath, std::string secret)
 	}
 }
 
-
-//functions

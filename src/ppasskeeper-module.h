@@ -14,6 +14,7 @@ extern "C"
 	*/
 	typedef const char* (*_getModuleID)(void);
 
+
 	/*
 	This function should return the module's name to be used by ppasskeeper. 
 	It is meant to be displayed so try to find a name that would be easy to read.
@@ -21,11 +22,13 @@ extern "C"
 	*/
 	typedef const char* (*_getModuleName)(void);
 
+
 	/*
 	This function should return the version of ppasskeeper interface's version that has been used when the module was created.
 	It should be an integer higher or equal to 1.
 	*/
 	typedef const int (*_getABIVersion)(void);
+
 
 	/*
 	This function should get the previously stored password using setNetworkPassword.
@@ -39,6 +42,10 @@ extern "C"
 	*/
 	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username);
 
+	//As _getNetworkPassword but, this function should work silently (without prompting anything to the user)
+	typedef const char* (*_getNetworkPassword_silent)(const char* server, int port, const char* username);
+
+
 	/*
 	This function should store the password that will be read using getNetworkPassword.
 	You should consider the association of server, port and username as a primary key.
@@ -51,8 +58,11 @@ extern "C"
 	return : The function should return 0 if it succeded, any other value else.
 	*/
 	typedef int (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd);
-
 	
+	//As _setNetworkPassword but, this function should work silently (without prompting anything to the user)
+	typedef int (*_setNetworkPassword_silent)(const char* server, int port, const char* username,  const char* pwd);
+	
+
 	/*
 	This function should get the previously stored password using setApplicationPassword.
 	You should consider the association of server, port and username as a primary key.
@@ -63,6 +73,10 @@ extern "C"
 	return : The function should return the password or NULL if something went wrong.
 	*/
 	typedef const char* (*_getApplicationPassword)(const char* application_name, const char* username);
+
+	//As _getApplicationPassword but, this function should work silently (without prompting anything to the user)
+	typedef const char* (*_getApplicationPassword_silent)(const char* application_name, const char* username);
+	
 	
 	/*
 	This function should store the password that will be read using getNetworkPassword.
@@ -76,6 +90,9 @@ extern "C"
 	*/
 	typedef int (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd);
 
+	//As _setApplicationPassword but, this function should work silently (without prompting anything to the user)
+	typedef int (*_setApplicationPassword_silent)(const char* application_name, const char* username,  const char* pwd);
+
 
 	/*
 	This function should get the previously stored password using setItem.
@@ -84,7 +101,11 @@ extern "C"
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
-	typedef const char* (*_getitem)(const char* key);
+	typedef const char* (*_getItem)(const char* key);
+
+	//As _getitem but, this function should work silently (without prompting anything to the user)
+	typedef const char* (*_getItem_silent)(const char* key);
+
 
 	/*
 	This function should get the previously stored password using setItem.
@@ -95,7 +116,11 @@ extern "C"
 	return : The function should return 0 if it succeded, any other value else.
 	*/
 	typedef int (*_setItem)(const char* key, const char* item);
-	
+
+	//As _getitem but, this function should work silently (without prompting anything to the user)
+	typedef int (*_setItem_silent)(const char* key, const char* item);
+
+
 	/*
 	This function should return a human-readable string describing what caused the last error
 	*/
@@ -114,8 +139,14 @@ extern "C"
 		_setNetworkPassword setNetworkPassword;
 		_getApplicationPassword getApplicationPassword;
 		_setApplicationPassword setApplicationPassword;
-		_getitem getItem;
+		_getItem getItem;
 		_setItem setItem;
+		_getNetworkPassword_silent getNetworkPassword_silent;
+		_setNetworkPassword_silent setNetworkPassword_silent;
+		_getApplicationPassword_silent getApplicationPassword_silent;
+		_setApplicationPassword_silent setApplicationPassword_silent;
+		_getItem_silent getItem_silent;
+		_setItem_silent setItem_silent;
 		_getLastError getLastError;
 	};
 #ifdef __cplusplus 

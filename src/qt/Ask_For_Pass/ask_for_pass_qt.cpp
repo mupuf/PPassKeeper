@@ -106,6 +106,36 @@ extern "C" int setItem(const char* key, const char* item)
 	return 0;
 }
 
+extern "C" const char* getNetworkPassword_silent(const char* server, int port, const char* username)
+{
+	return NULL;
+}
+
+extern "C" int setNetworkPassword_silent(const char* server, int port, const char* username,  const char* pwd)
+{
+	return 0;
+}
+
+extern "C" const char* getApplicationPassword_silent(const char* application_name, const char* username)
+{
+	return NULL;
+}
+
+extern "C" int setApplicationPassword_silent(const char* application_name, const char* username,  const char* pwd)
+{
+	return 0;
+}
+
+extern "C" const char* getItem_silent(const char* key)
+{
+	return NULL;
+}
+
+extern "C" int setItem_silent(const char* key, const char* item)
+{
+	return 0;
+}
+
 extern "C" const char* getLastError()
 {
 	return last_error.c_str();

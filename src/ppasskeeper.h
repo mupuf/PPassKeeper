@@ -15,7 +15,11 @@ extern "C"
 		const char* display_name;
 	};
 	int getAvailableModulesCount(); //returns the number of modules
-	int getAvailableModules(PPassKeeper_Module* modules, unsigned int nbModules); //returns the number of modules
+	#ifdef __cplusplus 
+		int getAvailableModules(ppk::PPassKeeper_Module* modules, unsigned int nbModules); //returns the number of modules
+	#else
+		int getAvailableModules(struct PPassKeeper_Module* modules, unsigned int nbModules); //returns the number of modules
+	#endif
 
 	//Available functions for each module
 		//Non-Silent operations

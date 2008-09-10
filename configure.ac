@@ -32,16 +32,23 @@ LT_OUTPUT
 LT_LIB_DLLOAD
 
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
+AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plugins=$enableval])
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])
 AC_ARG_ENABLE(kde,     [  --disable-kde      do not build the KDE plugin (autodetect)], [arg_kde=$enableval])
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
+AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
 
 DLLIBDIR=${libdir}/ppasskeeper
 AC_SUBST([DLLIBDIR])
 AC_DEFINE_UNQUOTED([DLLIBDIR], ["$DLLIBDIR"], [Path to dl libraries])
 
-AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
+if test "x$arg_plugins" = "xno"; then
+  arg_gtk=no
+  arg_qt=no
+  arg_kde=no
+  arg_stf=no
+fi
 
 if test "x$arg_gtk" = "xno"; then
   AM_CONDITIONAL([GTK2_FOUND], [false])
@@ -69,6 +76,22 @@ fi
 
 AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" != "xno"])
 
+if test "x$arg_python" = "xno"; then
+  PYTHON_FOUND="no"
+  AM_CONDITIONAL([BUILD_PYTHON], [false])
+
+  AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
+else
+  AM_PATH_PYTHON(, [PYTHON_FOUND="yes"], [PYTHON_FOUND="no"])
+  AM_CONDITIONAL([BUILD_PYTHON], [test "x${PYTHON_FOUND}" = "xyes"])
+  PYTHON_LIBS=`${PYTHON}-config --libs`
+  PYTHON_INCS=`${PYTHON}-config --includes`
+  AC_SUBST([PYTHON_LIBS])
+  AC_SUBST([PYTHON_INCS])
+
+  AM_CONDITIONAL([BUILD_PPKLIB], [true])
+fi
+
 AC_OUTPUT(
 [Makefile
 src/Makefile
@@ -82,15 +105,30 @@ src/portable/Makefile
 src/portable/SaveToFile/Makefile
 src/portable/SaveToFile/encrypted/Makefile
 src/portable/SaveToFile/plain_text/Makefile
-src/ppasskeeper.pc]
+src/ppasskeeper.pc
+python/Makefile]
 )
 
 echo
-echo -n "Build the ppasskeeper library : " ; if test "x$arg_ppklib" = "xno"; then echo "no"; else echo "yes"; fi
+echo -n "Build the ppasskeeper library : "
+if test "x$arg_ppklib" = "xno"; then
+  if test "x${PYTHON_FOUND}" = "xyes"; then
+    echo "yes (required by the Python binding)"
+  else
+    echo "no"
+  fi
+else
+  echo "yes"
+fi
+
 echo
 echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
 echo -n "kde : " ; test -z "$KDE4CONFIG" && echo "no" || echo "$KDE4CONFIG"
-echo -n "save_to_file : " ; if test "x$arg_stf" = "xno"; then echo "no"; else echo "yes"; fi
+echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
+echo
+echo "Bindings :"
+echo "-------------------------------------------"
+echo -n "python binding : " ; test "x${PYTHON_FOUND}" = "xno" && echo "no" || echo "yes"

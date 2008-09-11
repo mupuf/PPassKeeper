@@ -7,7 +7,8 @@
 		std::string userprofile=getenv("USERPROFILE");
 		return userprofile+"/ppasskeeper/";
 	}
-#else	std::string dir()
+#else
+	std::string dir()
 	{
 		std::string home=getenv("HOME");
 		return home + "/.ppasskeeper/";

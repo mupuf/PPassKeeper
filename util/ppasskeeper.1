@@ -19,7 +19,7 @@ ppasskeeper - password management utility
 
 .SH DESCRIPTION
 .P
-List the available methods (modules) for getting/storing methods through the ppasskeeper library.
+List the available methods (modules) for getting/storing passwords through the ppasskeeper library.
 .TP
 \fB-L\fR
 Shows a list of modules with a short description for each one.
@@ -46,6 +46,12 @@ Specifies which module to use.
 \fBAsk_For_Pass_Qt\fR
 Prompt the password through a Qt Dialog.
 .TP
+\fBAsk_For_Pass_GTK\fR
+Prompt the password through a GTK Dialog.
+.TP
+\fBAsk_For_Pass_WIN32\fR
+Prompt the password through a Windows Dialog.
+.TP
 \fBKWallet\fR
 Use the KDE4 Wallet.
 .TP
@@ -54,6 +60,9 @@ Store passwords with a stupid encryption scheme (to make passwords unreadable at
 .TP
 \fBSave_To_File_PT\fR
 Store passwords as plain text.
+.TP
+\fBSaveToRegistry\fR
+Store passwords in the Windows registry.
 
 .SS RESOURCES
 .P

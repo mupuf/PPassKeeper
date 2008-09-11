@@ -128,9 +128,6 @@ int main(int argc, char **argv)
 {
 	parse_cmdline(argc, argv);
 
-	char *server, *username, *appname;
-	int port;
-
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();

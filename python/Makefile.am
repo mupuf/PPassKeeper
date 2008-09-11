@@ -6,5 +6,5 @@ if BUILD_PYTHON
   ppk_la_LDFLAGS = -module -shared -no-undefined -avoid-version
   ppk_la_DEPENDENCIES = ../src/libppasskeeper.la
 
-  INCLUDES = @PYTHON_INCS@
+  INCLUDES = @PYTHON_INCS@ -I../src
 endif

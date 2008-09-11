@@ -1,0 +1,108 @@
+.\" man page for the ppasskeeper utility
+.\"
+.\" Denis Martinez: initial version (20080911)
+
+.TH ppasskeeper 1 "September 2008" "Portable Password Keeper" "A modular password manager"
+
+.SH NAME
+.P
+ppasskeeper - password management utility
+
+.SH SYNOPSIS
+.P
+\fBppasskeeper\fR -L
+.br
+\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY
+.br
+\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-p PASSWORD]
+.br
+
+.SH DESCRIPTION
+.P
+List the available methods (modules) for getting/storing methods through the ppasskeeper library.
+.TP
+\fB-L\fR
+Shows a list of modules with a short description for each one.
+.P
+Get or set a password associated to a particular resource.
+.TP
+\fB-G\fR
+Get a password and display it.
+.TP
+\fB-S\fR
+Set a password.
+.P
+One of the actions \fB-L\fR, \fB-G\fR, or \fB-S\fR must be specified on the command-line.
+
+.SS MODULES
+.P
+A module is an interface that manages passwords either by using a particular keyring (system-dependent), or a portable interface.
+.br
+A list of common modules is available below.
+.TP
+\fB-m \fIMODULE\fR
+Specifies which module to use.
+.TP
+\fBAsk_For_Pass_Qt\fR
+Prompt the password through a Qt Dialog.
+.TP
+\fBKWallet\fR
+Use the KDE4 Wallet.
+.TP
+\fBSave_To_File_Enc\fR
+Store passwords with a stupid encryption scheme (to make passwords unreadable at the first look).
+.TP
+\fBSave_To_File_PT\fR
+Store passwords as plain text.
+
+.SS RESOURCES
+.P
+Some modules make it possible to store passwords in a particular fashion, depending on the type of resource.
+.P
+If the module does not have this possibility, ppasskeeper will fall back on a way that is more conventional.
+.TP
+\fB-t\fR
+\fIapp\fR|\fInet\fR|\fIitem\fR
+.P
+Resource types:
+.TP
+\fBApplication\fR
+An application, specified by its name, and a user name.
+.TP
+\fBNetwork\fR
+A network service, specified by a host name, a user name, and a port number.
+.TP
+\fBItem\fR
+A resource with just an identifier which name is chosen by the user.
+
+.SS KEYS
+.P
+A key identifies a password entry, using a string format that depends on the resource type.
+.TP
+\fB-k \fIKEY\fR
+.P
+Key formats:
+.TP
+\fBApplication key\fR
+\fIUSER_NAME\fR:\fIAPPLICATION_NAME\fR
+.TP
+\fBNetwork key\fR
+\fIUSER_NAME\fR@\fIHOST_NAME\fR:\fIPORT\fR
+.TP
+\fBItem key\fR
+\fIITEM_NAME\fR
+
+.SS PASSWORD
+.P
+When setting a password, it can be specified either on the command-line, or interactively on the terminal.
+.TP
+\fB-p \fIPASSWORD\fR
+Specify the password as an argument.
+
+.SH AUTHORS
+.P
+Written by Denis Martinez, Martin Peres.
+
+.SH COPYRIGHT
+.P
+LGPLv2 or later <http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>.

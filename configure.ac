@@ -32,6 +32,7 @@ LT_OUTPUT
 LT_LIB_DLLOAD
 
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
+AC_ARG_ENABLE(util,    [  --disable-util     do not build the command-line utility (enabled)], [arg_util=$enableval])
 AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plugins=$enableval])
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])
@@ -79,8 +80,6 @@ AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" != "xno"])
 if test "x$arg_python" = "xno"; then
   PYTHON_FOUND="no"
   AM_CONDITIONAL([BUILD_PYTHON], [false])
-
-  AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
 else
   AM_PATH_PYTHON(, [PYTHON_FOUND="yes"], [PYTHON_FOUND="no"])
   AM_CONDITIONAL([BUILD_PYTHON], [test "x${PYTHON_FOUND}" = "xyes"])
@@ -88,7 +87,13 @@ else
   PYTHON_INCS=`${PYTHON}-config --includes`
   AC_SUBST([PYTHON_LIBS])
   AC_SUBST([PYTHON_INCS])
+fi
 
+AM_CONDITIONAL([BUILD_UTIL], [test "x$arg_util" != "xno"])
+
+if test "x$arg_python" = "xno" -o "x$arg_util" = "xno"; then
+  AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
+else
   AM_CONDITIONAL([BUILD_PPKLIB], [true])
 fi
 
@@ -106,7 +111,8 @@ src/portable/SaveToFile/Makefile
 src/portable/SaveToFile/encrypted/Makefile
 src/portable/SaveToFile/plain_text/Makefile
 src/ppasskeeper.pc
-python/Makefile]
+python/Makefile
+util/Makefile]
 )
 
 echo
@@ -115,7 +121,11 @@ if test "x$arg_ppklib" = "xno"; then
   if test "x${PYTHON_FOUND}" = "xyes"; then
     echo "yes (required by the Python binding)"
   else
-    echo "no"
+    if test "x$arg_util" != "xno"; then
+      echo "yes (required by the command-line utility)"
+    else
+      echo "no"
+    fi
   fi
 else
   echo "yes"
@@ -132,3 +142,7 @@ echo
 echo "Bindings :"
 echo "-------------------------------------------"
 echo -n "python binding : " ; test "x${PYTHON_FOUND}" = "xno" && echo "no" || echo "yes"
+echo
+echo "Utilities :"
+echo "-------------------------------------------"
+echo -n "ppasskeeper (command-line): " ; test "x$arg_util" = "xno" && echo "no" || echo "yes"

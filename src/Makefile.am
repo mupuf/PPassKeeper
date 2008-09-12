@@ -13,6 +13,6 @@ if BUILD_PPKLIB
   pkgconfigdir = $(libdir)/pkgconfig
   pkgconfig_DATA = ppasskeeper.pc
 
-  AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\"
+  AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\" @DEBUG_CPPFLAG@
 endif
 

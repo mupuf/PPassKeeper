@@ -32,8 +32,10 @@ const char* libraryError();
 	        
 	        FindClose(hSearch);
 	    }
+#ifdef DEBUG_MSG
 		else
 			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
+#endif
 	}
 #else
 	#include <dlfcn.h>
@@ -57,8 +59,10 @@ const char* libraryError();
 					continue;
 				loadPlugin(mydirent->d_name);
 			}
+#ifdef DEBUG_MSG
 		else
 			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
+#endif
 	}
 #endif
 
@@ -73,8 +77,10 @@ void PPK_Modules::loadPlugin(std::string filename)
 		//generate the filepath
 		filepath=toString(DIRECTORY_PATH)+"/"+filename;
 
+#ifdef DEBUG_MSG
 		//debug
 		std::cerr << "Load the plugin '" << filepath << "' : ";
+#endif
 
 		//Load the shared object
 		void* dlhandle = openLibrary(filepath);
@@ -84,57 +90,49 @@ void PPK_Modules::loadPlugin(std::string filename)
 
 			//Try to fill the module structure with the symbols
 			tm.dlhandle=dlhandle;
+
 			tm.getModuleID=(_getModuleID)loadSymbol(dlhandle, "getModuleID");
-			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
-
 			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");
-			if(tm.getModuleName==NULL)std::cerr << "missing : getModuleName();";
-
 			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");
-			if(tm.getABIVersion==NULL)std::cerr << "missing : getABIVersion();";
 
 			//Non-silent operations
 			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword");
-			if(tm.getNetworkPassword==NULL)std::cerr << "missing : getNetworkPassword();";
-
 			tm.setNetworkPassword=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword");
-			if(tm.setNetworkPassword==NULL)std::cerr << "missing : setNetworkPassword();";
-			
 			tm.getApplicationPassword=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword");
-			if(tm.getApplicationPassword==NULL)std::cerr << "missing : getApplicationPassword();";
-
 			tm.setApplicationPassword=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword");
-			if(tm.setApplicationPassword==NULL)std::cerr << "missing : setApplicationPassword();";
-
 			tm.getItem=(_getItem)loadSymbol(dlhandle, "getItem");
-			if(tm.getItem==NULL)std::cerr << "missing : getItem();";
-
 			tm.setItem=(_setItem)loadSymbol(dlhandle, "setItem");
-			if(tm.setItem==NULL)std::cerr << "missing : setItem();";
 
 			//Silent operations
 			tm.getNetworkPassword_silent=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword_silent");
-			if(tm.getNetworkPassword_silent==NULL)std::cerr << "missing : getNetworkPassword_silent();";
-
 			tm.setNetworkPassword_silent=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword_silent");
-			if(tm.setNetworkPassword_silent==NULL)std::cerr << "missing : setNetworkPassword_silent();";
-			
 			tm.getApplicationPassword_silent=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword_silent");
-			if(tm.getApplicationPassword_silent==NULL)std::cerr << "missing : getApplicationPassword_silent();";
-
 			tm.setApplicationPassword_silent=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword_silent");
-			if(tm.setApplicationPassword_silent==NULL)std::cerr << "missing : setApplicationPassword_silent();";
-
 			tm.getItem_silent=(_getItem_silent)loadSymbol(dlhandle, "getItem_silent");
-			if(tm.getItem_silent==NULL)std::cerr << "missing : getItem_silent();";
-
 			tm.setItem_silent=(_setItem_silent)loadSymbol(dlhandle, "setItem_silent");
-			if(tm.setItem_silent==NULL)std::cerr << "missing : setItem_silent();";
 
 			//errors
 			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");
-			if(tm.getLastError==NULL)std::cerr << "missing : getLastError();";
 
+#ifdef DEBUG_MSG
+			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
+			if(tm.getModuleName==NULL)std::cerr << "missing : getModuleName();";
+			if(tm.getABIVersion==NULL)std::cerr << "missing : getABIVersion();";
+			if(tm.getNetworkPassword==NULL)std::cerr << "missing : getNetworkPassword();";
+			if(tm.setNetworkPassword==NULL)std::cerr << "missing : setNetworkPassword();";
+			if(tm.getApplicationPassword==NULL)std::cerr << "missing : getApplicationPassword();";
+			if(tm.setApplicationPassword==NULL)std::cerr << "missing : setApplicationPassword();";
+			if(tm.getItem==NULL)std::cerr << "missing : getItem();";
+			if(tm.setItem==NULL)std::cerr << "missing : setItem();";
+			if(tm.getNetworkPassword_silent==NULL)std::cerr << "missing : getNetworkPassword_silent();";
+			if(tm.setNetworkPassword_silent==NULL)std::cerr << "missing : setNetworkPassword_silent();";
+			if(tm.getApplicationPassword_silent==NULL)std::cerr << "missing : getApplicationPassword_silent();";
+			if(tm.setApplicationPassword_silent==NULL)std::cerr << "missing : setApplicationPassword_silent();";
+			if(tm.getItem_silent==NULL)std::cerr << "missing : getItem_silent();";
+			if(tm.setItem_silent==NULL)std::cerr << "missing : setItem_silent();";
+			if(tm.getLastError==NULL)std::cerr << "missing : getLastError();";
+#endif
+			
 			//if minimal functions are here, add the lib to available modules
 			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getNetworkPassword_silent!=NULL && tm.setNetworkPassword_silent!=NULL && tm.getApplicationPassword_silent!=NULL && tm.setApplicationPassword_silent!=NULL && tm.getItem_silent!=NULL && tm.setItem_silent!=NULL && tm.getLastError!=NULL)
 			{
@@ -146,16 +144,24 @@ void PPK_Modules::loadPlugin(std::string filename)
 				if(getModuleByID(tm.id)==NULL)
 				{
 					modules[tm.id]=tm;
+#ifdef DEBUG_MSG
 					std::cerr << "OK (ID=" << tm.id << ")" << std::endl;
+#endif
 				}
+#ifdef DEBUG_MSG
 				else
 					std::cerr << "FAILED (ID=" << tm.id << " already exist in modules list)" << std::endl;
+#endif
 			}
+#ifdef DEBUG_MSG
 			else
 				std::cerr << "FAILED (not all symbols are present, check version numbers)" << std::endl;
+#endif
 		}
+#ifdef DEBUG_MSG
 		else
 			std::cerr << "FAILED (" << libraryError() << ")" << std::endl;
+#endif
 	}
 }
 

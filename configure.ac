@@ -31,6 +31,7 @@ LT_INIT([win32-dll])
 LT_OUTPUT
 LT_LIB_DLLOAD
 
+AC_ARG_ENABLE(debug,   [  --enable-debug     enable debug output (disabled)], [arg_debug=$enableval])
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
 AC_ARG_ENABLE(util,    [  --disable-util     do not build the command-line utility (enabled)], [arg_util=$enableval])
 AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plugins=$enableval])
@@ -39,6 +40,13 @@ AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autode
 AC_ARG_ENABLE(kde,     [  --disable-kde      do not build the KDE plugin (autodetect)], [arg_kde=$enableval])
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
 AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
+
+if test "x$arg_debug" = "xyes"; then
+  DEBUG_CPPFLAG='-DDEBUG_MSG'
+else
+  DEBUG_CPPFLAG=
+fi
+AC_SUBST([DEBUG_CPPFLAG])
 
 DLLIBDIR=${libdir}/ppasskeeper
 AC_SUBST([DLLIBDIR])
@@ -130,6 +138,8 @@ if test "x$arg_ppklib" = "xno"; then
 else
   echo "yes"
 fi
+
+echo -n 'Debug output : '; test "x$arg_debug" = "xyes" && echo yes || echo no
 
 echo
 echo "Enabled optional modules :"

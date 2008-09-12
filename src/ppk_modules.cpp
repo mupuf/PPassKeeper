@@ -5,6 +5,7 @@
 #include <dirent.h>
 
 #include <iostream>
+#include <cstring>
 
 //portability functions
 void* openLibrary(std::string lib_path);
@@ -49,7 +50,13 @@ const char* libraryError();
 		plugindir = opendir(DIRECTORY_PATH);
 		if(plugindir!=NULL)
 			while ((mydirent = readdir(plugindir))!=NULL)
+			{
+				int i = strlen(mydirent->d_name) - 3;
+				//suffix check: don't load libtool (.la) files
+				if (i >= 0 && ! strcmp(mydirent->d_name + i, ".la"))
+					continue;
 				loadPlugin(mydirent->d_name);
+			}
 		else
 			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
 	}

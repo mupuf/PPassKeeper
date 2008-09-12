@@ -53,11 +53,11 @@ LTLIBRARIES = $(dllib_LTLIBRARIES)
 libppk_savetofile_enc_la_LIBADD =
 am__libppk_savetofile_enc_la_SOURCES_DIST = ../savetofile.cpp \
 	../savetofile-dir.cpp ../savetofile-mkdir.cpp \
-	savetofile_encrypted.cpp
+	savetofile_encrypted.cpp base64.h base64.cpp
 @BUILD_SAVE_TO_FILE_TRUE@am_libppk_savetofile_enc_la_OBJECTS =  \
 @BUILD_SAVE_TO_FILE_TRUE@	savetofile.lo savetofile-dir.lo \
 @BUILD_SAVE_TO_FILE_TRUE@	savetofile-mkdir.lo \
-@BUILD_SAVE_TO_FILE_TRUE@	savetofile_encrypted.lo
+@BUILD_SAVE_TO_FILE_TRUE@	savetofile_encrypted.lo base64.lo
 libppk_savetofile_enc_la_OBJECTS =  \
 	$(am_libppk_savetofile_enc_la_OBJECTS)
 libppk_savetofile_enc_la_LINK = $(LIBTOOL) --tag=CXX \
@@ -77,6 +77,15 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libppk_savetofile_enc_la_SOURCES)
 DIST_SOURCES = $(am__libppk_savetofile_enc_la_SOURCES_DIST)
@@ -228,7 +237,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
 @BUILD_SAVE_TO_FILE_TRUE@dllib_LTLIBRARIES = libppk_savetofile_enc.la
-@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_enc_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_encrypted.cpp
+@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_enc_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_encrypted.cpp base64.h base64.cpp
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_enc_la_LDFLAGS = -module -shared -no-undefined -avoid-version
 all: all-am
 
@@ -299,6 +308,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile-dir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile-mkdir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile.Plo@am__quote@

@@ -11,6 +11,8 @@
 	#include <errno.h>
 #endif
 
+#include "base64.h"
+
 //functions
 extern void setError(std::string error);
 bool mkdir(std::string path);
@@ -35,23 +37,13 @@ extern "C" const char* getModuleName()
 std::string encrypt(std::string pwd)
 {
 	//encryption algorithm
-	for(unsigned int i=0;i<pwd.size();i++)
-	{
-		pwd[i]-=i;
-	}
-
-	return pwd;
+	return base64_enc(pwd);
 }
 
 std::string decrypt(std::string pwd_enc)
 {
 	//decryption algorithm
-	for(unsigned int i=0;i<pwd_enc.size();i++)
-	{
-		pwd_enc[i]+=i;
-	}
-
-	return pwd_enc;
+	return base64_dec(pwd_enc);
 }
 
 const char* getPassword(std::string filepath)
@@ -104,7 +96,7 @@ bool setPassword(std::string filepath, std::string secret)
 	}
 	else
 	{
-		setError("Could not open " + filepath + " for reading access.");
+		setError("Could not open " + filepath + " for write access.");
 		return false;
 	}
 }

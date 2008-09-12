@@ -82,7 +82,7 @@ bool setPassword(std::string filepath, std::string secret)
 	}
 	else
 	{
-		setError("Could not open " + filepath + " for reading access.");
+		setError("Could not open " + filepath + " for write access.");
 		return false;
 	}
 }

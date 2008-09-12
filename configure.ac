@@ -27,6 +27,9 @@ AC_C_INLINE
 # Checks for library functions.
 AC_CHECK_FUNCS([mkdir])
 
+AC_CHECK_FUNC([chmod], [HAVE_CHMOD='-DHAVE_CHMOD'], [HAVE_CHMOD=])
+AC_SUBST([HAVE_CHMOD])
+
 LT_INIT([win32-dll])
 LT_OUTPUT
 LT_LIB_DLLOAD

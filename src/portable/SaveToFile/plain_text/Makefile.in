@@ -117,6 +117,7 @@ FGREP = @FGREP@
 GREP = @GREP@
 GTK2_CFLAGS = @GTK2_CFLAGS@
 GTK2_LIBS = @GTK2_LIBS@
+HAVE_CHMOD = @HAVE_CHMOD@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -231,6 +232,7 @@ dllibdir = @DLLIBDIR@
 @BUILD_SAVE_TO_FILE_TRUE@dllib_LTLIBRARIES = libppk_savetofile_pt.la
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_plain_text.cpp
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_LDFLAGS = -module -shared -no-undefined -avoid-version
+@BUILD_SAVE_TO_FILE_TRUE@AM_CPPFLAGS = @HAVE_CHMOD@
 all: all-am
 
 .SUFFIXES:

@@ -40,77 +40,91 @@ std::string generateItemPath(std::string key)
 }
 
 //functions
-extern "C" const char* getModuleName();
-
-extern "C" const int getABIVersion()
+extern "C"
 {
-	return 1;
-}
+	const char* getModuleName();
 
-//Non-Silent operations
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
-{
-	return getPassword(generateNetworkPath(server, port, username).c_str());
-}
+	const int getABIVersion()
+	{
+		return 1;
+	}
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
-{
-	return setPassword(generateNetworkPath(server, port, username).c_str(), pwd)?0:-2;
-}
+	//Non-Silent operations
+	const char* getNetworkPassword(const char* server, int port, const char* username)
+	{
+		static std::string pwd=getPassword(generateNetworkPath(server, port, username));
+		std::cout << "pass1=" << (int)pwd.c_str() << std::endl;
+		return pwd.c_str();
+	}
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username)
-{
-	return getPassword(generateApplicationPath(application_name, username).c_str());
-}
+	const char* getNetworkPassword2(const char* server, int port, const char* username)
+	{
+		static std::string pwd=getPassword(generateNetworkPath(server, port, username));
+		std::cout << "pass3=" << (int)pwd.c_str() << std::endl;
+		return pwd.c_str();
+	}
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username, const char* pwd)
-{
-	return setPassword(generateApplicationPath(application_name, username).c_str(), pwd)?0:-2;
-}
+	int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
+	{
+		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd)?0:-2;
+	}
 
-extern "C" const char* getItem(const char* key)
-{
-	return getPassword(generateItemPath(key).c_str());
-}
+	const char* getApplicationPassword(const char* application_name, const char* username)
+	{
+		static std::string pwd=getPassword(generateApplicationPath(application_name, username));
+		return pwd.c_str();
+	}
 
-extern "C" int setItem(const char* key, const char* item)
-{
-	return setPassword(generateItemPath(key).c_str(), item)?0:-2;
-}
+	int setApplicationPassword(const char* application_name, const char* username, const char* pwd)
+	{
+		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd)?0:-2;
+	}
 
-//Silent operations
-extern "C" const char* getNetworkPassword_silent(const char* server, int port, const char* username)
-{
-	return getNetworkPassword(server, port, username);
-}
+	const char* getItem(const char* key)
+	{
+		static std::string pwd=getPassword(generateItemPath(key));
+		return pwd.c_str();
+	}
 
-extern "C" int setNetworkPassword_silent(const char* server, int port, const char* username, const char* pwd)
-{
-	return setNetworkPassword(server, port, username, pwd);
-}
+	int setItem(const char* key, const char* item)
+	{
+		return setPassword(generateItemPath(key).c_str(), item)?0:-2;
+	}
 
-extern "C" const char* getApplicationPassword_silent(const char* application_name, const char* username)
-{
-	return getApplicationPassword(application_name, username);
-}
+	//Silent operations
+	const char* getNetworkPassword_silent(const char* server, int port, const char* username)
+	{
+		return getNetworkPassword(server, port, username);
+	}
 
-extern "C" int setApplicationPassword_silent(const char* application_name, const char* username, const char* pwd)
-{
-	return setApplicationPassword(application_name, username, pwd);
-}
+	int setNetworkPassword_silent(const char* server, int port, const char* username, const char* pwd)
+	{
+		return setNetworkPassword(server, port, username, pwd);
+	}
 
-extern "C" const char* getItem_silent(const char* key)
-{
-	return getItem(key);
-}
+	const char* getApplicationPassword_silent(const char* application_name, const char* username)
+	{
+		return getApplicationPassword(application_name, username);
+	}
 
-extern "C" int setItem_silent(const char* key, const char* item)
-{
-	return setItem(key, item);
-}
+	int setApplicationPassword_silent(const char* application_name, const char* username, const char* pwd)
+	{
+		return setApplicationPassword(application_name, username, pwd);
+	}
+
+	const char* getItem_silent(const char* key)
+	{
+		return getItem(key);
+	}
+
+	int setItem_silent(const char* key, const char* item)
+	{
+		return setItem(key, item);
+	}
 
 
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
+	const char* getLastError()
+	{
+		return last_error()->c_str();
+	}
 }

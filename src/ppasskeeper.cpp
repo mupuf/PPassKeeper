@@ -52,10 +52,12 @@ const char* ppk::getApplicationPassword(const char* module_id, const char* appli
 	{
 		const char* res=mod->getApplicationPassword(application_name, username);
 		if(res!=NULL)
+		{
 			pwd=res;
+			return pwd.c_str();
+		}
 		else
-			pwd="";
-		return pwd.c_str();
+			return NULL;
 	}
 	else
 		return NULL;
@@ -78,10 +80,12 @@ const char* ppk::getItem(const char* module_id, const char* key)
 	{
 		const char* res=mod->getItem(key);
 		if(res!=NULL)
+		{
 			pwd=res;
+			return pwd.c_str();
+		}
 		else
-			pwd="";
-		return pwd.c_str();
+			return NULL;
 	}
 	else
 		return NULL;
@@ -105,9 +109,12 @@ const char* ppk::getNetworkPassword_silent(const char* module_id, const char* se
 	{
 		const char* res=mod->getNetworkPassword_silent(server,port,username);
 		if(res!=NULL)
+		{
 			pwd=res;
+			return pwd.c_str();
+		}
 		else
-			pwd="";
+			return NULL;
 		return pwd.c_str();
 	}
 	else
@@ -118,7 +125,7 @@ int ppk::setNetworkPassword_silent(const char* module_id, const char* server, in
 {
 	_module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setNetworkPassword(server,port,username,pwd);
+		return mod->setNetworkPassword_silent(server,port,username,pwd);
 	else
 		return -1;
 }
@@ -131,9 +138,12 @@ const char* ppk::getApplicationPassword_silent(const char* module_id, const char
 	{
 		const char* res=mod->getApplicationPassword_silent(application_name, username);
 		if(res!=NULL)
+		{
 			pwd=res;
+			return pwd.c_str();
+		}
 		else
-			pwd="";
+			return NULL;
 		return pwd.c_str();
 	}
 	else
@@ -157,9 +167,12 @@ const char* ppk::getItem_silent(const char* module_id, const char* key)
 	{
 		const char* res=mod->getItem_silent(key);
 		if(res!=NULL)
+		{
 			pwd=res;
+			return pwd.c_str();
+		}
 		else
-			pwd="";
+			return NULL;
 		return pwd.c_str();
 	}
 	else

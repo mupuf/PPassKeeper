@@ -2,7 +2,16 @@
 #include <iostream>
 #include <fstream>
 
+<<<<<<< .mine
+#if defined(WIN32) || defined(WIN64) 
+#else
+	#define USE_CHMOD
+#endif
+
+#ifdef USE_CHMOD
+=======
 #ifdef HAVE_CHMOD
+>>>>>>> .r58
 	#include <sys/stat.h>
 	#include <unistd.h>
 	#include <sys/syscall.h>

@@ -1,6 +1,7 @@
 #include "../../ppasskeeper-module.h"
 #include "../../tokenizer.h"
 #include <string>
+#include <iostream>
 
 #include <kwallet.h>
 #include <kapplication.h>
@@ -61,7 +62,10 @@ const char* _getPassword(const char* key)
 		}
 	}
 	else
+	{
+		setError("Could not open the KWallet");	
 		return NULL;
+	}
 }
 
 bool _setPassword(const char* key, const char* pwd)
@@ -79,29 +83,32 @@ bool _setPassword(const char* key, const char* pwd)
 		}
 	}
 	else
+	{
+		setError("Could not open the KWallet");	
 		return false;
+	}
 }
 
+bool init_kde()
+{
+	//Init KDE
+	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+	KComponentData kcd(about);
+
+	return true;
+}
 const char* getPassword(const char* key)
 {
 		//Init KDE Application
-		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-		KComponentData kcd(about);
-		KComponentData kcdZ(about);
-
-		//Ask the password and return it
-		return _getPassword(key);
+		if(init_kde())
+			return _getPassword(key);
 }
 
 bool setPassword(const char* key, const char* pwd)
 {
 	//Init KDE Application
-	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-	KComponentData kcd(about);
-	KComponentData kcdZ(about);
-
-	//Ask the password and return it
-	return _setPassword(key, pwd);
+	if(init_kde())
+		return _setPassword(key, pwd);
 }
 
 std::string generateNetworkKey(std::string server, int port, std::string username)

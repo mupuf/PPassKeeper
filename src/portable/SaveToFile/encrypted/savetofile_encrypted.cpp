@@ -2,16 +2,12 @@
 #include <iostream>
 #include <fstream>
 
-<<<<<<< .mine
 #if defined(WIN32) || defined(WIN64) 
 #else
 	#define USE_CHMOD
 #endif
 
 #ifdef USE_CHMOD
-=======
-#ifdef HAVE_CHMOD
->>>>>>> .r58
 	#include <sys/stat.h>
 	#include <unistd.h>
 	#include <sys/syscall.h>
@@ -92,7 +88,7 @@ bool setPassword(std::string filepath, std::string secret)
 		outputfile.close();
 
 		//Allow the file just to be read and written by its owner
-		#ifdef HAVE_CHMOD
+		#ifdef USE_CHMOD
 			int rc;
 			rc = chmod(filepath.c_str(), 0600);
 			if (rc == -1)

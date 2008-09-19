@@ -2,7 +2,15 @@
 #define PPASSWORDKEEPER_MODULE_H
 
 #include "settings.h"
+#include "ppasskeeper.h"
 #include <string>
+
+/**
+ * \file ppasskeeper-module
+ * \author MùPùF
+ * \date 09-14-2008
+ */
+
 
 #ifdef __cplusplus 
 extern "C"
@@ -29,6 +37,9 @@ extern "C"
 	*/
 	typedef const int (*_getABIVersion)(void);
 
+	//Allow users to know which flags are available
+	typedef ppk::readFlag (*_readFlagsAvailable)(void);
+	typedef ppk::writeFlag (*_writeFlagsAvailable)(void);
 
 	/*
 	This function should get the previously stored password using setNetworkPassword.
@@ -40,10 +51,7 @@ extern "C"
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
-	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username);
-
-	//As _getNetworkPassword but, this function should work silently (without prompting anything to the user)
-	typedef const char* (*_getNetworkPassword_silent)(const char* server, int port, const char* username);
+	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username, unsigned int options);
 
 
 	/*
@@ -57,10 +65,7 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef int (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd);
-	
-	//As _setNetworkPassword but, this function should work silently (without prompting anything to the user)
-	typedef int (*_setNetworkPassword_silent)(const char* server, int port, const char* username,  const char* pwd);
+	typedef ppk::boolean (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
 	
 
 	/*
@@ -72,10 +77,7 @@ extern "C"
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
-	typedef const char* (*_getApplicationPassword)(const char* application_name, const char* username);
-
-	//As _getApplicationPassword but, this function should work silently (without prompting anything to the user)
-	typedef const char* (*_getApplicationPassword_silent)(const char* application_name, const char* username);
+	typedef const char* (*_getApplicationPassword)(const char* application_name, const char* username, unsigned int flags);
 	
 	
 	/*
@@ -88,10 +90,7 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef int (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd);
-
-	//As _setApplicationPassword but, this function should work silently (without prompting anything to the user)
-	typedef int (*_setApplicationPassword_silent)(const char* application_name, const char* username,  const char* pwd);
+	typedef ppk::boolean (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd, unsigned int flags);
 
 
 	/*
@@ -101,10 +100,7 @@ extern "C"
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
-	typedef const char* (*_getItem)(const char* key);
-
-	//As _getitem but, this function should work silently (without prompting anything to the user)
-	typedef const char* (*_getItem_silent)(const char* key);
+	typedef const char* (*_getItem)(const char* key, unsigned int flags);
 
 
 	/*
@@ -115,18 +111,36 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef int (*_setItem)(const char* key, const char* item);
+	typedef ppk::boolean (*_setItem)(const char* key, const char* item, unsigned int flags);
 
-	//As _getitem but, this function should work silently (without prompting anything to the user)
-	typedef int (*_setItem_silent)(const char* key, const char* item);
+	/*
+	This function returns wether the module can store password or not. 
+	You may think it is stupid as there is Keeper in PPassKeeper, 
+	but remind that user may just want a window to popup in order to key-in the already-in-mind password.
+	parameters : none
+	
+	return : Return TRUE if the module is Writable.
+	*/
+	typedef ppk::boolean (*_isWritable)();
 
+	/*
+	This function returns the level of security. 
+	parameters : none
+	
+	return : Return sec_null=0, sec_hidden=1, sec_safe=2 or sec_perfect=3.
+	*/
+	typedef ppk::security_level (*_securityLevel)();
+
+	
+	//add comments here
+	typedef unsigned int (*_getPasswordListCount)();
+	typedef unsigned int (*_getPasswordList)(ppk::password_type type, void* pwdList, unsigned int maxModuleCount);
 
 	/*
 	This function should return a human-readable string describing what caused the last error
 	*/
 	typedef const char* (*_getLastError)();
 
-	
 	struct _module
 	{
 		void* dlhandle;
@@ -135,18 +149,18 @@ extern "C"
 		_getModuleID getModuleID;
 		_getModuleName getModuleName;
 		_getABIVersion getABIVersion;
+		_readFlagsAvailable readFlagsAvailable;
+		_writeFlagsAvailable writeFlagsAvailable;
 		_getNetworkPassword getNetworkPassword;
 		_setNetworkPassword setNetworkPassword;
 		_getApplicationPassword getApplicationPassword;
 		_setApplicationPassword setApplicationPassword;
 		_getItem getItem;
 		_setItem setItem;
-		_getNetworkPassword_silent getNetworkPassword_silent;
-		_setNetworkPassword_silent setNetworkPassword_silent;
-		_getApplicationPassword_silent getApplicationPassword_silent;
-		_setApplicationPassword_silent setApplicationPassword_silent;
-		_getItem_silent getItem_silent;
-		_setItem_silent setItem_silent;
+		_isWritable isWritable;
+		_securityLevel securityLevel;
+		_getPasswordListCount getPasswordListCount;
+		_getPasswordList getPasswordList;
 		_getLastError getLastError;
 	};
 #ifdef __cplusplus 

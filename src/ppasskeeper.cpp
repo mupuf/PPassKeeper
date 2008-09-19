@@ -7,24 +7,51 @@ PPK_Modules modules;
 
 
 //Public functions
-int ppk::getAvailableModulesCount()
+unsigned int ppk::getAvailableModulesCount()
 {
 	return modules.size();
 }
 
-int ppk::getAvailableModules(PPassKeeper_Module* pmodules, unsigned int nbModules)
+unsigned int ppk::getAvailableModules(PPassKeeper_Module* pmodules, unsigned int nbModules)
 {
 	return modules.getModulesList(pmodules,nbModules);
 }
 
+ppk::boolean moduleAvailable(const char* module_id)
+{
+	const _module* mod=modules.getModuleByID(module_id);
+	if(mod!=NULL)
+		return ppk::BTRUE;
+	else
+		return ppk::BFALSE;
+}
+
+ppk::readFlag readFlagsAvailable(const char* module_id)
+{
+	const _module* mod=modules.getModuleByID(module_id);
+	if(mod!=NULL)
+		return mod->readFlagsAvailable();
+	else
+		return ppk::rd_none;
+}
+
+ppk::writeFlag writeFlagsAvailable(const char* module_id)
+{
+	const _module* mod=modules.getModuleByID(module_id);
+	if(mod!=NULL)
+		return mod->writeFlagsAvailable();
+	else
+		return ppk::wt_none;
+}
+
 //Non-silent operations
-const char* ppk::getNetworkPassword(const char* module_id, const char* server, int port, const char* username)
+const char* ppk::getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
 {
 	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
 	{
-		const char* res=mod->getNetworkPassword(server,port,username);
+		const char* res=mod->getNetworkPassword(server,port,username, flags);
 		if(res!=NULL)
 			pwd=res;
 		else
@@ -35,22 +62,22 @@ const char* ppk::getNetworkPassword(const char* module_id, const char* server, i
 		return NULL;
 }
 
-int ppk::setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
+ppk::boolean ppk::setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setNetworkPassword(server,port,username,pwd);
+		return mod->setNetworkPassword(server,port,username,pwd,flags);
 	else
-		return -1;
+		return BFALSE;
 }
 
-const char* ppk::getApplicationPassword(const char* module_id, const char* application_name, const char* username)
+const char* ppk::getApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags)
 {
 	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
 	{
-		const char* res=mod->getApplicationPassword(application_name, username);
+		const char* res=mod->getApplicationPassword(application_name, username,flags);
 		if(res!=NULL)
 		{
 			pwd=res;
@@ -63,22 +90,22 @@ const char* ppk::getApplicationPassword(const char* module_id, const char* appli
 		return NULL;
 }
 
-int ppk::setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd)
+ppk::boolean ppk::setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setApplicationPassword(application_name,username,pwd);
+		return mod->setApplicationPassword(application_name,username,pwd,flags);
 	else
-		return -1;
+		return BFALSE;
 }
 
-const char* ppk::getItem(const char* module_id, const char* key)
+const char* ppk::getItem(const char* module_id, const char* key, unsigned int flags)
 {
 	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
 	{
-		const char* res=mod->getItem(key);
+		const char* res=mod->getItem(key,flags);
 		if(res!=NULL)
 		{
 			pwd=res;
@@ -91,107 +118,57 @@ const char* ppk::getItem(const char* module_id, const char* key)
 		return NULL;
 }
 
-int ppk::setItem(const char* module_id, const char* key, const char* item)
+ppk::boolean ppk::setItem(const char* module_id, const char* key, const char* item, unsigned int flags)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setItem(key, item);
+		return mod->setItem(key, item, flags);
 	else
-		return -1;
+		return ppk::BFALSE;
 }
 
-//silent operations
-const char* ppk::getNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username)
+//Information about the module
+ppk::boolean ppk::isWritable(const char* module_id)
 {
-	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-	{
-		const char* res=mod->getNetworkPassword_silent(server,port,username);
-		if(res!=NULL)
-		{
-			pwd=res;
-			return pwd.c_str();
-		}
-		else
-			return NULL;
-		return pwd.c_str();
-	}
+		return mod->isWritable();
 	else
-		return NULL;
+		return ppk::BFALSE;
 }
 
-int ppk::setNetworkPassword_silent(const char* module_id, const char* server, int port, const char* username,  const char* pwd)
+ppk::security_level ppk::securityLevel(const char* module_id)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setNetworkPassword_silent(server,port,username,pwd);
+		return mod->securityLevel();
 	else
-		return -1;
+		return ppk::sec_lowest;
 }
 
-const char* ppk::getApplicationPassword_silent(const char* module_id, const char* application_name, const char* username)
+//module's passwords's listing
+unsigned int ppk::getPasswordListCount(const char* module_id, enum password_type type)
 {
-	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-	{
-		const char* res=mod->getApplicationPassword_silent(application_name, username);
-		if(res!=NULL)
-		{
-			pwd=res;
-			return pwd.c_str();
-		}
-		else
-			return NULL;
-		return pwd.c_str();
-	}
+		return mod->getPasswordListCount();
 	else
-		return NULL;
+		return 0;
 }
 
-int ppk::setApplicationPassword_silent(const char* module_id, const char* application_name, const char* username,  const char* pwd)
+unsigned int ppk::getPasswordList(const char* module_id, ppk::password_type type, void* pwdList, unsigned int maxPasswordCount)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
-		return mod->setApplicationPassword_silent(application_name,username,pwd);
+		return mod->getPasswordList(type, pwdList, maxPasswordCount);
 	else
-		return -1;
-}
-
-const char* ppk::getItem_silent(const char* module_id, const char* key)
-{
-	static std::string pwd;
-	_module* mod=modules.getModuleByID(module_id);
-	if(mod!=NULL)
-	{
-		const char* res=mod->getItem_silent(key);
-		if(res!=NULL)
-		{
-			pwd=res;
-			return pwd.c_str();
-		}
-		else
-			return NULL;
-		return pwd.c_str();
-	}
-	else
-		return NULL;
-}
-
-int ppk::setItem_silent(const char* module_id, const char* key, const char* item)
-{
-	_module* mod=modules.getModuleByID(module_id);
-	if(mod!=NULL)
-		return mod->setItem_silent(key, item);
-	else
-		return -1;
+		return 0;
 }
 
 //Errors
 const char* ppk::getLastError(const char* module_id)
 {
-	_module* mod=modules.getModuleByID(module_id);
+	const _module* mod=modules.getModuleByID(module_id);
 	if(mod!=NULL)
 		return mod->getLastError();
 	else

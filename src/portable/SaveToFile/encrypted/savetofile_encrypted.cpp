@@ -1,3 +1,4 @@
+#include "../../../ppasskeeper-module.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -32,6 +33,11 @@ extern "C" const char* getModuleName()
 	return "Poorly-encrypted storage";
 }
 
+extern "C" ppk::security_level securityLevel(const char* module_id)
+{
+	return ppk::sec_scrambled;
+}
+
 std::string encrypt(std::string pwd)
 {
 	//encryption algorithm
@@ -44,7 +50,7 @@ std::string decrypt(std::string pwd_enc)
 	return base64_dec(pwd_enc);
 }
 
-const char* getPassword(std::string filepath)
+const char* getPassword(std::string filepath, unsigned int flags)
 {
 	static std::string pwd;
 
@@ -57,17 +63,20 @@ const char* getPassword(std::string filepath)
 
 		//close the file
 		inputfile.close();
+		
+		//Set the error to none
+		setError("");
 
 		return decrypt(pwd).c_str();
 	}
 	else
 	{
 		setError("Could not open " + filepath + " for reading access.");
-		return false;
+		return "";
 	}
 }
 
-bool setPassword(std::string filepath, std::string secret)
+bool setPassword(std::string filepath, std::string secret, unsigned int flags)
 {
 	//try to create the wanted directory
 	mkdir(dir());
@@ -90,6 +99,9 @@ bool setPassword(std::string filepath, std::string secret)
 				fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
 		#endif
 
+		//Set the error to none
+		setError("");
+
 		return true;
 	}
 	else
@@ -98,6 +110,3 @@ bool setPassword(std::string filepath, std::string secret)
 		return false;
 	}
 }
-
-
-//functions

@@ -2,11 +2,12 @@
 #include "../../tokenizer.h"
 #include <string>
 #include <iostream>
+#include "list_pwd.h"
 
 //local functions
 std::string shortName();
-const char* getPassword(std::string filepath);
-bool setPassword(std::string filepath, std::string secret);
+const char* getPassword(std::string filepath, unsigned int flags);
+bool setPassword(std::string filepath, std::string secret, unsigned int flags);
 
 //Personal portable functions
 std::string dir();
@@ -23,20 +24,19 @@ void setError(std::string error)
 	*(last_error())="PPK_"+toString(getModuleID())+" : " + error;
 }
 
-
 std::string generateNetworkPath(std::string server, int port, std::string username)
 {
-	return dir()+toString("/")+shortName()+"_"+username+toString("@")+server+toString(":")+toString(port);
+	return dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString(":")+toString(port);
 }
 
 std::string generateApplicationPath(std::string application_name, std::string username)
 {
-	return dir()+toString("/")+shortName()+"_"+username+toString("@")+application_name;
+	return dir()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
 }
 
 std::string generateItemPath(std::string key)
 {
-	return dir()+toString("/")+"_"+shortName()+"key-"+key;
+	return dir()+toString("/")+shortName()+"_ITM_"+key;
 }
 
 //functions
@@ -49,79 +49,86 @@ extern "C"
 		return 1;
 	}
 
-	//Non-Silent operations
-	const char* getNetworkPassword(const char* server, int port, const char* username)
+	ppk::boolean isWritable()
 	{
-		static std::string pwd=getPassword(generateNetworkPath(server, port, username));
-		std::cout << "pass1=" << (int)pwd.c_str() << std::endl;
+		return ppk::BTRUE;
+	}
+
+	//Get available flags
+	ppk::readFlag readFlagsAvailable()
+	{
+		return ppk::rd_silent;
+	}
+
+	ppk::writeFlag writeFlagsAvailable()
+	{
+		return ppk::wt_silent;
+	}
+
+	//List passwords available
+	std::string prefix(ppk::password_type type)
+	{
+		std::string prefix=shortName();
+		switch(type)
+		{
+			case ppk::network:
+				prefix+="_NET_";
+				break;
+			case ppk::application:
+				prefix+="_APP_";
+				break;
+			case ppk::item:
+				prefix+="_ITM_";
+				break;
+		}
+		return prefix;
+	}
+
+	unsigned int getPasswordListCount(ppk::password_type type)
+	{
+		ListPwd pwdl;		
+		return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);
+	}
+
+	unsigned int getPasswordList(ppk::password_type type, void* pwdList, unsigned int maxModuleCount)
+	{
+		static ListPwd pwdl;	
+		return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);
+	}
+
+	//Get and Set passwords
+	const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+	{
+		static std::string pwd=getPassword(generateNetworkPath(server, port, username), flags);
 		return pwd.c_str();
 	}
 
-	const char* getNetworkPassword2(const char* server, int port, const char* username)
+	ppk::boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 	{
-		static std::string pwd=getPassword(generateNetworkPath(server, port, username));
-		std::cout << "pass3=" << (int)pwd.c_str() << std::endl;
+		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
+	}
+
+	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+	{
+		static std::string pwd=getPassword(generateApplicationPath(application_name, username), flags);
 		return pwd.c_str();
 	}
 
-	int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
+	ppk::boolean setApplicationPassword(const char* application_name, const char* username, const char* pwd, unsigned int flags)
 	{
-		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd)?0:-2;
+		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
 	}
 
-	const char* getApplicationPassword(const char* application_name, const char* username)
+	const char* getItem(const char* key, unsigned int flags)
 	{
-		static std::string pwd=getPassword(generateApplicationPath(application_name, username));
+		static std::string pwd=getPassword(generateItemPath(key), flags);
 		return pwd.c_str();
 	}
 
-	int setApplicationPassword(const char* application_name, const char* username, const char* pwd)
+	ppk::boolean setItem(const char* key, const char* item, unsigned int flags)
 	{
-		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd)?0:-2;
+		return setPassword(generateItemPath(key).c_str(), item, flags)?ppk::BTRUE:ppk::BFALSE;
 	}
-
-	const char* getItem(const char* key)
-	{
-		static std::string pwd=getPassword(generateItemPath(key));
-		return pwd.c_str();
-	}
-
-	int setItem(const char* key, const char* item)
-	{
-		return setPassword(generateItemPath(key).c_str(), item)?0:-2;
-	}
-
-	//Silent operations
-	const char* getNetworkPassword_silent(const char* server, int port, const char* username)
-	{
-		return getNetworkPassword(server, port, username);
-	}
-
-	int setNetworkPassword_silent(const char* server, int port, const char* username, const char* pwd)
-	{
-		return setNetworkPassword(server, port, username, pwd);
-	}
-
-	const char* getApplicationPassword_silent(const char* application_name, const char* username)
-	{
-		return getApplicationPassword(application_name, username);
-	}
-
-	int setApplicationPassword_silent(const char* application_name, const char* username, const char* pwd)
-	{
-		return setApplicationPassword(application_name, username, pwd);
-	}
-
-	const char* getItem_silent(const char* key)
-	{
-		return getItem(key);
-	}
-
-	int setItem_silent(const char* key, const char* item)
-	{
-		return setItem(key, item);
-	}
-
 
 	const char* getLastError()
 	{

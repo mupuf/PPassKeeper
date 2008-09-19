@@ -1,3 +1,4 @@
+#include "../../../ppasskeeper-module.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,7 +31,12 @@ extern "C" const char* getModuleName()
 	return "Plain-text storage";
 }
 
-const char* getPassword(std::string filepath)
+extern "C" ppk::security_level securityLevel(const char* module_id)
+{
+	return ppk::sec_lowest;
+}
+
+const char* getPassword(std::string filepath, unsigned int flags)
 {
 	static std::string pwd;
 
@@ -56,7 +62,7 @@ const char* getPassword(std::string filepath)
 	}
 }
 
-bool setPassword(std::string filepath, std::string secret)
+bool setPassword(std::string filepath, std::string secret, unsigned int flags)
 {
 	//open the file
 	std::ofstream outputfile(filepath.c_str());

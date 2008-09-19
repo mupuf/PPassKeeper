@@ -27,7 +27,7 @@ const char* libraryError();
 	    if (hSearch != INVALID_HANDLE_VALUE)
 	    {
 	        do {
-	            printf("%s\n", File.cFileName);
+				loadPlugin(File.cFileName);
 	        } while (FindNextFile(hSearch, &File));
 	        
 	        FindClose(hSearch);
@@ -51,14 +51,17 @@ const char* libraryError();
 		//Open Plugin's directory
 		plugindir = opendir(DIRECTORY_PATH);
 		if(plugindir!=NULL)
+		{
 			while ((mydirent = readdir(plugindir))!=NULL)
 			{
 				int i = strlen(mydirent->d_name) - 3;
 				//suffix check: don't load libtool (.la) files
-				if (i >= 0 && ! strcmp(mydirent->d_name + i, ".la"))
-					continue;
-				loadPlugin(mydirent->d_name);
+				if (i >= 0 && strcmp(mydirent->d_name + i, ".la")!=0)
+					loadPlugin(mydirent->d_name);
 			}
+			
+			closedir(plugindir);
+		}
 #ifdef DEBUG_MSG
 		else
 			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
@@ -95,7 +98,7 @@ void PPK_Modules::loadPlugin(std::string filename)
 			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");
 			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");
 
-			//Non-silent operations
+			//
 			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword");
 			tm.setNetworkPassword=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword");
 			tm.getApplicationPassword=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword");
@@ -103,18 +106,16 @@ void PPK_Modules::loadPlugin(std::string filename)
 			tm.getItem=(_getItem)loadSymbol(dlhandle, "getItem");
 			tm.setItem=(_setItem)loadSymbol(dlhandle, "setItem");
 
-			//Silent operations
-			tm.getNetworkPassword_silent=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword_silent");
-			tm.setNetworkPassword_silent=(_setNetworkPassword)loadSymbol(dlhandle, "setNetworkPassword_silent");
-			tm.getApplicationPassword_silent=(_getApplicationPassword)loadSymbol(dlhandle, "getApplicationPassword_silent");
-			tm.setApplicationPassword_silent=(_setApplicationPassword)loadSymbol(dlhandle, "setApplicationPassword_silent");
-			tm.getItem_silent=(_getItem_silent)loadSymbol(dlhandle, "getItem_silent");
-			tm.setItem_silent=(_setItem_silent)loadSymbol(dlhandle, "setItem_silent");
+			tm.isWritable=(_isWritable)loadSymbol(dlhandle, "isWritable");
+			tm.securityLevel=(_securityLevel)loadSymbol(dlhandle, "securityLevel");
+
+			tm.getPasswordListCount=(_getPasswordListCount)loadSymbol(dlhandle, "getPasswordListCount");
+			tm.getPasswordList=(_getPasswordList)loadSymbol(dlhandle, "getPasswordList");
 
 			//errors
 			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");
 
-#ifdef DEBUG_MSG
+		#ifdef DEBUG_MSG
 			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
 			if(tm.getModuleName==NULL)std::cerr << "missing : getModuleName();";
 			if(tm.getABIVersion==NULL)std::cerr << "missing : getABIVersion();";
@@ -124,17 +125,15 @@ void PPK_Modules::loadPlugin(std::string filename)
 			if(tm.setApplicationPassword==NULL)std::cerr << "missing : setApplicationPassword();";
 			if(tm.getItem==NULL)std::cerr << "missing : getItem();";
 			if(tm.setItem==NULL)std::cerr << "missing : setItem();";
-			if(tm.getNetworkPassword_silent==NULL)std::cerr << "missing : getNetworkPassword_silent();";
-			if(tm.setNetworkPassword_silent==NULL)std::cerr << "missing : setNetworkPassword_silent();";
-			if(tm.getApplicationPassword_silent==NULL)std::cerr << "missing : getApplicationPassword_silent();";
-			if(tm.setApplicationPassword_silent==NULL)std::cerr << "missing : setApplicationPassword_silent();";
-			if(tm.getItem_silent==NULL)std::cerr << "missing : getItem_silent();";
-			if(tm.setItem_silent==NULL)std::cerr << "missing : setItem_silent();";
+			if(tm.isWritable==NULL)std::cerr << "missing : isWritable();";
+			if(tm.securityLevel==NULL)std::cerr << "missing : securityLevel();";
+			if(tm.getPasswordListCount==NULL)std::cerr << "missing : getPasswordListCount();";
+			if(tm.getPasswordList==NULL)std::cerr << "missing : getPasswordList();";
 			if(tm.getLastError==NULL)std::cerr << "missing : getLastError();";
-#endif
+		#endif
 			
 			//if minimal functions are here, add the lib to available modules
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getNetworkPassword_silent!=NULL && tm.setNetworkPassword_silent!=NULL && tm.getApplicationPassword_silent!=NULL && tm.setApplicationPassword_silent!=NULL && tm.getItem_silent!=NULL && tm.setItem_silent!=NULL && tm.getLastError!=NULL)
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getPasswordListCount!=NULL && tm.getPasswordList!=NULL)
 			{
 				//Get the ID of the library
 				tm.id=(tm.getModuleID)();
@@ -194,7 +193,7 @@ unsigned int PPK_Modules::getModulesList(ppk::PPassKeeper_Module* pmodules, unsi
 		return false;
 }
 
-_module* PPK_Modules::getModuleByID(const char* module_id) //return the corresponding module or NULL if the module is not referenced
+const _module* PPK_Modules::getModuleByID(const char* module_id) //return the corresponding module or NULL if the module is not referenced
 {
 	//Does the module exist ?
 	std::map<std::string,_module>::iterator fter = modules.find(module_id);

@@ -21,7 +21,7 @@ class PPK_Modules
 		unsigned int size();
 		unsigned int getModulesList(ppk::PPassKeeper_Module* pmodules, unsigned int ModulesCount);
 		
-		_module* getModuleByID(const char* module_id);
+		const _module* getModuleByID(const char* module_id);
 };
 
 #endif

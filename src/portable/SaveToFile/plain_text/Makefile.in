@@ -52,11 +52,11 @@ dllibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(dllib_LTLIBRARIES)
 libppk_savetofile_pt_la_LIBADD =
 am__libppk_savetofile_pt_la_SOURCES_DIST = ../savetofile.cpp \
-	../savetofile-dir.cpp ../savetofile-mkdir.cpp \
-	savetofile_plain_text.cpp
+	../savetofile-dir.cpp ../savetofile-mkdir.cpp ../list_pwd.h \
+	../list_pwd.cpp savetofile_plain_text.cpp
 @BUILD_SAVE_TO_FILE_TRUE@am_libppk_savetofile_pt_la_OBJECTS =  \
 @BUILD_SAVE_TO_FILE_TRUE@	savetofile.lo savetofile-dir.lo \
-@BUILD_SAVE_TO_FILE_TRUE@	savetofile-mkdir.lo \
+@BUILD_SAVE_TO_FILE_TRUE@	savetofile-mkdir.lo list_pwd.lo \
 @BUILD_SAVE_TO_FILE_TRUE@	savetofile_plain_text.lo
 libppk_savetofile_pt_la_OBJECTS =  \
 	$(am_libppk_savetofile_pt_la_OBJECTS)
@@ -77,6 +77,15 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libppk_savetofile_pt_la_SOURCES)
 DIST_SOURCES = $(am__libppk_savetofile_pt_la_SOURCES_DIST)
@@ -230,7 +239,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
 @BUILD_SAVE_TO_FILE_TRUE@dllib_LTLIBRARIES = libppk_savetofile_pt.la
-@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp savetofile_plain_text.cpp
+@BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_SOURCES = ../savetofile.cpp ../savetofile-dir.cpp ../savetofile-mkdir.cpp ../list_pwd.h ../list_pwd.cpp savetofile_plain_text.cpp
 @BUILD_SAVE_TO_FILE_TRUE@libppk_savetofile_pt_la_LDFLAGS = -module -shared -no-undefined -avoid-version
 @BUILD_SAVE_TO_FILE_TRUE@AM_CPPFLAGS = @HAVE_CHMOD@
 all: all-am
@@ -302,6 +311,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_pwd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile-dir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile-mkdir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/savetofile.Plo@am__quote@
@@ -348,6 +358,13 @@ savetofile-mkdir.lo: ../savetofile-mkdir.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../savetofile-mkdir.cpp' object='savetofile-mkdir.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o savetofile-mkdir.lo `test -f '../savetofile-mkdir.cpp' || echo '$(srcdir)/'`../savetofile-mkdir.cpp
+
+list_pwd.lo: ../list_pwd.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT list_pwd.lo -MD -MP -MF $(DEPDIR)/list_pwd.Tpo -c -o list_pwd.lo `test -f '../list_pwd.cpp' || echo '$(srcdir)/'`../list_pwd.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/list_pwd.Tpo $(DEPDIR)/list_pwd.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../list_pwd.cpp' object='list_pwd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o list_pwd.lo `test -f '../list_pwd.cpp' || echo '$(srcdir)/'`../list_pwd.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -807,6 +807,7 @@ BUILD_PYTHON_FALSE
 BUILD_PYTHON_TRUE
 BUILD_SAVE_TO_FILE_FALSE
 BUILD_SAVE_TO_FILE_TRUE
+KDE4_INCLUDES
 KDE4CONFIG
 KDE4_FOUND_FALSE
 KDE4_FOUND_TRUE
@@ -6153,13 +6154,13 @@ if test "${lt_cv_nm_interface+set}" = set; then
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:6156: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:6157: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6159: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:6160: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6162: output\"" >&5)
+  (eval echo "\"\$as_me:6163: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -7361,7 +7362,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 7364 "configure"' > conftest.$ac_ext
+  echo '#line 7365 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -9743,11 +9744,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9746: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9747: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9750: \$? = $ac_status" >&5
+   echo "$as_me:9751: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10082,11 +10083,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10085: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10086: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10089: \$? = $ac_status" >&5
+   echo "$as_me:10090: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10187,11 +10188,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10190: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10191: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10194: \$? = $ac_status" >&5
+   echo "$as_me:10195: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10242,11 +10243,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10245: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10246: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10249: \$? = $ac_status" >&5
+   echo "$as_me:10250: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13042,7 +13043,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 13045 "configure"
+#line 13046 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13138,7 +13139,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 13141 "configure"
+#line 13142 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15158,11 +15159,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15161: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15162: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15165: \$? = $ac_status" >&5
+   echo "$as_me:15166: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15257,11 +15258,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15260: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15261: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15264: \$? = $ac_status" >&5
+   echo "$as_me:15265: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15309,11 +15310,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15312: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15313: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15316: \$? = $ac_status" >&5
+   echo "$as_me:15317: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19021,7 +19022,25 @@ $as_echo "no" >&6; }
 fi
 
 
-   if test "x$KDE4CONFIG" = "xyes"; then
+
+  if test "x$KDE4CONFIG" = "xyes"; then
+    KDE4_INCLUDES=
+    for p in "`kde4-config --prefix`/include" \
+      "`kde4-config --prefix`/include/KDE" \
+      "`kde4-config --prefix`/include/kde4"
+    do
+      { $as_echo "$as_me:$LINENO: checking for kwallet.h in $p" >&5
+$as_echo_n "checking for kwallet.h in $p... " >&6; }
+      if test -f "${p}/kwallet.h"; then
+        KDE4_INCLUDES="-I${p}"
+	{ $as_echo "$as_me:$LINENO: result: yes" >&5
+$as_echo "yes" >&6; }
+        break
+      fi
+      { $as_echo "$as_me:$LINENO: result: no" >&5
+$as_echo "no" >&6; }
+    done
+     if test ! -z "$KDE4_INCLUDES"; then
   KDE4_FOUND_TRUE=
   KDE4_FOUND_FALSE='#'
 else
@@ -19029,6 +19048,17 @@ else
   KDE4_FOUND_FALSE=
 fi
 
+
+  else
+     if false; then
+  KDE4_FOUND_TRUE=
+  KDE4_FOUND_FALSE='#'
+else
+  KDE4_FOUND_TRUE='#'
+  KDE4_FOUND_FALSE=
+fi
+
+  fi
 fi
 
  if test "x$arg_stf" != "xno"; then
@@ -19392,6 +19422,13 @@ if test -z "${QTGUI_FOUND_TRUE}" && test -z "${QTGUI_FOUND_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"QTGUI_FOUND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"QTGUI_FOUND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${KDE4_FOUND_TRUE}" && test -z "${KDE4_FOUND_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"KDE4_FOUND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"KDE4_FOUND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -21981,7 +22018,7 @@ echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
-echo -n "kde : " ; test -z "$KDE4CONFIG" && echo "no" || echo "$KDE4CONFIG"
+echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
 echo
 echo "Bindings :"

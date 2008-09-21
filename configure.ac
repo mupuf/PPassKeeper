@@ -83,7 +83,26 @@ if test "x$arg_kde" = "xno"; then
   AM_CONDITIONAL([KDE4_FOUND], [false])
 else
   AC_CHECK_PROG([KDE4CONFIG], [kde4-config], "yes")
-  AM_CONDITIONAL([KDE4_FOUND], [test "x$KDE4CONFIG" = "xyes"])
+
+  if test "x$KDE4CONFIG" = "xyes"; then
+    KDE4_INCLUDES=
+    for p in "`kde4-config --prefix`/include" \
+      "`kde4-config --prefix`/include/KDE" \
+      "`kde4-config --prefix`/include/kde4"
+    do
+      AC_MSG_CHECKING([for kwallet.h in $p])
+      if test -f "${p}/kwallet.h"; then
+        KDE4_INCLUDES="-I${p}"
+	AC_MSG_RESULT([yes])
+        break
+      fi
+      AC_MSG_RESULT([no])
+    done
+    AM_CONDITIONAL([KDE4_FOUND], [test ! -z "$KDE4_INCLUDES"])
+    AC_SUBST([KDE4_INCLUDES])
+  else
+    AM_CONDITIONAL([KDE4_FOUND], [false])
+  fi
 fi
 
 AM_CONDITIONAL([BUILD_SAVE_TO_FILE], [test "x$arg_stf" != "xno"])
@@ -149,7 +168,7 @@ echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
-echo -n "kde : " ; test -z "$KDE4CONFIG" && echo "no" || echo "$KDE4CONFIG"
+echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
 echo
 echo "Bindings :"

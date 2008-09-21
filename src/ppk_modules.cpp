@@ -97,6 +97,8 @@ void PPK_Modules::loadPlugin(std::string filename)
 			tm.getModuleID=(_getModuleID)loadSymbol(dlhandle, "getModuleID");
 			tm.getModuleName=(_getModuleName)loadSymbol(dlhandle, "getModuleName");
 			tm.getABIVersion=(_getABIVersion)loadSymbol(dlhandle, "getABIVersion");
+			tm.readFlagsAvailable=(_readFlagsAvailable)loadSymbol(dlhandle, "readFlagsAvailable");
+			tm.writeFlagsAvailable=(_writeFlagsAvailable)loadSymbol(dlhandle, "writeFlagsAvailable");
 
 			//
 			tm.getNetworkPassword=(_getNetworkPassword)loadSymbol(dlhandle, "getNetworkPassword");
@@ -119,6 +121,8 @@ void PPK_Modules::loadPlugin(std::string filename)
 			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
 			if(tm.getModuleName==NULL)std::cerr << "missing : getModuleName();";
 			if(tm.getABIVersion==NULL)std::cerr << "missing : getABIVersion();";
+			if(tm.readFlagsAvailable==NULL)std::cerr << "missing : readFlagsAvailable();";
+			if(tm.writeFlagsAvailable==NULL)std::cerr << "missing : writeFlagsAvailable();";
 			if(tm.getNetworkPassword==NULL)std::cerr << "missing : getNetworkPassword();";
 			if(tm.setNetworkPassword==NULL)std::cerr << "missing : setNetworkPassword();";
 			if(tm.getApplicationPassword==NULL)std::cerr << "missing : getApplicationPassword();";
@@ -133,7 +137,7 @@ void PPK_Modules::loadPlugin(std::string filename)
 		#endif
 			
 			//if minimal functions are here, add the lib to available modules
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getPasswordListCount!=NULL && tm.getPasswordList!=NULL)
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.getNetworkPassword!=NULL && tm.setNetworkPassword!=NULL && tm.getApplicationPassword!=NULL && tm.setApplicationPassword!=NULL && tm.getItem!=NULL && tm.setItem!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getPasswordListCount!=NULL && tm.getPasswordList!=NULL)
 			{
 				//Get the ID of the library
 				tm.id=(tm.getModuleID)();

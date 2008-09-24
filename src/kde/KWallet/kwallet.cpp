@@ -1,5 +1,6 @@
 #include "../../ppasskeeper-module.h"
 #include "../../tokenizer.h"
+#include "list_pwd.h"
 #include <string>
 #include <iostream>
 
@@ -40,16 +41,6 @@ extern "C" ppk_readFlag readFlagsAvailable()
 extern "C" ppk_writeFlag writeFlagsAvailable()
 {
 	return ppk_wt_silent;
-}
-
-extern "C" unsigned int getPasswordListCount(ppk_password_type type)
-{	
-	return 0;
-}
-
-extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
-{
-	return 0;
 }
 
 KWallet::Wallet* openWallet(unsigned int flags)
@@ -148,25 +139,47 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 		return _setPassword(key, pwd, flags);
 }
 
+std::string prefix(ppk_password_type type)
+{
+	static const char* ppk_network_string = "ppasskeeper_network://";
+	static const char* ppk_app_string = "ppasskeeper_app://";
+	static const char* ppk_item_string = "ppasskeeper_item://";
+
+	switch(type)
+	{
+		case ppk_network:
+			return ppk_network_string;
+			break;
+		case ppk_application:
+			return ppk_app_string;
+			break;
+		case ppk_item:
+			return ppk_item_string;
+			break;
+	}
+	return std::string();
+}
+
 std::string generateNetworkKey(std::string server, int port, std::string username)
 {
-	return "ppasskeeper_network://"+username+"@"+server+":"+toString(port);
+	return prefix(ppk_network)+username+"@"+server+":"+toString(port);
 }
 
 std::string generateApplicationKey(std::string application_name, std::string username)
 {
-	return "ppasskeeper_app://"+username+"@"+application_name;
+	return prefix(ppk_application)+username+"@"+application_name;
 }
 
 std::string generateItemKey(std::string key)
 {
-	return "ppasskeeper_item://"+key;
+	return prefix(ppk_item)+key;
 }
+
 
 //functions
 extern "C" const char* getModuleID()
 {
-	return "KWallet";
+	return "KWallet4";
 }
 
 extern "C" const char* getModuleName()
@@ -179,7 +192,40 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-//Non-Silent operations
+extern "C" unsigned int getPasswordListCount(ppk_password_type type)
+{
+	//Init KDE Application
+	if(init_kde())
+	{
+		//Open the wallet
+		KWallet::Wallet* wallet=openWallet(ppk_rd_silent);
+		if(wallet!=NULL)
+		{
+			ListPwd pwdl;		
+			return pwdl.getPasswordListCount(wallet, prefix(type).c_str(), type);
+		}
+	}
+	
+	return 0;
+}
+
+extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
+{
+	//Init KDE Application
+	if(init_kde())
+	{
+		//Open the wallet
+		KWallet::Wallet* wallet=openWallet(ppk_rd_silent);
+		if(wallet!=NULL)
+		{
+			ListPwd pwdl;
+			return pwdl.getPasswordList(wallet, prefix(type).c_str(), type, pwdList, maxModuleCount);
+		}
+	}
+	
+	return 0;
+}
+
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
 	return getPassword(generateNetworkKey(server, port, username).c_str(), flags);

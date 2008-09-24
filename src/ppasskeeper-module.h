@@ -133,7 +133,7 @@ extern "C"
 
 	
 	//add comments here
-	typedef unsigned int (*_getPasswordListCount)();
+	typedef unsigned int (*_getPasswordListCount)(ppk_password_type type);
 	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount);
 
 	/*

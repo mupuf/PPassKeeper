@@ -156,7 +156,7 @@ extern "C"
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->getPasswordListCount();
+			return mod->getPasswordListCount(type);
 		else
 			return 0;
 	}

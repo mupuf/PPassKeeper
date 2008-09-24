@@ -38,8 +38,8 @@ extern "C"
 	typedef const int (*_getABIVersion)(void);
 
 	//Allow users to know which flags are available
-	typedef ppk::readFlag (*_readFlagsAvailable)(void);
-	typedef ppk::writeFlag (*_writeFlagsAvailable)(void);
+	typedef ppk_readFlag (*_readFlagsAvailable)(void);
+	typedef ppk_writeFlag (*_writeFlagsAvailable)(void);
 
 	/*
 	This function should get the previously stored password using setNetworkPassword.
@@ -65,7 +65,7 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef ppk::boolean (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
+	typedef ppk_boolean (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
 	
 
 	/*
@@ -90,7 +90,7 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef ppk::boolean (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd, unsigned int flags);
+	typedef ppk_boolean (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd, unsigned int flags);
 
 
 	/*
@@ -111,7 +111,7 @@ extern "C"
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
-	typedef ppk::boolean (*_setItem)(const char* key, const char* item, unsigned int flags);
+	typedef ppk_boolean (*_setItem)(const char* key, const char* item, unsigned int flags);
 
 	/*
 	This function returns wether the module can store password or not. 
@@ -121,7 +121,7 @@ extern "C"
 	
 	return : Return TRUE if the module is Writable.
 	*/
-	typedef ppk::boolean (*_isWritable)();
+	typedef ppk_boolean (*_isWritable)();
 
 	/*
 	This function returns the level of security. 
@@ -129,12 +129,12 @@ extern "C"
 	
 	return : Return sec_null=0, sec_hidden=1, sec_safe=2 or sec_perfect=3.
 	*/
-	typedef ppk::security_level (*_securityLevel)();
+	typedef ppk_security_level (*_securityLevel)();
 
 	
 	//add comments here
 	typedef unsigned int (*_getPasswordListCount)();
-	typedef unsigned int (*_getPasswordList)(ppk::password_type type, void* pwdList, unsigned int maxModuleCount);
+	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount);
 
 	/*
 	This function should return a human-readable string describing what caused the last error

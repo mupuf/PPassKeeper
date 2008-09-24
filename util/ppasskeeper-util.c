@@ -131,9 +131,9 @@ int main(int argc, char **argv)
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
-		int c = getAvailableModulesCount();
+		int c = ppk_getAvailableModulesCount();
 		struct PPassKeeper_Module modules[c];
-		getAvailableModules(modules, c);
+		ppk_getAvailableModules(modules, c);
 		int i;
 		for (i = 0; i < c; i++)
 			printf("%s: %s\n", modules[i].id, modules[i].display_name);
@@ -141,15 +141,15 @@ int main(int argc, char **argv)
 	{
 		if (! pwd_type || ! module_id || ! key || password) usage();
 		if (pwd_type == ITEM_PASSWORD)
-			printf("%s\n", getItem(module_id, key, 0));
+			printf("%s\n", ppk_getItem(module_id, key, 0));
 		else if (pwd_type == APP_PASSWORD)
 		{
 			struct app_params p = appParameters();
-			printf("%s\n", getApplicationPassword(module_id, p.name, p.username, 0));
+			printf("%s\n", ppk_getApplicationPassword(module_id, p.name, p.username, 0));
 		} else if (pwd_type == NET_PASSWORD)
 		{
 			struct net_params p = netParameters();
-			printf("%s\n", getNetworkPassword(module_id, p.server, p.port, p.username, 0));
+			printf("%s\n", ppk_getNetworkPassword(module_id, p.server, p.port, p.username, 0));
 		} else {
 			//shouldn't happen
 			return 1;
@@ -164,15 +164,15 @@ int main(int argc, char **argv)
 			if (errno == ENXIO) return 1;
 		}
 		if (pwd_type == ITEM_PASSWORD)
-			setItem(module_id, key, password, 0);
+			ppk_setItem(module_id, key, password, 0);
 		else if (pwd_type == APP_PASSWORD)
 		{
 			struct app_params p = appParameters();
-			setApplicationPassword(module_id, p.name, p.username, password, 0);
+			ppk_setApplicationPassword(module_id, p.name, p.username, password, 0);
 		} else if (pwd_type == NET_PASSWORD)
 		{
 			struct net_params p = netParameters();
-			setNetworkPassword(module_id, p.server, p.port, p.username, password, 0);
+			ppk_setNetworkPassword(module_id, p.server, p.port, p.username, password, 0);
 		}
 	} else {
 		//shouldn't happen

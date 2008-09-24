@@ -21,33 +21,33 @@ void setError(std::string error)
 	*(last_error())="PPK_KWallet : " + error;
 }
 
-extern "C" ppk::boolean isWritable()
+extern "C" ppk_boolean isWritable()
 {
-	return ppk::BTRUE;
+	return PPK_TRUE;
 }
 
-extern "C" ppk::security_level securityLevel(const char* module_id)
+extern "C" ppk_security_level securityLevel(const char* module_id)
 {
-	return ppk::sec_safe;
+	return ppk_sec_safe;
 }
 
 //Get available flags
-extern "C" ppk::readFlag readFlagsAvailable()
+extern "C" ppk_readFlag readFlagsAvailable()
 {
-	return ppk::rd_silent;
+	return ppk_rd_silent;
 }
 
-extern "C" ppk::writeFlag writeFlagsAvailable()
+extern "C" ppk_writeFlag writeFlagsAvailable()
 {
-	return ppk::wt_silent;
+	return ppk_wt_silent;
 }
 
-extern "C" unsigned int getPasswordListCount(ppk::password_type type)
+extern "C" unsigned int getPasswordListCount(ppk_password_type type)
 {	
 	return 0;
 }
 
-extern "C"  unsigned int getPasswordList(ppk::password_type type, void* pwdList, unsigned int maxModuleCount)
+extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
 {
 	return 0;
 }
@@ -59,7 +59,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		KWallet::Wallet* wallet=NULL;
 	
 		//OPen the wallet only if it won't annoy people who don't want to be prompted
-		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk::wt_silent)==0)
+		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_wt_silent)==0)
 		{
 			wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
 
@@ -107,7 +107,7 @@ const char* _getPassword(const char* key, unsigned int flags)
 
 bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 {
-	if((int)(flags&ppk::wt_silent)==0)
+	if((int)(flags&ppk_wt_silent)==0)
 	{
 		KWallet::Wallet* wallet=openWallet(flags);
 		if(wallet!=NULL)
@@ -163,19 +163,6 @@ std::string generateItemKey(std::string key)
 	return "ppasskeeper_item://"+key;
 }
 
-
-//constructors & destructors
-/*extern "C" void _init(void)
-{
-
-}
-
-extern "C" void _fini(void)
-{
-
-}*/
-
-
 //functions
 extern "C" const char* getModuleID()
 {
@@ -200,7 +187,7 @@ extern "C" const char* getNetworkPassword(const char* server, int port, const ch
 
 extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
-	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
+	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
@@ -210,7 +197,7 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 
 extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
-	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
+	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getItem(const char* key, unsigned int flags)
@@ -220,7 +207,7 @@ extern "C" const char* getItem(const char* key, unsigned int flags)
 
 extern "C" int setItem(const char* key, const char* item, unsigned int flags)
 {
-	return setPassword(generateItemKey(key).c_str(), item, flags)?ppk::BTRUE:ppk::BFALSE;
+	return setPassword(generateItemKey(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getLastError()

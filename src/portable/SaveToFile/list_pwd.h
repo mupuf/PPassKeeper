@@ -16,14 +16,14 @@ class ListPwd
 		bool addNetworkPassword(std::string stripped_name);
 		bool addAppPassword(std::string stripped_name);
 		bool addItemPassword(std::string stripped_name);
-		bool parseFileName(std::string prefix, std::string filename, ppk::password_type type);
-		unsigned int updateDataBase(const char* dir, const char* prefix, ppk::password_type type);
+		bool parseFileName(std::string prefix, std::string filename, ppk_password_type type);
+		unsigned int updateDataBase(const char* dir, const char* prefix, ppk_password_type type);
 
-		unsigned int copyDBToPwdList(ppk::password_type type, void* pwdList, unsigned int maxPasswordCount);
+		unsigned int copyDBToPwdList(ppk_password_type type, void* pwdList, unsigned int maxPasswordCount);
 		unsigned int copyNetworkToPwdList(void* pwdList, unsigned int maxPasswordCount);
 		unsigned int copyApplicationToPwdList(void* pwdList, unsigned int maxPasswordCount);
 		unsigned int copyItemToPwdList(void* pwdList, unsigned int maxPasswordCount);
 	public:
-		unsigned int getPasswordListCount(const char* dir, const char* prefix, ppk::password_type type);
-		unsigned int getPasswordList(const char* dir, const char* prefix, ppk::password_type type, void* pwdList, unsigned int maxPasswordCount);
+		unsigned int getPasswordListCount(const char* dir, const char* prefix, ppk_password_type type);
+		unsigned int getPasswordList(const char* dir, const char* prefix, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount);
 };

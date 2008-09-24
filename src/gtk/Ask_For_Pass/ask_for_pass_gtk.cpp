@@ -32,34 +32,34 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" ppk::boolean isWritable()
+extern "C" ppk_boolean isWritable()
 {
-	return ppk::BFALSE;
+	return PPK_FALSE;
 }
 
-extern "C" ppk::security_level securityLevel(const char* module_id)
+extern "C" ppk_security_level securityLevel(const char* module_id)
 {
-	return ppk::sec_perfect;
+	return ppk_sec_perfect;
 }
 
 //Get available flags
-extern "C" ppk::readFlag readFlagsAvailable()
+extern "C" ppk_readFlag readFlagsAvailable()
 {
-	return ppk::rd_silent;
+	return ppk_rd_silent;
 }
 
-extern "C" ppk::writeFlag writeFlagsAvailable()
+extern "C" ppk_writeFlag writeFlagsAvailable()
 {
-	return ppk::wt_none;
+	return ppk_wt_none;
 }
 
 
-extern "C" unsigned int getPasswordListCount(ppk::password_type type)
+extern "C" unsigned int getPasswordListCount(ppk_password_type type)
 {	
 	return 0;
 }
 
-extern "C"  unsigned int getPasswordList(ppk::password_type type, void* pwdList, unsigned int maxModuleCount)
+extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
 {
 	return 0;
 }
@@ -68,7 +68,7 @@ extern "C"  unsigned int getPasswordList(ppk::password_type type, void* pwdList,
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
 	static std::string pwd;	
-	if((int)(flags&ppk::rd_silent)==0)
+	if((int)(flags&ppk_rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
 
@@ -98,7 +98,7 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 {
 	static std::string pwd; 
 
-	if((int)(flags&ppk::rd_silent)==0)
+	if((int)(flags&ppk_rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
 
@@ -126,7 +126,7 @@ extern "C" int setApplicationPassword(const char* application_name, const char* 
 extern "C" const char* getItem(const char* key, unsigned int flags)
 {
 	static std::string pwd;
-	if((int)(flags&ppk::rd_silent)==0)
+	if((int)(flags&ppk_rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ",pwd);
 

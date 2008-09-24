@@ -73,7 +73,7 @@ bool ListPwd::addItemPassword(std::string stripped_name)
 		return false;
 }
 
-bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk::password_type type)
+bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_password_type type)
 {
 	//Example : filename=ENC_NET_mupuf@mupuf.fr.nf:21, prefix=ENC_NET_, type=network
 	
@@ -83,15 +83,15 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk::passw
 	//Depending on the type
 	switch(type)
 	{
-		case ppk::network:
+		case ppk_network:
 		{
 			return addNetworkPassword(suffix);
 		}
-		case ppk::application:
+		case ppk_application:
 		{
 			return addAppPassword(suffix);
 		}
-		case ppk::item:
+		case ppk_item:
 		{
 			return addItemPassword(suffix);
 		}
@@ -108,7 +108,7 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk::passw
 	#include <sys/types.h>
 	#include <dirent.h>
 	
-	unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk::password_type type)
+	unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
 	{	
 		DIR * pwddir;
 		struct dirent * mydirent;
@@ -134,20 +134,20 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk::passw
 	}
 #endif
 
-unsigned int ListPwd::copyDBToPwdList(ppk::password_type type, void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::copyDBToPwdList(ppk_password_type type, void* pwdList, unsigned int maxPasswordCount)
 {
 	//Depending on the type
 	switch(type)
 	{
-		case ppk::network:
+		case ppk_network:
 		{
 			return copyNetworkToPwdList(pwdList, maxPasswordCount);
 		}
-		case ppk::application:
+		case ppk_application:
 		{
 			return copyApplicationToPwdList(pwdList, maxPasswordCount);
 		}
-		case ppk::item:
+		case ppk_item:
 		{
 			return copyItemToPwdList(pwdList, maxPasswordCount);
 		}
@@ -155,7 +155,7 @@ unsigned int ListPwd::copyDBToPwdList(ppk::password_type type, void* pwdList, un
 }
 unsigned int ListPwd::copyNetworkToPwdList(void* pwdList, unsigned int maxPasswordCount)
 {
-	ppk::PPassKeeper_module_entry_net* list=(ppk::PPassKeeper_module_entry_net*) pwdList;
+	PPassKeeper_module_entry_net* list=(PPassKeeper_module_entry_net*) pwdList;
 
 	int i;
 	for(i=0;i<listNet.size() && i<maxPasswordCount;i++)
@@ -169,7 +169,7 @@ unsigned int ListPwd::copyNetworkToPwdList(void* pwdList, unsigned int maxPasswo
 }
 unsigned int ListPwd::copyApplicationToPwdList(void* pwdList, unsigned int maxPasswordCount)
 {
-	ppk::PPassKeeper_module_entry_app* list=(ppk::PPassKeeper_module_entry_app*) pwdList;
+	PPassKeeper_module_entry_app* list=(PPassKeeper_module_entry_app*) pwdList;
 
 	for(int i=0;i<listApp.size() && i<maxPasswordCount;i++)
 	{
@@ -182,7 +182,7 @@ unsigned int ListPwd::copyApplicationToPwdList(void* pwdList, unsigned int maxPa
 
 unsigned int ListPwd::copyItemToPwdList(void* pwdList, unsigned int maxPasswordCount)
 {
-	ppk::PPassKeeper_module_entry_item* list=(ppk::PPassKeeper_module_entry_item*) pwdList;
+	PPassKeeper_module_entry_item* list=(PPassKeeper_module_entry_item*) pwdList;
 
 	for(int i=0;i<listItem.size() && i<maxPasswordCount;i++)
 	{
@@ -192,18 +192,16 @@ unsigned int ListPwd::copyItemToPwdList(void* pwdList, unsigned int maxPasswordC
 	return listItem.size();
 }
 
-unsigned int ListPwd::getPasswordListCount(const char* dir, const char* prefix, ppk::password_type type)
+unsigned int ListPwd::getPasswordListCount(const char* dir, const char* prefix, ppk_password_type type)
 {
 	//Update the database and return how many password were found
 	return updateDataBase(dir, prefix, type);
 }
 
-unsigned int ListPwd::getPasswordList(const char* dir, const char* prefix, ppk::password_type type, void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::getPasswordList(const char* dir, const char* prefix, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount)
 {
 	//Update the database before putting data into pwdList
 	updateDataBase(dir, prefix, type);
-
-	std::cout << "Il y a " << (int)listNet.size() << " passwords !" << std::endl;
 
 	//Put data into pwdList
 	return copyDBToPwdList(type, pwdList, maxPasswordCount);

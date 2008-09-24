@@ -49,48 +49,49 @@ extern "C"
 		return 1;
 	}
 
-	ppk::boolean isWritable()
+
+	ppk_boolean isWritable()
 	{
-		return ppk::BTRUE;
+		return PPK_TRUE;
 	}
 
 	//Get available flags
-	ppk::readFlag readFlagsAvailable()
+	ppk_readFlag readFlagsAvailable()
 	{
-		return ppk::rd_silent;
+		return ppk_rd_silent;
 	}
 
-	ppk::writeFlag writeFlagsAvailable()
+	ppk_writeFlag writeFlagsAvailable()
 	{
-		return ppk::wt_silent;
+		return ppk_wt_silent;
 	}
 
 	//List passwords available
-	std::string prefix(ppk::password_type type)
+	std::string prefix(ppk_password_type type)
 	{
 		std::string prefix=shortName();
 		switch(type)
 		{
-			case ppk::network:
+			case ppk_network:
 				prefix+="_NET_";
 				break;
-			case ppk::application:
+			case ppk_application:
 				prefix+="_APP_";
 				break;
-			case ppk::item:
+			case ppk_item:
 				prefix+="_ITM_";
 				break;
 		}
 		return prefix;
 	}
 
-	unsigned int getPasswordListCount(ppk::password_type type)
+	unsigned int getPasswordListCount(ppk_password_type type)
 	{
 		ListPwd pwdl;		
 		return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);
 	}
 
-	unsigned int getPasswordList(ppk::password_type type, void* pwdList, unsigned int maxModuleCount)
+	unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
 	{
 		static ListPwd pwdl;	
 		return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);
@@ -103,9 +104,9 @@ extern "C"
 		return pwd.c_str();
 	}
 
-	ppk::boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+	ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 	{
-		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
+		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
@@ -114,9 +115,9 @@ extern "C"
 		return pwd.c_str();
 	}
 
-	ppk::boolean setApplicationPassword(const char* application_name, const char* username, const char* pwd, unsigned int flags)
+	ppk_boolean setApplicationPassword(const char* application_name, const char* username, const char* pwd, unsigned int flags)
 	{
-		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd, flags)?ppk::BTRUE:ppk::BFALSE;
+		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	const char* getItem(const char* key, unsigned int flags)
@@ -125,9 +126,9 @@ extern "C"
 		return pwd.c_str();
 	}
 
-	ppk::boolean setItem(const char* key, const char* item, unsigned int flags)
+	ppk_boolean setItem(const char* key, const char* item, unsigned int flags)
 	{
-		return setPassword(generateItemPath(key).c_str(), item, flags)?ppk::BTRUE:ppk::BFALSE;
+		return setPassword(generateItemPath(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	const char* getLastError()

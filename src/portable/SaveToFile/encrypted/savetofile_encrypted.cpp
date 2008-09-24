@@ -33,9 +33,9 @@ extern "C" const char* getModuleName()
 	return "Poorly-encrypted storage";
 }
 
-extern "C" ppk::security_level securityLevel(const char* module_id)
+extern "C" ppk_security_level securityLevel(const char* module_id)
 {
-	return ppk::sec_scrambled;
+	return ppk_sec_scrambled;
 }
 
 std::string encrypt(std::string pwd)

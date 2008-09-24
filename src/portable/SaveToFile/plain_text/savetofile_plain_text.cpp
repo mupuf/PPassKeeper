@@ -31,9 +31,9 @@ extern "C" const char* getModuleName()
 	return "Plain-text storage";
 }
 
-extern "C" ppk::security_level securityLevel(const char* module_id)
+extern "C" ppk_security_level securityLevel(const char* module_id)
 {
-	return ppk::sec_lowest;
+	return ppk_sec_lowest;
 }
 
 const char* getPassword(std::string filepath, unsigned int flags)

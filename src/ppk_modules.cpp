@@ -179,7 +179,7 @@ unsigned int PPK_Modules::size()
 	return modules.size();
 }
 
-unsigned int PPK_Modules::getModulesList(ppk::PPassKeeper_Module* pmodules, unsigned int ModulesCount)
+unsigned int PPK_Modules::getModulesList(PPassKeeper_Module* pmodules, unsigned int ModulesCount)
 {
 	if(modules.size()>0)
 	{

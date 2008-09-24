@@ -1,6 +1,7 @@
 #include "ppasskeeper.h"
 #include "ppasskeeper-module.h"
 #include "ppk_modules.h"
+#include <iostream>
 
 //global variables
 PPK_Modules modules;
@@ -55,7 +56,10 @@ extern "C"
 		{
 			const char* res=mod->getNetworkPassword(server,port,username, flags);
 			if(res!=NULL)
+			{
+				pwd=res;
 				return pwd.c_str();
+			}
 			else
 				return NULL;
 		}

@@ -77,7 +77,7 @@ extern "C" const char* getNetworkPassword(const char* server, int port, const ch
 {
 	static std::string pwd;	
 	
-	if(flags&ppk::rd_silent==0)
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=QT_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
 
@@ -106,7 +106,7 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 {
 	static std::string pwd;		
 
-	if(flags&ppk::rd_silent==0)
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=QT_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
 
@@ -135,7 +135,7 @@ extern "C" const char* getItem(const char* key, unsigned int flags)
 {
 	static std::string pwd;	
 
-	if(flags&ppk::rd_silent==0)
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=QT_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ",pwd);
 
@@ -189,10 +189,10 @@ bool QT_Get_Password(std::string title, std::string label, std::string& pwd)
 		QApplication app(0,NULL);
 
 		//Retrieve the password
-		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Normal,"",&ok).toStdString();
+		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Password,"",&ok).toStdString();
 	}
 	else
-		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Normal,"",&ok).toStdString(); //Retrieve the password
+		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Password,"",&ok).toStdString(); //Retrieve the password
 
 	//if user pressed cancel
 	if(!ok)

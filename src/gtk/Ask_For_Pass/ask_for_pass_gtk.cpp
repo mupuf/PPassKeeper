@@ -64,11 +64,11 @@ extern "C"  unsigned int getPasswordList(ppk::password_type type, void* pwdList,
 	return 0;
 }
 
+#include <iostream>
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
 	static std::string pwd;	
-
-	if(flags&ppk::rd_silent==0)
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
 
@@ -93,10 +93,12 @@ extern "C" int setNetworkPassword(const char* server, int port, const char* user
 	return 0;
 }
 
+
 extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 {
-	static std::string pwd;
-	if(flags&ppk::rd_silent==0)
+	static std::string pwd; 
+
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
 
@@ -124,7 +126,7 @@ extern "C" int setApplicationPassword(const char* application_name, const char* 
 extern "C" const char* getItem(const char* key, unsigned int flags)
 {
 	static std::string pwd;
-	if(flags&ppk::rd_silent==0)
+	if((int)(flags&ppk::rd_silent)==0)
 	{
 		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ",pwd);
 
@@ -179,8 +181,8 @@ bool GTK_Get_Password(std::string title, std::string label, std::string& pwd)
 	pBoite = gtk_dialog_new_with_buttons(title.c_str(),
 		GTK_WINDOW(NULL),
 		GTK_DIALOG_MODAL,
-		GTK_STOCK_OK,GTK_RESPONSE_OK,
 		GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OK,GTK_RESPONSE_OK,
 		NULL);
 
 	//Create the label

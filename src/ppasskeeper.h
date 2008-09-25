@@ -81,7 +81,7 @@ extern "C"
 	/*! \brief returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/
-	enum ppk_readFlag rppk_eadFlagsAvailable(const char* module_id);
+	enum ppk_readFlag ppk_readFlagsAvailable(const char* module_id);
 
 	/*! \brief returns supported writing flags for a given module
 	* \param module_id in: Module's ID.

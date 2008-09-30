@@ -23,7 +23,7 @@ const char* libraryError();
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
     
-	    hSearch = FindFirstFile("*.dll*", &File);
+	    hSearch = FindFirstFile("ppasskeeper/*.dll*", &File);
 	    if (hSearch != INVALID_HANDLE_VALUE)
 	    {
 	        do {
@@ -34,7 +34,7 @@ const char* libraryError();
 	    }
 #ifdef DEBUG_MSG
 		else
-			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
+			std::cerr << "Could not open plugins directory" << std::endl;
 #endif
 	}
 #else

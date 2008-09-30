@@ -11,7 +11,7 @@ std::string* last_error()
 bool QT_Get_Password(std::string title, std::string label, std::string& pwd);
 void setError(std::string error)
 {
-	*(last_error())="PPK_Ask_For_Pass_QT : " + error;
+	*(last_error())="PPK_Ask_For_Pass_Qt : " + error;
 }
 
 //functions

@@ -6,7 +6,6 @@
 //global variables
 PPK_Modules modules;
 
-
 //Public functions
 extern "C"
 {

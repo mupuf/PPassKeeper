@@ -27,7 +27,14 @@ AC_C_INLINE
 # Checks for library functions.
 AC_CHECK_FUNCS([mkdir])
 
-AC_CHECK_FUNC([chmod], [HAVE_CHMOD='-DHAVE_CHMOD'], [HAVE_CHMOD=])
+case "$host" in
+  *mingw*)
+    HAVE_CHMOD=
+    ;;
+  *)
+    HAVE_CHMOD="-DHAVE_CHMOD"
+    ;;
+esac
 AC_SUBST([HAVE_CHMOD])
 
 LT_INIT([win32-dll])

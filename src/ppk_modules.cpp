@@ -23,18 +23,18 @@ const char* libraryError();
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
     
-	    hSearch = FindFirstFile("ppasskeeper/*.dll*", &File);
+	    hSearch = FindFirstFile("F:/Filesender/bin/ppasskeeper/*.dll", &File);
 	    if (hSearch != INVALID_HANDLE_VALUE)
 	    {
 	        do {
-				loadPlugin(File.cFileName);
+				loadPlugin("F:/Filesender/bin/ppasskeeper/", File.cFileName);
 	        } while (FindNextFile(hSearch, &File));
 	        
 	        FindClose(hSearch);
 	    }
 #ifdef DEBUG_MSG
 		else
-			std::cerr << "Could not open plugins directory" << std::endl;
+			std::cerr << "Could not open plugins directory" << DIRECTORY_PATH << std::endl;
 #endif
 	}
 #else
@@ -55,9 +55,10 @@ const char* libraryError();
 			while ((mydirent = readdir(plugindir))!=NULL)
 			{
 				int i = strlen(mydirent->d_name) - 3;
+
 				//suffix check: don't load libtool (.la) files
 				if (i >= 0 && strcmp(mydirent->d_name + i, ".la")!=0)
-					loadPlugin(mydirent->d_name);
+					loadPlugin(DIRECTORY_PATH, mydirent->d_name);
 			}
 			
 			closedir(plugindir);
@@ -70,23 +71,18 @@ const char* libraryError();
 #endif
 
 //Private functions
-void PPK_Modules::loadPlugin(std::string filename)
+void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 {
-	std::string filepath;
-	
 	//if the filename doesn't have the right prefix then try to load it as a shared object
 	if(filename.size()>7 && filename.substr(0,7)=="libppk_")
 	{
-		//generate the filepath
-		filepath=toString(DIRECTORY_PATH)+"/"+filename;
-
 #ifdef DEBUG_MSG
 		//debug
-		std::cerr << "Load the plugin '" << filepath << "' : ";
+		std::cerr << "Load the plugin '" << dirpath+"/"+filename << "' : ";
 #endif
 
 		//Load the shared object
-		void* dlhandle = openLibrary(filepath);
+		void* dlhandle = openLibrary(dirpath+"/"+filename);
 		if (dlhandle!=NULL)
 		{
 			_module tm; //Temporary module

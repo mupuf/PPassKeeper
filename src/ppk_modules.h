@@ -12,7 +12,7 @@ class PPK_Modules
 	private:
 		std::map<std::string, _module> modules;
 		
-		void loadPlugin(std::string filename);
+		void loadPlugin(std::string dirpath, std::string filepath);
 		void loadPlugins(void);
 
 	public:

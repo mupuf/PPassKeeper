@@ -17,24 +17,48 @@ const char* libraryError();
 	void* openLibrary(std::string lib_path){return LoadLibraryA(lib_path.c_str());}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return (void*)GetProcAddress((HINSTANCE__*)dlhandle, symbolName);}
 	const char* libraryError(){return "";}
+
+	static const char* baseKey="Software\\PPassKeeper\\";
+	const char* getRegistryValue(const char* key)
+	{
+		static std::string value;
+
+		HKEY hk;
+		static char tmpBuf[101];
+		if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
+		{
+			DWORD size=sizeof(tmpBuf);
+			RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
+			RegCloseKey(hk);
+		
+			value=tmpBuf;
+			return value.c_str();
+		}
+		else
+			return "";
+	}
 	
 	void PPK_Modules::loadPlugins(void)
 	{	
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
-    
-	    hSearch = FindFirstFile("F:/Filesender/bin/ppasskeeper/*.dll", &File);
+		
+		//char dir_path[2048];
+    	//unsigned int len=GetEnvironmentVariableA("ppasskeeperMods", dir_path, (DWORD)sizeof(dir_path));
+		std::string dirpath=getRegistryValue("mods_path");
+
+	    hSearch = FindFirstFile((dirpath+"\\*.dll").c_str(), &File);
 	    if (hSearch != INVALID_HANDLE_VALUE)
 	    {
 	        do {
-				loadPlugin("F:/Filesender/bin/ppasskeeper/", File.cFileName);
+				loadPlugin(dirpath, File.cFileName);
 	        } while (FindNextFile(hSearch, &File));
 	        
 	        FindClose(hSearch);
 	    }
 #ifdef DEBUG_MSG
 		else
-			std::cerr << "Could not open plugins directory" << DIRECTORY_PATH << std::endl;
+			std::cerr << "Could not open plugins directory : " << dirpath << std::endl;
 #endif
 	}
 #else

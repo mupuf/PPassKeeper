@@ -1,4 +1,4 @@
-SUBDIRS = gtk qt kde portable
+SUBDIRS = gtk qt kde portable windows
 
 if BUILD_PPKLIB
   lib_LTLIBRARIES = libppasskeeper.la

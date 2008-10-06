@@ -2,15 +2,17 @@
 #include "../../tokenizer.h"
 #include <string>
 #include <windows.h>
+#include "list_pwd.h"
 
 
 //Local definitions
 static const char* baseKey="Software\\PPassKeeper\\";
 
 //local functions
-extern "C" const char* getLastError()
+std::string* last_error()
 {
-	return last_error()->c_str();
+	static std::string lerror;
+	return &lerror;
 }
 void setError(std::string error)
 {
@@ -79,32 +81,85 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
+extern "C" ppk_boolean isWritable()
+{
+	return PPK_TRUE;
+}
+
+extern "C" ppk_security_level securityLevel(const char* module_id)
+{
+	return ppk_sec_lowest;
+}
+
+//Get available flags
+extern "C" ppk_readFlag readFlagsAvailable()
+{
+	return ppk_rd_none;
+}
+
+extern "C" ppk_writeFlag writeFlagsAvailable()
+{
+	return ppk_wt_none;
+}
+
+//List passwords available
+std::string prefix(ppk_password_type type)
+{
+	std::string prefix="ppasskeeper_";
+	switch(type)
+	{
+		case ppk_network:
+			prefix+="network";
+			break;
+		case ppk_application:
+			prefix+="app";
+			break;
+		case ppk_item:
+			prefix+="item";
+			break;
+	}
+	return prefix+"://";
+}
+extern "C" unsigned int getPasswordListCount(ppk_password_type type)
+{
+	/*ListPwd pwdl;		
+	return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);*/
+return 0;
+}
+extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
+{
+	/*static ListPwd pwdl;	
+	return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);*/
+	return 0;
+}
+
+//Functions 
+extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
 	return getPassword(generateNetworkKey(server, port, username).c_str());
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
+extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
 	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd)?0:-1;
 }
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username)
+extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 {
 	return getPassword(generateApplicationKey(application_name, username).c_str());
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd)
+extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
 	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd)?0:-1;
 }
 
-extern "C" const char* getItem(const char* key)
+extern "C" const char* getItem(const char* key, unsigned int flags)
 {
 	return getPassword(generateItemKey(key).c_str());
 }
 
-extern "C" int setItem(const char* key, const char* item)
+extern "C" int setItem(const char* key, const char* item, unsigned int flags)
 {
 	return setPassword(generateItemKey(key).c_str(), item)?0:-1;
 }

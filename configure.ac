@@ -27,16 +27,6 @@ AC_C_INLINE
 # Checks for library functions.
 AC_CHECK_FUNCS([mkdir])
 
-case "$host" in
-  *mingw*)
-    HAVE_CHMOD=
-    ;;
-  *)
-    HAVE_CHMOD="-DHAVE_CHMOD"
-    ;;
-esac
-AC_SUBST([HAVE_CHMOD])
-
 LT_INIT([win32-dll])
 LT_OUTPUT
 LT_LIB_DLLOAD
@@ -48,8 +38,30 @@ AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plu
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])
 AC_ARG_ENABLE(kde,     [  --disable-kde      do not build the KDE plugin (autodetect)], [arg_kde=$enableval])
+AC_ARG_ENABLE(win32,   [  --disable-win32    do not build the WIN32 plugins (autodetect)], [arg_win32=$enableval])
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
 AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
+
+case "$host" in
+  *mingw*)
+    HAVE_CHMOD=
+	
+	if test "x$arg_win32" != "xno"; then
+		AM_CONDITIONAL([WINDOWS_FOUND], [true])
+		WINDOWS_FOUND="yes"
+	else
+		AM_CONDITIONAL([WINDOWS_FOUND], [false])
+		WINDOWS_FOUND="no"	
+	fi
+	;;
+  *)
+    HAVE_CHMOD="-DHAVE_CHMOD"
+	AM_CONDITIONAL([WINDOWS_FOUND], [false])
+	WINDOWS_FOUND="no"
+    ;;
+esac
+AC_SUBST([HAVE_CHMOD])
+
 
 if test "x$arg_debug" = "xyes"; then
   DEBUG_CPPFLAG='-DDEBUG_MSG'
@@ -147,6 +159,9 @@ src/portable/Makefile
 src/portable/SaveToFile/Makefile
 src/portable/SaveToFile/encrypted/Makefile
 src/portable/SaveToFile/plain_text/Makefile
+src/windows/Makefile
+src/windows/Ask_For_Pass/Makefile
+src/windows/SaveToRegistry/Makefile
 src/ppasskeeper.pc
 python/Makefile
 util/Makefile]
@@ -174,9 +189,10 @@ echo
 echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
-echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
 echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
+echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
+echo -n "win32 : " ; test -z "$WINDOWS_FOUND" && echo "no" || echo "$WINDOWS_FOUND"
 echo
 echo "Bindings :"
 echo "-------------------------------------------"

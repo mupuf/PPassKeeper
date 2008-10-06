@@ -3,6 +3,11 @@
 #include <string>
 
 //local functions
+std::string* last_error()
+{
+	static std::string lerror;
+	return &lerror;
+}
 extern "C" const char* getLastError()
 {
 	return last_error()->c_str();
@@ -41,31 +46,68 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
+extern "C" ppk_boolean isWritable()
 {
-	static std::string pwd;
-
-	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
-
-	//if everything went fine
-	if(res)
-	{
-		setError("");
-		return pwd.c_str();
-	}
-	else
-	{
-		setError("User pressed cancel");
-		return NULL;
-	}
+	return PPK_FALSE;
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
+extern "C" ppk_security_level securityLevel(const char* module_id)
+{
+	return ppk_sec_perfect;
+}
+
+//Get available flags
+extern "C" ppk_readFlag readFlagsAvailable()
+{
+	return ppk_rd_silent;
+}
+
+extern "C" ppk_writeFlag writeFlagsAvailable()
+{
+	return ppk_wt_none;
+}
+
+
+extern "C" unsigned int getPasswordListCount(ppk_password_type type)
+{	
+	return 0;
+}
+
+extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
 {
 	return 0;
 }
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username)
+extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+{
+	static std::string pwd;
+
+	if((int)(flags&ppk_rd_silent)==0)
+	{
+		bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
+
+		//if everything went fine
+		if(res)
+		{
+			setError("");
+			return pwd.c_str();
+		}
+		else
+		{
+			setError("User pressed cancel");
+			return NULL;
+		}
+	}
+	else
+		return NULL;
+}
+
+extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+{
+	return 0;
+}
+
+extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 {
 	static std::string pwd;
 
@@ -84,12 +126,12 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 	}
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd)
+extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
 	return 0;
 }
 
-extern "C" const char* getItem(const char* key)
+extern "C" const char* getItem(const char* key, unsigned int flags)
 {
 	static std::string pwd;
 
@@ -108,14 +150,9 @@ extern "C" const char* getItem(const char* key)
 	}
 }
 
-extern "C" int setItem(const char* key, const char* item)
+extern "C" int setItem(const char* key, const char* item, unsigned int flags)
 {
 	return 0;
-}
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
 }
 
 /*************************************************************************************************

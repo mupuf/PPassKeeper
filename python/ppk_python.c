@@ -30,9 +30,10 @@ PyObject *wrap_getNetworkPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *server, *username;
 	int port;
-	int ok = PyArg_ParseTuple(args, "ssis", &module_id, &server, &port, &username);
+	unsigned int flags=0;
+	int ok = PyArg_ParseTuple(args, "ssisi", &module_id, &server, &port, &username, &flags);
 	if (! ok) return 0;
-	const char *result = getNetworkPassword(module_id, server, port, username);
+	const char *result = getNetworkPassword(module_id, server, port, username, flags);
 	return Py_BuildValue("s", result);
 }
 
@@ -40,101 +41,50 @@ PyObject *wrap_setNetworkPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *server, *username, *pwd;
 	int port;
-	int ok = PyArg_ParseTuple(args, "ssiss", &module_id, &server, &port, &username, &pwd);
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "ssissi", &module_id, &server, &port, &username, &pwd, &flags);
 	if (! ok) return 0;
-	int result = setNetworkPassword(module_id, server, port, username, pwd);
+	int result = setNetworkPassword(module_id, server, port, username, pwd, flags);
 	return Py_BuildValue("i", result);
 }
 
 PyObject *wrap_getApplicationPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *application_name, *username;
-	int ok = PyArg_ParseTuple(args, "sss", &module_id, &application_name, &username);
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "sssi", &module_id, &application_name, &username, &flags);
 	if (! ok) return 0;
-	const char *result = getApplicationPassword(module_id, application_name, username);
+	const char *result = getApplicationPassword(module_id, application_name, username, flags);
 	return Py_BuildValue("s", result);
 }
 
 PyObject *wrap_setApplicationPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *application_name, *username, *pwd;
-	int ok = PyArg_ParseTuple(args, "ssss", &module_id, &application_name, &username, &pwd);
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "ssssi", &module_id, &application_name, &username, &pwd, &flags);
 	if (! ok) return 0;
-	int result = setApplicationPassword(module_id, application_name, username, pwd);
+	int result = setApplicationPassword(module_id, application_name, username, pwd, flags);
 	return Py_BuildValue("i", result);
 }
 
 PyObject *wrap_getItem(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key;
-	int ok = PyArg_ParseTuple(args, "ss", &module_id, &key);
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "ssi", &module_id, &key, &flags);
 	if (! ok) return 0;
-	const char *result = getItem(module_id, key);
+	const char *result = getItem(module_id, key, flags);
 	return Py_BuildValue("s", result);
 }
 
 PyObject *wrap_setItem(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key, *item;
-	int ok = PyArg_ParseTuple(args, "sss", &module_id, &key, &item);
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "sssi", &module_id, &key, &item, &flags);
 	if (! ok) return 0;
-	int result = setItem(module_id, key, item);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_getNetworkPassword_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *server, *username;
-	int port;
-	int ok = PyArg_ParseTuple(args, "ssis", &module_id, &server, &port, &username);
-	if (! ok) return 0;
-	const char *result = getNetworkPassword_silent(module_id, server, port, username);
-	return Py_BuildValue("s", result);
-}
-
-PyObject *wrap_setNetworkPassword_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *server, *username, *pwd;
-	int port;
-	int ok = PyArg_ParseTuple(args, "ssiss", &module_id, &server, &port, &username, &pwd);
-	if (! ok) return 0;
-	int result = setNetworkPassword_silent(module_id, server, port, username, pwd);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_getApplicationPassword_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *application_name, *username;
-	int ok = PyArg_ParseTuple(args, "sss", &module_id, &application_name, &username);
-	if (! ok) return 0;
-	const char *result = getApplicationPassword_silent(module_id, application_name, username);
-	return Py_BuildValue("s", result);
-}
-
-PyObject *wrap_setApplicationPassword_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *application_name, *username, *pwd;
-	int ok = PyArg_ParseTuple(args, "ssss", &module_id, &application_name, &username, &pwd);
-	if (! ok) return 0;
-	int result = setApplicationPassword_silent(module_id, application_name, username, pwd);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_getItem_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *key;
-	int ok = PyArg_ParseTuple(args, "ss", &module_id, &key);
-	if (! ok) return 0;
-	const char *result = getItem_silent(module_id, key);
-	return Py_BuildValue("s", result);
-}
-
-PyObject *wrap_setItem_silent(PyObject *o, PyObject * args)
-{
-	const char *module_id, *key, *item;
-	int ok = PyArg_ParseTuple(args, "sss", &module_id, &key, &item);
-	if (! ok) return 0;
-	int result = setItem_silent(module_id, key, item);
+	int result = setItem(module_id, key, item, flags);
 	return Py_BuildValue("i", result);
 }
 
@@ -157,12 +107,6 @@ static PyMethodDef ppkMethods[] =
 	{"setApplicationPassword", wrap_setApplicationPassword, METH_VARARGS, ""},
 	{"getItem", wrap_getItem, METH_VARARGS, ""},
 	{"setItem", wrap_setItem, METH_VARARGS, ""},
-	{"getNetworkPassword_silent", wrap_getNetworkPassword_silent, METH_VARARGS, ""},
-	{"setNetworkPassword_silent", wrap_setNetworkPassword_silent, METH_VARARGS, ""},
-	{"getApplicationPassword_silent", wrap_getApplicationPassword_silent, METH_VARARGS, ""},
-	{"setApplicationPassword_silent", wrap_setApplicationPassword_silent, METH_VARARGS, ""},
-	{"getItem_silent", wrap_getItem_silent, METH_VARARGS, ""},
-	{"setItem_silent", wrap_setItem_silent, METH_VARARGS, ""},
 	{"getLastError", wrap_getLastError, METH_VARARGS, ""},
 	{ NULL, NULL }
 };

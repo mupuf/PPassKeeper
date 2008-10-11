@@ -127,6 +127,20 @@ extern "C"
 	//Errors
 	const char* ppk_getLastError(const char* module_id);
 
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	/*																									*/
+	/*											OPTIONNAL !												*/
+	/*																									*/
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	
+	/*! \brief Allow to change the default password prompt message and replace it by your own.
+	* \param module_id in: Module's ID.
+	* \param customMessage in: Message to be used
+	* \return  Return BTRUE if the module is compatible with changing the prompt message, BFALSE else.*/
+	enum ppk_boolean setCustomPromptMessage(const char* module_id, const char* customMessage);
+
 #ifdef __cplusplus 
 }
 #endif

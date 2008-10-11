@@ -25,7 +25,7 @@ std::string shortName()
 
 extern "C" const char* getModuleID()
 {
-	return "Save_To_File_Enc";
+	return "SaveToFile_Enc";
 }
 
 extern "C" const char* getModuleName()
@@ -72,7 +72,7 @@ const char* getPassword(std::string filepath, unsigned int flags)
 	else
 	{
 		setError("Could not open " + filepath + " for reading access.");
-		return "";
+		return NULL;
 	}
 }
 

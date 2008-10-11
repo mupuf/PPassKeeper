@@ -1,5 +1,6 @@
 #include "../../ppasskeeper-module.h"
 #include "../../tokenizer.h"
+#include "list_pwd.h"
 #include <string>
 #include <iostream>
 
@@ -21,35 +22,67 @@ void setError(std::string error)
 	*(last_error())="PPK_KWallet : " + error;
 }
 
-KWallet::Wallet* openWallet()
+extern "C" ppk_boolean isWritable()
+{
+	return PPK_TRUE;
+}
+
+extern "C" ppk_security_level securityLevel(const char* module_id)
+{
+	return ppk_sec_safe;
+}
+
+//Get available flags
+extern "C" ppk_readFlag readFlagsAvailable()
+{
+	return ppk_rf_silent;
+}
+
+extern "C" ppk_writeFlag writeFlagsAvailable()
+{
+	return ppk_wf_silent;
+}
+
+KWallet::Wallet* openWallet(unsigned int flags)
 {
 	if(KWallet::Wallet::isEnabled())
 	{
-		KWallet::Wallet* wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
-
-		//if the wallet is oppened
-		if(wallet!=NULL)
+		KWallet::Wallet* wallet=NULL;
+	
+		//OPen the wallet only if it won't annoy people who don't want to be prompted
+		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_wf_silent)==0)
 		{
-			return wallet;
+			wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
+
+			//if the wallet is oppened
+			if(wallet!=NULL)
+			{
+				return wallet;
+			}
+			else
+			{
+				setError("openWallet : openWallet failed");
+				return NULL;
+			}
 		}
 		else
 		{
-			setError("getPwd : openWallet failed");
+			setError("openWallet : openWallet was not performed because it wasn't silent to do so.");
 			return NULL;
 		}
 	}
 	else
 	{
-		setError("getPwd : KWallet is not available");
+		setError("openWallet : KWallet is not available");
 		return NULL;
 	}
 }
 
-const char* _getPassword(const char* key)
+const char* _getPassword(const char* key, unsigned int flags)
 {
 	static QString pwd;
 
-	KWallet::Wallet* wallet=openWallet();
+	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		//Get the password
@@ -61,32 +94,27 @@ const char* _getPassword(const char* key)
 			return NULL;
 		}
 	}
-	else
-	{
-		setError("Could not open the KWallet");	
-		return NULL;
-	}
 }
 
-bool _setPassword(const char* key, const char* pwd)
+bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 {
-	KWallet::Wallet* wallet=openWallet();
-	if(wallet!=NULL)
+	if((int)(flags&ppk_wf_silent)==0)
 	{
-		//Set the password
-		if(wallet->writePassword(key,pwd)==0)
-			return true;
-		else
+		KWallet::Wallet* wallet=openWallet(flags);
+		if(wallet!=NULL)
 		{
-			setError("getPwd : wallet->writePassword failed, key="+toString(key));
-			return false;
+			//Set the password
+			if(wallet->writePassword(key,pwd)==0)
+				return true;
+			else
+			{
+				setError("getPwd : wallet->writePassword failed, key="+toString(key));
+				return false;
+			}
 		}
 	}
 	else
-	{
-		setError("Could not open the KWallet");	
-		return false;
-	}
+		return NULL;
 }
 
 bool init_kde()
@@ -97,52 +125,61 @@ bool init_kde()
 
 	return true;
 }
-const char* getPassword(const char* key)
-{
-		//Init KDE Application
-		if(init_kde())
-			return _getPassword(key);
-}
-
-bool setPassword(const char* key, const char* pwd)
+const char* getPassword(const char* key, unsigned int flags)
 {
 	//Init KDE Application
 	if(init_kde())
-		return _setPassword(key, pwd);
+		return _getPassword(key, flags);
+}
+
+bool setPassword(const char* key, const char* pwd, unsigned int flags)
+{
+	//Init KDE Application
+	if(init_kde())
+		return _setPassword(key, pwd, flags);
+}
+
+std::string prefix(ppk_password_type type)
+{
+	static const char* ppk_network_string = "ppasskeeper_network://";
+	static const char* ppk_app_string = "ppasskeeper_app://";
+	static const char* ppk_item_string = "ppasskeeper_item://";
+
+	switch(type)
+	{
+		case ppk_network:
+			return ppk_network_string;
+			break;
+		case ppk_application:
+			return ppk_app_string;
+			break;
+		case ppk_item:
+			return ppk_item_string;
+			break;
+	}
+	return std::string();
 }
 
 std::string generateNetworkKey(std::string server, int port, std::string username)
 {
-	return "ppasskeeper_network://"+username+"@"+server+":"+toString(port);
+	return prefix(ppk_network)+username+"@"+server+":"+toString(port);
 }
 
 std::string generateApplicationKey(std::string application_name, std::string username)
 {
-	return "ppasskeeper_app://"+username+"@"+application_name;
+	return prefix(ppk_application)+username+"@"+application_name;
 }
 
 std::string generateItemKey(std::string key)
 {
-	return "ppasskeeper_item://"+key;
+	return prefix(ppk_item)+key;
 }
-
-
-//constructors & destructors
-/*extern "C" void _init(void)
-{
-
-}
-
-extern "C" void _fini(void)
-{
-
-}*/
 
 
 //functions
 extern "C" const char* getModuleID()
 {
-	return "KWallet";
+	return "KWallet4";
 }
 
 extern "C" const char* getModuleName()
@@ -155,66 +192,68 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-//Non-Silent operations
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username)
+extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 {
-	return getPassword(generateNetworkKey(server, port, username).c_str());
-}
-
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd)
-{
-	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd)?0:-1;
-}
-
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username)
-{
-	return getPassword(generateApplicationKey(application_name, username).c_str());
-}
-
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd)
-{
-	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd)?0:-1;
-}
-
-extern "C" const char* getItem(const char* key)
-{
-	return getPassword(generateItemKey(key).c_str());
-}
-
-extern "C" int setItem(const char* key, const char* item)
-{
-	return setPassword(generateItemKey(key).c_str(), item)?0:-1;
-}
-
-//Silent operations
-extern "C" const char* getNetworkPassword_silent(const char* server, int port, const char* username)
-{
-	return NULL;
-}
-
-extern "C" int setNetworkPassword_silent(const char* server, int port, const char* username,  const char* pwd)
-{
+	//Init KDE Application
+	if(init_kde())
+	{
+		//Open the wallet
+		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
+		if(wallet!=NULL)
+		{
+			ListPwd pwdl;		
+			return pwdl.getPasswordListCount(wallet, prefix(type).c_str(), type);
+		}
+	}
+	
 	return 0;
 }
 
-extern "C" const char* getApplicationPassword_silent(const char* application_name, const char* username)
+extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
 {
-	return NULL;
-}
-
-extern "C" int setApplicationPassword_silent(const char* application_name, const char* username,  const char* pwd)
-{
+	//Init KDE Application
+	if(init_kde())
+	{
+		//Open the wallet
+		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
+		if(wallet!=NULL)
+		{
+			ListPwd pwdl;
+			return pwdl.getPasswordList(wallet, prefix(type).c_str(), type, pwdList, maxModuleCount);
+		}
+	}
+	
 	return 0;
 }
 
-extern "C" const char* getItem_silent(const char* key)
+extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
-	return NULL;
+	return getPassword(generateNetworkKey(server, port, username).c_str(), flags);
 }
 
-extern "C" int setItem_silent(const char* key, const char* item)
+extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
-	return 0;
+	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+}
+
+extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+{
+	return getPassword(generateApplicationKey(application_name, username).c_str(), flags);
+}
+
+extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
+{
+	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+}
+
+extern "C" const char* getItem(const char* key, unsigned int flags)
+{
+	return getPassword(generateItemKey(key).c_str(), flags);
+}
+
+extern "C" int setItem(const char* key, const char* item, unsigned int flags)
+{
+	return setPassword(generateItemKey(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getLastError()

@@ -23,7 +23,7 @@ std::string shortName()
 
 extern "C" const char* getModuleID()
 {
-	return "Save_To_File_PT";
+	return "SaveToFile_PT";
 }
 
 extern "C" const char* getModuleName()

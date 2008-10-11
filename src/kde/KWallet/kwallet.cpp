@@ -105,11 +105,11 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 		{
 			//Set the password
 			if(wallet->writePassword(key,pwd)==0)
-				return true;
+				return PPK_TRUE;
 			else
 			{
 				setError("getPwd : wallet->writePassword failed, key="+toString(key));
-				return false;
+				return PPK_FALSE;
 			}
 		}
 	}
@@ -117,26 +117,35 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 		return NULL;
 }
 
-bool init_kde()
+bool init_kde(unsigned int flags)
 {
 	//Init KDE
-	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-	KComponentData kcd(about);
+	if((int)(flags&ppk_wf_silent)==0)
+	{
+		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+		KComponentData kcd(about);
 
-	return true;
+		return PPK_TRUE;
+	}
+	else
+		return PPK_FALSE;
 }
 const char* getPassword(const char* key, unsigned int flags)
 {
 	//Init KDE Application
-	if(init_kde())
+	if(init_kde(flags))
 		return _getPassword(key, flags);
+	else
+		return PPK_FALSE;
 }
 
 bool setPassword(const char* key, const char* pwd, unsigned int flags)
 {
 	//Init KDE Application
-	if(init_kde())
+	if(init_kde(flags))
 		return _setPassword(key, pwd, flags);
+	else
+		return PPK_FALSE;
 }
 
 std::string prefix(ppk_password_type type)
@@ -222,8 +231,8 @@ extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, u
 			return pwdl.getPasswordList(wallet, prefix(type).c_str(), type, pwdList, maxModuleCount);
 		}
 	}
-	
-	return 0;
+	else
+		return 0;
 }
 
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)

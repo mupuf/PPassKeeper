@@ -154,6 +154,23 @@ extern "C" const char* getLastError()
 	return last_error()->c_str();
 }
 
+//Optionnal
+std::string* customPrompt()
+{
+	static std::string msg;
+	return &msg;
+}
+
+extern "C" enum ppk_boolean setCustomPromptMessage(const char* customMessage)
+{
+	if(customMessage!=NULL)
+		*(customPrompt())=customMessage;
+	else
+		*(customPrompt())=std::string();
+
+	return PPK_TRUE;
+}
+
 /*************************************************************************************************
 **************************************************************************************************
 *******************************										******************************
@@ -170,6 +187,10 @@ extern "C" const char* getLastError()
 bool QT_Get_Password(std::string title, std::string label, std::string& pwd)
 {
 	bool ok;
+
+	//If there is a custom
+	if(*(customPrompt())!=std::string())
+		label=customPrompt()->c_str();
 
 	//Init Qt if it has not already been done
 	if(QApplication::instance()==0)

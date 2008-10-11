@@ -187,7 +187,7 @@ extern "C"
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	
-	enum ppk_boolean setCustomPromptMessage(const char* module_id, const char* customMessage)
+	enum ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)

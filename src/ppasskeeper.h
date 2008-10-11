@@ -139,7 +139,7 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param customMessage in: Message to be used
 	* \return  Return BTRUE if the module is compatible with changing the prompt message, BFALSE else.*/
-	enum ppk_boolean setCustomPromptMessage(const char* module_id, const char* customMessage);
+	enum ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage);
 
 #ifdef __cplusplus 
 }

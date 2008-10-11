@@ -160,7 +160,7 @@ extern "C"
 	/*
 	Set a message that will be prompted to user when prompted to enter the password.
 	parameters : 
-		customMessage : The message to show up.
+		customMessage : The message to show up, NULL to go back to default message.
 	
 	return : Return sec_null=0, sec_hidden=1, sec_safe=2 or sec_perfect=3.
 	*/

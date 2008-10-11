@@ -156,6 +156,23 @@ extern "C" const char* getLastError()
 	return last_error()->c_str();
 }
 
+//optionnal
+std::string* customPrompt()
+{
+	static std::string msg;
+	return &msg;
+}
+
+extern "C" enum ppk_boolean setCustomPromptMessage(const char* customMessage)
+{
+	if(customMessage!=NULL)
+		*(customPrompt())=customMessage;
+	else
+		*(customPrompt())=std::string();
+
+	return PPK_TRUE;
+}
+
 /*************************************************************************************************
 **************************************************************************************************
 *******************************										******************************
@@ -166,7 +183,7 @@ extern "C" const char* getLastError()
 
 #include <gtk/gtk.h>
 
-bool GTK_Get_Password(std::string title, std::string label, std::string& pwd)
+bool GTK_Get_Password(std::string title, std::string default_label, std::string& pwd)
 {
 	bool succeded=false;
 	GtkWidget* pBoite;
@@ -186,7 +203,10 @@ bool GTK_Get_Password(std::string title, std::string label, std::string& pwd)
 		NULL);
 
 	//Create the label
-	pLabel = gtk_label_new(label.c_str());
+	if(*(customPrompt())!=std::string())
+		pLabel = gtk_label_new(customPrompt()->c_str());
+	else
+		pLabel = gtk_label_new(default_label.c_str());
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(pBoite)->vbox), pLabel, TRUE, FALSE, 0);
 
 	//Create the editbox

@@ -137,6 +137,9 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			//errors
 			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");
 
+			//optionnal
+			tm.setCustomPromptMessage=(_setCustomPromptMessage)loadSymbol(dlhandle, "setCustomPromptMessage");
+
 		#ifdef DEBUG_MSG
 			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
 			if(tm.getModuleName==NULL)std::cerr << "missing : getModuleName();";

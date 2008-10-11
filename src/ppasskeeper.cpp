@@ -178,4 +178,24 @@ extern "C"
 		else
 			return NULL;
 	}
+
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	/*																									*/
+	/*											OPTIONNAL !												*/
+	/*																									*/
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	
+	enum ppk_boolean setCustomPromptMessage(const char* module_id, const char* customMessage)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			if(mod->setCustomPromptMessage!=NULL)
+				return mod->setCustomPromptMessage(customMessage);
+			else
+				return PPK_FALSE;
+		else
+			return PPK_FALSE;
+	}
 }

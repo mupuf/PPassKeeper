@@ -132,14 +132,40 @@ extern "C"
 	typedef ppk_security_level (*_securityLevel)();
 
 	
-	//add comments here
+	/*
+	This function returns the number of passwords of the type 'type' currently stored by the module.
+	Flags can be passed to the module
+	*/
 	typedef unsigned int (*_getPasswordListCount)(ppk_password_type type, unsigned int flags);
+
+	/*
+	This function fills the structure of type 'type' and given into pwdList that has a size of maxModuleCount.
+	Flags can be passed to the module
+	*/
 	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags);
 
 	/*
 	This function should return a human-readable string describing what caused the last error
 	*/
 	typedef const char* (*_getLastError)();
+
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	/*																									*/
+	/*											OPTIONNAL !												*/
+	/*																									*/
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	
+	/*
+	Set a message that will be prompted to user when prompted to enter the password.
+	parameters : 
+		customMessage : The message to show up.
+	
+	return : Return sec_null=0, sec_hidden=1, sec_safe=2 or sec_perfect=3.
+	*/
+	typedef ppk_boolean (*_setCustomPromptMessage)(const char* customMessage);
+
 
 	struct _module
 	{
@@ -162,6 +188,9 @@ extern "C"
 		_getPasswordListCount getPasswordListCount;
 		_getPasswordList getPasswordList;
 		_getLastError getLastError;
+		
+		//Optionnal
+		_setCustomPromptMessage setCustomPromptMessage;
 	};
 #ifdef __cplusplus 
 }

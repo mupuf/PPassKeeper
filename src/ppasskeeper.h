@@ -25,13 +25,17 @@ extern "C"
 	};
 
 	enum ppk_readFlag {
-		ppk_rd_none=0,
-		ppk_rd_silent=1			//Will retrieve the password silently or abort, but won't prompt anything to users
+		ppk_rf_none=0,
+		ppk_rf_silent=1			//Will retrieve the password silently or abort, but won't prompt anything to users
 	};
 
 	enum ppk_writeFlag {
-		ppk_wt_none=0,
-		ppk_wt_silent=1			//Will save the password silently or abort, but won't prompt anything to users
+		ppk_wf_none=0,
+		ppk_wf_silent=1			//Will save the password silently or abort, but won't prompt anything to users
+	};
+
+	enum ppk_listingFlag {
+		ppk_lf_none=0
 	};
 
 	///Module's definition
@@ -112,13 +116,13 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param type in: Type you would like to be counted.
 	* \return  Return how many password are available.*/
-	unsigned int ppk_getPasswordListCount(const char* module_id, enum ppk_password_type type);
+	unsigned int ppk_getPasswordListCount(const char* module_id, enum ppk_password_type type, unsigned int flags);
 
 	/*! \brief Tells how many passwords are stored in a particulier module with a particular type.
 	* \param module_id in: Module's ID.
 	* \param type in: Type you would like to be counted.
 	* \return  Return how many password are available (WARNING : It can be greater than maxPasswordCount !).*/
-	unsigned int ppk_getPasswordList(const char* module_id, enum ppk_password_type type, void* pwdList, unsigned int maxPasswordCount);
+	unsigned int ppk_getPasswordList(const char* module_id, enum ppk_password_type type, void* pwdList, unsigned int maxPasswordCount, unsigned int flags);
 
 	//Errors
 	const char* ppk_getLastError(const char* module_id);

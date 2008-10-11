@@ -103,29 +103,6 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 #if defined(WIN32) || defined(WIN64)
 	#include <windows.h>
 	
-	unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
-	{	
-		WIN32_FIND_DATA File;
-		HANDLE hSearch;
-		unsigned int prefix_len=strlen(prefix);
-		unsigned int pwdCount=0;
-    
-	    hSearch = FindFirstFile("ppasskeeper/*.dll*", &File);
-	    if (hSearch != INVALID_HANDLE_VALUE)
-	    {
-	        do {
-				if(strncmp (File.cFileName, prefix, prefix_len)==0)
-					if(parseFileName(prefix, File.cFileName, type))
-						pwdCount++;
-	        } while (FindNextFile(hSearch, &File));
-	        
-	        FindClose(hSearch);
-	    }
-#ifdef DEBUG_MSG
-		else
-			std::cerr << "Could not open plugins directory" << std::endl;
-#endif
-	}
 #else
 	#include <dlfcn.h>
 	#include <sys/types.h>
@@ -225,6 +202,8 @@ unsigned int ListPwd::getPasswordList(const char* dir, const char* prefix, ppk_p
 {
 	//Update the database before putting data into pwdList
 	updateDataBase(dir, prefix, type);
+
+	std::cout << "Il y a " << (int)listNet.size() << " passwords !" << std::endl;
 
 	//Put data into pwdList
 	return copyDBToPwdList(type, pwdList, maxPasswordCount);

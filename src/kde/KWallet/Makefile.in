@@ -51,8 +51,8 @@ am__installdirs = "$(DESTDIR)$(dllibdir)"
 dllibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(dllib_LTLIBRARIES)
 libppk_kwallet_la_DEPENDENCIES =
-am__libppk_kwallet_la_SOURCES_DIST = kwallet.cpp list_pwd.cpp
-@KDE4_FOUND_TRUE@am_libppk_kwallet_la_OBJECTS = kwallet.lo list_pwd.lo
+am__libppk_kwallet_la_SOURCES_DIST = kwallet.cpp
+@KDE4_FOUND_TRUE@am_libppk_kwallet_la_OBJECTS = kwallet.lo
 libppk_kwallet_la_OBJECTS = $(am_libppk_kwallet_la_OBJECTS)
 libppk_kwallet_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -223,10 +223,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
 @KDE4_FOUND_TRUE@dllib_LTLIBRARIES = libppk_kwallet.la
-@KDE4_FOUND_TRUE@libppk_kwallet_la_SOURCES = kwallet.cpp list_pwd.cpp
-@KDE4_FOUND_TRUE@libppk_kwallet_la_LIBADD = -lkdeinit4_kwalletd
+@KDE4_FOUND_TRUE@libppk_kwallet_la_SOURCES = kwallet.cpp
+@KDE4_FOUND_TRUE@libppk_kwallet_la_LIBADD = -lkdeui -lkdeinit4_kwalletd
 @KDE4_FOUND_TRUE@libppk_kwallet_la_LDFLAGS = -module -shared -no-undefined -L`kde4-config --prefix`/lib -avoid-version
-@KDE4_FOUND_TRUE@INCLUDES = @KDE4_INCLUDES@
+@KDE4_FOUND_TRUE@INCLUDES = -I`kde4-config --prefix`/include
 all: all-am
 
 .SUFFIXES:
@@ -297,7 +297,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kwallet.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_pwd.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -133,8 +133,8 @@ extern "C"
 
 	
 	//add comments here
-	typedef unsigned int (*_getPasswordListCount)(ppk_password_type type);
-	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount);
+	typedef unsigned int (*_getPasswordListCount)(ppk_password_type type, unsigned int flags);
+	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags);
 
 	/*
 	This function should return a human-readable string describing what caused the last error

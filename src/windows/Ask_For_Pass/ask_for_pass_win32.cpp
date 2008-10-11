@@ -68,12 +68,12 @@ extern "C" ppk_writeFlag writeFlagsAvailable()
 }
 
 
-extern "C" unsigned int getPasswordListCount(ppk_password_type type)
+extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 {	
 	return 0;
 }
 
-extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
+extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
 {
 	return 0;
 }

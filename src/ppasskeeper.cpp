@@ -34,7 +34,7 @@ extern "C"
 		if(mod!=NULL)
 			return mod->readFlagsAvailable();
 		else
-			return ppk_rd_none;
+			return ppk_rf_none;
 	}
 
 	ppk_writeFlag ppk_writeFlagsAvailable(const char* module_id)
@@ -43,7 +43,7 @@ extern "C"
 		if(mod!=NULL)
 			return mod->writeFlagsAvailable();
 		else
-			return ppk_wt_none;
+			return ppk_wf_none;
 	}
 
 	//Non-silent operations
@@ -151,20 +151,20 @@ extern "C"
 	}
 
 	//module's passwords's listing
-	unsigned int ppk_getPasswordListCount(const char* module_id, enum ppk_password_type type)
+	unsigned int ppk_getPasswordListCount(const char* module_id, enum ppk_password_type type, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->getPasswordListCount(type);
+			return mod->getPasswordListCount(type, flags);
 		else
 			return 0;
 	}
 
-	unsigned int ppk_getPasswordList(const char* module_id, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount)
+	unsigned int ppk_getPasswordList(const char* module_id, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->getPasswordList(type, pwdList, maxPasswordCount);
+			return mod->getPasswordList(type, pwdList, maxPasswordCount, flags);
 		else
 			return 0;
 	}

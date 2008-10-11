@@ -120,13 +120,13 @@ std::string prefix(ppk_password_type type)
 	}
 	return prefix+"://";
 }
-extern "C" unsigned int getPasswordListCount(ppk_password_type type)
+extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 {
 	/*ListPwd pwdl;		
 	return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);*/
 return 0;
 }
-extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
+extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
 {
 	/*static ListPwd pwdl;	
 	return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);*/

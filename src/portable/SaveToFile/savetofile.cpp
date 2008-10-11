@@ -58,12 +58,12 @@ extern "C"
 	//Get available flags
 	ppk_readFlag readFlagsAvailable()
 	{
-		return ppk_rd_silent;
+		return ppk_rf_silent;
 	}
 
 	ppk_writeFlag writeFlagsAvailable()
 	{
-		return ppk_wt_silent;
+		return ppk_wf_silent;
 	}
 
 	//List passwords available
@@ -85,13 +85,13 @@ extern "C"
 		return prefix;
 	}
 
-	unsigned int getPasswordListCount(ppk_password_type type)
+	unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 	{
 		ListPwd pwdl;		
 		return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);
 	}
 
-	unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount)
+	unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
 	{
 		static ListPwd pwdl;	
 		return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);

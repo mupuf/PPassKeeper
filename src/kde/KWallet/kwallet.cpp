@@ -105,11 +105,11 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 		{
 			//Set the password
 			if(wallet->writePassword(key,pwd)==0)
-				return PPK_TRUE;
+				return true;
 			else
 			{
 				setError("getPwd : wallet->writePassword failed, key="+toString(key));
-				return PPK_FALSE;
+				return false;
 			}
 		}
 	}
@@ -120,15 +120,10 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 bool init_kde(unsigned int flags)
 {
 	//Init KDE
-	if((int)(flags&ppk_wf_silent)==0)
-	{
-		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-		KComponentData kcd(about);
+	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+	KComponentData kcd(about);
 
-		return PPK_TRUE;
-	}
-	else
-		return PPK_FALSE;
+	return true;
 }
 const char* getPassword(const char* key, unsigned int flags)
 {
@@ -136,7 +131,7 @@ const char* getPassword(const char* key, unsigned int flags)
 	if(init_kde(flags))
 		return _getPassword(key, flags);
 	else
-		return PPK_FALSE;
+		return NULL;
 }
 
 bool setPassword(const char* key, const char* pwd, unsigned int flags)
@@ -204,7 +199,7 @@ extern "C" const int getABIVersion()
 extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 {
 	//Init KDE Application
-	if(init_kde())
+	if(init_kde(flags))
 	{
 		//Open the wallet
 		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
@@ -221,7 +216,7 @@ extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned in
 extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
 {
 	//Init KDE Application
-	if(init_kde())
+	if(init_kde(flags))
 	{
 		//Open the wallet
 		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);

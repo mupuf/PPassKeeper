@@ -46,7 +46,16 @@ extern "C"
 			return ppk_wf_none;
 	}
 
-	//Non-silent operations
+	//To do !!
+	/*ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->listingFlagsAvailable();
+		else
+			return ppk_wf_none;
+	}*/
+
 	const char* ppk_getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
 	{
 		static std::string pwd;
@@ -157,7 +166,7 @@ extern "C"
 		if(mod!=NULL)
 			return mod->getPasswordListCount(type, flags);
 		else
-			return 0;
+			return -1;
 	}
 
 	unsigned int ppk_getPasswordList(const char* module_id, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount, unsigned int flags)
@@ -166,7 +175,7 @@ extern "C"
 		if(mod!=NULL)
 			return mod->getPasswordList(type, pwdList, maxPasswordCount, flags);
 		else
-			return 0;
+			return -1;
 	}
 
 	//Errors

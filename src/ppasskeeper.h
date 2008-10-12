@@ -21,7 +21,7 @@ extern "C"
 
 	enum ppk_password_type
 	{
-		ppk_network, ppk_application, ppk_item
+		ppk_network=0, ppk_application=1, ppk_item=2
 	};
 
 	enum ppk_readFlag {
@@ -91,6 +91,11 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \return  Return available read flags. See writeFlag for more information about flags.*/
 	enum ppk_writeFlag ppk_writeFlagsAvailable(const char* module_id);
+
+	/*! \brief returns supported password listing flags for a given module
+	* \param module_id in: Module's ID.
+	* \return  Return available listing flags. See listingFlag for more information about flags.*/
+	enum ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id);
 
 	//Get and Set passwords
 	const char* ppk_getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags);

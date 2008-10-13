@@ -46,15 +46,14 @@ extern "C"
 			return ppk_wf_none;
 	}
 
-	//To do !!
-	/*ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id)
+	ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
 			return mod->listingFlagsAvailable();
 		else
-			return ppk_wf_none;
-	}*/
+			return ppk_lf_none;
+	}
 
 	const char* ppk_getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
 	{

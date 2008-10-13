@@ -100,7 +100,8 @@ extern "C"
 	//Get and Set passwords
 	const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 	{
-		static std::string pwd=getPassword(generateNetworkPath(server, port, username), flags);
+		static std::string pwd;
+		pwd=getPassword(generateNetworkPath(server, port, username), flags);
 		return pwd.c_str();
 	}
 
@@ -111,7 +112,8 @@ extern "C"
 
 	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 	{
-		static std::string pwd=getPassword(generateApplicationPath(application_name, username), flags);
+		static std::string pwd;
+		pwd=getPassword(generateApplicationPath(application_name, username), flags);
 		return pwd.c_str();
 	}
 
@@ -122,7 +124,8 @@ extern "C"
 
 	const char* getItem(const char* key, unsigned int flags)
 	{
-		static std::string pwd=getPassword(generateItemPath(key), flags);
+		static std::string pwd;
+		pwd=getPassword(generateItemPath(key), flags);
 		return pwd.c_str();
 	}
 

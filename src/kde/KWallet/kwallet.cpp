@@ -50,7 +50,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		KWallet::Wallet* wallet=NULL;
 	
 		//OPen the wallet only if it won't annoy people who don't want to be prompted
-		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_wf_silent)==0)
+		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_wf_silent)==0 ) //There is something to do here !! This is bad !!!!!!!!!!!!!!!
 		{
 			wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
 
@@ -219,7 +219,7 @@ extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, u
 	if(init_kde(flags))
 	{
 		//Open the wallet
-		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
+		KWallet::Wallet* wallet=openWallet(flags);
 		if(wallet!=NULL)
 		{
 			ListPwd pwdl;

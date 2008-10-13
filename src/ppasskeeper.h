@@ -35,7 +35,8 @@ extern "C"
 	};
 
 	enum ppk_listingFlag {
-		ppk_lf_none=0
+		ppk_lf_none=0,
+		ppk_lf_silent=1			//Will list passwords silently or abort, but won't prompt anything to users
 	};
 
 	///Module's definition

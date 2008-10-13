@@ -40,6 +40,7 @@ extern "C"
 	//Allow users to know which flags are available
 	typedef ppk_readFlag (*_readFlagsAvailable)(void);
 	typedef ppk_writeFlag (*_writeFlagsAvailable)(void);
+	typedef ppk_listingFlag (*_listingFlagsAvailable)(void);
 
 	/*
 	This function should get the previously stored password using setNetworkPassword.
@@ -177,6 +178,7 @@ extern "C"
 		_getABIVersion getABIVersion;
 		_readFlagsAvailable readFlagsAvailable;
 		_writeFlagsAvailable writeFlagsAvailable;
+		_listingFlagsAvailable listingFlagsAvailable;
 		_getNetworkPassword getNetworkPassword;
 		_setNetworkPassword setNetworkPassword;
 		_getApplicationPassword getApplicationPassword;

@@ -125,6 +125,7 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 		else
 			std::cerr << "Could not open plugins directory" << std::endl;
 #endif
+		return pwdCount;
 	}
 #else
 	#include <dlfcn.h>
@@ -154,6 +155,7 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 		else
 			std::cerr << "Could not open password directory: " << dir << std::endl;
 #endif
+		return pwdCount;
 	}
 #endif
 

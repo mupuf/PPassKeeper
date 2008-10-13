@@ -42,7 +42,7 @@ PyObject *wrap_getNetworkPassword(PyObject *o, PyObject * args)
 	const char *module_id, *server, *username;
 	int port;
 	unsigned int flags=0;
-	int ok = PyArg_ParseTuple(args, "ssisi", &module_id, &server, &port, &username, &flags);
+	int ok = PyArg_ParseTuple(args, "ssisI", &module_id, &server, &port, &username, &flags);
 	if (! ok) return 0;
 	const char *result = ppk_getNetworkPassword(module_id, server, port, username, flags);
 	return Py_BuildValue("s", result);
@@ -53,7 +53,7 @@ PyObject *wrap_setNetworkPassword(PyObject *o, PyObject * args)
 	const char *module_id, *server, *username, *pwd;
 	int port;
 	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssissi", &module_id, &server, &port, &username, &pwd, &flags);
+	int ok = PyArg_ParseTuple(args, "ssissI", &module_id, &server, &port, &username, &pwd, &flags);
 	if (! ok) return 0;
 	int result = ppk_setNetworkPassword(module_id, server, port, username, pwd, flags);
 	return Py_BuildValue("i", result);
@@ -63,7 +63,7 @@ PyObject *wrap_getApplicationPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *application_name, *username;
 	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "sssi", &module_id, &application_name, &username, &flags);
+	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &application_name, &username, &flags);
 	if (! ok) return 0;
 	const char *result = ppk_getApplicationPassword(module_id, application_name, username, flags);
 	return Py_BuildValue("s", result);
@@ -73,7 +73,7 @@ PyObject *wrap_setApplicationPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *application_name, *username, *pwd;
 	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssssi", &module_id, &application_name, &username, &pwd, &flags);
+	int ok = PyArg_ParseTuple(args, "ssssI", &module_id, &application_name, &username, &pwd, &flags);
 	if (! ok) return 0;
 	int result = ppk_setApplicationPassword(module_id, application_name, username, pwd, flags);
 	return Py_BuildValue("i", result);
@@ -83,7 +83,7 @@ PyObject *wrap_getItem(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key;
 	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssi", &module_id, &key, &flags);
+	int ok = PyArg_ParseTuple(args, "ssI", &module_id, &key, &flags);
 	if (! ok) return 0;
 	const char *result = ppk_getItem(module_id, key, flags);
 	return Py_BuildValue("s", result);
@@ -93,7 +93,7 @@ PyObject *wrap_setItem(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key, *item;
 	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "sssi", &module_id, &key, &item, &flags);
+	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &key, &item, &flags);
 	if (! ok) return 0;
 	int result = ppk_setItem(module_id, key, item, flags);
 	return Py_BuildValue("i", result);
@@ -134,7 +134,7 @@ PyObject *wrap_getPasswordList(PyObject *o, PyObject * args)
 	const char *module_id;
 	int type, flags;
 
-	int ok = PyArg_ParseTuple(args, "sii", &module_id, &type, &flags);
+	int ok = PyArg_ParseTuple(args, "siI", &module_id, &type, &flags);
 	if (! ok) return 0;
 
 	unsigned int pwd_count = ppk_getPasswordListCount(module_id, type, flags);
@@ -150,7 +150,7 @@ PyObject *wrap_getPasswordList(PyObject *o, PyObject * args)
 		{
 			PyObject *module = PyTuple_New(3);
 			PyTuple_SetItem(module, 0, Py_BuildValue("s", pwds[i].host));
-			PyTuple_SetItem(module, 1, Py_BuildValue("i", pwds[i].login));
+			PyTuple_SetItem(module, 1, Py_BuildValue("s", pwds[i].login));
 			PyTuple_SetItem(module, 2, Py_BuildValue("i", pwds[i].port));
 			PyList_SetItem(result, i, module);
 		}
@@ -240,5 +240,21 @@ void initppk(void)
 				"",
 				0,
 				PYTHON_API_VERSION);
+
+	PyModule_AddIntConstant(m, "sec_lowest", ppk_sec_lowest);
+	PyModule_AddIntConstant(m, "sec_scrambled", ppk_sec_scrambled);
+	PyModule_AddIntConstant(m, "sec_safe", ppk_sec_safe);
+	PyModule_AddIntConstant(m, "sec_perfect", ppk_sec_perfect);
+
+	PyModule_AddIntConstant(m, "network", ppk_network);
+	PyModule_AddIntConstant(m, "application", ppk_application);
+	PyModule_AddIntConstant(m, "item", ppk_item);
+
+	PyModule_AddIntConstant(m, "rf_none", ppk_rf_none);
+	PyModule_AddIntConstant(m, "rf_silent", ppk_rf_silent);
+	PyModule_AddIntConstant(m, "wf_none", ppk_wf_none);
+	PyModule_AddIntConstant(m, "wf_silent", ppk_wf_silent);
+	PyModule_AddIntConstant(m, "lf_none", ppk_lf_none);
+
 	return;
 }

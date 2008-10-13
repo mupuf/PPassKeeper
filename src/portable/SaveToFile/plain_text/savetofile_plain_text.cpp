@@ -40,9 +40,6 @@ const char* getPassword(std::string filepath, unsigned int flags)
 {
 	static std::string pwd;
 
-	//try to create the wanted directory
-	mkdir(dir());
-
 	//open the file
 	std::ifstream inputfile(filepath.c_str());
 	if(inputfile.is_open())
@@ -64,6 +61,9 @@ const char* getPassword(std::string filepath, unsigned int flags)
 
 bool setPassword(std::string filepath, std::string secret, unsigned int flags)
 {
+	//try to create the wanted directory
+	mkdir(dir());
+
 	//open the file
 	std::ofstream outputfile(filepath.c_str());
 	if(outputfile.is_open())

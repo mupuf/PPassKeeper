@@ -64,7 +64,6 @@ extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, 
 	return 0;
 }
 
-#include <iostream>
 extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 {
 	static std::string pwd;	

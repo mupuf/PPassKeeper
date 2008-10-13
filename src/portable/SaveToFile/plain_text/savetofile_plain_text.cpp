@@ -58,7 +58,7 @@ const char* getPassword(std::string filepath, unsigned int flags)
 	else
 	{
 		setError("Could not open " + filepath + " for reading access.");
-		return false;
+		return NULL;
 	}
 }
 

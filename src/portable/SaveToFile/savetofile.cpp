@@ -101,8 +101,14 @@ extern "C"
 	const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
 	{
 		static std::string pwd;
-		pwd=getPassword(generateNetworkPath(server, port, username), flags);
-		return pwd.c_str();
+		const char* res=getPassword(generateNetworkPath(server, port, username), flags);
+		if(res!=NULL)
+		{
+			pwd=res;
+			return pwd.c_str();
+		}
+		else
+			return NULL;
 	}
 
 	ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
@@ -113,8 +119,14 @@ extern "C"
 	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 	{
 		static std::string pwd;
-		pwd=getPassword(generateApplicationPath(application_name, username), flags);
-		return pwd.c_str();
+		const char* res=getPassword(generateApplicationPath(application_name, username), flags);
+		if(res!=NULL)
+		{
+			pwd=res;
+			return pwd.c_str();
+		}
+		else
+			return NULL;
 	}
 
 	ppk_boolean setApplicationPassword(const char* application_name, const char* username, const char* pwd, unsigned int flags)
@@ -125,8 +137,14 @@ extern "C"
 	const char* getItem(const char* key, unsigned int flags)
 	{
 		static std::string pwd;
-		pwd=getPassword(generateItemPath(key), flags);
-		return pwd.c_str();
+		const char* res=getPassword(generateItemPath(key), flags);
+		if(res!=NULL)
+		{
+			pwd=res;
+			return pwd.c_str();
+		}
+		else
+			return NULL;
 	}
 
 	ppk_boolean setItem(const char* key, const char* item, unsigned int flags)

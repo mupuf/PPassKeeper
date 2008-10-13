@@ -255,6 +255,7 @@ void initppk(void)
 	PyModule_AddIntConstant(m, "wf_none", ppk_wf_none);
 	PyModule_AddIntConstant(m, "wf_silent", ppk_wf_silent);
 	PyModule_AddIntConstant(m, "lf_none", ppk_lf_none);
+	PyModule_AddIntConstant(m, "lf_silent", ppk_lf_silent);
 
 	return;
 }

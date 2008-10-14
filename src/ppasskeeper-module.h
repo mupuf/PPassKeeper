@@ -49,10 +49,11 @@ extern "C"
 	server = hostname/IP of the network service
 	port = port of the service
 	username = username of the service
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
-	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username, unsigned int options);
+	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username, unsigned int flags);
 
 
 	/*
@@ -63,11 +64,24 @@ extern "C"
 	port = port of the service
 	username = username of the service
 	pwd = the password to be stored
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
 	typedef ppk_boolean (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
 	
+	/*
+	This function should delete the password identified by username@server:port
+	parameters : 
+	server = hostname/IP of the network service
+	port = port of the service
+	username = username of the service
+	flags : Flags to use when trying to perform the function
+	
+	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
+	*/
+	typedef ppk_boolean (*_removeNetworkPassword)(const char* server, int port, const char* username, unsigned int flags);
+
 
 	/*
 	This function should get the previously stored password using setApplicationPassword.
@@ -75,6 +89,7 @@ extern "C"
 	parameters : 
 	application_name = The name of your application
 	username = username of the service
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
@@ -88,16 +103,30 @@ extern "C"
 	application_name = The name of your application
 	username = username of the service
 	pwd = the password to be stored
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
 	typedef ppk_boolean (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd, unsigned int flags);
+	
+	/*
+	This function should delete the password identified by username@application_name
+	parameters : 
+	server = hostname/IP of the network service
+	port = port of the service
+	username = username of the service
+	flags : Flags to use when trying to perform the function
+	
+	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
+	*/
+	typedef ppk_boolean (*_removeApplicationPassword)(const char* application_name, const char* username, unsigned int flags);
 
 
 	/*
 	This function should get the previously stored password using setItem.
 	parameters : 
 	key = something unique
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return the password or NULL if something went wrong.
 	*/
@@ -109,10 +138,21 @@ extern "C"
 	parameters : 
 	key = something unique
 	item = the secret to be stored
+	flags : Flags to use when trying to perform the function
 	
 	return : The function should return 0 if it succeded, any other value else.
 	*/
 	typedef ppk_boolean (*_setItem)(const char* key, const char* item, unsigned int flags);
+	
+	/*
+	This function should delete the password identified by the key
+	parameters : 
+	key : The primary key
+	flags : Flags to use when trying to perform the function
+	
+	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
+	*/
+	typedef ppk_boolean (*_removeItem)(const char* key, unsigned int flags);
 
 	/*
 	This function returns wether the module can store password or not. 
@@ -181,10 +221,13 @@ extern "C"
 		_listingFlagsAvailable listingFlagsAvailable;
 		_getNetworkPassword getNetworkPassword;
 		_setNetworkPassword setNetworkPassword;
+		_removeNetworkPassword removeNetworkPassword;
 		_getApplicationPassword getApplicationPassword;
 		_setApplicationPassword setApplicationPassword;
+		_removeApplicationPassword removeApplicationPassword;
 		_getItem getItem;
 		_setItem setItem;
+		_removeItem removeItem;
 		_isWritable isWritable;
 		_securityLevel securityLevel;
 		_getPasswordListCount getPasswordListCount;

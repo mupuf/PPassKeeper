@@ -59,6 +59,18 @@ PyObject *wrap_setNetworkPassword(PyObject *o, PyObject * args)
 	return Py_BuildValue("i", result);
 }
 
+PyObject *wrap_removeNetworkPassword(PyObject *o, PyObject * args)
+{
+	const char *module_id, *server, *username;
+	int port;
+	unsigned int flags=0;
+	int ok = PyArg_ParseTuple(args, "ssisI", &module_id, &server, &port, &username, &flags);
+	if (! ok) return 0;
+	int result = ppk_removeNetworkPassword(module_id, server, port, username, flags);
+	return Py_BuildValue("i", result);
+}
+
+
 PyObject *wrap_getApplicationPassword(PyObject *o, PyObject * args)
 {
 	const char *module_id, *application_name, *username;
@@ -79,6 +91,16 @@ PyObject *wrap_setApplicationPassword(PyObject *o, PyObject * args)
 	return Py_BuildValue("i", result);
 }
 
+PyObject *wrap_removeApplicationPassword(PyObject *o, PyObject * args)
+{
+	const char *module_id, *application_name, *username;
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &application_name, &username, &flags);
+	if (! ok) return 0;
+	int result = ppk_removeApplicationPassword(module_id, application_name, username, flags);
+	return Py_BuildValue("i", result);
+}
+
 PyObject *wrap_getItem(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key;
@@ -96,6 +118,16 @@ PyObject *wrap_setItem(PyObject *o, PyObject * args)
 	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &key, &item, &flags);
 	if (! ok) return 0;
 	int result = ppk_setItem(module_id, key, item, flags);
+	return Py_BuildValue("i", result);
+}
+
+PyObject *wrap_removeItem(PyObject *o, PyObject * args)
+{
+	const char *module_id, *key, *item;
+	unsigned int flags;
+	int ok = PyArg_ParseTuple(args, "ssI", &module_id, &key, &flags);
+	if (! ok) return 0;
+	int result = ppk_removeItem(module_id, key, flags);
 	return Py_BuildValue("i", result);
 }
 
@@ -215,10 +247,13 @@ static PyMethodDef ppkMethods[] =
 	{"moduleAvailable", wrap_moduleAvailable, METH_VARARGS, ""},
 	{"getNetworkPassword", wrap_getNetworkPassword, METH_VARARGS, ""},
 	{"setNetworkPassword", wrap_setNetworkPassword, METH_VARARGS, ""},
+	{"removeNetworkPassword", wrap_removeNetworkPassword, METH_VARARGS, ""},
 	{"getApplicationPassword", wrap_getApplicationPassword, METH_VARARGS, ""},
 	{"setApplicationPassword", wrap_setApplicationPassword, METH_VARARGS, ""},
+	{"removeApplicationPassword", wrap_removeApplicationPassword, METH_VARARGS, ""},
 	{"getItem", wrap_getItem, METH_VARARGS, ""},
 	{"setItem", wrap_setItem, METH_VARARGS, ""},
+	{"removeItem", wrap_removeItem, METH_VARARGS, ""},
 	{"isWritable", wrap_isWritable, METH_VARARGS, ""},
 	{"securityLevel", wrap_securityLevel, METH_VARARGS, ""},
 	{"getPasswordListCount", wrap_getPasswordListCount, METH_VARARGS, ""},

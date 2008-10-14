@@ -98,13 +98,90 @@ extern "C"
 	* \return  Return available listing flags. See listingFlag for more information about flags.*/
 	enum ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id);
 
-	//Get and Set passwords
+
+
+	/*! \brief returns the password corresponding to username@server:port for a given module and retrieval flags
+	* \param module_id in: Module's ID.
+	* \param server in: Server's hostname/IP.
+	* \param port in: Port where the service is listenning.
+	* \param username in: Granted username on the service.
+	* \param flags in: See ppk_readFlag in order to know which flags are supported.
+	* \return  Returns the password whenever it succeed, NULL else.*/
 	const char* ppk_getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags);
+	
+	/*! \brief Save the password corresponding to username@server:port.
+	* \param module_id in: Module's ID.
+	* \param server in: Server's hostname/IP.
+	* \param port in: Port where the service is listenning.
+	* \param username in: Granted username on the service.
+	* \param pwd in: Password to be stored.
+	* \param flags in: See ppk_writeFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
 	enum ppk_boolean ppk_setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
+	
+	/*! \brief Delete the password corresponding to username@server:port.
+	* \param module_id in: Module's ID.
+	* \param server in: Server's hostname/IP.
+	* \param port in: Port where the service is listenning.
+	* \param username in: Granted username on the service.
+	* \param flags in: See ppk_listingFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
+	enum ppk_boolean ppk_removeNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags);
+	
+
+
+
+	/*! \brief returns the password corresponding to username@application_name for a given module and retrieval flags
+	* \param module_id in: Module's ID.
+	* \param application_name in: Application's name.
+	* \param flags in: See ppk_readFlag in order to know which flags are supported.
+	* \return  Returns the password whenever it succeed, NULL else.*/
 	const char* ppk_getApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags);
+	
+	/*! \brief Save the password corresponding to username@application_name.
+	* \param module_id in: Module's ID.
+	* \param application_name in: Application's name.
+	* \param username in: Granted username on the service.
+	* \param pwd in: Password to be stored.
+	* \param flags in: See ppk_writeFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
 	enum ppk_boolean ppk_setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd, unsigned int flags);
+	
+	/*! \brief Delete the password corresponding to username@application_name.
+	* \param module_id in: Module's ID.
+	* \param application_name in: Application's name.
+	* \param username in: Granted username on the service.
+	* \param flags in: See ppk_listingFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
+	enum ppk_boolean ppk_removeApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags);
+
+
+
+
+	/*! \brief Returns the item corresponding to the key for a given module and retrieval flags
+	* \param module_id in: Module's ID.
+	* \param key in: The Key.
+	* \param flags in: See ppk_readFlag in order to know which flags are supported.
+	* \return  Returns the password whenever it succeed, NULL else.*/
 	const char* ppk_getItem(const char* module_id, const char* key, unsigned int flags);
+	
+	/*! \brief Save an item corresponding to a key.
+	* \param module_id in: Module's ID.
+	* \param key in: The Key.
+	* \param item in: Item to be stored.
+	* \param flags in: See ppk_writeFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
 	enum ppk_boolean ppk_setItem(const char* module_id, const char* key, const char* item, unsigned int flags);
+	
+	/*! \brief Delete the password corresponding to the key.
+	* \param module_id in: Module's ID.
+	* \param key in: The Key.
+	* \param flags in: See ppk_listingFlag in order to know which flags are supported.
+	* \return  Returns PPK_TRUE in case of success, PPK_FALSE else.*/
+	enum ppk_boolean ppk_removeItem(const char* module_id, const char* key, unsigned int flags);
+	
+	
+	
 
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
 	/* but some modules just allow you to key-in your password. For these modules, you are the keeper.

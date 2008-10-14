@@ -82,6 +82,15 @@ extern "C"
 		else
 			return PPK_FALSE;
 	}
+	
+	ppk_boolean ppk_removeNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->removeNetworkPassword(server, port, username, flags);
+		else
+			return PPK_FALSE;
+	}
 
 	const char* ppk_getApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags)
 	{
@@ -110,6 +119,15 @@ extern "C"
 		else
 			return PPK_FALSE;
 	}
+	
+	ppk_boolean ppk_removeApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->removeApplicationPassword(application_name, username, flags);
+		else
+			return PPK_FALSE;
+	}
 
 	const char* ppk_getItem(const char* module_id, const char* key, unsigned int flags)
 	{
@@ -135,6 +153,15 @@ extern "C"
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
 			return mod->setItem(key, item, flags);
+		else
+			return PPK_FALSE;
+	}
+	
+	ppk_boolean ppk_removeItem(const char* module_id, const char* key, unsigned int flags)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->removeItem(key, flags);
 		else
 			return PPK_FALSE;
 	}

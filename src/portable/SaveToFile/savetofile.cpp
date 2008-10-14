@@ -39,6 +39,22 @@ std::string generateItemPath(std::string key)
 	return dir()+toString("/")+shortName()+"_ITM_"+key;
 }
 
+bool deletePassword(std::string path, unsigned int flags)
+{
+	/*FILE* file=fopen(path.c_str(), "w");
+	
+	if(file!=NULL)
+	{
+		fclose(file);
+		return true;
+	}
+	else
+		return false;*/
+		
+	system(("rm "+path).c_str());
+	return true;
+}
+
 //functions
 extern "C"
 {
@@ -65,6 +81,12 @@ extern "C"
 	{
 		return ppk_wf_silent;
 	}
+	
+	ppk_listingFlag listingFlagsAvailable()
+	{
+		return ppk_lf_silent;
+	}
+
 
 	//List passwords available
 	std::string prefix(ppk_password_type type)
@@ -115,6 +137,12 @@ extern "C"
 	{
 		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 	}
+	
+	ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+	{
+		return deletePassword(generateNetworkPath(server, port, username), flags)?PPK_TRUE:PPK_FALSE;
+	}
+
 
 	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
 	{
@@ -133,6 +161,11 @@ extern "C"
 	{
 		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
 	}
+	
+	ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+	{
+		return deletePassword(generateApplicationPath(application_name, username), flags)?PPK_TRUE:PPK_FALSE;
+	}
 
 	const char* getItem(const char* key, unsigned int flags)
 	{
@@ -150,6 +183,11 @@ extern "C"
 	ppk_boolean setItem(const char* key, const char* item, unsigned int flags)
 	{
 		return setPassword(generateItemPath(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
+	}
+	
+	ppk_boolean removeItem(const char* key, unsigned int flags)
+	{
+		return deletePassword(generateItemPath(key), flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	const char* getLastError()

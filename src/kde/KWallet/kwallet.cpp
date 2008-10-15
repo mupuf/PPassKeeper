@@ -43,6 +43,11 @@ extern "C" ppk_writeFlag writeFlagsAvailable()
 	return ppk_wf_silent;
 }
 
+extern "C" ppk_listingFlag listingFlagsAvailable()
+{
+	return ppk_lf_silent;
+}
+
 KWallet::Wallet* openWallet(unsigned int flags)
 {
 	if(KWallet::Wallet::isEnabled())
@@ -117,6 +122,29 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 		return NULL;
 }
 
+bool _removePassword(const char* key, unsigned int flags)
+{
+	std::cout << "_removePassword : flags = " << flags << std::endl;
+	if((int)(flags&ppk_lf_silent)==0)
+	{
+		KWallet::Wallet* wallet=openWallet(flags);
+		if(wallet!=NULL)
+		{
+			std::cout << "Dedans !!" << std::endl;
+			//Set the password
+			if(wallet->removeEntry(key)==0)
+				return true;
+			else
+			{
+				setError("getPwd : wallet->writePassword failed, key="+toString(key));
+				return false;
+			}
+		}
+	}
+	else
+		return false;
+}
+
 bool init_kde(unsigned int flags)
 {
 	//Init KDE
@@ -140,7 +168,17 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 	if(init_kde(flags))
 		return _setPassword(key, pwd, flags);
 	else
-		return PPK_FALSE;
+		return false;
+}
+
+bool removePassword(const char* key, unsigned int flags)
+{
+	std::cout << "removePassword : flags = " << flags << std::endl;
+	//Init KDE Application
+	if(init_kde(flags))
+		return _removePassword(key, flags);
+	else
+		return false;
 }
 
 std::string prefix(ppk_password_type type)
@@ -235,9 +273,14 @@ extern "C" const char* getNetworkPassword(const char* server, int port, const ch
 	return getPassword(generateNetworkKey(server, port, username).c_str(), flags);
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
 	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+}
+
+extern "C" ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+{
+	return removePassword(generateNetworkKey(server, port, username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
@@ -245,9 +288,14 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 	return getPassword(generateApplicationKey(application_name, username).c_str(), flags);
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
 	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+}
+
+extern "C" ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+{
+	return removePassword(generateApplicationKey(application_name, username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" const char* getItem(const char* key, unsigned int flags)
@@ -255,10 +303,16 @@ extern "C" const char* getItem(const char* key, unsigned int flags)
 	return getPassword(generateItemKey(key).c_str(), flags);
 }
 
-extern "C" int setItem(const char* key, const char* item, unsigned int flags)
+extern "C" ppk_boolean setItem(const char* key, const char* item, unsigned int flags)
 {
 	return setPassword(generateItemKey(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
 }
+
+extern "C" ppk_boolean removeItem(const char* key, unsigned int flags)
+{
+	return removePassword(generateItemKey(key).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+}
+
 
 extern "C" const char* getLastError()
 {

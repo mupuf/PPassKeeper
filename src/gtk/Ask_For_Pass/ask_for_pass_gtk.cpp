@@ -53,6 +53,11 @@ extern "C" ppk_writeFlag writeFlagsAvailable()
 	return ppk_wf_none;
 }
 
+extern "C" ppk_listingFlag listingFlagsAvailable()
+{
+	return ppk_lf_none;
+}
+
 
 extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
 {	
@@ -87,9 +92,14 @@ extern "C" const char* getNetworkPassword(const char* server, int port, const ch
 		return NULL;
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
 {
-	return 0;
+	return PPK_FALSE;
+}
+
+extern "C" ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+{
+	return PPK_FALSE;
 }
 
 
@@ -117,9 +127,14 @@ extern "C" const char* getApplicationPassword(const char* application_name, cons
 		return NULL;
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
 {
-	return 0;
+	return PPK_FALSE;
+}
+
+extern "C" ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+{
+	return PPK_FALSE;
 }
 
 extern "C" const char* getItem(const char* key, unsigned int flags)
@@ -145,9 +160,14 @@ extern "C" const char* getItem(const char* key, unsigned int flags)
 		return NULL;
 }
 
-extern "C" int setItem(const char* key,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setItem(const char* key,  const char* pwd, unsigned int flags)
 {
-	return 0;
+	return PPK_FALSE;
+}
+
+extern "C" ppk_boolean removeItem(const char* key, unsigned int flags)
+{
+	return PPK_FALSE;
 }
 
 extern "C" const char* getLastError()

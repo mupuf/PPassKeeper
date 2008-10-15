@@ -41,18 +41,7 @@ std::string generateItemPath(std::string key)
 
 bool deletePassword(std::string path, unsigned int flags)
 {
-	/*FILE* file=fopen(path.c_str(), "w");
-	
-	if(file!=NULL)
-	{
-		fclose(file);
-		return true;
-	}
-	else
-		return false;*/
-		
-	system(("rm "+path).c_str());
-	return true;
+	return remove(path.c_str())==0;
 }
 
 //functions
@@ -64,7 +53,7 @@ extern "C"
 	{
 		return 1;
 	}
-
+	
 
 	ppk_boolean isWritable()
 	{

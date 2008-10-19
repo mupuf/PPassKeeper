@@ -94,6 +94,10 @@ dnl 	we want to build the Qt plugin OR the GUI utility
 dnl	do Qt checks
   PKG_CHECK_MODULES([QTCORE], [QtCore], [QTCORE_FOUND="yes"], [echo "$QTCORE_PKG_ERRORS"])
   PKG_CHECK_MODULES([QTGUI], [QtGui], [QTGUI_FOUND="yes"], [echo "$QTGUI_PKG_ERRORS"])
+  MOC=`$PKG_CONFIG --variable=moc_location QtCore`
+  UIC=`$PKG_CONFIG --variable=uic_location QtCore`
+  AC_SUBST([MOC])
+  AC_SUBST([UIC])
 fi
 
 if test "x$arg_qt" = "xno"; then
@@ -178,7 +182,8 @@ src/windows/Ask_For_Pass/Makefile
 src/windows/SaveToRegistry/Makefile
 src/ppasskeeper.pc
 python/Makefile
-util/Makefile]
+util/Makefile
+util/qt/Makefile]
 )
 
 echo

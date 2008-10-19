@@ -1,3 +1,7 @@
+if BUILD_QT_GUI
+  SUBDIRS = qt
+endif
+
 if BUILD_UTIL
   bin_PROGRAMS = ppasskeeper$(EXEEXT)
 

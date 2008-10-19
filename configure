@@ -811,14 +811,14 @@ KDE4_INCLUDES
 KDE4CONFIG
 KDE4_FOUND_FALSE
 KDE4_FOUND_TRUE
+BUILD_QT_GUI_FALSE
+BUILD_QT_GUI_TRUE
+BUILD_QT_FALSE
+BUILD_QT_TRUE
 QTGUI_LIBS
 QTGUI_CFLAGS
 QTCORE_LIBS
 QTCORE_CFLAGS
-QTGUI_FOUND_FALSE
-QTGUI_FOUND_TRUE
-QTCORE_FOUND_FALSE
-QTCORE_FOUND_TRUE
 GTK2_LIBS
 GTK2_CFLAGS
 GTK2_FOUND_FALSE
@@ -961,6 +961,7 @@ enable_libtool_lock
 enable_debug
 enable_ppk_lib
 enable_util
+enable_gui_util
 enable_plugins
 enable_gtk
 enable_qt
@@ -1630,6 +1631,7 @@ Optional Features:
   --enable-debug     enable debug output (disabled)
   --disable-ppk-lib  do not build the ppasskeeper library (enabled)
   --disable-util     do not build the command-line utility (enabled)
+  --disable-gui-util do not build the graphical utility (enabled)
   --disable-plugins  do not build any plugins
   --disable-gtk      do not build the GTK plugin (autodetect)
   --disable-qt       do not build the Qt plugin  (autodetect)
@@ -6065,13 +6067,13 @@ if test "${lt_cv_nm_interface+set}" = set; then
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:6068: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:6070: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6071: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:6073: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6074: output\"" >&5)
+  (eval echo "\"\$as_me:6076: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -7273,7 +7275,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 7276 "configure"' > conftest.$ac_ext
+  echo '#line 7278 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -9655,11 +9657,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9658: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9660: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9662: \$? = $ac_status" >&5
+   echo "$as_me:9664: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9994,11 +9996,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9997: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9999: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10001: \$? = $ac_status" >&5
+   echo "$as_me:10003: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10099,11 +10101,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10102: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10104: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10106: \$? = $ac_status" >&5
+   echo "$as_me:10108: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10154,11 +10156,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10157: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10159: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10161: \$? = $ac_status" >&5
+   echo "$as_me:10163: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12954,7 +12956,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 12957 "configure"
+#line 12959 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13050,7 +13052,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 13053 "configure"
+#line 13055 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15070,11 +15072,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15073: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15075: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15077: \$? = $ac_status" >&5
+   echo "$as_me:15079: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15169,11 +15171,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15172: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15174: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15176: \$? = $ac_status" >&5
+   echo "$as_me:15178: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15221,11 +15223,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15224: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15226: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15228: \$? = $ac_status" >&5
+   echo "$as_me:15230: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18576,6 +18578,11 @@ if test "${enable_util+set}" = set; then
   enableval=$enable_util; arg_util=$enableval
 fi
 
+# Check whether --enable-gui-util was given.
+if test "${enable_gui_util+set}" = set; then
+  enableval=$enable_gui_util; arg_gui_util=$enableval
+fi
+
 # Check whether --enable-plugins was given.
 if test "${enable_plugins+set}" = set; then
   enableval=$enable_plugins; arg_plugins=$enableval
@@ -18763,24 +18770,7 @@ fi
 
 fi
 
-if test "x$arg_qt" = "xno"; then
-   if false; then
-  QTCORE_FOUND_TRUE=
-  QTCORE_FOUND_FALSE='#'
-else
-  QTCORE_FOUND_TRUE='#'
-  QTCORE_FOUND_FALSE=
-fi
-
-   if false; then
-  QTGUI_FOUND_TRUE=
-  QTGUI_FOUND_FALSE='#'
-else
-  QTGUI_FOUND_TRUE='#'
-  QTGUI_FOUND_FALSE=
-fi
-
-else
+if test "x$arg_qt" != "xno" -o "x$arg_gui_util" != "xno"; then
 
 pkg_failed=no
 { $as_echo "$as_me:$LINENO: checking for QTCORE" >&5
@@ -18915,20 +18905,48 @@ else
 $as_echo "yes" >&6; }
 	QTGUI_FOUND="yes"
 fi
-   if test "x$QTCORE_FOUND" = "xyes"; then
-  QTCORE_FOUND_TRUE=
-  QTCORE_FOUND_FALSE='#'
-else
-  QTCORE_FOUND_TRUE='#'
-  QTCORE_FOUND_FALSE=
 fi
 
-   if test "x$QTGUI_FOUND" = "xyes"; then
-  QTGUI_FOUND_TRUE=
-  QTGUI_FOUND_FALSE='#'
+if test "x$arg_qt" = "xno"; then
+  BUILD_QT="no"
+   if false; then
+  BUILD_QT_TRUE=
+  BUILD_QT_FALSE='#'
 else
-  QTGUI_FOUND_TRUE='#'
-  QTGUI_FOUND_FALSE=
+  BUILD_QT_TRUE='#'
+  BUILD_QT_FALSE=
+fi
+
+else
+  test "x$QTGUI_FOUND" = "xyes" && BUILD_QT="yes" || BUILD_QT="no"
+   if test "x$QTGUI_FOUND" = "xyes"; then
+  BUILD_QT_TRUE=
+  BUILD_QT_FALSE='#'
+else
+  BUILD_QT_TRUE='#'
+  BUILD_QT_FALSE=
+fi
+
+fi
+
+if test "x$arg_gui_util" = "xno"; then
+  BUILD_QT_GUI="no"
+   if false; then
+  BUILD_QT_GUI_TRUE=
+  BUILD_QT_GUI_FALSE='#'
+else
+  BUILD_QT_GUI_TRUE='#'
+  BUILD_QT_GUI_FALSE=
+fi
+
+else
+  test "x$QTGUI_FOUND" = "xyes" && BUILD_QT_GUI="yes" || BUILD_QT_GUI="no"
+   if test "x$QTGUI_FOUND" = "xyes"; then
+  BUILD_QT_GUI_TRUE=
+  BUILD_QT_GUI_FALSE='#'
+else
+  BUILD_QT_GUI_TRUE='#'
+  BUILD_QT_GUI_FALSE=
 fi
 
 fi
@@ -19376,31 +19394,31 @@ $as_echo "$as_me: error: conditional \"GTK2_FOUND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${QTCORE_FOUND_TRUE}" && test -z "${QTCORE_FOUND_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"QTCORE_FOUND\" was never defined.
+if test -z "${BUILD_QT_TRUE}" && test -z "${BUILD_QT_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"BUILD_QT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"QTCORE_FOUND\" was never defined.
+$as_echo "$as_me: error: conditional \"BUILD_QT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${QTGUI_FOUND_TRUE}" && test -z "${QTGUI_FOUND_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"QTGUI_FOUND\" was never defined.
+if test -z "${BUILD_QT_TRUE}" && test -z "${BUILD_QT_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"BUILD_QT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"QTGUI_FOUND\" was never defined.
+$as_echo "$as_me: error: conditional \"BUILD_QT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${QTCORE_FOUND_TRUE}" && test -z "${QTCORE_FOUND_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"QTCORE_FOUND\" was never defined.
+if test -z "${BUILD_QT_GUI_TRUE}" && test -z "${BUILD_QT_GUI_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"BUILD_QT_GUI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"QTCORE_FOUND\" was never defined.
+$as_echo "$as_me: error: conditional \"BUILD_QT_GUI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${QTGUI_FOUND_TRUE}" && test -z "${QTGUI_FOUND_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"QTGUI_FOUND\" was never defined.
+if test -z "${BUILD_QT_GUI_TRUE}" && test -z "${BUILD_QT_GUI_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"BUILD_QT_GUI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"QTGUI_FOUND\" was never defined.
+$as_echo "$as_me: error: conditional \"BUILD_QT_GUI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -22000,7 +22018,7 @@ echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
-echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
+echo -n "qt  : " ; echo "$BUILD_QT"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
 echo -n "win32 : " ; test -z "$WINDOWS_FOUND" && echo "no" || echo "$WINDOWS_FOUND"
 echo
@@ -22011,3 +22029,4 @@ echo
 echo "Utilities :"
 echo "-------------------------------------------"
 echo -n "ppasskeeper (command-line): " ; test "x$arg_util" = "xno" && echo "no" || echo "yes"
+echo -n "Qt4 GUI utility: " ; echo "$BUILD_QT_GUI"

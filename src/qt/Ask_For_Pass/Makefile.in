@@ -52,13 +52,12 @@ dllibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(dllib_LTLIBRARIES)
 libppk_ask_pass_qt_la_DEPENDENCIES =
 am__libppk_ask_pass_qt_la_SOURCES_DIST = ask_for_pass_qt.cpp
-@QTGUI_FOUND_TRUE@am_libppk_ask_pass_qt_la_OBJECTS =  \
-@QTGUI_FOUND_TRUE@	ask_for_pass_qt.lo
+@BUILD_QT_TRUE@am_libppk_ask_pass_qt_la_OBJECTS = ask_for_pass_qt.lo
 libppk_ask_pass_qt_la_OBJECTS = $(am_libppk_ask_pass_qt_la_OBJECTS)
 libppk_ask_pass_qt_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(libppk_ask_pass_qt_la_LDFLAGS) $(LDFLAGS) -o $@
-@QTGUI_FOUND_TRUE@am_libppk_ask_pass_qt_la_rpath = -rpath $(dllibdir)
+@BUILD_QT_TRUE@am_libppk_ask_pass_qt_la_rpath = -rpath $(dllibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -223,11 +222,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dllibdir = @DLLIBDIR@
-@QTGUI_FOUND_TRUE@dllib_LTLIBRARIES = libppk_ask_pass_qt.la
-@QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_SOURCES = ask_for_pass_qt.cpp
-@QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_LIBADD = @QTCORE_LIBS@ @QTGUI_LIBS@
-@QTGUI_FOUND_TRUE@libppk_ask_pass_qt_la_LDFLAGS = -module -shared -no-undefined -avoid-version
-@QTGUI_FOUND_TRUE@INCLUDES = @QTCORE_CFLAGS@ @QTGUI_CFLAGS@
+@BUILD_QT_TRUE@dllib_LTLIBRARIES = libppk_ask_pass_qt.la
+@BUILD_QT_TRUE@libppk_ask_pass_qt_la_SOURCES = ask_for_pass_qt.cpp
+@BUILD_QT_TRUE@libppk_ask_pass_qt_la_LIBADD = @QTCORE_LIBS@ @QTGUI_LIBS@
+@BUILD_QT_TRUE@libppk_ask_pass_qt_la_LDFLAGS = -module -shared -no-undefined -avoid-version
+@BUILD_QT_TRUE@INCLUDES = @QTCORE_CFLAGS@ @QTGUI_CFLAGS@
 all: all-am
 
 .SUFFIXES:

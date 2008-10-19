@@ -34,6 +34,7 @@ LT_LIB_DLLOAD
 AC_ARG_ENABLE(debug,   [  --enable-debug     enable debug output (disabled)], [arg_debug=$enableval])
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
 AC_ARG_ENABLE(util,    [  --disable-util     do not build the command-line utility (enabled)], [arg_util=$enableval])
+AC_ARG_ENABLE(gui-util,[  --disable-gui-util do not build the graphical utility (enabled)], [arg_gui_util=$enableval])
 AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plugins=$enableval])
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])
@@ -88,14 +89,27 @@ else
   AM_CONDITIONAL([GTK2_FOUND], [test "x$GTK2_FOUND" = "xyes"])
 fi
 
-if test "x$arg_qt" = "xno"; then
-  AM_CONDITIONAL([QTCORE_FOUND], [false])
-  AM_CONDITIONAL([QTGUI_FOUND], [false])
-else
+if test "x$arg_qt" != "xno" -o "x$arg_gui_util" != "xno"; then
+dnl 	we want to build the Qt plugin OR the GUI utility
+dnl	do Qt checks
   PKG_CHECK_MODULES([QTCORE], [QtCore], [QTCORE_FOUND="yes"], [echo "$QTCORE_PKG_ERRORS"])
   PKG_CHECK_MODULES([QTGUI], [QtGui], [QTGUI_FOUND="yes"], [echo "$QTGUI_PKG_ERRORS"])
-  AM_CONDITIONAL([QTCORE_FOUND], [test "x$QTCORE_FOUND" = "xyes"])
-  AM_CONDITIONAL([QTGUI_FOUND], [test "x$QTGUI_FOUND" = "xyes"])
+fi
+
+if test "x$arg_qt" = "xno"; then
+  BUILD_QT="no"
+  AM_CONDITIONAL([BUILD_QT], [false])
+else
+  test "x$QTGUI_FOUND" = "xyes" && BUILD_QT="yes" || BUILD_QT="no"
+  AM_CONDITIONAL([BUILD_QT], [test "x$QTGUI_FOUND" = "xyes"])
+fi
+
+if test "x$arg_gui_util" = "xno"; then
+  BUILD_QT_GUI="no"
+  AM_CONDITIONAL([BUILD_QT_GUI], [false])
+else
+  test "x$QTGUI_FOUND" = "xyes" && BUILD_QT_GUI="yes" || BUILD_QT_GUI="no"
+  AM_CONDITIONAL([BUILD_QT_GUI], [test "x$QTGUI_FOUND" = "xyes"])
 fi
 
 if test "x$arg_kde" = "xno"; then
@@ -190,7 +204,7 @@ echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
-echo -n "qt  : " ; test -z "$QTGUI_FOUND" && echo "no" || echo "$QTGUI_FOUND"
+echo -n "qt  : " ; echo "$BUILD_QT"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
 echo -n "win32 : " ; test -z "$WINDOWS_FOUND" && echo "no" || echo "$WINDOWS_FOUND"
 echo
@@ -201,3 +215,4 @@ echo
 echo "Utilities :"
 echo "-------------------------------------------"
 echo -n "ppasskeeper (command-line): " ; test "x$arg_util" = "xno" && echo "no" || echo "yes"
+echo -n "Qt4 GUI utility: " ; echo "$BUILD_QT_GUI"

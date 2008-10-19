@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=PPassKeeper
+Comment=Manage your saved passwords
+Comment[fr]=Gérer ses mots de passes stockés
+Exec=qtpasskeeper
+Icon=ppasskeeper
+Terminal=false
+Type=Application
+Categories=Utility;

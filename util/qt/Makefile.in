@@ -48,8 +48,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = mainwindow_moc.$(OBJEXT) \
 	passwordlistmodel_moc.$(OBJEXT)
 am__objects_2 =
-am_qtpasskeeper_OBJECTS = main.$(OBJEXT) mainwindow.$(OBJEXT) \
-	passwordlistmodel.$(OBJEXT) $(am__objects_1) $(am__objects_2)
+am_qtpasskeeper_OBJECTS = $(am__objects_1) $(am__objects_2) \
+	main.$(OBJEXT) mainwindow.$(OBJEXT) \
+	passwordlistmodel.$(OBJEXT)
 qtpasskeeper_OBJECTS = $(am_qtpasskeeper_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -236,19 +237,20 @@ top_srcdir = @top_srcdir@
 bin_PROGRAMS = qtpasskeeper$(EXEEXT)
 MOC_SRC = mainwindow_moc.cpp passwordlistmodel_moc.cpp
 UI_INC = mainwindow_ui.h
-CLEANFILES = $(MOC_SRC) $(UI_INC)
-qtpasskeeper_SOURCES = main.cpp \
+qtpasskeeper_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
 		       mainwindow.h mainwindow.cpp \
-		       passwordlistmodel.h passwordlistmodel.cpp \
-		       $(MOC_SRC) $(UI_INC)
+		       passwordlistmodel.h passwordlistmodel.cpp
 
+BUILT_SOURCES = $(MOC_SRC) $(UI_INC)
+CLEANFILES = $(BUILT_SOURCES)
 qtpasskeeper_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
-qtpasskeeper_DEPENDENCIES = $(MOC_SRC) $(UI_INC) ../../src/libppasskeeper.la
+qtpasskeeper_DEPENDENCIES = ../../src/libppasskeeper.la
 EXTRA_DIST = qtpasskeeper.desktop
 Applicationsdir = $(datadir)/applications
 Applications_DATA = qtpasskeeper.desktop
 INCLUDES = -I../../src @QTCORE_CFLAGS@ @QTGUI_CFLAGS@
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
@@ -443,13 +445,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Applicationsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -474,6 +478,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am

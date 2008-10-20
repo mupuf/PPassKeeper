@@ -22,6 +22,14 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 	void setupModelData(const char *moduleId);
 
+signals:
+	void appPasswordActivated(const char *app_name, const char *username);
+	void netPasswordActivated(const char *host, const char *login, unsigned short int post);
+	void itemPasswordActivated(const char *key);
+
+private slots:
+	void activatedInView(const QModelIndex &index);
+
 private:
 	void freeEntries();
 

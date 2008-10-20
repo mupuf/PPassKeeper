@@ -21,6 +21,23 @@ PasswordListModel::~PasswordListModel()
 	freeEntries();
 }
 
+void PasswordListModel::activatedInView(const QModelIndex &index)
+{
+	if (index.internalId() == appChildId)
+	{
+		struct PPassKeeper_module_entry_app &a = app_ent[index.row()];
+		emit appPasswordActivated(a.app_name, a.username);
+	} else if (index.internalId() == netChildId)
+	{
+		struct PPassKeeper_module_entry_net &n = net_ent[index.row()];
+		emit netPasswordActivated(n.host, n.login, n.port);
+	} else if (index.internalId() == itemChildId)
+	{
+		struct PPassKeeper_module_entry_item &i = item_ent[index.row()];
+		emit itemPasswordActivated(i.key);
+	}
+}
+
 inline void PasswordListModel::freeEntries()
 {
 	delete[] net_ent;

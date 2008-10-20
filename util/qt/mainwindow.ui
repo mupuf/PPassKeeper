@@ -106,19 +106,46 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2" >
-    <layout class="QVBoxLayout" name="verticalLayout_2" >
+    <layout class="QVBoxLayout" name="verticalLayout_3" >
      <item>
-      <spacer name="verticalSpacer" >
-       <property name="orientation" >
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0" >
-        <size>
-         <width>20</width>
-         <height>438</height>
-        </size>
-       </property>
-      </spacer>
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item>
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>174</width>
+           <height>58</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="infoLabel" >
+         <property name="text" >
+          <string>(none selected)</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2" >
@@ -127,12 +154,18 @@
          <property name="text" >
           <string>Value:</string>
          </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label" >
+        <widget class="QLabel" name="passwordLabel" >
          <property name="text" >
           <string>(hidden)</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -143,14 +176,26 @@
        <item>
         <widget class="QProgressBar" name="progressBar" >
          <property name="value" >
-          <number>0</number>
+          <number>100</number>
+         </property>
+         <property name="textVisible" >
+          <bool>false</bool>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="textDirection" >
+          <enum>QProgressBar::TopToBottom</enum>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton" >
+        <widget class="QPushButton" name="showButton" >
          <property name="text" >
           <string>Show value</string>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>

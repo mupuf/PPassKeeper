@@ -46,8 +46,9 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Applicationsdir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = mainwindow_moc.$(OBJEXT)
+am__objects_2 =
 am_qtpasskeeper_OBJECTS = main.$(OBJEXT) mainwindow.$(OBJEXT) \
-	$(am__objects_1)
+	$(am__objects_1) $(am__objects_2)
 qtpasskeeper_OBJECTS = $(am_qtpasskeeper_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -233,12 +234,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 bin_PROGRAMS = qtpasskeeper$(EXEEXT)
 MOC_SRC = mainwindow_moc.cpp
-CLEANFILES = $(MOC_SRC)
+UI_INC = mainwindow_ui.h
+CLEANFILES = $(MOC_SRC) $(UI_INC)
 qtpasskeeper_SOURCES = main.cpp \
-		       mainwindow.h mainwindow.cpp $(MOC_SRC)
+		       mainwindow.h mainwindow.cpp $(MOC_SRC) $(UI_INC)
 
 qtpasskeeper_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
-qtpasskeeper_DEPENDENCIES = ../../src/libppasskeeper.la
+qtpasskeeper_DEPENDENCIES = $(MOC_SRC) $(UI_INC) ../../src/libppasskeeper.la
 EXTRA_DIST = qtpasskeeper.desktop
 Applicationsdir = $(datadir)/applications
 Applications_DATA = qtpasskeeper.desktop
@@ -545,6 +547,9 @@ uninstall-am: uninstall-ApplicationsDATA uninstall-binPROGRAMS
 
 %_moc.cpp: %.h
 	@MOC@ -o $@ $<
+
+%_ui.h: %.ui
+	@UIC@ -o $@ $<
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

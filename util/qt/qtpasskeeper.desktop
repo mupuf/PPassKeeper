@@ -1,6 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Name=PPassKeeper
+GenericName=Password manager
+GenericName[fr]=Gestionnaire de mots de passe
 Comment=Manage your saved passwords
 Comment[fr]=Gérer ses mots de passes stockés
 Exec=qtpasskeeper

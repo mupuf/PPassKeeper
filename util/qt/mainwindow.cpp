@@ -9,6 +9,8 @@ MainWindow::MainWindow()
 	setupUi(this);
 	setupActions();
 
+	setWindowTitle(qApp->applicationName());
+
 	fillModulesBox();
 	pwdlistView->setModel(pwdlistModel);
 }

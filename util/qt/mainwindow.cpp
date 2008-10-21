@@ -53,7 +53,14 @@ void MainWindow::setupActions()
 			this,
 			SLOT(onItemPasswordActivated(const char *)));
 
+	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
+}
+
+void MainWindow::onShowButtonToggled(bool b)
+{
+	if (b) showButton->setText(tr("Hide value"));
+	else showButton->setText(tr("Show value"));
 }
 
 void MainWindow::setPasswordVisible(bool b)
@@ -85,11 +92,31 @@ void MainWindow::setPasswordVisible(bool b)
 					cur_item.key.toLocal8Bit().constData(), 0);
 		}
 		if (pwd)
+		{
 			passwordLabel->setText(pwd);
+			timerValue = 0;
+			passwordTimer.start(1000, this);
+		}
 	} else {
+		passwordTimer.stop();
+		progressBar->setValue(0);
 		passwordLabel->setText(tr("(hidden)"));
 		showButton->setChecked(false);
 	}
+}
+
+void MainWindow::timerEvent(QTimerEvent *event)
+{
+	if (timerValue == 30)
+	{
+		passwordTimer.stop();
+		timerValue = 0;
+		setPasswordVisible(false);
+		return;
+	}
+
+	progressBar->setValue(timerValue * 100 / 30);
+	++timerValue;
 }
 
 void MainWindow::onAppPasswordActivated(const char *app_name, const char *username)

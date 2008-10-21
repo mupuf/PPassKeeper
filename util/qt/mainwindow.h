@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <ppasskeeper.h>
+#include <QBasicTimer>
 
 #include "mainwindow_ui.h"
 #include "passwordlistmodel.h"
@@ -44,9 +45,15 @@ private:
 		QString key;
 	} cur_item;
 
+	QBasicTimer passwordTimer;
+
 	void setupActions();
 	void fillModulesBox();
 	void listCurrentModule();
+
+protected:
+	void timerEvent(QTimerEvent *event);
+	uint timerValue;
 
 public slots:
 	void onAppPasswordActivated(const char *app_name, const char *username);
@@ -57,6 +64,7 @@ public slots:
 private slots:
 	void moduleChanged(int index);
 	void updateInfoLabel();
+	void onShowButtonToggled(bool b);
 };
 
 #endif

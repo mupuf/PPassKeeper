@@ -161,11 +161,26 @@
        </item>
        <item>
         <widget class="QLabel" name="passwordLabel" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape" >
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Raised</enum>
+         </property>
          <property name="text" >
           <string>(hidden)</string>
          </property>
          <property name="alignment" >
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="textInteractionFlags" >
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -176,13 +191,16 @@
        <item>
         <widget class="QProgressBar" name="progressBar" >
          <property name="value" >
-          <number>100</number>
+          <number>0</number>
          </property>
          <property name="textVisible" >
           <bool>false</bool>
          </property>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance" >
+          <bool>true</bool>
          </property>
          <property name="textDirection" >
           <enum>QProgressBar::TopToBottom</enum>
@@ -196,6 +214,9 @@
          </property>
          <property name="checkable" >
           <bool>true</bool>
+         </property>
+         <property name="flat" >
+          <bool>false</bool>
          </property>
         </widget>
        </item>

@@ -4,15 +4,16 @@ MainWindow::MainWindow()
 	: QMainWindow(),
 	cur_availability(false)
 {
-	pwdlistModel = new PasswordListModel(this);
-
 	setupUi(this);
+
+	pwdlistModel = new PasswordListModel(this);
+	pwdlistView->setModel(pwdlistModel);
+
 	setupActions();
 
 	setWindowTitle(qApp->applicationName());
 
 	fillModulesBox();
-	pwdlistView->setModel(pwdlistModel);
 }
 
 void MainWindow::fillModulesBox()
@@ -40,20 +41,20 @@ void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
-	connect(pwdlistView, SIGNAL(activated(const QModelIndex &)),
-			pwdlistModel, SLOT(activatedInView(const QModelIndex &)));
+	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+			pwdlistModel, SLOT(rowSelected(const QModelIndex &, const QModelIndex &)));
 	connect(pwdlistModel,
-			SIGNAL(appPasswordActivated(const char *, const char *)),
+			SIGNAL(appPasswordSelected(const char *, const char *)),
 			this,
-			SLOT(onAppPasswordActivated(const char *, const char *)));
+			SLOT(onAppPasswordSelected(const char *, const char *)));
 	connect(pwdlistModel,
-			SIGNAL(netPasswordActivated(const char *, const char *, unsigned short int)),
+			SIGNAL(netPasswordSelected(const char *, const char *, unsigned short int)),
 			this,
-			SLOT(onNetPasswordActivated(const char *, const char *, unsigned short int)));
+			SLOT(onNetPasswordSelected(const char *, const char *, unsigned short int)));
 	connect(pwdlistModel,
-			SIGNAL(itemPasswordActivated(const char *)),
+			SIGNAL(itemPasswordSelected(const char *)),
 			this,
-			SLOT(onItemPasswordActivated(const char *)));
+			SLOT(onItemPasswordSelected(const char *)));
 
 	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
@@ -121,7 +122,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 	++timerValue;
 }
 
-void MainWindow::onAppPasswordActivated(const char *app_name, const char *username)
+void MainWindow::onAppPasswordSelected(const char *app_name, const char *username)
 {
 	cur_availability = true;
 	cur_type = ppk_application;
@@ -130,7 +131,7 @@ void MainWindow::onAppPasswordActivated(const char *app_name, const char *userna
 	updateInfoLabel();
 }
 
-void MainWindow::onNetPasswordActivated(const char *host, const char *login, unsigned short int port)
+void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
 {
 	cur_availability = true;
 	cur_type = ppk_network;
@@ -140,7 +141,7 @@ void MainWindow::onNetPasswordActivated(const char *host, const char *login, uns
 	updateInfoLabel();
 }
 
-void MainWindow::onItemPasswordActivated(const char *key)
+void MainWindow::onItemPasswordSelected(const char *key)
 {
 	cur_availability = true;
 	cur_type = ppk_item;
@@ -180,6 +181,10 @@ void MainWindow::moduleChanged(int index)
 	{
 		m_moduleId = id;
 		listCurrentModule();
+
+		/* the displayed password becomes unavailable
+		 * after a module change */
+		cur_availability = false;
 	}
 }
 

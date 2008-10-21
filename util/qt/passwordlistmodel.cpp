@@ -21,20 +21,20 @@ PasswordListModel::~PasswordListModel()
 	freeEntries();
 }
 
-void PasswordListModel::activatedInView(const QModelIndex &index)
+void PasswordListModel::rowSelected(const QModelIndex &current, const QModelIndex &previous)
 {
-	if (index.internalId() == appChildId)
+	if (current.internalId() == appChildId)
 	{
-		struct PPassKeeper_module_entry_app &a = app_ent[index.row()];
-		emit appPasswordActivated(a.app_name, a.username);
-	} else if (index.internalId() == netChildId)
+		struct PPassKeeper_module_entry_app &a = app_ent[current.row()];
+		emit appPasswordSelected(a.app_name, a.username);
+	} else if (current.internalId() == netChildId)
 	{
-		struct PPassKeeper_module_entry_net &n = net_ent[index.row()];
-		emit netPasswordActivated(n.host, n.login, n.port);
-	} else if (index.internalId() == itemChildId)
+		struct PPassKeeper_module_entry_net &n = net_ent[current.row()];
+		emit netPasswordSelected(n.host, n.login, n.port);
+	} else if (current.internalId() == itemChildId)
 	{
-		struct PPassKeeper_module_entry_item &i = item_ent[index.row()];
-		emit itemPasswordActivated(i.key);
+		struct PPassKeeper_module_entry_item &i = item_ent[current.row()];
+		emit itemPasswordSelected(i.key);
 	}
 }
 

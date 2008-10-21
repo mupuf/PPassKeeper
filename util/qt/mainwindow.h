@@ -56,9 +56,9 @@ protected:
 	uint timerValue;
 
 public slots:
-	void onAppPasswordActivated(const char *app_name, const char *username);
-	void onNetPasswordActivated(const char *host, const char *login, unsigned short int port);
-	void onItemPasswordActivated(const char *key);
+	void onAppPasswordSelected(const char *app_name, const char *username);
+	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
+	void onItemPasswordSelected(const char *key);
 	void setPasswordVisible(bool b);
 
 private slots:

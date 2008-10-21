@@ -23,12 +23,12 @@ public:
 	void setupModelData(const char *moduleId);
 
 signals:
-	void appPasswordActivated(const char *app_name, const char *username);
-	void netPasswordActivated(const char *host, const char *login, unsigned short int post);
-	void itemPasswordActivated(const char *key);
+	void appPasswordSelected(const char *app_name, const char *username);
+	void netPasswordSelected(const char *host, const char *login, unsigned short int post);
+	void itemPasswordSelected(const char *key);
 
 private slots:
-	void activatedInView(const QModelIndex &index);
+	void rowSelected(const QModelIndex &current, const QModelIndex &previous);
 
 private:
 	void freeEntries();

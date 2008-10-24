@@ -92,7 +92,7 @@ const char* _getPassword(const char* key, unsigned int flags)
 	{
 		//Get the password
 		if(wallet->readPassword(key,pwd)==0)
-			return pwd.toAscii().data();
+			return pwd.toLocal8Bit().data();
 		else
 		{
 			setError("getPwd : wallet->readPassword failed, key="+toString(key));

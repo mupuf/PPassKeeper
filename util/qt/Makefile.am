@@ -1,17 +1,17 @@
-bin_PROGRAMS = qtpasskeeper$(EXEEXT)
+bin_PROGRAMS = ppasskeeper-qt$(EXEEXT)
 MOC_SRC = mainwindow_moc.cpp passwordlistmodel_moc.cpp
 UI_INC = mainwindow_ui.h
-qtpasskeeper_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
+ppasskeeper_qt_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
 		       mainwindow.h mainwindow.cpp \
 		       passwordlistmodel.h passwordlistmodel.cpp
 BUILT_SOURCES = $(MOC_SRC) $(UI_INC)
 CLEANFILES = $(BUILT_SOURCES)
-qtpasskeeper_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
-qtpasskeeper_DEPENDENCIES = ../../src/libppasskeeper.la
+ppasskeeper_qt_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
+ppasskeeper_qt_DEPENDENCIES = ../../src/libppasskeeper.la
 
-EXTRA_DIST = qtpasskeeper.desktop
+EXTRA_DIST = ppasskeeper-qt.desktop
 Applicationsdir = $(datadir)/applications
-Applications_DATA = qtpasskeeper.desktop
+Applications_DATA = ppasskeeper-qt.desktop
 
 %_moc.cpp: %.h
 	@MOC@ -o $@ $<

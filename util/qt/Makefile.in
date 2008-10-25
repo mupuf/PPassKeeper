@@ -48,10 +48,10 @@ PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = mainwindow_moc.$(OBJEXT) \
 	passwordlistmodel_moc.$(OBJEXT)
 am__objects_2 =
-am_qtpasskeeper_OBJECTS = $(am__objects_1) $(am__objects_2) \
+am_ppasskeeper_qt_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	main.$(OBJEXT) mainwindow.$(OBJEXT) \
 	passwordlistmodel.$(OBJEXT)
-qtpasskeeper_OBJECTS = $(am_qtpasskeeper_OBJECTS)
+ppasskeeper_qt_OBJECTS = $(am_ppasskeeper_qt_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -73,8 +73,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(qtpasskeeper_SOURCES)
-DIST_SOURCES = $(qtpasskeeper_SOURCES)
+SOURCES = $(ppasskeeper_qt_SOURCES)
+DIST_SOURCES = $(ppasskeeper_qt_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -234,20 +234,20 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-bin_PROGRAMS = qtpasskeeper$(EXEEXT)
+bin_PROGRAMS = ppasskeeper-qt$(EXEEXT)
 MOC_SRC = mainwindow_moc.cpp passwordlistmodel_moc.cpp
 UI_INC = mainwindow_ui.h
-qtpasskeeper_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
+ppasskeeper_qt_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
 		       mainwindow.h mainwindow.cpp \
 		       passwordlistmodel.h passwordlistmodel.cpp
 
 BUILT_SOURCES = $(MOC_SRC) $(UI_INC)
 CLEANFILES = $(BUILT_SOURCES)
-qtpasskeeper_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
-qtpasskeeper_DEPENDENCIES = ../../src/libppasskeeper.la
-EXTRA_DIST = qtpasskeeper.desktop
+ppasskeeper_qt_LDADD = -L../../src -lppasskeeper @QTCORE_LIBS@ @QTGUI_LIBS@
+ppasskeeper_qt_DEPENDENCIES = ../../src/libppasskeeper.la
+EXTRA_DIST = ppasskeeper-qt.desktop
 Applicationsdir = $(datadir)/applications
-Applications_DATA = qtpasskeeper.desktop
+Applications_DATA = ppasskeeper-qt.desktop
 INCLUDES = -I../../src @QTCORE_CFLAGS@ @QTGUI_CFLAGS@
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -311,9 +311,9 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-qtpasskeeper$(EXEEXT): $(qtpasskeeper_OBJECTS) $(qtpasskeeper_DEPENDENCIES) 
-	@rm -f qtpasskeeper$(EXEEXT)
-	$(CXXLINK) $(qtpasskeeper_OBJECTS) $(qtpasskeeper_LDADD) $(LIBS)
+ppasskeeper-qt$(EXEEXT): $(ppasskeeper_qt_OBJECTS) $(ppasskeeper_qt_DEPENDENCIES) 
+	@rm -f ppasskeeper-qt$(EXEEXT)
+	$(CXXLINK) $(ppasskeeper_qt_OBJECTS) $(ppasskeeper_qt_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

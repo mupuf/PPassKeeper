@@ -150,15 +150,19 @@ if test "x$arg_python" = "xno"; then
 else
   AM_PATH_PYTHON(, [PYTHON_FOUND="yes"], [PYTHON_FOUND="no"])
 
+  AC_MSG_CHECKING([for ${PYTHON}-config])
   if test ! -x "${PYTHON}-config"; then
+	  AC_MSG_RESULT([no])
 	  PYTHON_FOUND="no"
+  else
+	  AC_MSG_RESULT([yes])
+	  PYTHON_LIBS=`${PYTHON}-config --libs`
+	  PYTHON_INCS=`${PYTHON}-config --includes`
+	  AC_SUBST([PYTHON_LIBS])
+	  AC_SUBST([PYTHON_INCS])
   fi
 
   AM_CONDITIONAL([BUILD_PYTHON], [test "x${PYTHON_FOUND}" = "xyes"])
-  PYTHON_LIBS=`${PYTHON}-config --libs`
-  PYTHON_INCS=`${PYTHON}-config --includes`
-  AC_SUBST([PYTHON_LIBS])
-  AC_SUBST([PYTHON_INCS])
 fi
 
 AM_CONDITIONAL([BUILD_UTIL], [test "x$arg_util" != "xno"])

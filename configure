@@ -19195,6 +19195,11 @@ $as_echo "$am_cv_python_pyexecdir" >&6; }
   fi
 
 
+
+  if test ! -x "${PYTHON}-config"; then
+	  PYTHON_FOUND="no"
+  fi
+
    if test "x${PYTHON_FOUND}" = "xyes"; then
   BUILD_PYTHON_TRUE=
   BUILD_PYTHON_FALSE='#'

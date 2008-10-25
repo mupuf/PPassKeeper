@@ -149,6 +149,11 @@ if test "x$arg_python" = "xno"; then
   AM_CONDITIONAL([BUILD_PYTHON], [false])
 else
   AM_PATH_PYTHON(, [PYTHON_FOUND="yes"], [PYTHON_FOUND="no"])
+
+  if test ! -x "${PYTHON}-config"; then
+	  PYTHON_FOUND="no"
+  fi
+
   AM_CONDITIONAL([BUILD_PYTHON], [test "x${PYTHON_FOUND}" = "xyes"])
   PYTHON_LIBS=`${PYTHON}-config --libs`
   PYTHON_INCS=`${PYTHON}-config --includes`

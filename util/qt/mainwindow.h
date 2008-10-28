@@ -17,7 +17,7 @@ public:
 	const QString &moduleId() const { return m_moduleId; };
 
 private:
-	QString m_moduleId;
+	QString m_moduleId, tmp_sensitive_data;
 	PasswordListModel *pwdlistModel;
 
 	/* description of the current selected password
@@ -60,6 +60,8 @@ public slots:
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
 	void onItemPasswordSelected(const char *key);
 	void setPasswordVisible(bool b);
+	void updateSelectedPassword(QString pwd);
+	void focusChanged(QWidget* q_old, QWidget* q_new);
 
 private slots:
 	void moduleChanged(int index);

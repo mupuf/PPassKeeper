@@ -50,7 +50,7 @@ std::string decrypt(std::string pwd_enc)
 	return base64_dec(pwd_enc);
 }
 
-const char* getPassword(std::string filepath, unsigned int flags)
+const char* readFile(std::string filepath, unsigned int flags)
 {
 	static std::string pwd;
 
@@ -76,7 +76,7 @@ const char* getPassword(std::string filepath, unsigned int flags)
 	}
 }
 
-bool setPassword(std::string filepath, std::string secret, unsigned int flags)
+bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 {
 	//try to create the wanted directory
 	mkdir(dir());

@@ -25,16 +25,16 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 {
 	if (current.internalId() == appChildId)
 	{
-		struct PPassKeeper_module_entry_app &a = app_ent[current.row()];
-		emit appPasswordSelected(a.app_name, a.username);
+		struct ppk_entry &a = app_ent[current.row()];
+		emit appPasswordSelected(a.app.app_name, a.app.username);
 	} else if (current.internalId() == netChildId)
 	{
-		struct PPassKeeper_module_entry_net &n = net_ent[current.row()];
-		emit netPasswordSelected(n.host, n.login, n.port);
+		struct ppk_entry &n = net_ent[current.row()];
+		emit netPasswordSelected(n.net.host, n.net.login, n.net.port);
 	} else if (current.internalId() == itemChildId)
 	{
-		struct PPassKeeper_module_entry_item &i = item_ent[current.row()];
-		emit itemPasswordSelected(i.key);
+		struct ppk_entry &i = item_ent[current.row()];
+		emit itemPasswordSelected(i.item);
 	}
 }
 
@@ -52,23 +52,23 @@ void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
 
-	net_count = ppk_getPasswordListCount(moduleId, ppk_network, 0);
-	app_count = ppk_getPasswordListCount(moduleId, ppk_application, 0);
-	item_count = ppk_getPasswordListCount(moduleId, ppk_item, 0);
+	net_count = ppk_getEntryListCount(moduleId, ppk_network, 0);
+	app_count = ppk_getEntryListCount(moduleId, ppk_application, 0);
+	item_count = ppk_getEntryListCount(moduleId, ppk_item, 0);
 	if (net_count > 0)
 	{
-		net_ent = new struct PPassKeeper_module_entry_net[net_count];
-		ppk_getPasswordList(moduleId, ppk_network, net_ent, net_count, 0);
+		net_ent = new struct ppk_entry[net_count];
+		net_count=ppk_getEntryList(moduleId, ppk_network, net_ent, net_count, 0);
 	}
 	if (app_count > 0)
 	{
-		app_ent = new struct PPassKeeper_module_entry_app[app_count];
-		ppk_getPasswordList(moduleId, ppk_application, app_ent, app_count, 0);
+		app_ent = new struct ppk_entry[app_count];
+		app_count=ppk_getEntryList(moduleId, ppk_application, app_ent, app_count, 0);
 	}
 	if (item_count > 0)
 	{
-		item_ent = new struct PPassKeeper_module_entry_item[app_count];
-		ppk_getPasswordList(moduleId, ppk_item, item_ent, item_count, 0);
+		item_ent = new struct ppk_entry[item_count];
+		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, 0);
 	}
 
 	reset();
@@ -168,16 +168,16 @@ QVariant PasswordListModel::data(const QModelIndex &index, int role) const
 		{
 			if (index.internalId() == appChildId)
 			{
-				const PPassKeeper_module_entry_app &a = app_ent[index.row()];
-				return QVariant(QString("%1:%2").arg(a.app_name).arg(a.username));
+				const ppk_entry &a = app_ent[index.row()];
+				return QVariant(QString("%1:%2").arg(a.app.app_name).arg(a.app.username));
 			} else if (index.internalId() == netChildId)
 			{
-				const PPassKeeper_module_entry_net &n = net_ent[index.row()];
-				return QVariant(QString("%1@%2:%3").arg(n.login).arg(n.host).arg(n.port));
+				const ppk_entry &n = net_ent[index.row()];
+				return QVariant(QString("%1@%2:%3").arg(n.net.login).arg(n.net.host).arg(n.net.port));
 			} else if (index.internalId() == itemChildId)
 			{
-				const PPassKeeper_module_entry_item &i = item_ent[index.row()];
-				return QVariant(QString(i.key));
+				const ppk_entry &i = item_ent[index.row()];
+				return QVariant(QString(i.item));
 			}
 		} else {
 			if (index.row() == 0)

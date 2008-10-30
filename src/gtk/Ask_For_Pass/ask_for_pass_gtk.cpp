@@ -59,115 +59,61 @@ extern "C" ppk_listingFlag listingFlagsAvailable()
 }
 
 
-extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
+extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
+{
+	return 0;
+}
+
+extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 {	
 	return 0;
 }
 
-extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
-{
-	return 0;
-}
-
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
-{
-	static std::string pwd;	
-	if((int)(flags&ppk_rf_silent)==0)
-	{
-		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
-
-		//if everything went fine
-		if(res)
-		{
-			setError("");
-			return pwd.c_str();
-		}
-		else
-		{
-			setError("User pressed cancel");
-			return NULL;
-		}
-	}
-	else
-		return NULL;
-}
-
-extern "C" ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
-{
-	return PPK_FALSE;
-}
-
-extern "C" ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
-{
-	return PPK_FALSE;
-}
-
-
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
-{
-	static std::string pwd; 
-
-	if((int)(flags&ppk_rf_silent)==0)
-	{
-		bool res=GTK_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
-
-		//if everything went fine
-		if(res)
-		{
-			setError("");
-			return pwd.c_str();
-		}
-		else
-		{
-			setError("User pressed cancel");
-			return NULL;
-		}
-	}
-	else
-		return NULL;
-}
-
-extern "C" ppk_boolean setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
-{
-	return PPK_FALSE;
-}
-
-extern "C" ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
-{
-	return PPK_FALSE;
-}
-
-extern "C" const char* getItem(const char* key, unsigned int flags)
+extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags)
 {
 	static std::string pwd;
 	if((int)(flags&ppk_rf_silent)==0)
 	{
-		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ",pwd);
+		std::string text;
+		if(entry.type==ppk_network)
+			text=toString(entry.net.login)+"@"+toString(entry.net.host)+":"+toString(entry.net.port);
+		else if(entry.type==ppk_application)
+			text=toString(entry.app.username)+"@"+toString(entry.app.app_name);
+		else if(entry.type==ppk_item)
+			text="this key("+toString(entry.item)+")";
+		
+		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
 		if(res)
 		{
 			setError("");
-			return pwd.c_str();
+			edata->string=pwd.c_str();
+			return PPK_TRUE;
 		}
 		else
 		{
 			setError("User pressed cancel");
-			return NULL;
+			return PPK_FALSE;
 		}
 	}
 	else
-		return NULL;
+		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setItem(const char* key,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_entry_data *edata, unsigned int flags)
 {
 	return PPK_FALSE;
 }
 
-extern "C" ppk_boolean removeItem(const char* key, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
 {
 	return PPK_FALSE;
+}
+
+extern "C" ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
+{
+	return PPK_TRUE;
 }
 
 extern "C" const char* getLastError()

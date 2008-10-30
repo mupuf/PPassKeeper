@@ -4,6 +4,26 @@
 #include <iostream>
 #include <sstream>
 
+//List passwords available
+std::string shortName(); //Declared in submodules encrypted and plain_text
+std::string ListPwd::prefix(ppk_entry_type type)
+{
+	std::string prefix=shortName();
+	switch(type)
+	{
+		case ppk_network:
+			prefix+="_NET_";
+			break;
+		case ppk_application:
+			prefix+="_APP_";
+			break;
+		case ppk_item:
+			prefix+="_ITM_";
+			break;
+	}
+	return prefix;
+}
+
 bool ListPwd::addNetworkPassword(std::string stripped_name)
 {
 	//Parse the file's name
@@ -51,7 +71,7 @@ bool ListPwd::addAppPassword(std::string stripped_name)
 		tmp.app=app;
 		tmp.user=user;
 		listApp.push_back(tmp);
-
+		
 		return true;
 	}
 	else
@@ -60,7 +80,7 @@ bool ListPwd::addAppPassword(std::string stripped_name)
 
 bool ListPwd::addItemPassword(std::string stripped_name)
 {
-	if(	stripped_name.size()>0)
+	if(stripped_name.size()>0)
 	{
 		//Add the content to pwdList
 		itemList tmp;
@@ -73,31 +93,20 @@ bool ListPwd::addItemPassword(std::string stripped_name)
 		return false;
 }
 
-bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_password_type type)
+bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsigned int flags)
 {
-	//Example : filename=ENC_NET_mupuf@mupuf.fr.nf:21, prefix=ENC_NET_, type=network
-	
-	//Strip the prefix from file's name, so,filename = mupuf@mupuf.fr.nf:21
-	std::string suffix=filename.substr(prefix.size());
+	std::string prefix_net=prefix(ppk_network);
+	std::string prefix_app=prefix(ppk_application);
+	std::string prefix_item=prefix(ppk_item);
 
-	//Depending on the type
-	switch(type)
-	{
-		case ppk_network:
-		{
-			return addNetworkPassword(suffix);
-		}
-		case ppk_application:
-		{
-			return addAppPassword(suffix);
-		}
-		case ppk_item:
-		{
-			return addItemPassword(suffix);
-		}
-	}
-
-	return false;
+	if(filename.size() > prefix_net.size() && strncmp(filename.c_str(), prefix_net.c_str(), prefix_net.size())==0)
+		return (entry_types|ppk_network)>0 && addNetworkPassword(filename.substr(prefix_net.size()));
+	else if(filename.size() > prefix_app.size() && strncmp(filename.c_str(), prefix_app.c_str(), prefix_app.size())==0)
+		return (entry_types|ppk_application)>0 && addAppPassword(filename.substr(prefix_app.size()));
+	else if(filename.size() > prefix_item.size() && strncmp(filename.c_str(), prefix_item.c_str(), prefix_item.size())==0)
+		return (entry_types|ppk_item)>0 && addItemPassword(filename.substr(prefix_item.size()));
+	else
+		return false;
 }
 
 #if defined(WIN32) || defined(WIN64)
@@ -132,11 +141,11 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 	#include <sys/types.h>
 	#include <dirent.h>
 	
-	unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
+	//unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
+	unsigned int ListPwd::updateDataBase(const char* dir, unsigned int entry_types, unsigned int flags)
 	{	
 		DIR * pwddir;
 		struct dirent * mydirent;
-		unsigned int prefix_len=strlen(prefix);
 		unsigned int pwdCount=0;
 		
 		//Open Plugin's directory
@@ -144,9 +153,8 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 		if(pwddir!=NULL)
 		{
 			while ((mydirent = readdir(pwddir))!=NULL)
-				if(strncmp (mydirent->d_name, prefix, prefix_len)==0)
-					if(parseFileName(prefix, mydirent->d_name, type))
-						pwdCount++;
+				if(parseFileName(mydirent->d_name, entry_types, flags))
+					pwdCount++;
 
 			closedir(pwddir);
 		}
@@ -159,75 +167,68 @@ bool ListPwd::parseFileName(std::string prefix, std::string filename, ppk_passwo
 	}
 #endif
 
-unsigned int ListPwd::copyDBToPwdList(ppk_password_type type, void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::copyDBToPwdList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries)
 {
-	//Depending on the type
-	switch(type)
-	{
-		case ppk_network:
-		{
-			return copyNetworkToPwdList(pwdList, maxPasswordCount);
-		}
-		case ppk_application:
-		{
-			return copyApplicationToPwdList(pwdList, maxPasswordCount);
-		}
-		case ppk_item:
-		{
-			return copyItemToPwdList(pwdList, maxPasswordCount);
-		}
-	}
-}
-unsigned int ListPwd::copyNetworkToPwdList(void* pwdList, unsigned int maxPasswordCount)
-{
-	PPassKeeper_module_entry_net* list=(PPassKeeper_module_entry_net*) pwdList;
+	unsigned int len=0;
+	
+	if((entry_types&ppk_network)>0)
+		len+=copyNetworkToPwdList(entryList+len, nbEntries-len);
+	if((entry_types&ppk_application)>0)
+		len+=copyApplicationToPwdList(entryList+len, nbEntries-len);
+	if((entry_types&ppk_item)>0)
+		len+=copyItemToPwdList(entryList+len, nbEntries-len);
 
+	return len;
+}
+unsigned int ListPwd::copyNetworkToPwdList(ppk_entry *entryList, unsigned int nbEntries)
+{
 	int i;
-	for(i=0;i<listNet.size() && i<maxPasswordCount;i++)
+	for(i=0;i<listNet.size() && i<nbEntries;i++)
 	{
-		list[i].host=listNet[i].host.c_str();
-		list[i].login=listNet[i].user.c_str();
-		list[i].port=listNet[i].port;
+		entryList[i].type=ppk_network;
+		entryList[i].net.host=listNet[i].host.c_str();
+		entryList[i].net.login=listNet[i].user.c_str();
+		entryList[i].net.port=listNet[i].port;
 	}
 
-	return listNet.size();
+	return i;
 }
-unsigned int ListPwd::copyApplicationToPwdList(void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::copyApplicationToPwdList(ppk_entry *entryList, unsigned int nbEntries)
 {
-	PPassKeeper_module_entry_app* list=(PPassKeeper_module_entry_app*) pwdList;
-
-	for(int i=0;i<listApp.size() && i<maxPasswordCount;i++)
+	int i;
+	for(i=0;i<listApp.size() && i<nbEntries;i++)
 	{
-		list[i].app_name=listApp[i].app.c_str();
-		list[i].username=listApp[i].user.c_str();
+		entryList[i].type=ppk_application;
+		entryList[i].app.app_name=listApp[i].app.c_str();
+		entryList[i].app.username=listApp[i].user.c_str();
 	}
 
-	return listApp.size();
+	return i;
 }
 
-unsigned int ListPwd::copyItemToPwdList(void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::copyItemToPwdList(ppk_entry *entryList, unsigned int nbEntries)
 {
-	PPassKeeper_module_entry_item* list=(PPassKeeper_module_entry_item*) pwdList;
-
-	for(int i=0;i<listItem.size() && i<maxPasswordCount;i++)
+	int i;
+	for(i=0;i<listItem.size() && i<nbEntries;i++)
 	{
-		list[i].key=listItem[i].key.c_str();
+		entryList[i].type=ppk_item;
+		entryList[i].item=listItem[i].key.c_str();
 	}
 
-	return listItem.size();
+	return i;
 }
 
-unsigned int ListPwd::getPasswordListCount(const char* dir, const char* prefix, ppk_password_type type)
+unsigned int ListPwd::getEntryListCount(const char* dir, unsigned int entry_types, unsigned int flags)
 {
 	//Update the database and return how many password were found
-	return updateDataBase(dir, prefix, type);
+	return updateDataBase(dir, entry_types, flags);
 }
 
-unsigned int ListPwd::getPasswordList(const char* dir, const char* prefix, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount)
+unsigned int ListPwd::getEntryList(const char* dir, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 {
 	//Update the database before putting data into pwdList
-	updateDataBase(dir, prefix, type);
+	updateDataBase(dir, entry_types, flags);
 
 	//Put data into pwdList
-	return copyDBToPwdList(type, pwdList, maxPasswordCount);
+	return copyDBToPwdList(entry_types, entryList, nbEntries);
 }

@@ -21,7 +21,7 @@ void MainWindow::fillModulesBox()
 	modulesBox->clear();
 
 	unsigned int n = ppk_getAvailableModulesCount();
-	struct PPassKeeper_Module modules[n];
+	struct ppk_module modules[n];									//HACK !
 	ppk_getAvailableModules(modules, n);
 
 	modulesBox->addItem("Select one:");
@@ -29,7 +29,7 @@ void MainWindow::fillModulesBox()
 
 	for (int i = 0; i < n; ++i)
 	{
-		/* we are only interested in modules that can be listed */
+		/* we are only interested in modules that can be listed and that can actually store data */
 		if (ppk_isWritable(modules[i].id))
 		{
 			modulesBox->addItem(modules[i].display_name, QVariant(modules[i].id));
@@ -72,23 +72,21 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	bool res;
 	if (cur_type == ppk_application)
 	{
-		res = ppk_setApplicationPassword(m_moduleId.toLocal8Bit().constData(),
-				cur_app.app_name.toLocal8Bit().constData(),
-				cur_app.username.toLocal8Bit().constData(),
-				pwd.toLocal8Bit().constData(), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
+				createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
+				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_network)
 	{
-		res = ppk_setNetworkPassword(m_moduleId.toLocal8Bit().constData(),
-				cur_net.host.toLocal8Bit().constData(), cur_net.port,
-				cur_net.login.toLocal8Bit().constData(),
-				pwd.toLocal8Bit().constData(), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
+				createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
+				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_item)
 	{
-		res = ppk_setItem(m_moduleId.toLocal8Bit().constData(),
-				cur_item.key.toLocal8Bit().constData(),
-				pwd.toLocal8Bit().constData(), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
+				createItemEntry(cur_item.key.toLocal8Bit().constData()),
+				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 }
 
@@ -103,28 +101,30 @@ void MainWindow::setPasswordVisible(bool b)
 			return;
 		}
 
-		const char *pwd;
+		struct ppk_entry_data data;
+		ppk_boolean res;
 		if (cur_type == ppk_application)
 		{
-			pwd = ppk_getApplicationPassword(m_moduleId.toLocal8Bit().constData(),
-					cur_app.app_name.toLocal8Bit().constData(),
-					cur_app.username.toLocal8Bit().constData(), 0);
+			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
+					createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
+					&data, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
-			pwd = ppk_getNetworkPassword(m_moduleId.toLocal8Bit().constData(),
-					cur_net.host.toLocal8Bit().constData(), cur_net.port,
-					cur_net.login.toLocal8Bit().constData(), 0);
+			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
+					createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
+					&data, 0);
 		}
 		else if (cur_type == ppk_item)
 		{
-			pwd = ppk_getItem(m_moduleId.toLocal8Bit().constData(),
-					cur_item.key.toLocal8Bit().constData(), 0);
+			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
+					createItemEntry(cur_item.key.toLocal8Bit().constData()),
+					&data, 0);
 		}
-		if (pwd)
+		if (res==PPK_TRUE)
 		{		
-			passwordEdit->setPlainText(pwd);
-			tmp_sensitive_data=pwd;
+			passwordEdit->setPlainText(data.string);
+			tmp_sensitive_data=data.string;
 			timerValue = 0;
 			passwordTimer.start(1000, this);
 		}

@@ -2,12 +2,13 @@
 #include "../../tokenizer.h"
 #include <string>
 #include <iostream>
+#include <fstream>
 #include "list_pwd.h"
 
 //local functions
 std::string shortName();
-const char* getPassword(std::string filepath, unsigned int flags);
-bool setPassword(std::string filepath, std::string secret, unsigned int flags);
+const char* readFile(std::string filename, unsigned int flags);
+bool writeFile(std::string filename, std::string secret, unsigned int flags);
 
 //Personal portable functions
 std::string dir();
@@ -44,6 +45,18 @@ bool deletePassword(std::string path, unsigned int flags)
 	return remove(path.c_str())==0;
 }
 
+ppk_boolean fileExists(std::string filepath)
+{
+	std::ifstream inputfile(filepath.c_str());
+	if(inputfile.is_open())
+	{
+		inputfile.close();
+		return PPK_TRUE;
+	}
+	else
+		return PPK_FALSE;
+}
+
 //functions
 extern "C"
 {
@@ -76,107 +89,74 @@ extern "C"
 		return ppk_lf_silent;
 	}
 
-
-	//List passwords available
-	std::string prefix(ppk_password_type type)
+	std::string getKey(const struct ppk_entry entry)
 	{
-		std::string prefix=shortName();
-		switch(type)
+		std::string key;
+		
+		switch(entry.type)
 		{
 			case ppk_network:
-				prefix+="_NET_";
+			{
+				key=generateNetworkPath(entry.net.host, entry.net.port, entry.net.login);
 				break;
+			}
 			case ppk_application:
-				prefix+="_APP_";
+			{
+				key=generateApplicationPath(entry.app.app_name, entry.app.username);
 				break;
+			}
 			case ppk_item:
-				prefix+="_ITM_";
+			{
+				key=generateItemPath(entry.item);
 				break;
+			}
 		}
-		return prefix;
+
+		return key;
 	}
 
-	unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
+	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 	{
 		ListPwd pwdl;		
-		return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);
+		return pwdl.getEntryListCount(dir().c_str(), entry_types, flags);
 	}
 
-	unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
+	unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 	{
 		static ListPwd pwdl;	
-		return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);
+		return pwdl.getEntryList(dir().c_str(), entry_types, entryList, nbEntries, flags);
 	}
 
 	//Get and Set passwords
-	const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+	ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags)
 	{
-		static std::string pwd;
-		const char* res=getPassword(generateNetworkPath(server, port, username), flags);
+		static std::string pwd;	
+
+		const char* res=readFile(getKey(entry), flags);
 		if(res!=NULL)
 		{
 			pwd=res;
-			return pwd.c_str();
+			edata->type=ppk_string;
+			edata->string=pwd.c_str();
+			return PPK_TRUE;
 		}
 		else
-			return NULL;
+			return PPK_FALSE;
 	}
 
-	ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+	ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_entry_data edata, unsigned int flags)
 	{
-		return setPassword(generateNetworkPath(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+		return writeFile(getKey(entry).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
 	}
 	
-	ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+	ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
 	{
-		return deletePassword(generateNetworkPath(server, port, username), flags)?PPK_TRUE:PPK_FALSE;
+		return deletePassword(getKey(entry), flags)?PPK_TRUE:PPK_FALSE;
 	}
 
-
-	const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+	ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
 	{
-		static std::string pwd;
-		const char* res=getPassword(generateApplicationPath(application_name, username), flags);
-		if(res!=NULL)
-		{
-			pwd=res;
-			return pwd.c_str();
-		}
-		else
-			return NULL;
-	}
-
-	ppk_boolean setApplicationPassword(const char* application_name, const char* username, const char* pwd, unsigned int flags)
-	{
-		return setPassword(generateApplicationPath(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
-	}
-	
-	ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
-	{
-		return deletePassword(generateApplicationPath(application_name, username), flags)?PPK_TRUE:PPK_FALSE;
-	}
-
-	const char* getItem(const char* key, unsigned int flags)
-	{
-		static std::string pwd;
-		const char* res=getPassword(generateItemPath(key), flags);
-		if(res!=NULL)
-		{
-			pwd=res;
-			return pwd.c_str();
-		}
-		else
-			return NULL;
-	}
-
-	ppk_boolean setItem(const char* key, const char* item, unsigned int flags)
-	{
-		return setPassword(generateItemPath(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
-	}
-	
-	ppk_boolean removeItem(const char* key, unsigned int flags)
-	{
-		return deletePassword(generateItemPath(key), flags)?PPK_TRUE:PPK_FALSE;
+		return fileExists(getKey(entry));
 	}
 
 	const char* getLastError()

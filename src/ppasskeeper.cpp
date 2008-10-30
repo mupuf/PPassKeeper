@@ -14,7 +14,7 @@ extern "C"
 		return modules.size();
 	}
 
-	unsigned int ppk_getAvailableModules(PPassKeeper_Module* pmodules, unsigned int nbModules)
+	unsigned int ppk_getAvailableModules(ppk_module* pmodules, unsigned int nbModules)
 	{
 		return modules.getModulesList(pmodules,nbModules);
 	}
@@ -55,113 +55,56 @@ extern "C"
 			return ppk_lf_none;
 	}
 
-	const char* ppk_getNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
-	{
-		static std::string pwd;
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-		{
-			const char* res=mod->getNetworkPassword(server,port,username, flags);
-			if(res!=NULL)
-			{
-				pwd=res;
-				return pwd.c_str();
-			}
-			else
-				return NULL;
-		}
-		else
-			return NULL;
-	}
-
-	ppk_boolean ppk_setNetworkPassword(const char* module_id, const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->setNetworkPassword(server,port,username,pwd,flags);
+			return mod->entryExists(entry, flags);
 		else
 			return PPK_FALSE;
 	}
 	
-	ppk_boolean ppk_removeNetworkPassword(const char* module_id, const char* server, int port, const char* username, unsigned int flags)
+	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags)
+	{
+     	const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->getEntryListCount(entry_types, flags);
+		else
+			return 0;
+     }
+     
+     unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+     {
+     	const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->getEntryList(entry_types, entryList, nbEntries, flags);
+		else
+			return 0;
+     }
+	
+	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->removeNetworkPassword(server, port, username, flags);
+			return mod->getEntry(entry, edata, flags);
 		else
 			return PPK_FALSE;
 	}
 
-	const char* ppk_getApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags)
-	{
-		static std::string pwd;
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-		{
-			const char* res=mod->getApplicationPassword(application_name, username,flags);
-			if(res!=NULL)
-			{
-				pwd=res;
-				return pwd.c_str();
-			}
-			else
-				return NULL;
-		}
-		else
-			return NULL;
-	}
-
-	ppk_boolean ppk_setApplicationPassword(const char* module_id, const char* application_name, const char* username,  const char* pwd, unsigned int flags)
+	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_entry_data edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->setApplicationPassword(application_name,username,pwd,flags);
+			return mod->setEntry(entry, edata, flags);
 		else
 			return PPK_FALSE;
 	}
 	
-	ppk_boolean ppk_removeApplicationPassword(const char* module_id, const char* application_name, const char* username, unsigned int flags)
+	ppk_boolean ppk_removeEntry(const char* module_id, const struct ppk_entry entry, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
-			return mod->removeApplicationPassword(application_name, username, flags);
-		else
-			return PPK_FALSE;
-	}
-
-	const char* ppk_getItem(const char* module_id, const char* key, unsigned int flags)
-	{
-		static std::string pwd;
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-		{
-			const char* res=mod->getItem(key,flags);
-			if(res!=NULL)
-			{
-				pwd=res;
-				return pwd.c_str();
-			}
-			else
-				return NULL;
-		}
-		else
-			return NULL;
-	}
-
-	ppk_boolean ppk_setItem(const char* module_id, const char* key, const char* item, unsigned int flags)
-	{
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-			return mod->setItem(key, item, flags);
-		else
-			return PPK_FALSE;
-	}
-	
-	ppk_boolean ppk_removeItem(const char* module_id, const char* key, unsigned int flags)
-	{
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-			return mod->removeItem(key, flags);
+			return mod->removeEntry(entry, flags);
 		else
 			return PPK_FALSE;
 	}
@@ -185,24 +128,6 @@ extern "C"
 			return ppk_sec_lowest;
 	}
 
-	//module's passwords's listing
-	unsigned int ppk_getPasswordListCount(const char* module_id, enum ppk_password_type type, unsigned int flags)
-	{
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-			return mod->getPasswordListCount(type, flags);
-		else
-			return -1;
-	}
-
-	unsigned int ppk_getPasswordList(const char* module_id, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount, unsigned int flags)
-	{
-		const _module* mod=modules.getModuleByID(module_id);
-		if(mod!=NULL)
-			return mod->getPasswordList(type, pwdList, maxPasswordCount, flags);
-		else
-			return -1;
-	}
 
 	//Errors
 	const char* ppk_getLastError(const char* module_id)
@@ -216,9 +141,9 @@ extern "C"
 
 	/****************************************************************************************************/
 	/****************************************************************************************************/
-	/*																									*/
-	/*											OPTIONNAL !												*/
-	/*																									*/
+	/*                                                                                                  */
+	/*                                              OPTIONAL                                            */
+	/*                                                                                                  */
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	
@@ -232,5 +157,56 @@ extern "C"
 				return PPK_FALSE;
 		else
 			return PPK_FALSE;
+	}
+	
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	/*                                                                                                  */
+	/*                                       Convenient functions                                       */
+	/*                                                                                                  */
+	/****************************************************************************************************/
+	/****************************************************************************************************/
+	struct ppk_entry createNetworkEntry(const char* host, const char* login, unsigned int port)
+	{
+		struct ppk_entry entry;
+		entry.type=ppk_network;
+		entry.net.host=host;
+		entry.net.port=port;
+		entry.net.login=login;
+		return entry;
+	}
+	
+     struct ppk_entry createAppEntry(const char* app_name, const char* username)
+     {
+		struct ppk_entry entry;
+		entry.type=ppk_application;
+		entry.app.app_name=app_name;
+		entry.app.username=username;
+		return entry;
+	}
+	
+     struct ppk_entry createItemEntry(const char* item)
+     {
+		struct ppk_entry entry;
+		entry.type=ppk_item;
+		entry.item=item;
+		return entry;
+	}
+	
+	struct ppk_entry_data createStringEntryData(const char* string)
+	{
+		struct ppk_entry_data data;
+		data.type=ppk_string;
+		data.string=string;
+		return data;
+	}
+	
+	struct ppk_entry_data createBlobEntryData(void* data, unsigned long size)
+	{
+		struct ppk_entry_data edata;
+		edata.type=ppk_blob;
+		edata.blob.data=data;
+		edata.blob.size=size;
+		return edata;
 	}
 }

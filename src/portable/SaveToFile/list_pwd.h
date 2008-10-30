@@ -13,17 +13,19 @@ class ListPwd
 		std::vector<appList> listApp;
 		std::vector<itemList> listItem;
 
+		std::string prefix(ppk_entry_type type);		
+
 		bool addNetworkPassword(std::string stripped_name);
 		bool addAppPassword(std::string stripped_name);
 		bool addItemPassword(std::string stripped_name);
-		bool parseFileName(std::string prefix, std::string filename, ppk_password_type type);
-		unsigned int updateDataBase(const char* dir, const char* prefix, ppk_password_type type);
+		bool parseFileName(std::string filename, unsigned int entry_types, unsigned int flags);
+		unsigned int updateDataBase(const char* dir, unsigned int entry_types, unsigned int flags);
 
-		unsigned int copyDBToPwdList(ppk_password_type type, void* pwdList, unsigned int maxPasswordCount);
-		unsigned int copyNetworkToPwdList(void* pwdList, unsigned int maxPasswordCount);
-		unsigned int copyApplicationToPwdList(void* pwdList, unsigned int maxPasswordCount);
-		unsigned int copyItemToPwdList(void* pwdList, unsigned int maxPasswordCount);
+		unsigned int copyDBToPwdList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries);
+		unsigned int copyNetworkToPwdList(ppk_entry *entryList, unsigned int nbEntries);
+		unsigned int copyApplicationToPwdList(ppk_entry *entryList, unsigned int nbEntries);
+		unsigned int copyItemToPwdList(ppk_entry *entryList, unsigned int nbEntries);
 	public:
-		unsigned int getPasswordListCount(const char* dir, const char* prefix, ppk_password_type type);
-		unsigned int getPasswordList(const char* dir, const char* prefix, ppk_password_type type, void* pwdList, unsigned int maxPasswordCount);
+		unsigned int getEntryListCount(const char* dir, unsigned int entry_types, unsigned int flags);
+		unsigned int getEntryList(const char* dir, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 };

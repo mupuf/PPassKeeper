@@ -4,9 +4,8 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 
-struct PPassKeeper_module_entry_net;
-struct PPassKeeper_module_entry_app;
-struct PPassKeeper_module_entry_item;
+struct ppk_entry_net;
+struct ppk_entry_app;
 
 class PasswordListModel : public QAbstractItemModel
 {
@@ -34,9 +33,9 @@ private:
 	void freeEntries();
 
 	//PPassKeeper data
-	struct PPassKeeper_module_entry_net *net_ent;
-	struct PPassKeeper_module_entry_app *app_ent;
-	struct PPassKeeper_module_entry_item *item_ent;
+	struct ppk_entry *net_ent;
+	struct ppk_entry *app_ent;
+	struct ppk_entry *item_ent;
 	unsigned int net_count, app_count, item_count;
 };
 

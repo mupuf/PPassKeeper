@@ -42,117 +42,12 @@ extern "C"
 	typedef ppk_writeFlag (*_writeFlagsAvailable)(void);
 	typedef ppk_listingFlag (*_listingFlagsAvailable)(void);
 
-	/*
-	This function should get the previously stored password using setNetworkPassword.
-	You should consider the association of server, port and username as a primary key.
-	parameters : 
-	server = hostname/IP of the network service
-	port = port of the service
-	username = username of the service
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return the password or NULL if something went wrong.
-	*/
-	typedef const char* (*_getNetworkPassword)(const char* server, int port, const char* username, unsigned int flags);
 
+	typedef ppk_boolean (*_getEntry)(const struct ppk_entry entry, struct ppk_entry_data *pwd, unsigned int flags);
+	typedef ppk_boolean (*_setEntry)(const struct ppk_entry entry, const struct ppk_entry_data pwd, unsigned int flags);
+	typedef ppk_boolean (*_removeEntry)(const struct ppk_entry entry, unsigned int flags);
 
-	/*
-	This function should store the password that will be read using getNetworkPassword.
-	You should consider the association of server, port and username as a primary key.
-	parameters : 
-	server = hostname/IP of the network service
-	port = port of the service
-	username = username of the service
-	pwd = the password to be stored
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return 0 if it succeded, any other value else.
-	*/
-	typedef ppk_boolean (*_setNetworkPassword)(const char* server, int port, const char* username,  const char* pwd, unsigned int flags);
-	
-	/*
-	This function should delete the password identified by username@server:port
-	parameters : 
-	server = hostname/IP of the network service
-	port = port of the service
-	username = username of the service
-	flags : Flags to use when trying to perform the function
-	
-	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
-	*/
-	typedef ppk_boolean (*_removeNetworkPassword)(const char* server, int port, const char* username, unsigned int flags);
-
-
-	/*
-	This function should get the previously stored password using setApplicationPassword.
-	You should consider the association of server, port and username as a primary key.
-	parameters : 
-	application_name = The name of your application
-	username = username of the service
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return the password or NULL if something went wrong.
-	*/
-	typedef const char* (*_getApplicationPassword)(const char* application_name, const char* username, unsigned int flags);
-	
-	
-	/*
-	This function should store the password that will be read using getNetworkPassword.
-	You should consider the association of server, port and username as a primary key.
-	parameters : 
-	application_name = The name of your application
-	username = username of the service
-	pwd = the password to be stored
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return 0 if it succeded, any other value else.
-	*/
-	typedef ppk_boolean (*_setApplicationPassword)(const char* application_name, const char* username,  const char* pwd, unsigned int flags);
-	
-	/*
-	This function should delete the password identified by username@application_name
-	parameters : 
-	server = hostname/IP of the network service
-	port = port of the service
-	username = username of the service
-	flags : Flags to use when trying to perform the function
-	
-	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
-	*/
-	typedef ppk_boolean (*_removeApplicationPassword)(const char* application_name, const char* username, unsigned int flags);
-
-
-	/*
-	This function should get the previously stored password using setItem.
-	parameters : 
-	key = something unique
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return the password or NULL if something went wrong.
-	*/
-	typedef const char* (*_getItem)(const char* key, unsigned int flags);
-
-
-	/*
-	This function should get the previously stored password using setItem.
-	parameters : 
-	key = something unique
-	item = the secret to be stored
-	flags : Flags to use when trying to perform the function
-	
-	return : The function should return 0 if it succeded, any other value else.
-	*/
-	typedef ppk_boolean (*_setItem)(const char* key, const char* item, unsigned int flags);
-	
-	/*
-	This function should delete the password identified by the key
-	parameters : 
-	key : The primary key
-	flags : Flags to use when trying to perform the function
-	
-	return : Return PPK_TRUE when it succeeds, PPK_FALSE else.
-	*/
-	typedef ppk_boolean (*_removeItem)(const char* key, unsigned int flags);
+	typedef ppk_boolean (*_entryExists)(const ppk_entry entry, unsigned int flags);
 
 	/*
 	This function returns wether the module can store password or not. 
@@ -177,13 +72,13 @@ extern "C"
 	This function returns the number of passwords of the type 'type' currently stored by the module.
 	Flags can be passed to the module
 	*/
-	typedef unsigned int (*_getPasswordListCount)(ppk_password_type type, unsigned int flags);
+	typedef unsigned int (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
 
 	/*
 	This function fills the structure of type 'type' and given into pwdList that has a size of maxModuleCount.
 	Flags can be passed to the module
 	*/
-	typedef unsigned int (*_getPasswordList)(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags);
+	typedef unsigned int (*_getEntryList)(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
 	/*
 	This function should return a human-readable string describing what caused the last error
@@ -192,9 +87,9 @@ extern "C"
 
 	/****************************************************************************************************/
 	/****************************************************************************************************/
-	/*																									*/
-	/*											OPTIONNAL !												*/
-	/*																									*/
+	/*                                                                                                  */
+	/*                                              OPTIONAL                                            */
+	/*                                                                                                  */
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	
@@ -207,7 +102,6 @@ extern "C"
 	*/
 	typedef ppk_boolean (*_setCustomPromptMessage)(const char* customMessage);
 
-
 	struct _module
 	{
 		void* dlhandle;
@@ -219,19 +113,14 @@ extern "C"
 		_readFlagsAvailable readFlagsAvailable;
 		_writeFlagsAvailable writeFlagsAvailable;
 		_listingFlagsAvailable listingFlagsAvailable;
-		_getNetworkPassword getNetworkPassword;
-		_setNetworkPassword setNetworkPassword;
-		_removeNetworkPassword removeNetworkPassword;
-		_getApplicationPassword getApplicationPassword;
-		_setApplicationPassword setApplicationPassword;
-		_removeApplicationPassword removeApplicationPassword;
-		_getItem getItem;
-		_setItem setItem;
-		_removeItem removeItem;
+		_getEntry getEntry;
+		_setEntry setEntry;
+		_removeEntry removeEntry;
+		_entryExists entryExists;
 		_isWritable isWritable;
 		_securityLevel securityLevel;
-		_getPasswordListCount getPasswordListCount;
-		_getPasswordList getPasswordList;
+		_getEntryListCount getEntryListCount;
+		_getEntryList getEntryList;
 		_getLastError getLastError;
 		
 		//Optionnal

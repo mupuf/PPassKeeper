@@ -21,7 +21,7 @@ void MainWindow::fillModulesBox()
 	modulesBox->clear();
 
 	unsigned int n = ppk_getAvailableModulesCount();
-	struct ppk_module modules[n];									//HACK !
+	ppk_module modules[n];									//HACK !
 	ppk_getAvailableModules(modules, n);
 
 	modulesBox->addItem("Select one:");
@@ -101,7 +101,7 @@ void MainWindow::setPasswordVisible(bool b)
 			return;
 		}
 
-		struct ppk_data data;
+		ppk_data data;
 		ppk_boolean res;
 		if (cur_type == ppk_application)
 		{

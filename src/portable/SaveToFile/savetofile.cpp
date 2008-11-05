@@ -89,7 +89,7 @@ extern "C"
 		return ppk_lf_silent;
 	}
 
-	std::string getKey(const struct ppk_entry entry)
+	std::string getKey(const ppk_entry entry)
 	{
 		std::string key;
 		
@@ -128,7 +128,7 @@ extern "C"
 	}
 
 	//Get and Set passwords
-	ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
+	ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 	{
 		static std::string pwd;	
 
@@ -144,17 +144,17 @@ extern "C"
 			return PPK_FALSE;
 	}
 
-	ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags)
+	ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 	{
 		return writeFile(getKey(entry).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
 	}
 	
-	ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
+	ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 	{
 		return deletePassword(getKey(entry), flags)?PPK_TRUE:PPK_FALSE;
 	}
 
-	ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
+	ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 	{
 		return fileExists(getKey(entry));
 	}

@@ -28,7 +28,7 @@ private:
 	 *    describes what data structure contains the corresponding data
 	 */
 	bool cur_availability;
-	enum ppk_entry_type cur_type;
+	ppk_entry_type cur_type;
 	struct
 	{
 		QString app_name;

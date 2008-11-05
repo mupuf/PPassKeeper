@@ -265,7 +265,7 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 		return 0;
 }
 
-extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
+extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
 	if(entry.type == ppk_network)
 		return getPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
@@ -277,7 +277,7 @@ extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *e
 		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags)
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 {
 	if(entry.type == ppk_network)
 		return setPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
@@ -290,14 +290,14 @@ extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_d
 	
 }
 
-extern "C" ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
 	std::cout << "Debug : KWallet's removeEntry is not implemented yet, please do it ASAP" << std::endl;
 	
 	return PPK_FALSE;
 }
 
-extern "C" ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
 	std::cout << "Debug : KWallet's entryExists is not implemented yet, please do it ASAP" << std::endl;
 	

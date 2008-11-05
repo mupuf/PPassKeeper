@@ -1,7 +1,5 @@
 #include "passwordlistmodel.h"
 
-#include <ppasskeeper.h>
-
 static const quint32 appId = 0;
 static const quint32 netId = 1;
 static const quint32 itemId = 2;
@@ -25,15 +23,15 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 {
 	if (current.internalId() == appChildId)
 	{
-		struct ppk_entry &a = app_ent[current.row()];
+		ppk_entry &a = app_ent[current.row()];
 		emit appPasswordSelected(a.app.app_name, a.app.username);
 	} else if (current.internalId() == netChildId)
 	{
-		struct ppk_entry &n = net_ent[current.row()];
+		ppk_entry &n = net_ent[current.row()];
 		emit netPasswordSelected(n.net.host, n.net.login, n.net.port);
 	} else if (current.internalId() == itemChildId)
 	{
-		struct ppk_entry &i = item_ent[current.row()];
+		ppk_entry &i = item_ent[current.row()];
 		emit itemPasswordSelected(i.item);
 	}
 }
@@ -57,17 +55,17 @@ void PasswordListModel::setupModelData(const char *moduleId)
 	item_count = ppk_getEntryListCount(moduleId, ppk_item, 0);
 	if (net_count > 0)
 	{
-		net_ent = new struct ppk_entry[net_count];
+		net_ent = new ppk_entry[net_count];
 		net_count=ppk_getEntryList(moduleId, ppk_network, net_ent, net_count, 0);
 	}
 	if (app_count > 0)
 	{
-		app_ent = new struct ppk_entry[app_count];
+		app_ent = new ppk_entry[app_count];
 		app_count=ppk_getEntryList(moduleId, ppk_application, app_ent, app_count, 0);
 	}
 	if (item_count > 0)
 	{
-		item_ent = new struct ppk_entry[item_count];
+		item_ent = new ppk_entry[item_count];
 		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, 0);
 	}
 

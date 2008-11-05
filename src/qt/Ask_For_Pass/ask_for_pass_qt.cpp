@@ -67,7 +67,7 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	return 0;
 }
 
-extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
+extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
 	static std::string pwd;
 	if((int)(flags&ppk_rf_silent)==0)
@@ -99,17 +99,17 @@ extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *e
 		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_data *edata, unsigned int flags)
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data *edata, unsigned int flags)
 {
 	return PPK_FALSE;
 }
 
-extern "C" ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
 	return PPK_FALSE;
 }
 
-extern "C" ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
 	return PPK_TRUE;
 }
@@ -125,7 +125,7 @@ std::string* customPrompt()
 	return &msg;
 }
 
-extern "C" enum ppk_boolean setCustomPromptMessage(const char* customMessage)
+extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 {
 	if(customMessage!=NULL)
 		*(customPrompt())=customMessage;

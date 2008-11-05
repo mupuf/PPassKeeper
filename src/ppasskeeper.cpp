@@ -82,7 +82,7 @@ extern "C"
 			return 0;
      }
 	
-	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
+	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -91,7 +91,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 
-	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags)
+	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -100,7 +100,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 	
-	ppk_boolean ppk_removeEntry(const char* module_id, const struct ppk_entry entry, unsigned int flags)
+	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -147,7 +147,7 @@ extern "C"
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	
-	enum ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage)
+	ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -166,9 +166,9 @@ extern "C"
 	/*                                                                                                  */
 	/****************************************************************************************************/
 	/****************************************************************************************************/
-	struct ppk_entry createNetworkEntry(const char* host, const char* login, unsigned int port)
+	ppk_entry createNetworkEntry(const char* host, const char* login, unsigned int port)
 	{
-		struct ppk_entry entry;
+		ppk_entry entry;
 		entry.type=ppk_network;
 		entry.net.host=host;
 		entry.net.port=port;
@@ -176,34 +176,34 @@ extern "C"
 		return entry;
 	}
 	
-     struct ppk_entry createAppEntry(const char* app_name, const char* username)
+     ppk_entry createAppEntry(const char* app_name, const char* username)
      {
-		struct ppk_entry entry;
+		ppk_entry entry;
 		entry.type=ppk_application;
 		entry.app.app_name=app_name;
 		entry.app.username=username;
 		return entry;
 	}
 	
-     struct ppk_entry createItemEntry(const char* item)
+     ppk_entry createItemEntry(const char* item)
      {
-		struct ppk_entry entry;
+		ppk_entry entry;
 		entry.type=ppk_item;
 		entry.item=item;
 		return entry;
 	}
 	
-	struct ppk_data createStringEntryData(const char* string)
+	ppk_data createStringEntryData(const char* string)
 	{
-		struct ppk_data data;
+		ppk_data data;
 		data.type=ppk_string;
 		data.string=string;
 		return data;
 	}
 	
-	struct ppk_data createBlobEntryData(void* data, unsigned long size)
+	ppk_data createBlobEntryData(void* data, unsigned long size)
 	{
-		struct ppk_data edata;
+		ppk_data edata;
 		edata.type=ppk_blob;
 		edata.blob.data=data;
 		edata.blob.size=size;

@@ -74,19 +74,19 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
 				createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
-				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_network)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
 				createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
-				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_item)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
 				createItemEntry(cur_item.key.toLocal8Bit().constData()),
-				createStringEntryData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 }
 

@@ -193,7 +193,7 @@ extern "C"
 		return entry;
 	}
 	
-	ppk_data createStringEntryData(const char* string)
+	ppk_data createStringData(const char* string)
 	{
 		ppk_data data;
 		data.type=ppk_string;
@@ -201,7 +201,7 @@ extern "C"
 		return data;
 	}
 	
-	ppk_data createBlobEntryData(void* data, unsigned long size)
+	ppk_data createBlobData(void* data, unsigned long size)
 	{
 		ppk_data edata;
 		edata.type=ppk_blob;

@@ -179,8 +179,8 @@ extern "C"
 	ppk_entry createAppEntry(const char* app_name, const char* username);
 	ppk_entry createItemEntry(const char* item);
      
-	ppk_data createStringEntryData(const char* string);
-	ppk_data createBlobEntryData(void* data, unsigned long size);
+	ppk_data createStringData(const char* string);
+	ppk_data createBlobData(void* data, unsigned long size);
 
 #ifdef __cplusplus 
 }

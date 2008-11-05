@@ -67,7 +67,7 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	return 0;
 }
 
-extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags)
+extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
 {
 	static std::string pwd;
 	if((int)(flags&ppk_rf_silent)==0)
@@ -99,7 +99,7 @@ extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_entry_d
 		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_entry_data *edata, unsigned int flags)
+extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_data *edata, unsigned int flags)
 {
 	return PPK_FALSE;
 }

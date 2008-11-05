@@ -101,7 +101,7 @@ void MainWindow::setPasswordVisible(bool b)
 			return;
 		}
 
-		struct ppk_entry_data data;
+		struct ppk_data data;
 		ppk_boolean res;
 		if (cur_type == ppk_application)
 		{

@@ -20,17 +20,17 @@ extern "C"
 	};
 
 	enum ppk_entry_type
-        {
-                ppk_network=1,
-                ppk_application=2,
-                ppk_item=4
-        };
+    {
+            ppk_network=1,
+            ppk_application=2,
+            ppk_item=4
+    };
 
-	enum ppk_password_type
-        {
-                ppk_string=1,
-                ppk_blob=2
-        };
+	enum ppk_data_type
+    {
+            ppk_string=1,
+            ppk_blob=2
+    };
 
 	enum ppk_readFlag {
 		ppk_rf_none=0,
@@ -81,19 +81,19 @@ extern "C"
                 };
         };
 
-        struct ppk_password_blob
+        struct ppk_data_blob
         {
                 void *data;
                 unsigned long size;
         };
 
-        struct ppk_entry_data
+        struct ppk_data
         {
-                enum ppk_password_type type;
+                enum ppk_data_type type;
                 union
                 {
                         const char *string;
-                        struct ppk_password_blob blob;
+                        struct ppk_data_blob blob;
                 };
         };
 
@@ -129,8 +129,8 @@ extern "C"
 	* \return  Return available listing flags. See listingFlag for more information about flags.*/
 	enum ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id);
 
-	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags);
-	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_entry_data edata, unsigned int flags);
+	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags);
+	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags);
 	ppk_boolean ppk_removeEntry(const char* module_id, const struct ppk_entry entry, unsigned int flags);
 
         unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
@@ -179,8 +179,8 @@ extern "C"
 	struct ppk_entry createAppEntry(const char* app_name, const char* username);
 	struct ppk_entry createItemEntry(const char* item);
      
-	struct ppk_entry_data createStringEntryData(const char* string);
-	struct ppk_entry_data createBlobEntryData(void* data, unsigned long size);
+	struct ppk_data createStringEntryData(const char* string);
+	struct ppk_data createBlobEntryData(void* data, unsigned long size);
 
 #ifdef __cplusplus 
 }

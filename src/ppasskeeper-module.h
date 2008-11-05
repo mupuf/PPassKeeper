@@ -43,8 +43,8 @@ extern "C"
 	typedef ppk_listingFlag (*_listingFlagsAvailable)(void);
 
 
-	typedef ppk_boolean (*_getEntry)(const struct ppk_entry entry, struct ppk_entry_data *pwd, unsigned int flags);
-	typedef ppk_boolean (*_setEntry)(const struct ppk_entry entry, const struct ppk_entry_data pwd, unsigned int flags);
+	typedef ppk_boolean (*_getEntry)(const struct ppk_entry entry, struct ppk_data *pwd, unsigned int flags);
+	typedef ppk_boolean (*_setEntry)(const struct ppk_entry entry, const struct ppk_data pwd, unsigned int flags);
 	typedef ppk_boolean (*_removeEntry)(const struct ppk_entry entry, unsigned int flags);
 
 	typedef ppk_boolean (*_entryExists)(const ppk_entry entry, unsigned int flags);

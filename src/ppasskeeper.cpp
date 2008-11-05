@@ -82,7 +82,7 @@ extern "C"
 			return 0;
      }
 	
-	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_entry_data *edata, unsigned int flags)
+	ppk_boolean ppk_getEntry(const char *module_id, const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -91,7 +91,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 
-	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_entry_data edata, unsigned int flags)
+	ppk_boolean ppk_setEntry(const char *module_id, const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -193,17 +193,17 @@ extern "C"
 		return entry;
 	}
 	
-	struct ppk_entry_data createStringEntryData(const char* string)
+	struct ppk_data createStringEntryData(const char* string)
 	{
-		struct ppk_entry_data data;
+		struct ppk_data data;
 		data.type=ppk_string;
 		data.string=string;
 		return data;
 	}
 	
-	struct ppk_entry_data createBlobEntryData(void* data, unsigned long size)
+	struct ppk_data createBlobEntryData(void* data, unsigned long size)
 	{
-		struct ppk_entry_data edata;
+		struct ppk_data edata;
 		edata.type=ppk_blob;
 		edata.blob.data=data;
 		edata.blob.size=size;

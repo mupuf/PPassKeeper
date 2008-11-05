@@ -124,13 +124,11 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 
 bool _removePassword(const char* key, unsigned int flags)
 {
-	std::cout << "_removePassword : flags = " << flags << std::endl;
 	if((int)(flags&ppk_lf_silent)==0)
 	{
 		KWallet::Wallet* wallet=openWallet(flags);
 		if(wallet!=NULL)
 		{
-			std::cout << "Dedans !!" << std::endl;
 			//Set the password
 			if(wallet->removeEntry(key)==0)
 				return true;
@@ -173,7 +171,6 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 
 bool removePassword(const char* key, unsigned int flags)
 {
-	std::cout << "removePassword : flags = " << flags << std::endl;
 	//Init KDE Application
 	if(init_kde(flags))
 		return _removePassword(key, flags);
@@ -181,7 +178,7 @@ bool removePassword(const char* key, unsigned int flags)
 		return false;
 }
 
-std::string prefix(ppk_password_type type)
+std::string prefix(ppk_entry_type type)
 {
 	static const char* ppk_network_string = "ppasskeeper_network://";
 	static const char* ppk_app_string = "ppasskeeper_app://";
@@ -234,7 +231,7 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
+extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
 	//Init KDE Application
 	if(init_kde(flags))
@@ -244,14 +241,14 @@ extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned in
 		if(wallet!=NULL)
 		{
 			ListPwd pwdl;		
-			return pwdl.getPasswordListCount(wallet, prefix(type).c_str(), type);
+			pwdl.getEntryListCount(wallet, entry_types, flags);
 		}
 	}
 	
 	return 0;
 }
 
-extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
+extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 {
 	//Init KDE Application
 	if(init_kde(flags))
@@ -261,56 +258,50 @@ extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, u
 		if(wallet!=NULL)
 		{
 			ListPwd pwdl;
-			return pwdl.getPasswordList(wallet, prefix(type).c_str(), type, pwdList, maxModuleCount);
+			return pwdl.getEntryList(wallet, entry_types, entryList, nbEntries, flags);
 		}
 	}
 	else
 		return 0;
 }
 
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+extern "C" ppk_boolean getEntry(const struct ppk_entry entry, struct ppk_data *edata, unsigned int flags)
 {
-	return getPassword(generateNetworkKey(server, port, username).c_str(), flags);
+	if(entry.type == ppk_network)
+		return getPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return getPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_item)
+		return getPassword(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else
+		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setEntry(const struct ppk_entry entry, const struct ppk_data edata, unsigned int flags)
 {
-	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
+	if(entry.type == ppk_network)
+		return setPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return setPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_item)
+		return setPassword(generateItemKey(entry.item).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+	else
+		return PPK_FALSE;
+	
 }
 
-extern "C" ppk_boolean removeNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const struct ppk_entry entry, unsigned int flags)
 {
-	return removePassword(generateNetworkKey(server, port, username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	std::cout << "Debug : KWallet's removeEntry is not implemented yet, please do it ASAP" << std::endl;
+	
+	return PPK_FALSE;
 }
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+extern "C" ppk_boolean entryExists(const struct ppk_entry entry, unsigned int flags)
 {
-	return getPassword(generateApplicationKey(application_name, username).c_str(), flags);
-}
-
-extern "C" ppk_boolean setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
-{
-	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd, flags)?PPK_TRUE:PPK_FALSE;
-}
-
-extern "C" ppk_boolean removeApplicationPassword(const char* application_name, const char* username, unsigned int flags)
-{
-	return removePassword(generateApplicationKey(application_name, username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
-}
-
-extern "C" const char* getItem(const char* key, unsigned int flags)
-{
-	return getPassword(generateItemKey(key).c_str(), flags);
-}
-
-extern "C" ppk_boolean setItem(const char* key, const char* item, unsigned int flags)
-{
-	return setPassword(generateItemKey(key).c_str(), item, flags)?PPK_TRUE:PPK_FALSE;
-}
-
-extern "C" ppk_boolean removeItem(const char* key, unsigned int flags)
-{
-	return removePassword(generateItemKey(key).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	std::cout << "Debug : KWallet's entryExists is not implemented yet, please do it ASAP" << std::endl;
+	
+	return PPK_FALSE;
 }
 
 

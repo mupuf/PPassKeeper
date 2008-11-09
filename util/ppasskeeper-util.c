@@ -7,11 +7,7 @@
 
 #include <errno.h>
 
-#define APP_PASSWORD 1
-#define NET_PASSWORD 2
-#define ITEM_PASSWORD 3
-
-char mode = 0, pwd_type = 0;
+char mode = 0, pwd_type = 0, listing_type=0;
 char *module_id = NULL, *key = NULL, *password = NULL;
 
 void usage()
@@ -64,13 +60,30 @@ void parse_cmdline(int argc, char **argv)
 				n++;
 				if (pwd_type || *(flag + 1) || n >= argc) usage();
 				if (! strcasecmp(argv[n], "app"))
-					pwd_type = APP_PASSWORD;
+					pwd_type = ppk_application;
 				else if (! strcasecmp(argv[n], "net"))
-					pwd_type = NET_PASSWORD;
+					pwd_type = ppk_network;
 				else if (! strcasecmp(argv[n], "item"))
-					pwd_type = ITEM_PASSWORD;
+					pwd_type = ppk_item;
 				else
 					usage();
+				break;
+			case 'l':
+				n++;
+				if (pwd_type || *(flag + 1) || n >= argc) usage();
+				int i, arglen=strlen(argv[n]);
+				if(arglen>3) usage();
+				for(i=0;i<arglen;i++)
+				{
+					if(argv[n][i]=='a')
+						listing_type+=ppk_application;
+					else if(argv[n][i]=='n')
+						listing_type+=ppk_network;
+					else if(argv[n][i]=='i')
+						listing_type+=ppk_item;
+					else
+						usage();
+				}
 				break;
 			case 'k':
 				n++;
@@ -121,39 +134,86 @@ struct net_params netParameters()
 	params.server = p1 + 1;
 	params.port = port;
 	params.username = key;
+	
+	printf("%s@%s:%i\n", params.username, params.server, params.port);
 	return params;
 }
 
 int main(int argc, char **argv)
 {
+	ppk_entry entry;
 	parse_cmdline(argc, argv);
 
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
 		int c = ppk_getAvailableModulesCount();
-		struct PPassKeeper_Module modules[c];
+		ppk_module modules[c];
 		ppk_getAvailableModules(modules, c);
 		int i;
 		for (i = 0; i < c; i++)
 			printf("%s: %s\n", modules[i].id, modules[i].display_name);
 	} else if (mode == 'G')
 	{
-		if (! pwd_type || ! module_id || ! key || password) usage();
-		if (pwd_type == ITEM_PASSWORD)
-			printf("%s\n", ppk_getItem(module_id, key, 0));
-		else if (pwd_type == APP_PASSWORD)
+		if (pwd_type && module_id && key && !password)
 		{
-			struct app_params p = appParameters();
-			printf("%s\n", ppk_getApplicationPassword(module_id, p.name, p.username, 0));
-		} else if (pwd_type == NET_PASSWORD)
-		{
-			struct net_params p = netParameters();
-			printf("%s\n", ppk_getNetworkPassword(module_id, p.server, p.port, p.username, 0));
-		} else {
-			//shouldn't happen
-			return 1;
+			if (pwd_type == ppk_item)
+				entry=createItemEntry(key);
+			else if (pwd_type == ppk_application)
+			{
+				struct app_params p = appParameters();
+				entry=createAppEntry(p.name, p.username);
+			} else if (pwd_type == ppk_network)
+			{
+				struct net_params p = netParameters();
+				entry=createNetworkEntry(p.server, p.username, p.port);
+			} else {
+				//shouldn't happen
+				return 1;
+			}
+		
+			ppk_data edata;
+			ppk_boolean res=ppk_getEntry(module_id, entry , &edata, ppk_rf_none);
+			if(res==PPK_TRUE)
+				printf("%s\n", edata.string);
+			else
+				return 1;
 		}
+		else if ( module_id && listing_type > 0)
+		{
+			int len = ppk_getEntryListCount(module_id, listing_type, ppk_lf_none);
+			ppk_entry* list=calloc(len, sizeof(ppk_entry));
+			if (list)
+			{
+     			int i, nb=ppk_getEntryList(module_id, listing_type, list, len, ppk_lf_none);
+     			printf("Listing %s gave %i results :\n", module_id, nb);
+     			for(i=0; i< nb; i++)
+     			{
+     				char* type, entry[201];
+     				if(list[i].type==ppk_application)
+     				{
+     					type="Application";
+     					snprintf(entry, 200, "%s@%s", list[i].app.username, list[i].app.app_name);
+     				}
+     				else if(list[i].type==ppk_network)
+     				{
+     					type="Network";
+     					snprintf(entry, 200, "%s@%s:%i", list[i].net.login, list[i].net.host, list[i].net.port);
+     				}
+     				else if(list[i].type==ppk_item)
+     				{
+     					type="Item";
+     					snprintf(entry, 200, "%s", list[i].item);
+     				}
+     				
+     				printf("	%s : %s\n", type, entry);
+     			}
+     		}
+     		else
+     			return 2;
+		}
+		else
+			usage();
 	} else if (mode == 'S')
 	{
 		if (! pwd_type || ! module_id || ! key) usage();
@@ -163,17 +223,24 @@ int main(int argc, char **argv)
 			password = getpass("Password (will not be echoed): ");
 			if (errno == ENXIO) return 1;
 		}
-		if (pwd_type == ITEM_PASSWORD)
-			ppk_setItem(module_id, key, password, 0);
-		else if (pwd_type == APP_PASSWORD)
+		if (pwd_type == ppk_item)
+			entry=createItemEntry(key);
+		else if (pwd_type == ppk_application)
 		{
 			struct app_params p = appParameters();
-			ppk_setApplicationPassword(module_id, p.name, p.username, password, 0);
-		} else if (pwd_type == NET_PASSWORD)
+			entry=createAppEntry(p.name, p.username);
+		} else if (pwd_type == ppk_network)
 		{
 			struct net_params p = netParameters();
-			ppk_setNetworkPassword(module_id, p.server, p.port, p.username, password, 0);
+			entry=createNetworkEntry(p.server, p.username, p.port);
 		}
+		
+		ppk_data edata;
+		edata.string=password;
+		ppk_boolean res=ppk_setEntry(module_id, entry , edata, ppk_wf_none);
+		if(res!=PPK_TRUE)
+			return 1;
+		
 	} else {
 		//shouldn't happen
 		return 1;

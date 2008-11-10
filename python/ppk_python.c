@@ -13,7 +13,7 @@ PyObject *wrap_getAvailableModulesCount(PyObject *o, PyObject * args)
 PyObject *wrap_getAvailableModules(PyObject *o, PyObject * args)
 {
 	unsigned int modules_count=ppk_getAvailableModulesCount();
-	struct PPassKeeper_Module modules[modules_count];				//May cause portabilty issues between compilers
+	ppk_module modules[modules_count];				//May cause portabilty issues between compilers
 	int num = ppk_getAvailableModules(modules, modules_count);
 	PyObject *result = PyList_New(num);
 	int i;
@@ -32,23 +32,90 @@ PyObject *wrap_moduleAvailable(PyObject *o, PyObject * args)
 	const char *module_id;
 	int ok = PyArg_ParseTuple(args, "s", &module_id);
 	if (! ok) return 0;
-	enum ppk_boolean available = ppk_moduleAvailable(module_id);
+	ppk_boolean available = ppk_moduleAvailable(module_id);
 	PyObject *result = Py_BuildValue("b", available);
 	return result;
 }
 
-PyObject *wrap_getNetworkPassword(PyObject *o, PyObject * args)
+PyObject *wrap_getEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 {
-	const char *module_id, *server, *username;
-	int port;
-	unsigned int flags=0;
-	int ok = PyArg_ParseTuple(args, "ssisI", &module_id, &server, &port, &username, &flags);
-	if (! ok) return 0;
-	const char *result = ppk_getNetworkPassword(module_id, server, port, username, flags);
-	return Py_BuildValue("s", result);
+	const char *module_id;
+	ppk_entry entry;
+	unsigned int type;
+	const char *host = 0, *login = 0, *app_name = 0, *username = 0, *item = 0;
+	unsigned int port = 0;
+	unsigned int flags = 0;
+	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item", "flags", NULL };
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "si|sshsssi", kwlist, &module_id,
+			&type, &host, &login, &port, &app_name, &username, &item, &flags);
+	switch (type)
+	{
+	case ppk_network:
+		ok = ok && host && login && port && ! app_name && ! username && ! item;
+		break;
+	case ppk_application:
+		ok = ok && ! host && ! login && ! port && app_name && username && ! item;
+		break;
+	case ppk_item:
+		ok = ok && ! host && ! login && ! port && ! app_name && ! username && item;
+		break;
+	default:
+		ok = 0;
+	};
+
+	if (! ok)
+	{
+	    PyErr_BadArgument();
+	    return 0;
+	}
+	switch (type)
+	{
+	case ppk_network:
+		entry.type = ppk_network;
+		entry.net.host = host;
+		entry.net.login = login;
+		entry.net.port = port;
+		break;
+	case ppk_application:
+		entry.type = ppk_application;
+		entry.app.app_name = app_name;
+		entry.app.username = username;
+		break;
+	case ppk_item:
+		entry.type = ppk_item;
+		entry.item = item;
+	};
+	ppk_data data;
+
+	if (! ppk_getEntry(module_id, entry, &data, flags))
+		return Py_None;
+	
+	PyObject *result = PyDict_New();
+	PyDict_SetItemString(result, "type", Py_BuildValue("i", data.type));
+	if (data.type == ppk_string)
+		PyDict_SetItemString(result, "string", Py_BuildValue("s", data.string));
+	else if (data.type == ppk_blob)
+		//Untested
+		PyDict_SetItemString(result, "blob", Py_BuildValue("t#", data.blob.data, data.blob.size));
+
+	return result;
 }
 
-PyObject *wrap_setNetworkPassword(PyObject *o, PyObject * args)
+PyObject *wrap_setEntry(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	ppk_entry entry;
+	unsigned int type;
+	const char *host = 0, *login = 0, *app_name = 0, *username = 0, *item = 0;
+	unsigned int port = 0;
+	unsigned int flags = 0;
+	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item", "flags", NULL };
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "si|sshsssi", kwlist, &module_id,
+			&type, &host, &login, &port, &app_name, &username, &item, &flags);
+}
+
+/*
+PyObject *wrap_removeEntry(PyObject *o, PyObject * args)
 {
 	const char *module_id, *server, *username, *pwd;
 	int port;
@@ -58,85 +125,14 @@ PyObject *wrap_setNetworkPassword(PyObject *o, PyObject * args)
 	int result = ppk_setNetworkPassword(module_id, server, port, username, pwd, flags);
 	return Py_BuildValue("i", result);
 }
-
-PyObject *wrap_removeNetworkPassword(PyObject *o, PyObject * args)
-{
-	const char *module_id, *server, *username;
-	int port;
-	unsigned int flags=0;
-	int ok = PyArg_ParseTuple(args, "ssisI", &module_id, &server, &port, &username, &flags);
-	if (! ok) return 0;
-	int result = ppk_removeNetworkPassword(module_id, server, port, username, flags);
-	return Py_BuildValue("i", result);
-}
-
-
-PyObject *wrap_getApplicationPassword(PyObject *o, PyObject * args)
-{
-	const char *module_id, *application_name, *username;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &application_name, &username, &flags);
-	if (! ok) return 0;
-	const char *result = ppk_getApplicationPassword(module_id, application_name, username, flags);
-	return Py_BuildValue("s", result);
-}
-
-PyObject *wrap_setApplicationPassword(PyObject *o, PyObject * args)
-{
-	const char *module_id, *application_name, *username, *pwd;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssssI", &module_id, &application_name, &username, &pwd, &flags);
-	if (! ok) return 0;
-	int result = ppk_setApplicationPassword(module_id, application_name, username, pwd, flags);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_removeApplicationPassword(PyObject *o, PyObject * args)
-{
-	const char *module_id, *application_name, *username;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &application_name, &username, &flags);
-	if (! ok) return 0;
-	int result = ppk_removeApplicationPassword(module_id, application_name, username, flags);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_getItem(PyObject *o, PyObject * args)
-{
-	const char *module_id, *key;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssI", &module_id, &key, &flags);
-	if (! ok) return 0;
-	const char *result = ppk_getItem(module_id, key, flags);
-	return Py_BuildValue("s", result);
-}
-
-PyObject *wrap_setItem(PyObject *o, PyObject * args)
-{
-	const char *module_id, *key, *item;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "sssI", &module_id, &key, &item, &flags);
-	if (! ok) return 0;
-	int result = ppk_setItem(module_id, key, item, flags);
-	return Py_BuildValue("i", result);
-}
-
-PyObject *wrap_removeItem(PyObject *o, PyObject * args)
-{
-	const char *module_id, *key, *item;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssI", &module_id, &key, &flags);
-	if (! ok) return 0;
-	int result = ppk_removeItem(module_id, key, flags);
-	return Py_BuildValue("i", result);
-}
+*/
 
 PyObject *wrap_isWritable(PyObject *o, PyObject * args)
 {
 	const char *module_id;
 	int ok = PyArg_ParseTuple(args, "s", &module_id);
 	if (! ok) return 0;
-	enum ppk_boolean available = ppk_isWritable(module_id);
+	ppk_boolean available = ppk_isWritable(module_id);
 	PyObject *result = Py_BuildValue("b", available);
 	return result;
 }
@@ -146,10 +142,11 @@ PyObject *wrap_securityLevel(PyObject *o, PyObject * args)
 	const char *module_id;
 	int ok = PyArg_ParseTuple(args, "s", &module_id);
 	if (! ok) return 0;
-	enum ppk_security_level result = ppk_securityLevel(module_id);
+	ppk_security_level result = ppk_securityLevel(module_id);
 	return Py_BuildValue("i", result);
 }
 
+/*
 PyObject *wrap_getPasswordListCount(PyObject *o, PyObject * args)
 {
 	const char *module_id;
@@ -160,7 +157,9 @@ PyObject *wrap_getPasswordListCount(PyObject *o, PyObject * args)
 	PyObject *result = Py_BuildValue("i", num);
 	return result;
 }
+*/
 
+/*
 PyObject *wrap_getPasswordList(PyObject *o, PyObject * args)
 {
 	const char *module_id;
@@ -220,6 +219,7 @@ PyObject *wrap_getPasswordList(PyObject *o, PyObject * args)
 
 	return result;
 }
+*/
 
 PyObject *wrap_getLastError(PyObject *o, PyObject * args)
 {
@@ -235,7 +235,7 @@ PyObject *wrap_setCustomPromptMessage(PyObject *o, PyObject * args)
 	const char *module_id, *customMessage;
 	int ok = PyArg_ParseTuple(args, "ss", &module_id, &customMessage);
 	if (! ok) return 0;
-	enum ppk_boolean res = ppk_setCustomPromptMessage(module_id, customMessage);
+	ppk_boolean res = ppk_setCustomPromptMessage(module_id, customMessage);
 	PyObject *result = Py_BuildValue("b", res);
 	return result;
 }
@@ -245,19 +245,13 @@ static PyMethodDef ppkMethods[] =
 	{"getAvailableModulesCount", wrap_getAvailableModulesCount, METH_NOARGS, ""},
 	{"getAvailableModules", wrap_getAvailableModules, METH_NOARGS, ""},
 	{"moduleAvailable", wrap_moduleAvailable, METH_VARARGS, ""},
-	{"getNetworkPassword", wrap_getNetworkPassword, METH_VARARGS, ""},
-	{"setNetworkPassword", wrap_setNetworkPassword, METH_VARARGS, ""},
-	{"removeNetworkPassword", wrap_removeNetworkPassword, METH_VARARGS, ""},
-	{"getApplicationPassword", wrap_getApplicationPassword, METH_VARARGS, ""},
-	{"setApplicationPassword", wrap_setApplicationPassword, METH_VARARGS, ""},
-	{"removeApplicationPassword", wrap_removeApplicationPassword, METH_VARARGS, ""},
-	{"getItem", wrap_getItem, METH_VARARGS, ""},
-	{"setItem", wrap_setItem, METH_VARARGS, ""},
-	{"removeItem", wrap_removeItem, METH_VARARGS, ""},
+	{"getEntry", (PyCFunction) wrap_getEntry, METH_VARARGS | METH_KEYWORDS, ""},
+//	{"setEntry", wrap_setEntry, METH_KEYWORDS, ""},
+//	{"removeEntry", wrap_removeEntry, METH_KEYWORDS, ""},
 	{"isWritable", wrap_isWritable, METH_VARARGS, ""},
 	{"securityLevel", wrap_securityLevel, METH_VARARGS, ""},
-	{"getPasswordListCount", wrap_getPasswordListCount, METH_VARARGS, ""},
-	{"getPasswordList", wrap_getPasswordList, METH_VARARGS, ""},
+//	{"getPasswordListCount", wrap_getPasswordListCount, METH_VARARGS, ""},
+//	{"getPasswordList", wrap_getPasswordList, METH_VARARGS, ""},
 	{"getLastError", wrap_getLastError, METH_VARARGS, ""},
 	{"setCustomPromptMessage", wrap_setCustomPromptMessage, METH_VARARGS, ""},
 	{ NULL, NULL }
@@ -284,6 +278,9 @@ void initppk(void)
 	PyModule_AddIntConstant(m, "network", ppk_network);
 	PyModule_AddIntConstant(m, "application", ppk_application);
 	PyModule_AddIntConstant(m, "item", ppk_item);
+
+	PyModule_AddIntConstant(m, "string", ppk_string);
+	PyModule_AddIntConstant(m, "blob", ppk_blob);
 
 	PyModule_AddIntConstant(m, "rf_none", ppk_rf_none);
 	PyModule_AddIntConstant(m, "rf_silent", ppk_rf_silent);

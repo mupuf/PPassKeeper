@@ -121,6 +121,11 @@ extern "C" ppk_writeFlag writeFlagsAvailable()
 	return ppk_wf_none;
 }
 
+extern "C" ppk_listingFlag listingFlagsAvailable()
+{
+	return ppk_lf_none;
+}
+
 //List passwords available
 std::string prefix(const ppk_entry entry)
 {

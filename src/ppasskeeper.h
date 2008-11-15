@@ -111,10 +111,10 @@ extern "C"
 	/*! \brief Tells whether a module is available or not given its ID
 	* \param module_id in: Module's ID.
 	* \return  Return BTRUE if the module is available, BFALSE else.*/
-        ppk_boolean ppk_moduleAvailable(const char* module_id);
+    ppk_boolean ppk_moduleAvailable(const char* module_id);
 
 	
-        /*! \brief returns supported reading flags for a given module
+    /*! \brief returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/
 	ppk_readFlag ppk_readFlagsAvailable(const char* module_id);

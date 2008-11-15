@@ -28,7 +28,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 
-	ppk_readFlag ppk_readFlagsAvailable(const char* module_id)
+	unsigned int ppk_readFlagsAvailable(const char* module_id)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -37,7 +37,7 @@ extern "C"
 			return ppk_rf_none;
 	}
 
-	ppk_writeFlag ppk_writeFlagsAvailable(const char* module_id)
+	unsigned int ppk_writeFlagsAvailable(const char* module_id)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)
@@ -46,7 +46,7 @@ extern "C"
 			return ppk_wf_none;
 	}
 
-	ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id)
+	unsigned int ppk_listingFlagsAvailable(const char* module_id)
 	{
 		const _module* mod=modules.getModuleByID(module_id);
 		if(mod!=NULL)

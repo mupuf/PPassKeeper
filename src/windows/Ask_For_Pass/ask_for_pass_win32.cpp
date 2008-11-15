@@ -57,17 +57,17 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 }
 
 //Get available flags
-extern "C" ppk_readFlag readFlagsAvailable()
+extern "C" unsigned int readFlagsAvailable()
 {
-	return ppk_rf_silent;
+	return ppk_rf_none|ppk_rf_silent;
 }
 
-extern "C" ppk_writeFlag writeFlagsAvailable()
+extern "C" unsigned int writeFlagsAvailable()
 {
 	return ppk_wf_none;
 }
 
-extern "C" ppk_listingFlag listingFlagsAvailable()
+extern "C" unsigned int listingFlagsAvailable()
 {
 	return ppk_lf_none;
 }

@@ -74,19 +74,19 @@ extern "C"
 	}
 
 	//Get available flags
-	ppk_readFlag readFlagsAvailable()
+	unsigned int readFlagsAvailable()
 	{
-		return ppk_rf_silent;
+		return ppk_rf_none|ppk_rf_silent;
 	}
 
-	ppk_writeFlag writeFlagsAvailable()
+	unsigned int writeFlagsAvailable()
 	{
-		return ppk_wf_silent;
+		return ppk_wf_none|ppk_wf_silent;
 	}
 	
-	ppk_listingFlag listingFlagsAvailable()
+	unsigned int listingFlagsAvailable()
 	{
-		return ppk_lf_silent;
+		return ppk_lf_none|ppk_lf_silent;
 	}
 
 	std::string getKey(const ppk_entry entry)

@@ -117,17 +117,17 @@ extern "C"
     /*! \brief returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/
-	ppk_readFlag ppk_readFlagsAvailable(const char* module_id);
+	unsigned int ppk_readFlagsAvailable(const char* module_id);
 
 	/*! \brief returns supported writing flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available read flags. See writeFlag for more information about flags.*/
-	ppk_writeFlag ppk_writeFlagsAvailable(const char* module_id);
+	unsigned int  ppk_writeFlagsAvailable(const char* module_id);
 
 	/*! \brief returns supported password listing flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available listing flags. See listingFlag for more information about flags.*/
-	ppk_listingFlag ppk_listingFlagsAvailable(const char* module_id);
+	unsigned int ppk_listingFlagsAvailable(const char* module_id);
 
 	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);
 	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags);

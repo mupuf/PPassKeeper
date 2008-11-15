@@ -33,6 +33,18 @@ struct net_params
 	char *username;
 };
 
+#if defined(WIN32) || defined(WIN64)
+char* getpass(const char* prompt)
+{
+	static char* pwd[101];
+	
+	printf("Password : ");
+	fgets(pwd, sizeof(pwd)-1,stdin);
+	
+	return pwd;
+}
+#endif
+
 void parse_cmdline(int argc, char **argv)
 {
 	int n;

@@ -59,101 +59,94 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 //Get available flags
 extern "C" ppk_readFlag readFlagsAvailable()
 {
-	return ppk_rd_silent;
+	return ppk_rf_silent;
 }
 
 extern "C" ppk_writeFlag writeFlagsAvailable()
 {
-	return ppk_wt_none;
+	return ppk_wf_none;
+}
+
+extern "C" ppk_listingFlag listingFlagsAvailable()
+{
+	return ppk_lf_none;
 }
 
 
-extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
+extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
+{
+	return 0;
+}
+
+extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 {	
 	return 0;
 }
 
-extern "C"  unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
-{
-	return 0;
-}
-
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
 	static std::string pwd;
-
-	if((int)(flags&ppk_rd_silent)==0)
+	if((int)(flags&ppk_rf_silent)==0)
 	{
-		bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(server)+":"+toString(port)+" : ", pwd);
+		std::string text;
+		if(entry.type==ppk_network)
+			text=toString(entry.net.login)+"@"+toString(entry.net.host)+":"+toString(entry.net.port);
+		else if(entry.type==ppk_application)
+			text=toString(entry.app.username)+"@"+toString(entry.app.app_name);
+		else if(entry.type==ppk_item)
+			text="this key("+toString(entry.item)+")";
+		
+		bool res=WIN32_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
 		if(res)
 		{
 			setError("");
-			return pwd.c_str();
+			edata->string=pwd.c_str();
+			return PPK_TRUE;
 		}
 		else
 		{
 			setError("User pressed cancel");
-			return NULL;
+			return PPK_FALSE;
 		}
 	}
 	else
-		return NULL;
+		return PPK_FALSE;
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data *edata, unsigned int flags)
 {
-	return 0;
+	return PPK_FALSE;
 }
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
-	static std::string pwd;
+	return PPK_FALSE;
+}
 
-	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString(username)+"@"+toString(application_name)+" : ", pwd);
+extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
+{
+	return PPK_TRUE;
+}
 
-	//if everything went fine
-	if(res)
-	{
-		setError("");
-		return pwd.c_str();
-	}
+//optionnal
+std::string* customPrompt()
+{
+	static std::string msg;
+	return &msg;
+}
+
+extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
+{
+	if(customMessage!=NULL)
+		*(customPrompt())=customMessage;
 	else
-	{
-		setError("User pressed cancel");
-		return NULL;
-	}
+		*(customPrompt())=std::string();
+
+	return PPK_TRUE;
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
-{
-	return 0;
-}
-
-extern "C" const char* getItem(const char* key, unsigned int flags)
-{
-	static std::string pwd;
-
-	bool res=WIN32_Get_Password("Please key in the item ...","Please key in the item corresponding to this key("+toString(key)+") : ", pwd);
-
-	//if everything went fine
-	if(res)
-	{
-		setError("");
-		return pwd.c_str();
-	}
-	else
-	{
-		setError("User pressed cancel");
-		return NULL;
-	}
-}
-
-extern "C" int setItem(const char* key, const char* item, unsigned int flags)
-{
-	return 0;
-}
 
 /*************************************************************************************************
 **************************************************************************************************

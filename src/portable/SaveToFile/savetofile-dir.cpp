@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+
 #if defined(WIN32) || defined(WIN64)
 	std::string dir()
 	{

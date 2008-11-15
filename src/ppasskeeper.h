@@ -133,8 +133,8 @@ extern "C"
 	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags);
 	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags);
 
-     unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
-     unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
+    unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
+    unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
 	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags);
         

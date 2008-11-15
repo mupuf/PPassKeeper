@@ -28,14 +28,19 @@ const char* getPassword(const char* key)
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
 	{
 		DWORD size=sizeof(tmpBuf);
-		RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
+		long res=RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
 		RegCloseKey(hk);
 		
-		pwd=tmpBuf;
-		return pwd.c_str();
+		if(res==ERROR_SUCCESS)
+		{
+			pwd=tmpBuf;
+			return pwd.c_str();
+		}
+		else
+			return NULL;
 	}
 	else
-		return "";
+		return NULL;
 }
 
 bool setPassword(const char* key, const char* pwd)
@@ -45,6 +50,20 @@ bool setPassword(const char* key, const char* pwd)
 	{
 		RegSetValueEx(hk, key, 0, REG_SZ, (BYTE*)pwd, strlen(pwd)+1);
 		RegCloseKey(hk);
+	}
+	else
+		return false;
+}
+
+bool removePassword(const char* key)
+{
+	HKEY hk;
+	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
+	{
+		long res=RegDeleteValue(hk, key);
+		RegCloseKey(hk);
+		
+		return res==ERROR_SUCCESS;
 	}
 	else
 		return false;
@@ -94,19 +113,19 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 //Get available flags
 extern "C" ppk_readFlag readFlagsAvailable()
 {
-	return ppk_rd_none;
+	return ppk_rf_none;
 }
 
 extern "C" ppk_writeFlag writeFlagsAvailable()
 {
-	return ppk_wt_none;
+	return ppk_wf_none;
 }
 
 //List passwords available
-std::string prefix(ppk_password_type type)
+std::string prefix(const ppk_entry entry)
 {
 	std::string prefix="ppasskeeper_";
-	switch(type)
+	switch(entry.type)
 	{
 		case ppk_network:
 			prefix+="network";
@@ -120,48 +139,85 @@ std::string prefix(ppk_password_type type)
 	}
 	return prefix+"://";
 }
-extern "C" unsigned int getPasswordListCount(ppk_password_type type, unsigned int flags)
+
+extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
-	/*ListPwd pwdl;		
-	return pwdl.getPasswordListCount(dir().c_str(), prefix(type).c_str(), type);*/
-return 0;
+	ListPwd pwdl;		
+	return pwdl.getEntryListCount(baseKey, entry_types, flags);
 }
-extern "C" unsigned int getPasswordList(ppk_password_type type, void* pwdList, unsigned int maxModuleCount, unsigned int flags)
-{
-	/*static ListPwd pwdl;	
-	return pwdl.getPasswordList(dir().c_str(), prefix(type).c_str(), type, pwdList, maxModuleCount);*/
-	return 0;
+
+extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+{	
+	static ListPwd pwdl;	
+	return pwdl.getEntryList(baseKey, entry_types, entryList, nbEntries, flags);
 }
 
 //Functions 
-extern "C" const char* getNetworkPassword(const char* server, int port, const char* username, unsigned int flags)
+extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
-	return getPassword(generateNetworkKey(server, port, username).c_str());
+	static std::string pwd;
+
+	std::string text;
+	if(entry.type==ppk_network)
+		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
+	else if(entry.type==ppk_application)
+		text=generateApplicationKey(entry.app.app_name, entry.app.username);
+	else if(entry.type==ppk_item)
+		text=generateItemKey(entry.item);
+	
+	const char* res=getPassword(text.c_str());
+
+	//if everything went fine
+	if(res!=NULL)
+	{
+		setError("");
+		pwd=res;
+		edata->string=pwd.c_str();
+		return PPK_TRUE;
+	}
+	else
+		return PPK_FALSE;
 }
 
-extern "C" int setNetworkPassword(const char* server, int port, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data *edata, unsigned int flags)
 {
-	return setPassword(generateNetworkKey(server, port, username).c_str(), pwd)?0:-1;
+	static std::string pwd;
+	
+	std::string text;
+	if(entry.type==ppk_network)
+		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
+	else if(entry.type==ppk_application)
+		text=generateApplicationKey(entry.app.app_name, entry.app.username);
+	else if(entry.type==ppk_item)
+		text=generateItemKey(entry.item);
+
+	//if everything went fine
+	if(setPassword(text.c_str(), edata->string))
+	{
+		setError("");
+		return PPK_TRUE;
+	}
+	else
+		return PPK_FALSE;
 }
 
-extern "C" const char* getApplicationPassword(const char* application_name, const char* username, unsigned int flags)
+extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
-	return getPassword(generateApplicationKey(application_name, username).c_str());
+	std::string text;
+	if(entry.type==ppk_network)
+		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
+	else if(entry.type==ppk_application)
+		text=generateApplicationKey(entry.app.app_name, entry.app.username);
+	else if(entry.type==ppk_item)
+		text=generateItemKey(entry.item);
+		
+	return removePassword(text.c_str())?PPK_TRUE:PPK_FALSE;
 }
 
-extern "C" int setApplicationPassword(const char* application_name, const char* username,  const char* pwd, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
-	return setPassword(generateApplicationKey(application_name, username).c_str(), pwd)?0:-1;
-}
-
-extern "C" const char* getItem(const char* key, unsigned int flags)
-{
-	return getPassword(generateItemKey(key).c_str());
-}
-
-extern "C" int setItem(const char* key, const char* item, unsigned int flags)
-{
-	return setPassword(generateItemKey(key).c_str(), item)?0:-1;
+	ppk_data edata;
+	return getEntry(entry, &edata, flags);
 }
 
 extern "C" const char* getLastError()

@@ -112,20 +112,18 @@ bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsi
 #if defined(WIN32) || defined(WIN64)
 	#include <windows.h>
 	
-	unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
+	unsigned int ListPwd::updateDataBase(const char* dir, unsigned int entry_types, unsigned int flags) 
 	{	
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
-		unsigned int prefix_len=strlen(prefix);
 		unsigned int pwdCount=0;
     
 	    hSearch = FindFirstFile("ppasskeeper/*.dll*", &File);
 	    if (hSearch != INVALID_HANDLE_VALUE)
 	    {
 	        do {
-				if(strncmp (File.cFileName, prefix, prefix_len)==0)
-					if(parseFileName(prefix, File.cFileName, type))
-						pwdCount++;
+				if(parseFileName(File.cFileName, entry_types, flags))
+					pwdCount++;
 	        } while (FindNextFile(hSearch, &File));
 	        
 	        FindClose(hSearch);
@@ -141,7 +139,6 @@ bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsi
 	#include <sys/types.h>
 	#include <dirent.h>
 	
-	//unsigned int ListPwd::updateDataBase(const char* dir, const char* prefix, ppk_password_type type)
 	unsigned int ListPwd::updateDataBase(const char* dir, unsigned int entry_types, unsigned int flags)
 	{	
 		DIR * pwddir;

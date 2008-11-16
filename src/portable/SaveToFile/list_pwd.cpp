@@ -28,7 +28,7 @@ bool ListPwd::addNetworkPassword(std::string stripped_name)
 {
 	//Parse the file's name
 	unsigned int pos_at=stripped_name.find_first_of("@");
-	unsigned int pos_sc=stripped_name.find(":",pos_at+1);
+	unsigned int pos_sc=stripped_name.find("%",pos_at+1);
 
 	//if it has found the separators
 	if(pos_at!=std::string::npos && pos_sc!=std::string::npos)
@@ -117,22 +117,37 @@ bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsi
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
 		unsigned int pwdCount=0;
-    
-	    hSearch = FindFirstFile("ppasskeeper/*.dll*", &File);
-	    if (hSearch != INVALID_HANDLE_VALUE)
-	    {
-	        do {
-				if(parseFileName(File.cFileName, entry_types, flags))
-					pwdCount++;
-	        } while (FindNextFile(hSearch, &File));
-	        
-	        FindClose(hSearch);
-	    }
+		
+		std::string path;
+		char* tmp=getenv("HOMEDRIVE");
+		if(tmp!=NULL)
+		{
+			path=tmp;
+			tmp=getenv("HOMEPATH");
+			
+			if(tmp!=NULL)
+			{
+				path+=tmp;
+				
+				hSearch = FindFirstFile((path+"\\ppasskeeper\\*").c_str(), &File);
+				if (hSearch != INVALID_HANDLE_VALUE)
+				{
+					do {
+						if(parseFileName(File.cFileName, entry_types, flags))
+							pwdCount++;
+					} while (FindNextFile(hSearch, &File));
+					
+					FindClose(hSearch);
+				}
+				
+				return pwdCount;
+			}
+		}
+		
 #ifdef DEBUG_MSG
-		else
-			std::cerr << "Could not open plugins directory" << std::endl;
+		std::cerr << "Could not open pwd directory" << std::endl;
 #endif
-		return pwdCount;
+		return 0;
 	}
 #else
 	#include <dlfcn.h>

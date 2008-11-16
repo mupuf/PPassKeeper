@@ -27,7 +27,7 @@ void setError(std::string error)
 
 std::string generateNetworkPath(std::string server, int port, std::string username)
 {
-	return dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString(":")+toString(port);
+	return dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
 }
 
 std::string generateApplicationPath(std::string application_name, std::string username)
@@ -146,7 +146,10 @@ extern "C"
 
 	ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 	{
-		return writeFile(getKey(entry).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+		if( edata.type==ppk_string)
+			return writeFile(getKey(entry).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+		else
+			return PPK_FALSE;
 	}
 	
 	ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)

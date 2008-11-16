@@ -6,7 +6,7 @@
 
 
 //Local definitions
-static const char* baseKey="Software\\PPassKeeper\\";
+static const char* baseKey="SOFTWARE\\PPassKeeper\\";
 
 //local functions
 std::string* last_error()

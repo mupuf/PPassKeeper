@@ -116,6 +116,19 @@ extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 	return PPK_TRUE;
 }
 
+extern "C" unsigned int maxDataSize(ppk_data_type type)
+{
+	switch(type)
+	{
+		case ppk_string:
+			return -1;
+		case ppk_blob:
+			return 0;
+	}
+	
+	return 0;
+}
+
 extern "C" const char* getLastError()
 {
 	return last_error()->c_str();

@@ -123,7 +123,9 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			tm.listingFlagsAvailable=(_listingFlagsAvailable)loadSymbol(dlhandle, "listingFlagsAvailable");
 
 			//
+			
 			tm.entryExists=(_entryExists)loadSymbol(dlhandle, "entryExists");
+			tm.maxDataSize=(_maxDataSize)loadSymbol(dlhandle, "maxDataSize");
 			tm.getEntry=(_getEntry)loadSymbol(dlhandle, "getEntry");
 			tm.setEntry=(_setEntry)loadSymbol(dlhandle, "setEntry");
 			tm.removeEntry=(_removeEntry)loadSymbol(dlhandle, "removeEntry");
@@ -147,6 +149,7 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			if(tm.readFlagsAvailable==NULL)std::cerr << "missing : readFlagsAvailable();";
 			if(tm.writeFlagsAvailable==NULL)std::cerr << "missing : writeFlagsAvailable();";
 			if(tm.listingFlagsAvailable==NULL)std::cerr << "missing : listingFlagsAvailable();";
+			if(tm.maxDataSize==NULL)std::cerr << "missing : maxDataSize();";
 			if(tm.entryExists==NULL)std::cerr << "missing : entryExists();";
 			if(tm.getEntry==NULL)std::cerr << "missing : getEntry();";
 			if(tm.setEntry==NULL)std::cerr << "missing : setEntry();";
@@ -159,7 +162,7 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 		#endif
 			
 			//if minimal functions are here, add the lib to available modules
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.maxDataSize!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
 			{
 				//Get the ID of the library
 				tm.id=(tm.getModuleID)();

@@ -147,7 +147,6 @@ struct net_params netParameters()
 	params.port = port;
 	params.username = key;
 	
-	printf("%s@%s:%i\n", params.username, params.server, params.port);
 	return params;
 }
 

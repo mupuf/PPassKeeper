@@ -158,6 +158,19 @@ extern "C"
 	{
 		return fileExists(getKey(entry));
 	}
+	
+	extern "C" unsigned int maxDataSize(ppk_data_type type)
+	{
+		switch(type)
+		{
+			case ppk_string:
+				return -1;
+			case ppk_blob:
+				return 0;
+		}
+	
+		return 0;
+	}
 
 	const char* getLastError()
 	{

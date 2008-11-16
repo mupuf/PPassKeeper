@@ -137,6 +137,8 @@ extern "C"
     unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
 	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags);
+	
+	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type);
         
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
 	/* but some modules just allow you to key-in your password. For these modules, you are the keeper.

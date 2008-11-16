@@ -48,6 +48,8 @@ extern "C"
 	typedef ppk_boolean (*_removeEntry)(const ppk_entry entry, unsigned int flags);
 
 	typedef ppk_boolean (*_entryExists)(const ppk_entry entry, unsigned int flags);
+	
+	typedef unsigned int (*_maxDataSize)(ppk_data_type type);
 
 	/*
 	This function returns wether the module can store password or not. 
@@ -117,6 +119,7 @@ extern "C"
 		_setEntry setEntry;
 		_removeEntry removeEntry;
 		_entryExists entryExists;
+		_maxDataSize maxDataSize;
 		_isWritable isWritable;
 		_securityLevel securityLevel;
 		_getEntryListCount getEntryListCount;

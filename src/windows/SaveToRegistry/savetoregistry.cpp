@@ -48,8 +48,10 @@ bool setPassword(const char* key, const char* pwd)
 	HKEY hk;
 	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
-		RegSetValueEx(hk, key, 0, REG_SZ, (BYTE*)pwd, strlen(pwd)+1);
+		long res=RegSetValueEx(hk, key, 0, REG_SZ, (BYTE*)pwd, strlen(pwd)+1);
 		RegCloseKey(hk);
+		
+		return res==ERROR_SUCCESS;
 	}
 	else
 		return false;
@@ -223,6 +225,19 @@ extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
 	ppk_data edata;
 	return getEntry(entry, &edata, flags);
+}
+
+extern "C" unsigned int maxDataSize(ppk_data_type type)
+{
+	switch(type)
+	{
+		case ppk_string:
+			return -1;
+		case ppk_blob:
+			return 0;
+	}
+	
+	return 0;
 }
 
 extern "C" const char* getLastError()

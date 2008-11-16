@@ -130,6 +130,19 @@ extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 	return PPK_TRUE;
 }
 
+extern "C" unsigned int maxDataSize(ppk_data_type type)
+{
+	switch(type)
+	{
+		case ppk_string:
+			return -1;
+		case ppk_blob:
+			return 0;
+	}
+	
+	return 0;
+}
+
 //optionnal
 std::string* customPrompt()
 {
@@ -150,9 +163,9 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 
 /*************************************************************************************************
 **************************************************************************************************
-*******************************										******************************
-*******************************				  WIN32 PART				******************************
-*******************************										******************************
+*******************************                                     ******************************
+*******************************               WIN32 PART            ******************************
+*******************************                                     ******************************
 **************************************************************************************************
 **************************************************************************************************/
 
@@ -278,14 +291,4 @@ bool WIN32_Get_Password(std::string title, std::string label, std::string& pwd)
 	else
 		return false;
 }
-
-/*int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-	bool res=WIN32_Get_Password("Please key in the password ...", "Please key in the password corresponding to "+toString("mupuf")+"@"+toString("mupuf.fr.nf")+":"+toString(21)+" : ", last_pwd);
-	if(res)
-		printf("Tout est OK, le pwd est '%s'\n",last_pwd.c_str());
-	else
-		printf("NOK\n");
-	return 0;
-}*/
 

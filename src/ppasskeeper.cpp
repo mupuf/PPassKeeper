@@ -64,6 +64,15 @@ extern "C"
 			return PPK_FALSE;
 	}
 	
+	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type)
+	{
+		const _module* mod=modules.getModuleByID(module_id);
+		if(mod!=NULL)
+			return mod->maxDataSize(type);
+		else
+			return 0;
+	}
+	
 	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags)
 	{
      	const _module* mod=modules.getModuleByID(module_id);

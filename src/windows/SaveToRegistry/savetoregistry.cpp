@@ -197,9 +197,6 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 		text=generateApplicationKey(entry.app.app_name, entry.app.username);
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
-		
-	printf("data : ");
-	printf("%s\n", edata.string);
 
 	//if everything went fine
 	if(setPassword(text.c_str(), edata.string))

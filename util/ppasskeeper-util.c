@@ -41,6 +41,15 @@ char* getpass(const char* prompt)
 	printf("Password : ");
 	fgets(pwd, sizeof(pwd)-1,stdin);
 	
+	//Get rid of the \r\n characters
+	char* p;
+	if ((p = strchr(pwd, '\n')) != NULL)
+      *p = '\0';
+	if ((p = strchr(pwd, '\r')) != NULL)
+      *p = '\0';
+	
+	printf("pwd = '%s'\n", pwd);
+	
 	return pwd;
 }
 #endif

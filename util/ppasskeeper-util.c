@@ -247,6 +247,7 @@ int main(int argc, char **argv)
 		}
 		
 		ppk_data edata;
+		edata.type=ppk_string;
 		edata.string=password;
 		ppk_boolean res=ppk_setEntry(module_id, entry , edata, ppk_wf_none);
 		if(res!=PPK_TRUE)

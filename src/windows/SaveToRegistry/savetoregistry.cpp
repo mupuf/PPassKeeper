@@ -48,7 +48,7 @@ bool setPassword(const char* key, const char* pwd)
 	HKEY hk;
 	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
-		long res=RegSetValueEx(hk, key, 0, REG_SZ, (BYTE*)pwd, strlen(pwd)+1);
+		long res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)pwd, strlen(pwd)+1);
 		RegCloseKey(hk);
 		
 		return res==ERROR_SUCCESS;
@@ -186,7 +186,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		return PPK_FALSE;
 }
 
-extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data *edata, unsigned int flags)
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 {
 	static std::string pwd;
 	
@@ -197,9 +197,12 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data *edata, un
 		text=generateApplicationKey(entry.app.app_name, entry.app.username);
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
+		
+	printf("data : ");
+	printf("%s\n", edata.string);
 
 	//if everything went fine
-	if(setPassword(text.c_str(), edata->string))
+	if(setPassword(text.c_str(), edata.string))
 	{
 		setError("");
 		return PPK_TRUE;

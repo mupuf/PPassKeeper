@@ -1,4 +1,8 @@
 #include "mainwindow.h"
+#include <QMessageBox>
+#include <iostream>
+#include <QInputDialog>
+#include <sstream>
 
 MainWindow::MainWindow()
 	: QMainWindow(),
@@ -41,6 +45,7 @@ void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
+	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
 			pwdlistModel, SLOT(rowSelected(const QModelIndex &, const QModelIndex &)));
 	connect(pwdlistModel,
@@ -90,7 +95,49 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	}
 }
 
-#include <QMessageBox>
+void MainWindow::onAddButtonClicked()
+{
+	std::string key, error="";
+	const char* title="PPassKeeper : Please key in ....";
+	
+	if(m_moduleId!="")
+	{
+		bool res=false;
+		ppk_entry entry;
+		
+		if (cur_type == ppk_application)
+		{
+			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@app_name) :").toStdString();
+			
+			res=parseAndGetAppEntry(key, entry);
+			if(res)
+			{
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),entry,
+					createStringData(""), 0)==PPK_TRUE;
+			}
+			else
+				error="It is not a valid key name.";
+		}
+		else if (cur_type == ppk_network)
+		{
+			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@host:port) :").toStdString();
+			
+			res=parseAndGetNetworkEntry(key, entry);
+			if(res)
+			{
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),entry,
+				createStringData(""), 0)==PPK_TRUE;
+			}
+		}
+		else if (cur_type == ppk_item)
+		{
+			key=QInputDialog::getText(NULL,title,"Please key in the name :").toStdString();
+		}
+		
+		listCurrentModule();
+	}
+}
+
 void MainWindow::setPasswordVisible(bool b)
 {
 	if (b)
@@ -233,3 +280,75 @@ void MainWindow::focusChanged(QWidget* q_old, QWidget* q_new)
 		setPasswordVisible(false);	
 	}
 }
+
+bool MainWindow::parseAndGetNetworkEntry(std::string str, ppk_entry& entry)
+{
+	//Parse the file's name
+	unsigned int pos_at=str.find_first_of("@");
+	unsigned int pos_sc=str.find("%",pos_at+1);
+
+	//if it has found the separators
+	if(pos_at!=std::string::npos && pos_sc!=std::string::npos)
+	{
+		static std::string user;
+		static std::string host;
+		user=str.substr(0,pos_at);
+		host=str.substr(pos_at+1,pos_sc-(pos_at+1));
+		std::string s_port=str.substr(pos_sc+1);
+
+		//Get the port into a number
+		unsigned int port;
+		std::istringstream i(s_port);
+		if (!(i >> port))
+			return false;
+
+		entry.type=ppk_network;
+		entry.net.host=host.c_str();
+		entry.net.port=port;
+		entry.net.login=user.c_str();
+
+		return true;
+	}
+	else
+		return false;
+}
+bool MainWindow::parseAndGetAppEntry(std::string str, ppk_entry& entry)
+{
+	//Parse the file's name
+	unsigned int pos_at=str.find_first_of("@");
+
+	//if it has found the separators
+	if(pos_at!=std::string::npos)
+	{
+		static std::string user;
+		static std::string app;
+		user=str.substr(0,pos_at);
+		app=str.substr(pos_at+1);
+
+		//Add the content to pwdList
+		entry.type=ppk_application;
+		entry.app.app_name=app.c_str();
+		entry.app.username=user.c_str();
+		
+		return true;
+	}
+	else
+		return false;
+}
+
+bool MainWindow::parseAndGetItemEntry(std::string str, ppk_entry& entry)
+{
+	if(str.size()>0)
+	{
+		static std::string item;
+		item=str;
+		
+		entry.type=ppk_item;
+		entry.item=str.c_str();
+
+		return true;
+	}
+	else
+		return false;
+}
+

@@ -46,7 +46,10 @@ const char* libraryError();
 		//char dir_path[2048];
 		//unsigned int len=GetEnvironmentVariableA("ppasskeeperMods", dir_path, (DWORD)sizeof(dir_path));
 		std::string dirpath=getRegistryValue("mods_path");
-
+		
+#ifdef DEBUG_MSG
+		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper without the argument '--enable-debug'" << std::endl << std::endl;
+#endif
 		hSearch = FindFirstFile((dirpath+"\\*.dll").c_str(), &File);
 		if (hSearch != INVALID_HANDLE_VALUE)
 		{
@@ -61,6 +64,10 @@ const char* libraryError();
 		else
 			std::cerr << "Could not open plugins directory : " << dirpath << std::endl;
 #endif
+
+#ifdef DEBUG_MSG
+		std::cout << "--------------- </PPassKeeper> ---------------" << std::endl << std::endl;
+#endif
 	}
 #else
 	#include <dlfcn.h>
@@ -72,6 +79,10 @@ const char* libraryError();
 	{	
 		DIR * plugindir;
 		struct dirent * mydirent;
+		
+#ifdef DEBUG_MSG
+		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper without the argument '--enable-debug'" << std::endl << std::endl;
+#endif
 		
 		//Open Plugin's directory
 		plugindir = opendir(DIRECTORY_PATH);
@@ -91,6 +102,10 @@ const char* libraryError();
 #ifdef DEBUG_MSG
 		else
 			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
+#endif
+
+#ifdef DEBUG_MSG
+		std::cout << std::endl << "--------------- </PPassKeeper> ---------------" << std::endl << std::endl;
 #endif
 	}
 #endif

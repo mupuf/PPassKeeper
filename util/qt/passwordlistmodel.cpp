@@ -33,7 +33,17 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 	{
 		ppk_entry &i = item_ent[current.row()];
 		emit itemPasswordSelected(i.item);
+	} else if (current.internalId() == netId)
+	{
+		emit netPasswordSelected("", "", 0);
+	} else if (current.internalId() == appId)
+	{
+		emit appPasswordSelected("", "");
+	} else if (current.internalId() == itemId)
+	{
+		emit itemPasswordSelected("");
 	}
+	
 }
 
 inline void PasswordListModel::freeEntries()

@@ -50,6 +50,10 @@ private:
 	void setupActions();
 	void fillModulesBox();
 	void listCurrentModule();
+	
+	bool parseAndGetNetworkEntry(std::string str, ppk_entry& entry);
+	bool parseAndGetAppEntry(std::string str, ppk_entry& entry);
+	bool parseAndGetItemEntry(std::string str, ppk_entry& entry);
 
 protected:
 	void timerEvent(QTimerEvent *event);
@@ -59,6 +63,7 @@ public slots:
 	void onAppPasswordSelected(const char *app_name, const char *username);
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
 	void onItemPasswordSelected(const char *key);
+	void onAddButtonClicked();
 	void setPasswordVisible(bool b);
 	void updateSelectedPassword(QString pwd);
 	void focusChanged(QWidget* q_old, QWidget* q_new);

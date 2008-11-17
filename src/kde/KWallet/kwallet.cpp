@@ -134,7 +134,7 @@ bool _removePassword(const char* key, unsigned int flags)
 				return true;
 			else
 			{
-				setError("getPwd : wallet->writePassword failed, key="+toString(key));
+				setError("getPwd : wallet->removePassword failed, key="+toString(key));
 				return false;
 			}
 		}
@@ -306,9 +306,14 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
-	std::cout << "Debug : KWallet's removeEntry is not implemented yet, please do it ASAP" << std::endl;
-	
-	return PPK_FALSE;
+	if(entry.type == ppk_network)
+		return removePassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return removePassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_item)
+		return removePassword(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else
+		return PPK_FALSE;
 }
 
 extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)

@@ -118,6 +118,14 @@ bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsi
 		HANDLE hSearch;
 		unsigned int pwdCount=0;
 		
+		//Clear needed buffers
+		if((entry_types&ppk_network)>0)
+			listNet.clear();
+		if((entry_types&ppk_application)>0)
+			listApp.clear();
+		if((entry_types&ppk_item)>0)	
+			listItem.clear();
+		
 		std::string path;
 		char* tmp=getenv("HOMEDRIVE");
 		if(tmp!=NULL)
@@ -160,13 +168,23 @@ bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsi
 		struct dirent * mydirent;
 		unsigned int pwdCount=0;
 		
+		//Clear needed buffers
+		if((entry_types&ppk_network)>0)
+			listNet.clear();
+		if((entry_types&ppk_application)>0)
+			listApp.clear();
+		if((entry_types&ppk_item)>0)	
+			listItem.clear();
+		
 		//Open Plugin's directory
 		pwddir = opendir(dir);
 		if(pwddir!=NULL)
 		{
 			while ((mydirent = readdir(pwddir))!=NULL)
+			{
 				if(parseFileName(mydirent->d_name, entry_types, flags))
 					pwdCount++;
+			}
 
 			closedir(pwddir);
 		}

@@ -124,6 +124,14 @@ unsigned int ListPwd::updateDataBase(KWallet::Wallet* wallet, unsigned int entry
 
 	//List all the items
 	QStringList list = wallet->entryList();
+	
+	//Clear needed buffers
+	if((entry_types&ppk_network)>0)
+		listNet.clear();
+	if((entry_types&ppk_application)>0)
+		listApp.clear();
+	if((entry_types&ppk_item)>0)	
+		listItem.clear();
 
 	//for each item, check if it's the choosen one
 	for(int i=0;i<list.size();i++)

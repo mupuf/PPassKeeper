@@ -119,6 +119,14 @@ unsigned int ListPwd::updateDataBase(const char* baseKey, unsigned int entry_typ
 	unsigned int pwdCount=0;
 	static char name[101];
 	
+	//Clear needed buffers
+	if((entry_types&ppk_network)>0)
+		listNet.clear();
+	if((entry_types&ppk_application)>0)
+		listApp.clear();
+	if((entry_types&ppk_item)>0)	
+		listItem.clear();
+	
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_ALL_ACCESS, &hk))
 	{
 		int i=0, res;

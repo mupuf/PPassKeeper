@@ -55,7 +55,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		KWallet::Wallet* wallet=NULL;
 	
 		//OPen the wallet only if it won't annoy people who don't want to be prompted
-		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_wf_silent)==0 ) //There is something to do here !! This is bad !!!!!!!!!!!!!!!
+		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_lf_silent)>0 || (int)(flags&ppk_rf_silent)>0 || (int)(flags&ppk_wf_silent)>0)
 		{
 			wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
 
@@ -240,12 +240,14 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
 		if(wallet!=NULL)
 		{
-			ListPwd pwdl;		
-			pwdl.getEntryListCount(wallet, entry_types, flags);
+			static ListPwd pwdl;		
+			return pwdl.getEntryListCount(wallet, entry_types, flags);
 		}
+		else
+			return 0;
 	}
-	
-	return 0;
+	else
+		return 0;
 }
 
 extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
@@ -257,9 +259,11 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 		KWallet::Wallet* wallet=openWallet(flags);
 		if(wallet!=NULL)
 		{
-			ListPwd pwdl;
+			static ListPwd pwdl;
 			return pwdl.getEntryList(wallet, entry_types, entryList, nbEntries, flags);
 		}
+		else
+			return 0;
 	}
 	else
 		return 0;
@@ -267,12 +271,22 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 
 extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
+	edata->type=ppk_string;
 	if(entry.type == ppk_network)
-		return getPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	{
+		edata->string=getPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags);
+		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
+	}
 	else if(entry.type == ppk_application)
-		return getPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	{
+		edata->string=getPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags);
+		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
+	}
 	else if(entry.type == ppk_item)
-		return getPassword(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	{
+		edata->string=getPassword(generateItemKey(entry.item).c_str(), flags);
+		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
+	}
 	else
 		return PPK_FALSE;
 }

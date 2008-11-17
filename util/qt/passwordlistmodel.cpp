@@ -66,17 +66,17 @@ void PasswordListModel::setupModelData(const char *moduleId)
 	if (net_count > 0)
 	{
 		net_ent = new ppk_entry[net_count];
-		net_count=ppk_getEntryList(moduleId, ppk_network, net_ent, net_count, 0);
+		net_count=ppk_getEntryList(moduleId, ppk_network, net_ent, net_count, ppk_lf_none);
 	}
 	if (app_count > 0)
 	{
 		app_ent = new ppk_entry[app_count];
-		app_count=ppk_getEntryList(moduleId, ppk_application, app_ent, app_count, 0);
+		app_count=ppk_getEntryList(moduleId, ppk_application, app_ent, app_count, ppk_lf_none);
 	}
 	if (item_count > 0)
 	{
 		item_ent = new ppk_entry[item_count];
-		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, 0);
+		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, ppk_lf_none);
 	}
 
 	reset();

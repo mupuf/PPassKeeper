@@ -46,6 +46,7 @@ void MainWindow::setupActions()
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
+	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
 	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
 			pwdlistModel, SLOT(rowSelected(const QModelIndex &, const QModelIndex &)));
 	connect(pwdlistModel,
@@ -155,6 +156,34 @@ void MainWindow::onAddButtonClicked()
 		
 		listCurrentModule();
 	}
+}
+
+void MainWindow::onDelButtonClicked()
+{
+	std::string key;
+	QString error="";
+		
+	ppk_boolean res=PPK_FALSE;
+	if (cur_type == ppk_application)
+	{
+		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
+				createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()), 0);
+	}
+	else if (cur_type == ppk_network)
+	{
+		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
+				createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port), 0);
+	}
+	else if (cur_type == ppk_item)
+	{
+		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
+				createItemEntry(cur_item.key.toLocal8Bit().constData()), 0);
+	}
+	
+	if(!res)
+		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
+	
+	listCurrentModule();
 }
 
 void MainWindow::setPasswordVisible(bool b)

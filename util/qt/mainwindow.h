@@ -64,6 +64,7 @@ public slots:
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
 	void onItemPasswordSelected(const char *key);
 	void onAddButtonClicked();
+	void onDelButtonClicked();
 	void setPasswordVisible(bool b);
 	void updateSelectedPassword(QString pwd);
 	void focusChanged(QWidget* q_old, QWidget* q_new);

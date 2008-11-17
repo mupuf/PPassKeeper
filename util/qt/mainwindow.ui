@@ -88,6 +88,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Add" />
+   <addaction name="action_Del" />
    <addaction name="separator" />
    <addaction name="action_Import" />
    <addaction name="action_Export" />
@@ -217,6 +218,11 @@
   <action name="action_Add" >
    <property name="text" >
     <string>&amp;Add</string>
+   </property>
+  </action>
+  <action name="action_Del" >
+   <property name="text" >
+    <string>&amp;Del</string>
    </property>
   </action>
   <action name="action_Import" >

@@ -177,7 +177,7 @@ QVariant PasswordListModel::data(const QModelIndex &index, int role) const
 			if (index.internalId() == appChildId)
 			{
 				const ppk_entry &a = app_ent[index.row()];
-				return QVariant(QString("%1:%2").arg(a.app.app_name).arg(a.app.username));
+				return QVariant(QString("%1@%2").arg(a.app.username).arg(a.app.app_name));
 			} else if (index.internalId() == netChildId)
 			{
 				const ppk_entry &n = net_ent[index.row()];

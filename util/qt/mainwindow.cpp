@@ -97,23 +97,26 @@ void MainWindow::updateSelectedPassword(QString pwd)
 
 void MainWindow::onAddButtonClicked()
 {
-	std::string key, error="";
+	std::string key;
+	QString error="";
 	const char* title="PPassKeeper : Please key in ....";
+	const char* default_string="Replace me";
 	
 	if(m_moduleId!="")
 	{
-		bool res=false;
+		bool res=true, ok;
 		ppk_entry entry;
 		
 		if (cur_type == ppk_application)
 		{
-			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@app_name) :").toStdString();
+			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@app_name) :", QLineEdit::Normal,"", &ok).toStdString();
 			
 			res=parseAndGetAppEntry(key, entry);
-			if(res)
+			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),entry,
-					createStringData(""), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				if(!res)
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
 			}
 			else
 				error="It is not a valid key name.";
@@ -123,16 +126,32 @@ void MainWindow::onAddButtonClicked()
 			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@host:port) :").toStdString();
 			
 			res=parseAndGetNetworkEntry(key, entry);
-			if(res)
+			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),entry,
-				createStringData(""), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				if(!res)
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
 			}
+			else
+				error="It is not a valid key name.";
 		}
 		else if (cur_type == ppk_item)
 		{
-			key=QInputDialog::getText(NULL,title,"Please key in the name :").toStdString();
+			key=QInputDialog::getText(NULL,title,"Please key in the name :", QLineEdit::Normal,"", &ok).toStdString();
+			
+			res=parseAndGetItemEntry(key, entry);
+			if(ok && res)
+			{
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				if(!res)
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
+			}
+			else
+				error="It is not a valid key name.";
 		}
+		
+		if(!res)
+			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
 		
 		listCurrentModule();
 	}
@@ -149,7 +168,7 @@ void MainWindow::setPasswordVisible(bool b)
 		}
 
 		ppk_data data;
-		ppk_boolean res;
+		ppk_boolean res=PPK_FALSE;
 		if (cur_type == ppk_application)
 		{
 			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
@@ -168,9 +187,11 @@ void MainWindow::setPasswordVisible(bool b)
 					createItemEntry(cur_item.key.toLocal8Bit().constData()),
 					&data, 0);
 		}
+		
 		if (res==PPK_TRUE)
 		{		
 			passwordEdit->setPlainText(data.string);
+			passwordEdit->setReadOnly(false);
 			tmp_sensitive_data=data.string;
 			timerValue = 0;
 			passwordTimer.start(1000, this);
@@ -179,6 +200,7 @@ void MainWindow::setPasswordVisible(bool b)
 		passwordTimer.stop();
 		progressBar->setValue(0);
 		passwordEdit->setPlainText(tr("(hidden)"));
+		passwordEdit->setReadOnly(true);
 		tmp_sensitive_data=QString();
 		showButton->setChecked(false);
 	}
@@ -285,7 +307,7 @@ bool MainWindow::parseAndGetNetworkEntry(std::string str, ppk_entry& entry)
 {
 	//Parse the file's name
 	unsigned int pos_at=str.find_first_of("@");
-	unsigned int pos_sc=str.find("%",pos_at+1);
+	unsigned int pos_sc=str.find(":",pos_at+1);
 
 	//if it has found the separators
 	if(pos_at!=std::string::npos && pos_sc!=std::string::npos)

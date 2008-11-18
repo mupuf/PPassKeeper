@@ -95,10 +95,12 @@ const char* _getPassword(const char* key, unsigned int flags)
 			return pwd.toLocal8Bit().data();
 		else
 		{
-			setError("getPwd : wallet->readPassword failed, key="+toString(key));
+			setError("Get Entry : wallet->readPassword failed, key="+toString(key));
 			return NULL;
 		}
 	}
+	else
+		return false;
 }
 
 bool _setPassword(const char* key, const char* pwd, unsigned int flags)
@@ -113,7 +115,7 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 				return true;
 			else
 			{
-				setError("getPwd : wallet->writePassword failed, key="+toString(key));
+				setError("Set Entry : wallet->writePassword failed, key="+toString(key));
 				return false;
 			}
 		}
@@ -134,9 +136,29 @@ bool _removePassword(const char* key, unsigned int flags)
 				return true;
 			else
 			{
-				setError("getPwd : wallet->removePassword failed, key="+toString(key));
+				setError("Remove Entry : wallet->removeEntry failed, key="+toString(key));
 				return false;
 			}
+		}
+	}
+	else
+		return false;
+}
+
+bool _passwordExists(const char* key, unsigned int flags)
+{
+	static QString pwd;
+
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
+	{
+		//Get the password
+		if(wallet->hasEntry(key)==0)
+			return true;
+		else
+		{
+			setError("Entry Exists : wallet->hasEntry failed, key="+toString(key));
+			return false;
 		}
 	}
 	else
@@ -174,6 +196,15 @@ bool removePassword(const char* key, unsigned int flags)
 	//Init KDE Application
 	if(init_kde(flags))
 		return _removePassword(key, flags);
+	else
+		return false;
+}
+
+bool passwordExists(const char* key, unsigned int flags)
+{
+	//Init KDE Application
+	if(init_kde(flags))
+		return _passwordExists(key, flags);
 	else
 		return false;
 }
@@ -317,9 +348,14 @@ extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 
 extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
-	std::cout << "Debug : KWallet's entryExists is not implemented yet, please do it ASAP" << std::endl;
-	
-	return PPK_FALSE;
+	if(entry.type == ppk_network)
+		return passwordExists(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return passwordExists(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_item)
+		return passwordExists(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else
+		return PPK_FALSE;
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

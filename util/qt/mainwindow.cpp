@@ -41,12 +41,19 @@ void MainWindow::fillModulesBox()
 	}
 }
 
+void MainWindow::showInfoMessageUnderDevelopment()
+{
+	QMessageBox::information(this, "PPassKeeper : This is still a development version", "This function has not been implemented yet. \n\nPPassKeeper is still in hard development, so, we do apologize.");
+}
+
 void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
+	connect(action_Import, SIGNAL(triggered()), this, SLOT(onImportButtonClicked()));
+	connect(action_Export, SIGNAL(triggered()), this, SLOT(onExportButtonClicked()));
 	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
 			pwdlistModel, SLOT(rowSelected(const QModelIndex &, const QModelIndex &)));
 	connect(pwdlistModel,
@@ -184,6 +191,17 @@ void MainWindow::onDelButtonClicked()
 		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
 	
 	listCurrentModule();
+}
+
+void MainWindow::onImportButtonClicked()
+{
+	showInfoMessageUnderDevelopment();
+}
+
+
+void MainWindow::onExportButtonClicked()
+{
+	showInfoMessageUnderDevelopment();
 }
 
 void MainWindow::setPasswordVisible(bool b)

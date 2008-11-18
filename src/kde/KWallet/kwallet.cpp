@@ -301,7 +301,6 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 		return setPassword(generateItemKey(entry.item).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
 	else
 		return PPK_FALSE;
-	
 }
 
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)

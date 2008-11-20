@@ -43,7 +43,7 @@ void MainWindow::fillModulesBox()
 
 void MainWindow::showInfoMessageUnderDevelopment()
 {
-	QMessageBox::information(this, "PPassKeeper : This is still a development version", "This function has not been implemented yet. \n\nPPassKeeper is still in hard development, so, we do apologize.");
+	QMessageBox::information(this, "PPassKeeper : This is still a development version", "This function has not been implemented yet. \n\nPPassKeeper is still under heavy development, so, we do apologize.");
 }
 
 void MainWindow::setupActions()

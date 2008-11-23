@@ -6,7 +6,7 @@
 PyObject *wrap_getAvailableModulesCount(PyObject *o, PyObject * args)
 {
 	int num = ppk_getAvailableModulesCount();
-	PyObject *result = Py_BuildValue("i", num);
+	PyObject *result = Py_BuildValue("I", num);
 	return result;
 }
 
@@ -37,6 +37,75 @@ PyObject *wrap_moduleAvailable(PyObject *o, PyObject * args)
 	return result;
 }
 
+static void buildEntry(ppk_entry *e, unsigned int type, const char *host, const char *login, unsigned int port, const char *app_name, const char *username, const char *item)
+{
+	switch (type)
+	{
+	case ppk_network:
+		e->type = ppk_network;
+		e->net.host = host;
+		e->net.login = login;
+		e->net.port = port;
+		break;
+	case ppk_application:
+		e->type = ppk_application;
+		e->app.app_name = app_name;
+		e->app.username = username;
+		break;
+	case ppk_item:
+		e->type = ppk_item;
+		e->item = item;
+	};
+}
+
+static void buildData(ppk_data *d, unsigned int data_type, const char *string, const void *blob, unsigned long size)
+{
+	switch (data_type)
+	{
+	case ppk_string:
+		d->type = ppk_string;
+		d->string = string;
+		break;
+	case ppk_blob:
+		d->type = ppk_blob;
+		d->blob.data = blob;
+		d->blob.size = size;
+	}
+}
+
+static PyObject *buildEntryList(const char *module_id, unsigned int entry_types, unsigned int flags)
+{
+	unsigned int nb = ppk_getEntryListCount(module_id, entry_types, flags);
+	ppk_entry entryList[nb];
+	nb = ppk_getEntryList(module_id, entry_types, entryList, nb, flags);
+
+	PyObject *result = PyList_New(nb), *dict;
+	int i;
+	for (i = 0; i < nb; ++i)
+	{
+		dict = PyDict_New();
+		PyDict_SetItemString(dict, "type", Py_BuildValue("I", entryList[i].type));
+		switch (entryList[i].type)
+		{
+		case ppk_network:
+			PyDict_SetItemString(dict, "host", Py_BuildValue("s", entryList[i].net.host));
+			PyDict_SetItemString(dict, "login", Py_BuildValue("s", entryList[i].net.login));
+			PyDict_SetItemString(dict, "port", Py_BuildValue("H", entryList[i].net.port));
+			break;
+		case ppk_application:
+			PyDict_SetItemString(dict, "app_name", Py_BuildValue("s", entryList[i].app.app_name));
+			PyDict_SetItemString(dict, "username", Py_BuildValue("s", entryList[i].app.username));
+			break;
+		case ppk_item:
+			PyDict_SetItemString(dict, "item", Py_BuildValue("s", entryList[i].item));
+			break;
+		}
+		PyList_SetItem(result, i, dict);
+	}
+
+	return result;
+}
+
 PyObject *wrap_getEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 {
 	const char *module_id;
@@ -46,7 +115,7 @@ PyObject *wrap_getEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 	unsigned int port = 0;
 	unsigned int flags = 0;
 	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item", "flags", NULL };
-	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "si|sshsssi", kwlist, &module_id,
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "sI|ssHsssI", kwlist, &module_id,
 			&type, &host, &login, &port, &app_name, &username, &item, &flags);
 	switch (type)
 	{
@@ -68,30 +137,16 @@ PyObject *wrap_getEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 	    PyErr_BadArgument();
 	    return 0;
 	}
-	switch (type)
-	{
-	case ppk_network:
-		entry.type = ppk_network;
-		entry.net.host = host;
-		entry.net.login = login;
-		entry.net.port = port;
-		break;
-	case ppk_application:
-		entry.type = ppk_application;
-		entry.app.app_name = app_name;
-		entry.app.username = username;
-		break;
-	case ppk_item:
-		entry.type = ppk_item;
-		entry.item = item;
-	};
+
+	buildEntry(&entry, type, host, login, port, app_name, username, item);
+
 	ppk_data data;
 
 	if (! ppk_getEntry(module_id, entry, &data, flags))
 		return Py_None;
 	
 	PyObject *result = PyDict_New();
-	PyDict_SetItemString(result, "type", Py_BuildValue("i", data.type));
+	PyDict_SetItemString(result, "type", Py_BuildValue("I", data.type));
 	if (data.type == ppk_string)
 		PyDict_SetItemString(result, "string", Py_BuildValue("s", data.string));
 	else if (data.type == ppk_blob)
@@ -101,7 +156,60 @@ PyObject *wrap_getEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 	return result;
 }
 
-PyObject *wrap_setEntry(PyObject *o, PyObject * args)
+PyObject *wrap_setEntry(PyObject *o, PyObject * args, PyObject * kwargs)
+{
+	const char *module_id;
+	ppk_entry entry;
+	ppk_data data;
+	unsigned int type, data_type;
+	const char *host = 0, *login = 0, *app_name = 0, *username = 0, *item = 0, *string = 0, *blob = 0;
+	int size = 0;
+	unsigned int port = 0;
+	unsigned int flags = 0;
+	static char *kwlist[] = { "module_id", "type", "data_type", "host", "login", "port", "app_name", "username", "item", "string", "blob", "flags", NULL };
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "sII|ssHsssst#I", kwlist, &module_id,
+			&type, &data_type, &host, &login, &port, &app_name, &username, &item, &string, &blob, &size, &flags);
+
+	switch (type)
+	{
+	case ppk_network:
+		ok = ok && host && login && port && ! app_name && ! username && ! item;
+		break;
+	case ppk_application:
+		ok = ok && ! host && ! login && ! port && app_name && username && ! item;
+		break;
+	case ppk_item:
+		ok = ok && ! host && ! login && ! port && ! app_name && ! username && item;
+		break;
+	default:
+		ok = 0;
+	};
+
+	switch (data_type)
+	{
+	case ppk_string:
+		ok = ok && string && ! blob;
+		break;
+	case ppk_blob:
+		ok = ok && blob && size && ! string;
+		break;
+	default:
+		ok = 0;
+	}
+
+	if (! ok)
+	{
+	    PyErr_BadArgument();
+	    return 0;
+	}
+
+	buildEntry(&entry, type, host, login, port, app_name, username, item);
+	buildData(&data, data_type, string, blob, size);
+
+	return (ppk_setEntry(module_id, entry, data, flags)) ? Py_True : Py_False;
+}
+
+PyObject *wrap_removeEntry(PyObject *o, PyObject * args, PyObject * kwargs)
 {
 	const char *module_id;
 	ppk_entry entry;
@@ -109,23 +217,34 @@ PyObject *wrap_setEntry(PyObject *o, PyObject * args)
 	const char *host = 0, *login = 0, *app_name = 0, *username = 0, *item = 0;
 	unsigned int port = 0;
 	unsigned int flags = 0;
-	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item", "flags", NULL };
-	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "si|sshsssi", kwlist, &module_id,
-			&type, &host, &login, &port, &app_name, &username, &item, &flags);
-}
+	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item","flags", NULL };
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "sI|ssHsssI", kwlist, &module_id, &type, &host, &login, &port, &app_name, &username, &item, &flags);
 
-/*
-PyObject *wrap_removeEntry(PyObject *o, PyObject * args)
-{
-	const char *module_id, *server, *username, *pwd;
-	int port;
-	unsigned int flags;
-	int ok = PyArg_ParseTuple(args, "ssissI", &module_id, &server, &port, &username, &pwd, &flags);
-	if (! ok) return 0;
-	int result = ppk_setNetworkPassword(module_id, server, port, username, pwd, flags);
-	return Py_BuildValue("i", result);
+	switch (type)
+	{
+	case ppk_network:
+		ok = ok && host && login && port && ! app_name && ! username && ! item;
+		break;
+	case ppk_application:
+		ok = ok && ! host && ! login && ! port && app_name && username && ! item;
+		break;
+	case ppk_item:
+		ok = ok && ! host && ! login && ! port && ! app_name && ! username && item;
+		break;
+	default:
+		ok = 0;
+	};
+
+	if (! ok)
+	{
+	    PyErr_BadArgument();
+	    return 0;
+	}
+
+	buildEntry(&entry, type, host, login, port, app_name, username, item);
+
+	return (ppk_removeEntry(module_id, entry, flags)) ? Py_True : Py_False;
 }
-*/
 
 PyObject *wrap_isWritable(PyObject *o, PyObject * args)
 {
@@ -143,83 +262,8 @@ PyObject *wrap_securityLevel(PyObject *o, PyObject * args)
 	int ok = PyArg_ParseTuple(args, "s", &module_id);
 	if (! ok) return 0;
 	ppk_security_level result = ppk_securityLevel(module_id);
-	return Py_BuildValue("i", result);
+	return Py_BuildValue("I", result);
 }
-
-/*
-PyObject *wrap_getPasswordListCount(PyObject *o, PyObject * args)
-{
-	const char *module_id;
-	int type, flags;
-	int ok = PyArg_ParseTuple(args, "sii", &module_id, &type, &flags);
-	if (! ok) return 0;
-	int num = ppk_getPasswordListCount(module_id, type, flags);
-	PyObject *result = Py_BuildValue("i", num);
-	return result;
-}
-*/
-
-/*
-PyObject *wrap_getPasswordList(PyObject *o, PyObject * args)
-{
-	const char *module_id;
-	int type, flags;
-
-	int ok = PyArg_ParseTuple(args, "siI", &module_id, &type, &flags);
-	if (! ok) return 0;
-
-	unsigned int pwd_count = ppk_getPasswordListCount(module_id, type, flags);
-	PyObject *result = PyList_New(pwd_count);
-
-	if(type==ppk_network)
-	{
-		struct PPassKeeper_module_entry_net pwds[pwd_count];							//May cause portabilty issues between compilers
-		int num = ppk_getPasswordList(module_id, type, pwds, pwd_count, flags);
-	
-		int i;
-		for (i = 0; i < num && i < pwd_count; i++)
-		{
-			PyObject *module = PyTuple_New(3);
-			PyTuple_SetItem(module, 0, Py_BuildValue("s", pwds[i].host));
-			PyTuple_SetItem(module, 1, Py_BuildValue("s", pwds[i].login));
-			PyTuple_SetItem(module, 2, Py_BuildValue("i", pwds[i].port));
-			PyList_SetItem(result, i, module);
-		}
-	}
-	else if(type==ppk_application)
-	{
-		struct PPassKeeper_module_entry_app pwds[pwd_count];							//May cause portabilty issues between compilers
-		int num = ppk_getPasswordList(module_id, type, pwds, pwd_count, flags);
-	
-		int i;
-		for (i = 0; i < num && i < pwd_count; i++)
-		{
-			PyObject *module = PyTuple_New(2);
-			PyTuple_SetItem(module, 0, Py_BuildValue("s", pwds[i].app_name));
-			PyTuple_SetItem(module, 1, Py_BuildValue("s", pwds[i].username));
-			PyList_SetItem(result, i, module);
-		}
-	}
-	else if(type==ppk_item)
-	{
-		struct PPassKeeper_module_entry_item pwds[pwd_count];							//May cause portabilty issues between compilers
-		int num = ppk_getPasswordList(module_id, type, pwds, pwd_count, flags);
-	
-		int i;
-		for (i = 0; i < num && i < pwd_count; i++)
-		{
-			PyObject *module = PyTuple_New(1);
-			PyTuple_SetItem(module, 0, Py_BuildValue("s", pwds[i].key));
-			PyList_SetItem(result, i, module);
-		}
-	}
-	else
-		return Py_BuildValue("");
-
-
-	return result;
-}
-*/
 
 PyObject *wrap_getLastError(PyObject *o, PyObject * args)
 {
@@ -240,18 +284,111 @@ PyObject *wrap_setCustomPromptMessage(PyObject *o, PyObject * args)
 	return result;
 }
 
+PyObject *wrap_readFlagsAvailable(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	int ok = PyArg_ParseTuple(args, "s", &module_id);
+	if (! ok) return 0;
+	return Py_BuildValue("I", ppk_readFlagsAvailable(module_id));
+}
+
+PyObject *wrap_writeFlagsAvailable(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	int ok = PyArg_ParseTuple(args, "s", &module_id);
+	if (! ok) return 0;
+	return Py_BuildValue("I", ppk_writeFlagsAvailable(module_id));
+}
+
+PyObject *wrap_listingFlagsAvailable(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	int ok = PyArg_ParseTuple(args, "s", &module_id);
+	if (! ok) return 0;
+	return Py_BuildValue("I", ppk_listingFlagsAvailable(module_id));
+}
+
+PyObject *wrap_getEntryListCount(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	unsigned int entry_types, flags;
+	int ok = PyArg_ParseTuple(args, "sII", &module_id, &entry_types, &flags);
+	if (! ok) return 0;
+	return Py_BuildValue("I", ppk_getEntryListCount(module_id, entry_types, flags));
+}
+
+PyObject *wrap_getEntryList(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	unsigned int entry_types, flags;
+	int ok = PyArg_ParseTuple(args, "sII", &module_id, &entry_types, &flags);
+	if (! ok) return 0;
+	return buildEntryList(module_id, entry_types, flags);
+}
+
+PyObject *wrap_entryExists(PyObject *o, PyObject * args, PyObject * kwargs)
+{
+	const char *module_id;
+	ppk_entry entry;
+	unsigned int type;
+	const char *host = 0, *login = 0, *app_name = 0, *username = 0, *item = 0;
+	unsigned int port = 0;
+	unsigned int flags = 0;
+	static char *kwlist[] = { "module_id", "type", "host", "login", "port", "app_name", "username", "item","flags", NULL };
+	int ok = PyArg_ParseTupleAndKeywords(args, kwargs, "sI|ssHsssI", kwlist, &module_id, &type, &host, &login, &port, &app_name, &username, &item, &flags);
+
+	switch (type)
+	{
+	case ppk_network:
+		ok = ok && host && login && port && ! app_name && ! username && ! item;
+		break;
+	case ppk_application:
+		ok = ok && ! host && ! login && ! port && app_name && username && ! item;
+		break;
+	case ppk_item:
+		ok = ok && ! host && ! login && ! port && ! app_name && ! username && item;
+		break;
+	default:
+		ok = 0;
+	};
+
+	if (! ok)
+	{
+	    PyErr_BadArgument();
+	    return 0;
+	}
+
+	buildEntry(&entry, type, host, login, port, app_name, username, item);
+
+	return (ppk_entryExists(module_id, entry, flags)) ? Py_True : Py_False;
+}
+
+PyObject *wrap_maxDataSize(PyObject *o, PyObject * args)
+{
+	const char *module_id;
+	unsigned int data_type;
+	int ok = PyArg_ParseTuple(args, "sI", &module_id, &data_type);
+	if (! ok) return 0;
+	return Py_BuildValue("I", ppk_maxDataSize(module_id, data_type));
+}
+
 static PyMethodDef ppkMethods[] =
 {
 	{"getAvailableModulesCount", wrap_getAvailableModulesCount, METH_NOARGS, ""},
 	{"getAvailableModules", wrap_getAvailableModules, METH_NOARGS, ""},
 	{"moduleAvailable", wrap_moduleAvailable, METH_VARARGS, ""},
+	{"readFlagsAvailable", wrap_readFlagsAvailable, METH_VARARGS, ""},
+	{"writeFlagsAvailable", wrap_writeFlagsAvailable, METH_VARARGS, ""},
+	{"listingFlagsAvailable", wrap_listingFlagsAvailable, METH_VARARGS, ""},
 	{"getEntry", (PyCFunction) wrap_getEntry, METH_VARARGS | METH_KEYWORDS, ""},
-//	{"setEntry", wrap_setEntry, METH_KEYWORDS, ""},
-//	{"removeEntry", wrap_removeEntry, METH_KEYWORDS, ""},
+	{"setEntry", (PyCFunction) wrap_setEntry, METH_VARARGS | METH_KEYWORDS, ""},
+	{"removeEntry", (PyCFunction) wrap_removeEntry, METH_VARARGS | METH_KEYWORDS, ""},
+	{"getEntryListCount", wrap_getEntryListCount, METH_VARARGS, ""},
+	{"getEntryList", wrap_getEntryList, METH_VARARGS, ""},
+	{"entryExists", (PyCFunction) wrap_entryExists, METH_VARARGS | METH_KEYWORDS, ""},
+	{"maxDataSize", wrap_maxDataSize, METH_VARARGS, ""},
 	{"isWritable", wrap_isWritable, METH_VARARGS, ""},
 	{"securityLevel", wrap_securityLevel, METH_VARARGS, ""},
-//	{"getPasswordListCount", wrap_getPasswordListCount, METH_VARARGS, ""},
-//	{"getPasswordList", wrap_getPasswordList, METH_VARARGS, ""},
 	{"getLastError", wrap_getLastError, METH_VARARGS, ""},
 	{"setCustomPromptMessage", wrap_setCustomPromptMessage, METH_VARARGS, ""},
 	{ NULL, NULL }

@@ -83,7 +83,7 @@ extern "C"
 
         typedef struct
         {
-                void *data;
+                const void *data;
                 unsigned long size;
         } ppk_data_blob;
 

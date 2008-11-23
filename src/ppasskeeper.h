@@ -20,17 +20,17 @@ extern "C"
 	} ppk_security_level;
 
 	typedef enum
-    {
-            ppk_network=1,
-            ppk_application=2,
-            ppk_item=4
-    } ppk_entry_type;
+	{
+		ppk_network=1,
+		ppk_application=2,
+		ppk_item=4
+	} ppk_entry_type;
 
 	typedef enum
-    {
-            ppk_string=1,
-            ppk_blob=2
-    } ppk_data_type;
+	{
+		ppk_string=1,
+		ppk_blob=2
+	} ppk_data_type;
 
 	typedef enum {
 		ppk_rf_none=0,
@@ -58,28 +58,28 @@ extern "C"
 	} ppk_module;
 
 	typedef struct
-        {
-                const char* host;          
-                const char* login;         
-                unsigned short int port;   
-        } ppk_entry_net;
+	{
+		const char* host;          
+		const char* login;         
+		unsigned short int port;   
+	} ppk_entry_net;
 
-        typedef struct
-        {
-                const char* app_name;      
-                const char* username;      
-        } ppk_entry_app;                                 
+	typedef struct
+	{
+		const char* app_name;      
+		const char* username;      
+	} ppk_entry_app;                                 
 
-        typedef struct
-        {
-                ppk_entry_type type;
-                union
-                {
-                        ppk_entry_net net;
-                        ppk_entry_app app;
-                        const char *item;
-                };
-        } ppk_entry;
+	typedef struct
+	{
+		ppk_entry_type type;
+		union
+		{
+			ppk_entry_net net;
+			ppk_entry_app app;
+			const char *item;
+		};
+	} ppk_entry;
 
         typedef struct
         {
@@ -87,15 +87,15 @@ extern "C"
                 unsigned long size;
         } ppk_data_blob;
 
-        typedef struct
-        {
-                ppk_data_type type;
-                union
-                {
-                        const char *string;
-                        ppk_data_blob blob;
-                };
-        } ppk_data;
+	typedef struct
+	{
+		ppk_data_type type;
+		union
+		{
+			const char *string;
+			ppk_data_blob blob;
+		};
+	} ppk_data;
 
 
 	/*! \brief Get the count of available modules
@@ -114,30 +114,71 @@ extern "C"
     ppk_boolean ppk_moduleAvailable(const char* module_id);
 
 	
-    /*! \brief returns supported reading flags for a given module
+    /*! \brief Returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/
 	unsigned int ppk_readFlagsAvailable(const char* module_id);
 
-	/*! \brief returns supported writing flags for a given module
+	/*! \brief Returns supported writing flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available read flags. See writeFlag for more information about flags.*/
 	unsigned int  ppk_writeFlagsAvailable(const char* module_id);
 
-	/*! \brief returns supported password listing flags for a given module
+	/*! \brief Returns supported password listing flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available listing flags. See listingFlag for more information about flags.*/
 	unsigned int ppk_listingFlagsAvailable(const char* module_id);
 
+	/*! \brief Get an Entry from a module
+	* \param module_id in: Module's ID.
+	* \param entry in: The entry to get.
+	* \param *edata out: Result will be stored here.
+	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
+	* \return  Returns BTRUE if getEntry worked fine, BFALSE else.*/
 	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);
+	
+	/*! \brief Set an Entry to a module
+	* \param module_id in: Module's ID.
+	* \param entry in: The entry to be set.
+	* \param edata in: What should be stored.
+	* \param flags in: You can specify flags which will change the way the entry will be set. See writeFlag.
+	* \return  Returns BTRUE if setEntry worked fine, BFALSE else.*/
 	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags);
+	
+	/*! \brief Remove an Entry from a module
+	* \param module_id in: Module's ID.
+	* \param entry in: The entry to be removed.
+	* \param flags in: You can specify flags which will change the way the entry will be removed. See writeFlags.
+	* \return  Returns BTRUE if setEntry worked fine, BFALSE else.*/
 	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags);
 
-    unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
-    unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
+	/*! \brief Get the number of entries stored into a module.
+	* \param module_id in: Module's ID.
+	* \param entry_types in: The entry types that should be taken into account.
+	* \param flags in: You can specify flags which will change the way the entry list will be got. See listingFlag.
+	* \return  Returns the number of entries counted.*/
+	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
+	
+	/*! \brief Get entries's name stored into a module.
+	* \param module_id in: Module's ID.
+	* \param entry_types in: The entry types that should be taken into account.
+	* \param entryList out: Entries name will be stored here.
+	* \param nbEntries in: Maximum number of entries to be retrieved.
+	* \param flags in: You can specify flags which will change the way the entry list will be got. See listingFlag.
+	* \return  Returns the number of entries stored into entryList.*/
+	unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
+	/*! \brief Tells whether a module contains a specific entry or not.
+	* \param module_id in: Module's ID.
+	* \param entry in: The entry to be listed.
+	* \param flags in: You can specify flags which will change the way the entry will be removed. See readFlags.
+	* \return  Returns BTRUE if the entry exists, BFALSE else.*/
 	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags);
 	
+	/*! \brief Get the maximum data size a module can handle.
+	* \param module_id in: Module's ID.
+	* \param type in: The type you want to know its maximum data size.
+	* \return  Returns the maximum data size*/
 	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type);
         
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
@@ -176,13 +217,34 @@ extern "C"
 	/*                                                                                                  */
 	/****************************************************************************************************/
 	/****************************************************************************************************/
-	//host, login, app_name and item must be const char* and must last in time
-	ppk_entry createNetworkEntry(const char* host, const char* login, unsigned int port);
-	ppk_entry createAppEntry(const char* app_name, const char* username);
-	ppk_entry createItemEntry(const char* item);
+
+	/*! \brief Generate a Network entry given a host, a login and a port. WARNING : Destroying original variables host and/or login will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
+	* \param host in: The host (example : mupuf.org).
+	* \param login in: The login name (example : mupuf).
+	* \param port in: The service's port (example : 21).
+	* \return  Return the ppk_Entry corresponding to the parameters*/
+	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port);
+	
+	/*! \brief Generate an application entry given a username and an application name. WARNING : Destroying original variables username and/or app_name will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
+	* \param app_name in: The name of the application (example : PPassKeeper).
+	* \param username in: The user name (example : mupuf).
+	* \return  Return the ppk_Entry corresponding to the parameters*/
+	ppk_entry ppk_createAppEntry(const char* app_name, const char* username);
+	
+	/*! \brief Generate an item entry given an item name. WARNING : Destroying original variable item will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
+	* \param item in: The item (example : MyWPAKey).
+	* \return  Return the ppk_Entry corresponding to the parameters*/
+	ppk_entry ppk_createItemEntry(const char* item);
      
-	ppk_data createStringData(const char* string);
-	ppk_data createBlobData(void* data, unsigned long size);
+     /*! \brief Generate a string ppk_data. WARNING : Destroying original variable string will result in data corruption into the created ppk_data as no data are copied in the function (it only uses pointers).  
+	* \param string in: The string to be stored (example : MySecretPassword).
+	* \return  Return the ppk_data corresponding to the parameters*/
+	ppk_data ppk_createStringData(const char* string);
+	
+	/*! \brief Generate a blob ppk_data. WARNING : Destroying original variable data will result in data corruption into the created ppk_data as no data are copied in the function (it only uses pointers).  
+	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
+	* \return  Return the ppk_data corresponding to the parameters*/
+	ppk_data ppk_createBlobData(void* data, unsigned long size);
 
 #ifdef __cplusplus 
 }

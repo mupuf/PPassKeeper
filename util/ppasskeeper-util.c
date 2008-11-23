@@ -178,15 +178,15 @@ int main(int argc, char **argv)
 		if (pwd_type && module_id && key && !password)
 		{
 			if (pwd_type == ppk_item)
-				entry=createItemEntry(key);
+				entry=ppk_createItemEntry(key);
 			else if (pwd_type == ppk_application)
 			{
 				struct app_params p = appParameters();
-				entry=createAppEntry(p.name, p.username);
+				entry=ppk_createAppEntry(p.name, p.username);
 			} else if (pwd_type == ppk_network)
 			{
 				struct net_params p = netParameters();
-				entry=createNetworkEntry(p.server, p.username, p.port);
+				entry=ppk_createNetworkEntry(p.server, p.username, p.port);
 			} else {
 				//shouldn't happen
 				return 1;
@@ -244,15 +244,15 @@ int main(int argc, char **argv)
 			if (errno == ENXIO) return 1;
 		}
 		if (pwd_type == ppk_item)
-			entry=createItemEntry(key);
+			entry=ppk_createItemEntry(key);
 		else if (pwd_type == ppk_application)
 		{
 			struct app_params p = appParameters();
-			entry=createAppEntry(p.name, p.username);
+			entry=ppk_createAppEntry(p.name, p.username);
 		} else if (pwd_type == ppk_network)
 		{
 			struct net_params p = netParameters();
-			entry=createNetworkEntry(p.server, p.username, p.port);
+			entry=ppk_createNetworkEntry(p.server, p.username, p.port);
 		}
 		
 		ppk_data edata;

@@ -86,20 +86,20 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	if (cur_type == ppk_application)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
-				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
+				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_network)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
-				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
+				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_item)
 	{
 		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				createItemEntry(cur_item.key.toLocal8Bit().constData()),
-				createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+				ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()),
+				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
 	}
 }
 
@@ -122,7 +122,7 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetAppEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
 					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
 			}
@@ -136,7 +136,7 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetNetworkEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
 					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
 			}
@@ -150,7 +150,7 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetItemEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
 					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
 			}
@@ -174,17 +174,17 @@ void MainWindow::onDelButtonClicked()
 	if (cur_type == ppk_application)
 	{
 		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()), 0);
+				ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()), 0);
 	}
 	else if (cur_type == ppk_network)
 	{
 		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port), 0);
+				ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port), 0);
 	}
 	else if (cur_type == ppk_item)
 	{
 		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				createItemEntry(cur_item.key.toLocal8Bit().constData()), 0);
+				ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()), 0);
 	}
 	
 	if(!res)
@@ -219,19 +219,19 @@ void MainWindow::setPasswordVisible(bool b)
 		if (cur_type == ppk_application)
 		{
 			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
+					ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
 					&data, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
 			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
+					ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
 					&data, 0);
 		}
 		else if (cur_type == ppk_item)
 		{
 			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					createItemEntry(cur_item.key.toLocal8Bit().constData()),
+					ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()),
 					&data, 0);
 		}
 		

@@ -175,7 +175,7 @@ extern "C"
 	/*                                                                                                  */
 	/****************************************************************************************************/
 	/****************************************************************************************************/
-	ppk_entry createNetworkEntry(const char* host, const char* login, unsigned int port)
+	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port)
 	{
 		ppk_entry entry;
 		entry.type=ppk_network;
@@ -185,7 +185,7 @@ extern "C"
 		return entry;
 	}
 	
-     ppk_entry createAppEntry(const char* app_name, const char* username)
+     ppk_entry ppk_createAppEntry(const char* app_name, const char* username)
      {
 		ppk_entry entry;
 		entry.type=ppk_application;
@@ -194,7 +194,7 @@ extern "C"
 		return entry;
 	}
 	
-     ppk_entry createItemEntry(const char* item)
+     ppk_entry ppk_createItemEntry(const char* item)
      {
 		ppk_entry entry;
 		entry.type=ppk_item;
@@ -202,7 +202,7 @@ extern "C"
 		return entry;
 	}
 	
-	ppk_data createStringData(const char* string)
+	ppk_data ppk_createStringData(const char* string)
 	{
 		ppk_data data;
 		data.type=ppk_string;
@@ -210,7 +210,7 @@ extern "C"
 		return data;
 	}
 	
-	ppk_data createBlobData(void* data, unsigned long size)
+	ppk_data ppk_createBlobData(void* data, unsigned long size)
 	{
 		ppk_data edata;
 		edata.type=ppk_blob;

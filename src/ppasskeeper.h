@@ -1,50 +1,86 @@
 #ifndef PPASSWORDKEEPER_H
 #define PPASSWORDKEEPER_H
 //
+
+/**
+ * \file ppasskeeper.h
+ * \author MùPùF
+ * \date 11-23-2008
+ */
+ 
+ 
 #ifdef __cplusplus 
 extern "C"
 {
 #endif
-	//Create some enums
+
+	///Boolean 
 	typedef enum
 	{
-		PPK_FALSE=0,PPK_TRUE=1
+		///FALSE
+		PPK_FALSE=0,
+		///TRUE
+		PPK_TRUE=1
 	} ppk_boolean;
 
+	///Security Level
 	typedef enum
 	{
-		ppk_sec_lowest=0,		//Example: Stored in a plain-text file
-		ppk_sec_scrambled=1,		//Example: Stored in a poorly-encrypted file
-		ppk_sec_safe=2,			//Example: Keyrings/Wallets
-		ppk_sec_perfect=3		//Example: Prompt users to key-in their password
+		///Lowest (eg Stored in a plain-text file)
+		ppk_sec_lowest=0,
+		///Scrambled (eg Stored in a poorly-encrypted file)
+		ppk_sec_scrambled=1,
+		///Safe (eg Keyrings/Wallets)	
+		ppk_sec_safe=2,		
+		///Perfect (eg Prompt users to key-in their password)	
+		ppk_sec_perfect=3
 	} ppk_security_level;
 
+	///Entry type
 	typedef enum
 	{
+		///Network
 		ppk_network=1,
+		
+		///Application
 		ppk_application=2,
+		
+		///Item
 		ppk_item=4
 	} ppk_entry_type;
 
+	///Data type
 	typedef enum
 	{
+		///String
 		ppk_string=1,
+		
+		///Binary
 		ppk_blob=2
 	} ppk_data_type;
 
+	///Reading flags
 	typedef enum {
+		///Retrieve the password by the default way
 		ppk_rf_none=0,
-		ppk_rf_silent=1			//Will retrieve the password silently or abort, but won't prompt anything to users
+		///Will retrieve the password silently or abort, but won't prompt anything to users
+		ppk_rf_silent=1
 	} ppk_readFlag;
 
+	///Writing flags
 	typedef enum {
+		///Retrieve the password by the default way
 		ppk_wf_none=0,
-		ppk_wf_silent=1			//Will save the password silently or abort, but won't prompt anything to users
+		///Will retrieve the password silently or abort, but won't prompt anything to users
+		ppk_wf_silent=1
 	} ppk_writeFlag;
 
+	///Listing flags
 	typedef enum {
+		///Retrieve the password by the default way
 		ppk_lf_none=0,
-		ppk_lf_silent=1			//Will list passwords silently or abort, but won't prompt anything to users
+		///Will retrieve the password silently or abort, but won't prompt anything to users
+		ppk_lf_silent=1
 	} ppk_listingFlag;
 
 	///Module's definition
@@ -57,42 +93,62 @@ extern "C"
 		const char* display_name;
 	} ppk_module;
 
+	///Definition of a Network entry (login\@host:port)
 	typedef struct
 	{
-		const char* host;          
-		const char* login;         
+		///Host name of the service
+		const char* host;      
+		///Login
+		const char* login;    
+		///Port of the service
 		unsigned short int port;   
 	} ppk_entry_net;
 
+	///Definition of an Application entry (username\@app_name)
 	typedef struct
 	{
-		const char* app_name;      
+		///Application's name
+		const char* app_name;     
+		///Username 
 		const char* username;      
 	} ppk_entry_app;                                 
 
+	///Definition of what is an entry, it is basically composed a type and then the right structure depending on the type
 	typedef struct
 	{
+		///Entry type
 		ppk_entry_type type;
+		
 		union
 		{
+			///Network entry
 			ppk_entry_net net;
+			///Application entry
 			ppk_entry_app app;
+			///Item entry, it is actually just a string
 			const char *item;
 		};
 	} ppk_entry;
 
-        typedef struct
-        {
-                const void *data;
-                unsigned long size;
-        } ppk_data_blob;
-
+	///Definition of what a blob is (basically just binary data)
 	typedef struct
 	{
+		///A pointer
+		const void *data;
+		///And the size of the memory zone to store
+		unsigned long size;
+	} ppk_data_blob;
+
+	///Definition of what a storable data is (Basically, binary or string data)
+	typedef struct
+	{
+		///The type
 		ppk_data_type type;
 		union
 		{
+			///Basic text
 			const char *string;
+			///Binary value
 			ppk_data_blob blob;
 		};
 	} ppk_data;
@@ -104,13 +160,13 @@ extern "C"
 
 	/*! \brief Get a list of available modules
 	* \param modules out: Array of PPassKeeper_Module that will store the list of modules.
-	* \param y in: Size of the array modules.
+	* \param nbModules in: Size of the array modules.
 	* \return  Return the count of available modules*/
 	unsigned int ppk_getAvailableModules(ppk_module* modules, unsigned int nbModules); //returns the number of modules
 
 	/*! \brief Tells whether a module is available or not given its ID
 	* \param module_id in: Module's ID.
-	* \return  Return BTRUE if the module is available, BFALSE else.*/
+	* \return  Return PPK_TRUE if the module is available, PPK_FALSE else.*/
     ppk_boolean ppk_moduleAvailable(const char* module_id);
 
 	
@@ -134,7 +190,7 @@ extern "C"
 	* \param entry in: The entry to get.
 	* \param *edata out: Result will be stored here.
 	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
-	* \return  Returns BTRUE if getEntry worked fine, BFALSE else.*/
+	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.*/
 	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);
 	
 	/*! \brief Set an Entry to a module
@@ -142,14 +198,14 @@ extern "C"
 	* \param entry in: The entry to be set.
 	* \param edata in: What should be stored.
 	* \param flags in: You can specify flags which will change the way the entry will be set. See writeFlag.
-	* \return  Returns BTRUE if setEntry worked fine, BFALSE else.*/
+	* \return  Returns PPK_TRUE if setEntry worked fine, PPK_FALSE else.*/
 	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags);
 	
 	/*! \brief Remove an Entry from a module
 	* \param module_id in: Module's ID.
 	* \param entry in: The entry to be removed.
 	* \param flags in: You can specify flags which will change the way the entry will be removed. See writeFlags.
-	* \return  Returns BTRUE if setEntry worked fine, BFALSE else.*/
+	* \return  Returns PPK_TRUE if setEntry worked fine, PPK_FALSE else.*/
 	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags);
 
 	/*! \brief Get the number of entries stored into a module.
@@ -172,7 +228,7 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param entry in: The entry to be listed.
 	* \param flags in: You can specify flags which will change the way the entry will be removed. See readFlags.
-	* \return  Returns BTRUE if the entry exists, BFALSE else.*/
+	* \return  Returns PPK_TRUE if the entry exists, PPK_FALSE else.*/
 	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags);
 	
 	/*! \brief Get the maximum data size a module can handle.
@@ -184,7 +240,7 @@ extern "C"
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
 	/* but some modules just allow you to key-in your password. For these modules, you are the keeper.
 	* \param module_id in: Module's ID.
-	* \return  Return BTRUE if the module is writable, BFALSE else.*/
+	* \return  Return PPK_TRUE if the module is writable, PPK_FALSE else.*/
 	ppk_boolean ppk_isWritable(const char* module_id);
 
 	/*! \brief How secure is the module ?
@@ -206,7 +262,7 @@ extern "C"
 	/*! \brief Allow to change the default password prompt message and replace it by your own.
 	* \param module_id in: Module's ID.
 	* \param customMessage in: Message to be used
-	* \return  Return BTRUE if the module is compatible with changing the prompt message, BFALSE else.*/
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage);
 	
 	

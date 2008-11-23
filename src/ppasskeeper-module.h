@@ -6,7 +6,7 @@
 #include <string>
 
 /**
- * \file ppasskeeper-module
+ * \file ppasskeeper-module.h
  * \author MùPùF
  * \date 09-14-2008
  */
@@ -71,13 +71,13 @@ extern "C"
 
 	
 	/*
-	This function returns the number of passwords of the type 'type' currently stored by the module.
+	
 	Flags can be passed to the module
 	*/
 	typedef unsigned int (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
 
 	/*
-	This function fills the structure of type 'type' and given into pwdList that has a size of maxModuleCount.
+	
 	Flags can be passed to the module
 	*/
 	typedef unsigned int (*_getEntryList)(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);

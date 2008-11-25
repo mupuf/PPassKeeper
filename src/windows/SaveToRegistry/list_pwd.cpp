@@ -135,7 +135,7 @@ unsigned int ListPwd::updateDataBase(const char* baseKey, unsigned int entry_typ
 			DWORD nameSize=sizeof(name)-1;
 			res=RegEnumValue(hk, i, name, &nameSize, 0, 0, NULL, NULL);
 
-			if(parseFileName(name, entry_types, flags))
+			if(res==ERROR_SUCCESS && parseFileName(name, entry_types, flags))
 				pwdCount++;
 				
 			i++;

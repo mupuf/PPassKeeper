@@ -22,9 +22,9 @@ std::string base64_enc(const std::string &str)
 	while (len - i >= 3)
 	{
 		g2[0] = str[i] >> 2;
-		g2[1] = ((str[i] & 0b00000011) << 4) | str[i + 1] >> 4;
-		g2[2] = ((str[i + 1] & 0b00001111) << 2) | str[i + 2] >> 6;
-		g2[3] = str[i + 2] & 0b00111111;
+		g2[1] = ((str[i] & 0x3 /* 0b00000011 */) << 4) | str[i + 1] >> 4;
+		g2[2] = ((str[i + 1] & 0xf /* 0b00001111 */) << 2) | str[i + 2] >> 6;
+		g2[3] = str[i + 2] & 0x3f /* 0b00111111 */;
 
 		base64_enc_group(g2, result, j);
 
@@ -37,13 +37,13 @@ std::string base64_enc(const std::string &str)
 		if (left == 2)
 		{
 			g2[0] = str[i] >> 2;
-			g2[1] = ((str[i] & 0b00000011) << 4) | str[i + 1] >> 4;
-			g2[2] = ((str[i + 1] & 0b00001111) << 2);
+			g2[1] = ((str[i] & 0x3 /* 0b00000011 */) << 4) | str[i + 1] >> 4;
+			g2[2] = ((str[i + 1] & 0xf /* b00001111 */) << 2);
 			base64_enc_group(g2, result, j, 3);
 		} else {
 			//left == 1
 			g2[0] = str[i] >> 2;
-			g2[1] = (str[i] & 0b00000011) << 4;
+			g2[1] = (str[i] & 0x3 /* 0b00000011 */) << 4;
 			base64_enc_group(g2, result, j, 2);
 		}
 	}
@@ -63,12 +63,12 @@ void base64_dec_group(unsigned char *g, std::string &result, int startpos)
 		else g2[i] = g[i] - '0' + 52;
 	}
 
-	result[startpos] = g2[0] << 2 | ((g2[1] & 0b110000) >> 4);
+	result[startpos] = g2[0] << 2 | ((g2[1] & 0x30 /* 0b110000 */) >> 4);
 	if (g[2] != '=')
 	{
-		result[startpos + 1] = ((g2[1] & 0b001111) << 4) | ((g2[2] & 0b111100) >> 2);
+		result[startpos + 1] = ((g2[1] & 0xf /* 0b001111 */) << 4) | ((g2[2] & 0x3c /* 0b111100 */) >> 2);
 		if (g[3] != '=')
-			result[startpos + 2] = ((g2[2] & 0b000011) << 6) | g2[3];
+			result[startpos + 2] = ((g2[2] & 0x3 /* 0b000011 */) << 6) | g2[3];
 	}
 }
 

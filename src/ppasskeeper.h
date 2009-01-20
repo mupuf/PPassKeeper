@@ -8,6 +8,7 @@
  * \date 11-23-2008
  */
  
+#include <wchar.h>
  
 #ifdef __cplusplus 
 extern "C"
@@ -153,6 +154,18 @@ extern "C"
 		};
 	} ppk_data;
 
+	/*! \brief Returns whether the library is locked, waiting for the right password, or not
+	* \return PPK_TRUE is the library is locked, PPK_FALSE else */
+	ppk_boolean ppk_isLocked();
+	
+	/*! \brief Lock the library with the given password.
+	 * \param [in] pwd The password that will lock the library
+	* \return PPK_TRUE is the library has been locked with the password, PPK_FALSE else */
+	ppk_boolean ppk_setPassword(wchar_t* pwd);
+	
+	/*! \brief Try to unlock the library using the right password
+	* \return PPK_TRUE is the library is unlocked, PPK_FALSE else */
+	ppk_boolean ppk_unlock(wchar_t* password);
 
 	/*! \brief Get the count of available modules
 	* \return Return the count of available modules */

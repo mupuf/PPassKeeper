@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QInputDialog>
 #include <sstream>
+#include <ppasskeeper.h>
 
 MainWindow::MainWindow()
 	: QMainWindow(),
@@ -12,6 +13,9 @@ MainWindow::MainWindow()
 
 	pwdlistModel = new PasswordListModel(this);
 	pwdlistView->setModel(pwdlistModel);
+	
+	//ppk_setPassword(L"Je suis mupuf");
+	//ppk_unlock(L"Je suis mupuf");
 
 	setupActions();
 

@@ -164,6 +164,7 @@ extern "C"
 	ppk_boolean ppk_setPassword(wchar_t* pwd);
 	
 	/*! \brief Try to unlock the library using the right password
+	 * \param [in] password The password to try to unlock the library
 	* \return PPK_TRUE is the library is unlocked, PPK_FALSE else */
 	ppk_boolean ppk_unlock(wchar_t* password);
 

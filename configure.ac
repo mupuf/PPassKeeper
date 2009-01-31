@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
+AC_INIT(PPassKeeper, 1.0, http://ppasskeeper.mupuf.org)
 AC_CONFIG_SRCDIR([src/tokenizer.h])
 AC_CONFIG_HEADERS([config.h])
 
@@ -39,6 +39,7 @@ AC_ARG_ENABLE(plugins, [  --disable-plugins  do not build any plugins], [arg_plu
 AC_ARG_ENABLE(gtk,     [  --disable-gtk      do not build the GTK plugin (autodetect)], [arg_gtk=$enableval])
 AC_ARG_ENABLE(qt,      [  --disable-qt       do not build the Qt plugin  (autodetect)], [arg_qt=$enableval])
 AC_ARG_ENABLE(kde,     [  --disable-kde      do not build the KDE plugin (autodetect)], [arg_kde=$enableval])
+AC_ARG_ENABLE(gnome,   [  --disable-gnome    do not build the GNOME plugin (autodetect)], [arg_gnome=$enableval])
 AC_ARG_ENABLE(win32,   [  --disable-win32    do not build the WIN32 plugins (autodetect)], [arg_win32=$enableval])
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
 AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
@@ -79,6 +80,7 @@ if test "x$arg_plugins" = "xno"; then
   arg_gtk=no
   arg_qt=no
   arg_kde=no
+  arg_gnome=no
   arg_stf=no
 fi
 
@@ -167,6 +169,25 @@ fi
 
 AM_CONDITIONAL([BUILD_UTIL], [test "x$arg_util" != "xno"])
 
+
+
+if test "x$arg_gnome" = "xno"; then
+  AM_CONDITIONAL([GKEYRING_FOUND], [false])
+else
+  GTK_REQUIRED=2.6.0
+  LIBGLADE_REQUIRED=2.0.0
+  LIBGNOMEUI_REQUIRED=2.6.0
+  GNOME_KEYRING_REQUIRED=0.3.2
+
+  PKG_CHECK_MODULES([GNOME_KEYRING],
+                  [gtk+-2.0 >= $GTK_REQUIRED             		
+                  libglade-2.0 >= $LIBGLADE_REQUIRED       	
+                  libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED
+		  gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED],
+		  [GKEYRING_FOUND="yes"], [echo "The gnome-keyring is not available])
+  AM_CONDITIONAL([GKEYRING_FOUND], [test "x$GKEYRING_FOUND" = "xyes"])
+fi
+
 if test "x$arg_python" = "xno" -o "x$arg_util" = "xno"; then
   AM_CONDITIONAL([BUILD_PPKLIB], [test "x$arg_ppklib" != "xno"])
 else
@@ -182,6 +203,8 @@ src/qt/Makefile
 src/qt/Ask_For_Pass/Makefile
 src/kde/Makefile
 src/kde/KWallet/Makefile
+src/gnome/Makefile
+src/gnome/GKeyring/Makefile
 src/portable/Makefile
 src/portable/SaveToFile/Makefile
 src/portable/SaveToFile/encrypted/Makefile
@@ -218,6 +241,7 @@ echo "Enabled optional modules :"
 echo "-------------------------------------------"
 echo -n "gtk : " ; test -z "$GTK2_FOUND" && echo "no" || echo "$GTK2_FOUND"
 echo -n "kde : " ; test -z "$KDE4_INCLUDES" && echo "no" || echo "yes"
+echo -n "gnome : " ; test -z "$GKEYRING_FOUND" && echo "no" || echo "yes"
 echo -n "qt  : " ; echo "$BUILD_QT"
 echo -n "save_to_file : " ; test "x$arg_stf" = "xno" && echo "no" || echo "yes"
 echo -n "win32 : " ; test -z "$WINDOWS_FOUND" && echo "no" || echo "$WINDOWS_FOUND"

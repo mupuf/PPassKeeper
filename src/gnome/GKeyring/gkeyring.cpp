@@ -69,10 +69,10 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 {
 	if(entry.type == ppk_network)
 		return getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags)==1?PPK_TRUE:PPK_FALSE;
-	/*else if(entry.type == ppk_application)
-		return passwordExists(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return getApplicationPassword(entry.app.app_name, entry.app.username, edata, flags)==1?PPK_TRUE:PPK_FALSE;
 	else if(entry.type == ppk_item)
-		return passwordExists(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;*/
+		return getItem(entry.item, edata, flags)==1?PPK_TRUE:PPK_FALSE;
 	else
 		return PPK_FALSE;
 }
@@ -81,10 +81,10 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 {
 	if(entry.type == ppk_network)
 		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags)==1?PPK_TRUE:PPK_FALSE;
-	/*else if(entry.type == ppk_application)
-		return passwordExists(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
+	else if(entry.type == ppk_application)
+		return setApplicationPassword(entry.app.app_name, entry.app.username, edata, flags)==1?PPK_TRUE:PPK_FALSE;
 	else if(entry.type == ppk_item)
-		return passwordExists(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;*/
+		return setItem(entry.item, edata, flags)==1?PPK_TRUE:PPK_FALSE;
 	else
 		return PPK_FALSE;
 }

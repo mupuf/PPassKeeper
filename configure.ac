@@ -44,6 +44,8 @@ AC_ARG_ENABLE(win32,   [  --disable-win32    do not build the WIN32 plugins (aut
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
 AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
 
+PKG_CHECK_MODULES([ELEKTRA], [elektra])
+
 case "$host" in
   *mingw*)
     HAVE_CHMOD=

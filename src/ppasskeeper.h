@@ -9,6 +9,9 @@
  */
  
 #include <wchar.h>
+
+///Maximum size of saved parameters
+#define PPK_PARAM_MAX 4096
  
 #ifdef __cplusplus 
 extern "C"
@@ -315,6 +318,9 @@ extern "C"
 	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data ppk_createBlobData(void* data, unsigned long size);
+
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
+	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
 
 #ifdef __cplusplus 
 }

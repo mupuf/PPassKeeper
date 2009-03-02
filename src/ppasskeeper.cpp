@@ -2,7 +2,11 @@
 #include "ppasskeeper-module.h"
 #include "ppk_modules.h"
 #include <iostream>
+#include <sstream>
 #include <string.h>
+
+//libelektra
+#include <kdb.h>
 
 #include "sha512.h"
 
@@ -392,4 +396,64 @@ extern "C"
 		edata.blob.size=size;
 		return edata;
 	}
+}
+
+static std::string elektraKeyName(const char* module_id, const char* key)
+{
+	std::ostringstream keyName;
+	keyName << "ppasskeeper/" << module_id << '/' << key;
+	return keyName.str();
+}
+
+ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
+{
+	ckdb::KDB* handle;
+	if ((handle = ckdb::kdbOpen()) == NULL)
+	{
+		perror("kdbOpen");
+		return PPK_FALSE;
+	}
+
+	ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, value, KEY_END);
+
+	ppk_boolean r;
+	if (k == NULL)
+	{
+		std::cerr << "Invalid parameter name" << std::endl;
+		r = PPK_FALSE;
+	}
+	else
+	{
+		int err = ckdb::kdbSetKey(handle, k);
+		ckdb::keyDel(k);
+
+		if (err == 0)
+			r = PPK_TRUE;
+		else
+		{
+			perror("kbdSetKey");
+			r = PPK_FALSE;
+		}
+	}
+
+	if (ckdb::kdbClose(handle) != 0)
+		perror("kdbClose");
+	return r;
+}
+
+ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+{
+	ckdb::KDB* handle;
+	if ((handle = ckdb::kdbOpen()) == NULL)
+	{
+		perror("kdbOpen");
+		return PPK_FALSE;
+	}
+
+	int err = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, maxSize);
+	ppk_boolean r = (err == 0) ? PPK_TRUE : PPK_FALSE;
+
+	if (ckdb::kdbClose(handle) != 0)
+		perror("kdbClose");
+	return r;
 }

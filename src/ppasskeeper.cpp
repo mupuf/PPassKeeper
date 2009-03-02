@@ -451,6 +451,10 @@ ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedS
 	}
 
 	int err = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, maxSize);
+
+	//avoid potential buffer overflows
+	returnedString[maxSize - 1] = '\0';
+
 	ppk_boolean r = (err == 0) ? PPK_TRUE : PPK_FALSE;
 
 	if (ckdb::kdbClose(handle) != 0)

@@ -136,6 +136,8 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
+ELEKTRA_CFLAGS = @ELEKTRA_CFLAGS@
+ELEKTRA_LIBS = @ELEKTRA_LIBS@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GNOME_KEYRING_CFLAGS = @GNOME_KEYRING_CFLAGS@
@@ -260,13 +262,13 @@ top_srcdir = @top_srcdir@
 SUBDIRS = gtk qt kde gnome portable windows
 @BUILD_PPKLIB_TRUE@lib_LTLIBRARIES = libppasskeeper.la
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_SOURCES = ppasskeeper.cpp ppasskeeper-module.h ppasskeeper.h settings.h tokenizer.h ppk_modules.h ppk_modules.cpp sha512.c ppasskeeper-dir.cpp
-@BUILD_PPKLIB_TRUE@libppasskeeper_la_LIBADD = @LIBADD_DLOPEN@
+@BUILD_PPKLIB_TRUE@libppasskeeper_la_LIBADD = @LIBADD_DLOPEN@ @ELEKTRA_LIBS@
 @BUILD_PPKLIB_TRUE@libppasskeeper_la_LDFLAGS = -no-undefined -version-info 1:0:0
 @BUILD_PPKLIB_TRUE@library_includedir = $(includedir)
 @BUILD_PPKLIB_TRUE@library_include_HEADERS = ppasskeeper.h
 @BUILD_PPKLIB_TRUE@pkgconfigdir = $(libdir)/pkgconfig
 @BUILD_PPKLIB_TRUE@pkgconfig_DATA = ppasskeeper.pc
-@BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\" @DEBUG_CPPFLAG@
+@BUILD_PPKLIB_TRUE@AM_CPPFLAGS = -DDIRECTORY_PATH=\"@DLLIBDIR@\" @DEBUG_CPPFLAG@ @ELEKTRA_CFLAGS@
 all: all-recursive
 
 .SUFFIXES:

@@ -12,5 +12,6 @@ extern "C" int getApplicationPassword(const char* appName, const char* user, ppk
 extern "C" int setItem(const char* item, const ppk_data edata, unsigned int flags);
 extern "C" int getItem(const char* item, ppk_data *edata, unsigned int flags);
 
+extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
 #endif

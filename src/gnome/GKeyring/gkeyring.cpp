@@ -47,7 +47,7 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
+/*extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
 	if(false)
 	{
@@ -63,7 +63,7 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	}
 	else
 		return 0;
-}
+}*/
 
 extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
@@ -118,12 +118,13 @@ std::string* last_error()
 	return &last_err;
 }
 
-void setError(std::string error)
-{
-	*(last_error())= getModuleID() + toString(" : ") + error;
-}
-
 extern "C" const char* getLastError()
 {
 	return last_error()->c_str();
+}
+
+extern "C" void setError(char* error)
+{
+	*(last_error())= getModuleID() + toString(" : ") + error;
+	std::cerr << getLastError() << std::endl;
 }

@@ -3,6 +3,7 @@
 #include "ppk_modules.h"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 #include <string.h>
 
 //libelektra
@@ -401,7 +402,7 @@ extern "C"
 static std::string elektraKeyName(const char* module_id, const char* key)
 {
 	std::ostringstream keyName;
-	keyName << "ppasskeeper/" << module_id << '/' << key;
+	keyName << "user/ppasskeeper/" << module_id << '/' << key;
 	return keyName.str();
 }
 

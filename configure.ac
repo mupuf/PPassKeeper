@@ -224,6 +224,7 @@ src/portable/SaveToFile/plain_text/Makefile
 src/windows/Makefile
 src/windows/Ask_For_Pass/Makefile
 src/windows/SaveToRegistry/Makefile
+src/webdav/Makefile
 src/ppasskeeper.pc
 python/Makefile
 util/Makefile

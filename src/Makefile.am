@@ -1,4 +1,4 @@
-SUBDIRS = gtk qt kde gnome portable windows
+SUBDIRS = gtk qt kde gnome portable windows webdav
 
 if BUILD_PPKLIB
   lib_LTLIBRARIES = libppasskeeper.la

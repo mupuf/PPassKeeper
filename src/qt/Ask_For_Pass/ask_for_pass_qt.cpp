@@ -8,7 +8,7 @@ std::string* last_error()
 	static std::string last_err;
 	return &last_err;
 }
-bool QT_Get_Password(std::string title, std::string label, std::string& pwd);
+bool Qt_Get_Password(std::string title, std::string label, std::string& pwd);
 void setError(std::string error)
 {
 	*(last_error())="PPK_Ask_For_Pass_Qt : " + error;
@@ -17,12 +17,12 @@ void setError(std::string error)
 //functions
 extern "C" const char* getModuleID()
 {
-	return "Ask_For_Pass_QT";
+	return "Ask_For_Pass_Qt";
 }
 
 extern "C" const char* getModuleName()
 {
-	return "Ask for the password through a QT window";
+	return "Ask for the password through a Qt window";
 }
 
 extern "C" const int getABIVersion()
@@ -80,7 +80,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		else if(entry.type==ppk_item)
 			text="this key("+toString(entry.item)+")";
 		
-		bool res=QT_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
+		bool res=Qt_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
 		if(res)
@@ -162,7 +162,7 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 
 #include <qstring.h>
 
-bool QT_Get_Password(std::string title, std::string label, std::string& pwd)
+bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
 {
 	bool ok;
 

@@ -156,6 +156,8 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 
 			//optionnal
 			tm.setCustomPromptMessage=(_setCustomPromptMessage)loadSymbol(dlhandle, "setCustomPromptMessage");
+			tm.constructor=(_constructor)loadSymbol(dlhandle, "constructor");
+			tm.destructor=(_destructor)loadSymbol(dlhandle, "destructor");
 
 		#ifdef DEBUG_MSG
 			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
@@ -182,6 +184,10 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 				//Get the ID of the library
 				tm.id=(tm.getModuleID)();
 				tm.display_name=(tm.getModuleName)();
+				
+				//Call its constructor
+				if(tm.constructor)
+					tm.constructor();
 
 				//Copy it into the modules list if it doesn't already exist
 				if(getModuleByID(tm.id)==NULL)
@@ -212,6 +218,17 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 PPK_Modules::PPK_Modules()
 {
 	loadPlugins();
+}
+
+PPK_Modules::~PPK_Modules()
+{
+	//Call the destructor on every module
+	std::map<std::string, _module>::iterator iter;   
+	for( iter = modules.begin(); iter != modules.end(); iter++ )
+	{
+		if(iter->second.destructor)
+			iter->second.destructor();
+	}
 }
 
 unsigned int PPK_Modules::size()

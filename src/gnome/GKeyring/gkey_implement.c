@@ -50,6 +50,16 @@ GnomeKeyringPasswordSchema item = {
  *                                                  *
  * **************************************************/
 
+void constructor(void)
+{
+	g_set_application_name("ppk_gkeyring");
+}
+
+void destructor(void)
+{
+	
+}
+
 ppk_boolean comparePwdSchema(GnomeKeyringPasswordSchema* a, GnomeKeyringPasswordSchema* b)
 {
 	if(a->item_type==b->item_type)
@@ -75,8 +85,6 @@ ppk_boolean comparePwdSchema(GnomeKeyringPasswordSchema* a, GnomeKeyringPassword
 
 ppk_boolean createPpkKeyring(const char* keyring_name)
 {
-	g_set_application_name("ppk_gkeyring");
-	
 	//Create the keyring and let the user enter his password for it
 	GnomeKeyringResult res=gnome_keyring_create_sync(keyring_name, NULL);
 	

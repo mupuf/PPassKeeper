@@ -14,4 +14,5 @@ extern "C" int getItem(const char* item, ppk_data *edata, unsigned int flags);
 
 extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
+extern "C" void constructor(void);
 #endif

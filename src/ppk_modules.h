@@ -17,6 +17,7 @@ class PPK_Modules
 
 	public:
 		PPK_Modules();
+		~PPK_Modules();
 	
 		unsigned int size();
 		unsigned int getModulesList(ppk_module* pmodules, unsigned int ModulesCount);

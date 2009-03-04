@@ -104,6 +104,18 @@ extern "C"
 	*/
 	typedef ppk_boolean (*_setCustomPromptMessage)(const char* customMessage);
 
+	/*
+	Function that will be called when the module is loaded
+	return : void
+	*/
+	typedef void (*_constructor)(void);
+	
+	/*
+	Function that will be called when the module is unloaded
+	return : void
+	*/
+	typedef void (*_destructor)(void);
+
 	struct _module
 	{
 		void* dlhandle;
@@ -128,6 +140,8 @@ extern "C"
 		
 		//Optionnal
 		_setCustomPromptMessage setCustomPromptMessage;
+		_constructor constructor;
+		_destructor destructor;
 	};
 #ifdef __cplusplus 
 }

@@ -162,6 +162,67 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 
 #include <qstring.h>
 
+#include <qdialog.h>
+#include <qboxlayout.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qdialogbuttonbox.h>
+#include <qstyle.h>
+
+class PasswordDialog : public QDialog
+{
+public:
+	static bool getPassword(const std::string &title, const std::string &label, std::string &pwd)
+	{
+		PasswordDialog dialog(title, label);
+		bool ok = dialog.exec() == QDialog::Accepted;
+		pwd=dialog.pwdEdit->text().toStdString();
+		return ok;
+	}
+
+private:
+	PasswordDialog(const std::string &title, const std::string &label) : QDialog()
+	{
+		setWindowTitle(QString::fromStdString(title));
+
+		QVBoxLayout *layout = new QVBoxLayout;
+
+		QString qlabel = QString::fromStdString(label);
+		qlabel.prepend("<b>");
+		qlabel.append("</b>");
+
+		QHBoxLayout *hlayout = new QHBoxLayout;
+		QLabel *iconLabel = new QLabel;
+		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		iconLabel->setPixmap(qApp->style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(64, 64));
+		hlayout->addWidget(iconLabel);
+		hlayout->addSpacing(12);
+		QLabel *textLabel = new QLabel(qlabel);
+		textLabel->setMinimumWidth(200);
+		textLabel->setWordWrap(true);
+		hlayout->addWidget(textLabel);
+		layout->addLayout(hlayout);
+
+		layout->addStretch();
+
+		pwdEdit = new QLineEdit();
+		pwdEdit->setEchoMode(QLineEdit::Password);
+		layout->addWidget(pwdEdit);
+
+		layout->addStretch();
+
+		QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
+		layout->addWidget(box);
+
+		connect(box, SIGNAL(accepted()), this, SLOT(accept()));
+		connect(box, SIGNAL(rejected()), this, SLOT(reject()));
+
+		setLayout(layout);
+	}
+
+	QLineEdit *pwdEdit;
+};
+
 bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
 {
 	bool ok;
@@ -177,10 +238,10 @@ bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
 		QApplication app(0,NULL);
 
 		//Retrieve the password
-		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Password,"",&ok).toStdString();
+		ok = PasswordDialog::getPassword(title, label, pwd);
 	}
 	else
-		pwd=QInputDialog::getText(NULL,title.c_str(),label.c_str(),QLineEdit::Password,"",&ok).toStdString(); //Retrieve the password
+		ok = PasswordDialog::getPassword(title, label, pwd);
 
 	//if user pressed cancel
 	if(!ok)

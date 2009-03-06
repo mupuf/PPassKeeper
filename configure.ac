@@ -32,6 +32,8 @@ LT_OUTPUT
 LT_LIB_DLLOAD
 
 AC_ARG_ENABLE(debug,   [  --enable-debug     enable debug output (disabled)], [arg_debug=$enableval])
+AC_ARG_ENABLE(wall,    [  --enable-wall      compile with -Wall (disabled)],  [arg_wall=$enableval])
+AC_ARG_ENABLE(werror,  [  --enable-werror    compile with -Werror (disabled)],  [arg_werror=$enableval])
 AC_ARG_ENABLE(ppk-lib, [  --disable-ppk-lib  do not build the ppasskeeper library (enabled)], [arg_ppklib=$enableval])
 AC_ARG_ENABLE(util,    [  --disable-util     do not build the command-line utility (enabled)], [arg_util=$enableval])
 AC_ARG_ENABLE(gui-util,[  --disable-gui-util do not build the graphical utility (enabled)], [arg_gui_util=$enableval])
@@ -44,6 +46,9 @@ AC_ARG_ENABLE(webdav,  [  --disable-webdav   do not build the WebDAV plugin (aut
 AC_ARG_ENABLE(win32,   [  --disable-win32    do not build the WIN32 plugins (autodetect)], [arg_win32=$enableval])
 AC_ARG_ENABLE(stf,     [  --disable-stf      do not build the SaveToFile plugin (autodetect)], [arg_stf=$enableval])
 AC_ARG_ENABLE(python,  [  --disable-python   do not build the Python binding (autodetect)], [arg_python=$enableval])
+
+test "x$arg_wall"   = "xyes" && CFLAGS="-Wall $CFLAGS"
+test "x$arg_werror" = "xyes" && CFLAGS="-Werror $CFLAGS"
 
 PKG_CHECK_MODULES([ELEKTRA], [elektra])
 
@@ -248,6 +253,7 @@ else
 fi
 
 echo -n 'Debug output : '; test "x$arg_debug" = "xyes" && echo yes || echo no
+echo -n 'CFLAGS : '; echo "$CFLAGS"
 
 echo
 echo "Enabled optional modules :"

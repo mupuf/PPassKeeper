@@ -159,7 +159,7 @@ unsigned int ListPwd::copyDBToPwdList(unsigned int entry_types, ppk_entry *entry
 }
 unsigned int ListPwd::copyNetworkToPwdList(ppk_entry *entryList, unsigned int nbEntries)
 {
-	int i;
+	unsigned int i;
 	for(i=0;i<listNet.size() && i<nbEntries;i++)
 	{
 		entryList[i].type=ppk_network;
@@ -172,7 +172,7 @@ unsigned int ListPwd::copyNetworkToPwdList(ppk_entry *entryList, unsigned int nb
 }
 unsigned int ListPwd::copyApplicationToPwdList(ppk_entry *entryList, unsigned int nbEntries)
 {
-	int i;
+	unsigned int i;
 	for(i=0;i<listApp.size() && i<nbEntries;i++)
 	{
 		entryList[i].type=ppk_application;
@@ -185,7 +185,7 @@ unsigned int ListPwd::copyApplicationToPwdList(ppk_entry *entryList, unsigned in
 
 unsigned int ListPwd::copyItemToPwdList(ppk_entry *entryList, unsigned int nbEntries)
 {
-	int i;
+	unsigned int i;
 	for(i=0;i<listItem.size() && i<nbEntries;i++)
 	{
 		entryList[i].type=ppk_item;

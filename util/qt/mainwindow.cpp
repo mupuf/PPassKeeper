@@ -35,7 +35,7 @@ void MainWindow::fillModulesBox()
 	modulesBox->addItem("Select one:");
 	modulesBox->insertSeparator(1);
 
-	for (int i = 0; i < n; ++i)
+	for (unsigned int i = 0; i < n; ++i)
 	{
 		/* we are only interested in modules that can be listed and that can actually store data */
 		if (ppk_isWritable(modules[i].id))

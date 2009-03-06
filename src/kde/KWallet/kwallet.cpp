@@ -120,8 +120,8 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 			}
 		}
 	}
-	else
-		return NULL;
+
+	return NULL;
 }
 
 bool _setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
@@ -142,8 +142,8 @@ bool _setBlob(const char *key, const void *data, unsigned long size, unsigned in
 			}
 		}
 	}
-	else
-		return NULL;
+	
+	return NULL;
 }
 
 bool _removePassword(const char* key, unsigned int flags)
@@ -163,8 +163,8 @@ bool _removePassword(const char* key, unsigned int flags)
 			}
 		}
 	}
-	else
-		return false;
+	
+	return false;
 }
 
 bool _passwordExists(const char* key, unsigned int flags)

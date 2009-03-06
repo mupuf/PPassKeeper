@@ -28,8 +28,8 @@ void sha512(char* hash, const void* data, unsigned int length)
 	SHA512Update(&s, data, length);
 	SHA512Final(&s,sha512);
 	
-	for(int i = 0 ; i< SHA512_HASH_SIZE;)
-		snprintf(hash + i *2 -2,SHA512_HASH_SIZE+7,"%02x",sha512[i++]);
+	for(int i = 0 ; i< SHA512_HASH_SIZE; i++)
+		snprintf(hash + i *2 -2,SHA512_HASH_SIZE+7,"%02x",sha512[i]);
 }
 
 State& cState()
@@ -38,7 +38,7 @@ State& cState()
 	return state;
 }
 
-bool grantAccess(wchar_t* pwd=L"")
+bool grantAccess(const wchar_t* pwd=L"")
 {
 	char hash_pwd[SHA512_HASH_SIZE*2+1];
 	char hash_file[SHA512_HASH_SIZE*2+1];

@@ -255,7 +255,7 @@ extern "C"
 	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type);
         
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
-	/* but some modules just allow you to key-in your password. For these modules, you are the keeper.
+	* but some modules just allow you to key-in your password. For these modules, you are the keeper.
 	* \param module_id in: Module's ID.
 	* \return  Return PPK_TRUE if the module is writable, PPK_FALSE else.*/
 	ppk_boolean ppk_isWritable(const char* module_id);

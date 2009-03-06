@@ -115,7 +115,29 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 				return true;
 			else
 			{
-				setError("Set Entry : wallet->writePassword failed, key="+toString(key));
+				setError("Set Entry: wallet->writePassword failed, key="+toString(key));
+				return false;
+			}
+		}
+	}
+	else
+		return NULL;
+}
+
+bool _setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
+{
+	if((int)(flags&ppk_wf_silent)==0)
+	{
+		KWallet::Wallet* wallet=openWallet(flags);
+		if(wallet!=NULL)
+		{
+			//Set the password
+			QByteArray blobData((const char *) data, size);
+			if(wallet->writeEntry(key, blobData)==0)
+				return true;
+			else
+			{
+				setError("Set Entry: wallet->writeEntry failed, key="+toString(key));
 				return false;
 			}
 		}
@@ -187,6 +209,15 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 	//Init KDE Application
 	if(init_kde(flags))
 		return _setPassword(key, pwd, flags);
+	else
+		return false;
+}
+
+bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
+{
+	//Init KDE Application
+	if(init_kde(flags))
+		return _setBlob(key, data, size, flags);
 	else
 		return false;
 }
@@ -324,14 +355,34 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 
 extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 {
-	if(entry.type == ppk_network)
-		return setPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
-	else if(entry.type == ppk_application)
-		return setPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
-	else if(entry.type == ppk_item)
-		return setPassword(generateItemKey(entry.item).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
-	else
+	std::string generatedKey;
+	switch (entry.type)
+	{
+	case ppk_network:
+		generatedKey = generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
+		break;
+	case ppk_application:
+		generatedKey = generateApplicationKey(entry.app.app_name, entry.app.username);
+		break;
+	case ppk_item:
+		generatedKey = generateItemKey(entry.item);
+		break;
+	default:
 		return PPK_FALSE;
+	}
+	
+	if (edata.type == ppk_string)
+	{
+		return setPassword(generatedKey.c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+	}
+	else if (edata.type == ppk_blob)
+	{
+		return setBlob(generatedKey.c_str(), edata.blob.data, edata.blob.size, flags)?PPK_TRUE:PPK_FALSE;
+	}
+	else
+	{
+		return PPK_FALSE;
+	}
 }
 
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)

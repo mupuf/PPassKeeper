@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #ifdef HAVE_CHMOD
 	#include <sys/stat.h>
@@ -45,7 +46,9 @@ const char* readFile(std::string filepath, unsigned int flags)
 	if(inputfile.is_open())
 	{
 		//Read the password from the file
-		getline (inputfile,pwd);
+		std::ostringstream pwd_s;
+		pwd_s << inputfile.rdbuf();
+		pwd=pwd_s.str();
 
 		//close the file
 		inputfile.close();

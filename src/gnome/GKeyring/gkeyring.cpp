@@ -176,8 +176,12 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
-	if(entry.type == ppk_item)
-		return removeItem((entry.item, flags);
+	if(entry.type == ppk_network)
+		return removeNetworkPassword(entry.net.host, entry.net.login, entry.net.port, flags);
+	else if(entry.type == ppk_application)
+		return removeApplicationPassword(entry.app.app_name, entry.app.username, flags);
+	else if(entry.type == ppk_item)
+		return removeItem(entry.item, flags);
 	else
 		return PPK_FALSE;
 }

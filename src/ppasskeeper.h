@@ -105,7 +105,7 @@ extern "C"
 		///Login
 		const char* login;    
 		///Port of the service
-		unsigned short int port;   
+		unsigned short port;   
 	} ppk_entry_net;
 
 	///Definition of an Application entry (username\@app_name)

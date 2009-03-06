@@ -11,9 +11,9 @@ void setError(char* error);
  *                      Constants                   *
  *                                                  *
  * **************************************************/
-const char* keyring_name="ppk_gkeyring";
+const gchar* keyring_name="ppk_gkeyring";
 
-GnomeKeyringPasswordSchema network = {
+GnomeKeyringPasswordSchema network_schm = {
   GNOME_KEYRING_ITEM_GENERIC_SECRET,
   {
 	   { "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
@@ -23,7 +23,7 @@ GnomeKeyringPasswordSchema network = {
   }
 };
 
-GnomeKeyringPasswordSchema application = {
+GnomeKeyringPasswordSchema application_schm = {
   GNOME_KEYRING_ITEM_GENERIC_SECRET,
   {
 	   { "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
@@ -32,7 +32,7 @@ GnomeKeyringPasswordSchema application = {
   }
 };
 
-GnomeKeyringPasswordSchema item = {
+GnomeKeyringPasswordSchema item_schm = {
   GNOME_KEYRING_ITEM_GENERIC_SECRET,
   { 
 	   { "item", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
@@ -49,6 +49,10 @@ GnomeKeyringPasswordSchema item = {
  *                  Local functions                 *
  *                                                  *
  * **************************************************/
+void g_setError(const gchar* error)
+{
+	setError((char*) error);
+}
 
 void constructor(void)
 {
@@ -91,77 +95,101 @@ ppk_boolean createPpkKeyring(const char* keyring_name)
 	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-
-
-
-
 /* **************************************************
  *                                                  *
  *                      Functions                   *
  *                                                  *
  * **************************************************/
-ppk_boolean getListItems(const char* keyring_name, GList **found)
+char** getItemList()
 {
+	GnomeKeyringItemInfo *info;
+	GList* list;
+	
+	//Create the keyring (shall soon move to somewhere else)
 	createPpkKeyring(keyring_name);
 	
-	GnomeKeyringResult res=gnome_keyring_list_item_ids_sync(keyring_name, found);
+	//List the ids of the ppasskeeper keyring
+	GnomeKeyringResult res=gnome_keyring_list_item_ids_sync(keyring_name, &list);
+	if(res!=GNOME_KEYRING_RESULT_OK)
+		g_setError((char*)gnome_keyring_result_to_message(res));
+	
+	char** name_list=calloc(sizeof(char*), g_list_length(list)+1);
+	unsigned int i=0;
+	
+	while(list!=NULL)
+	{
+		//Get the name
+		GnomeKeyringResult res = gnome_keyring_item_get_info_sync(keyring_name, GPOINTER_TO_UINT(list->data), &info); 
+		if(res!=GNOME_KEYRING_RESULT_OK)
+			g_setError(gnome_keyring_result_to_message(res));
+		name_list[i]=gnome_keyring_item_info_get_display_name(info);
+		
+		list=g_list_next(list);
+		i++;
+	}
+	
+	name_list[i]=NULL;
+	g_list_free(list);
+	
+	return name_list;
+}
+
+ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const ppk_data edata, unsigned int flags)
+{
+	char displayName[101];
+	snprintf(displayName, sizeof(displayName), "net://%s@%s:%i", login, host, port);
+	
+	createPpkKeyring(keyring_name);
+	GnomeKeyringResult res=gnome_keyring_store_password_sync(&network_schm, keyring_name, displayName, edata.string, "username", login,"host", host, "port", port, NULL);
 	
 	if(res!=GNOME_KEYRING_RESULT_OK)
-		setError(gnome_keyring_result_to_message(res));
+		g_setError(gnome_keyring_result_to_message(res));
+									 
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
+}
+
+ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, ppk_data *edata, unsigned int flags)
+{
+	static char pwd[1024];
+	
+	edata->type=ppk_string;
+	edata->string=(char*)pwd;
+	
+	createPpkKeyring(keyring_name);
+	
+	gchar* ret=NULL;
+	GnomeKeyringResult res=gnome_keyring_find_password_sync(&network_schm, &ret, "username", login,"host", host, "port", port, NULL, 0);
+
+	if(res!=GNOME_KEYRING_RESULT_OK)
+	{
+		g_setError(gnome_keyring_result_to_message(res));
+	}
+	else
+	{
+		strncpy(pwd, (char*)ret, sizeof(pwd)-1);
+		gnome_keyring_free_password(ret);
+	}
 	
 	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
-{
-	unsigned int count=0;
-	GnomeKeyringItemInfo *info;
-	GList* list;
-	
-	getListItems(keyring_name, &list);
-	
-	printf("Size of the list = %i\n", g_list_length(list));
-	
-	GnomeKeyringResult res = gnome_keyring_item_get_info_sync(keyring_name, GPOINTER_TO_UINT(list->data), &info); 
-	
-	if(res!=GNOME_KEYRING_RESULT_OK)
-		setError(gnome_keyring_result_to_message(res));
-	
-	char* pwd=gnome_keyring_item_info_get_secret(info);
-	//printf("secret = %s\n", pwd);
-	free(pwd);
-	
-	g_list_free(list);
-	
-	return count;
-}
-
-unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
-{
-	if(0)
-	{
-	}
-	else
-		return 0;
-}
-
-int setNetworkPassword(const char* host, const char* login, unsigned short port, const ppk_data edata, unsigned int flags)
+ppk_boolean setApplicationPassword(const char* appName, const char* user, const ppk_data edata, unsigned int flags)
 {
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName), "%s@%s:%i", login, host, port);
+	snprintf(displayName, sizeof(displayName), "app://%s@%s", user, appName);
 	
 	createPpkKeyring(keyring_name);
-	GnomeKeyringResult res=gnome_keyring_store_password_sync(&network, keyring_name, displayName, edata.string, "username", login,"host", host, "port", port, NULL);
+	GnomeKeyringResult res=gnome_keyring_store_password_sync(&application_schm, keyring_name, displayName, edata.string, "username", user,"app_name", appName, NULL);
 	
 	if(res!=GNOME_KEYRING_RESULT_OK)
-		setError(gnome_keyring_result_to_message(res));
+		g_setError(gnome_keyring_result_to_message(res));
 									 
-	return res==GNOME_KEYRING_RESULT_OK;
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-int getNetworkPassword(const char* host, const char* login, unsigned short port, ppk_data *edata, unsigned int flags)
+ppk_boolean getApplicationPassword(const char* appName, const char* user, ppk_data *edata, unsigned int flags)
 {
-	static char* pwd[501];
+	static char pwd[1024];
 	
 	edata->type=ppk_string;
 	edata->string=(char*)pwd;
@@ -169,38 +197,38 @@ int getNetworkPassword(const char* host, const char* login, unsigned short port,
 	createPpkKeyring(keyring_name);
 	
 	gchar* ret=NULL;
-	GnomeKeyringResult res=gnome_keyring_find_password_sync(&network, &ret, "username", login,"host", host, "port", port, NULL, 0);
+	GnomeKeyringResult res=gnome_keyring_find_password_sync(&application_schm, &ret, "username", user,"app_name", appName, NULL);
 
 	if(res!=GNOME_KEYRING_RESULT_OK)
 	{
-		setError(gnome_keyring_result_to_message(res));
+		g_setError(gnome_keyring_result_to_message(res));
 	}
 	else
 	{
-		strncpy(pwd, ret, sizeof(pwd)-1);
+		strncpy(pwd, (char*)ret, sizeof(pwd)-1);
 		gnome_keyring_free_password(ret);
 	}
 	
-	return res==GNOME_KEYRING_RESULT_OK;
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-int setApplicationPassword(const char* appName, const char* user, const ppk_data edata, unsigned int flags)
+ppk_boolean setItem(const char* item, const ppk_data edata, unsigned int flags)
 {
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName), "%s@%s", user, appName);
+	snprintf(displayName, sizeof(displayName), "itm://%s", item);
 	
 	createPpkKeyring(keyring_name);
-	GnomeKeyringResult res=gnome_keyring_store_password_sync(&application, keyring_name, displayName, edata.string, "username", user,"app_name", appName, NULL);
+	GnomeKeyringResult res=gnome_keyring_store_password_sync(&item_schm, keyring_name, displayName, edata.string, "item", item, NULL);
 	
 	if(res!=GNOME_KEYRING_RESULT_OK)
-		setError(gnome_keyring_result_to_message(res));
+		g_setError(gnome_keyring_result_to_message(res));
 									 
-	return res==GNOME_KEYRING_RESULT_OK;
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-int getApplicationPassword(const char* appName, const char* user, ppk_data *edata, unsigned int flags)
+ppk_boolean getItem(const char* item, ppk_data *edata, unsigned int flags)
 {
-	static char* pwd[501];
+	static char pwd[1024]; 
 	
 	edata->type=ppk_string;
 	edata->string=(char*)pwd;
@@ -208,56 +236,17 @@ int getApplicationPassword(const char* appName, const char* user, ppk_data *edat
 	createPpkKeyring(keyring_name);
 	
 	gchar* ret=NULL;
-	GnomeKeyringResult res=gnome_keyring_find_password_sync(&application, keyring_name, &ret, "username", user,"app_name", appName, NULL);
+	GnomeKeyringResult res=gnome_keyring_find_password_sync(&item_schm, &ret, "item", item, NULL);
 
 	if(res!=GNOME_KEYRING_RESULT_OK)
 	{
-		setError(gnome_keyring_result_to_message(res));
+		g_setError(gnome_keyring_result_to_message(res));
 	}
 	else
 	{
-		strncpy(pwd, ret, sizeof(pwd)-1);
+		strncpy(pwd, (char*)ret, sizeof(pwd)-1);
 		gnome_keyring_free_password(ret);
 	}
 	
-	return res==GNOME_KEYRING_RESULT_OK;
-}
-
-int setItem(const char* item, const ppk_data edata, unsigned int flags)
-{
-	char displayName[101];
-	snprintf(displayName, sizeof(displayName), "%s", item);
-	
-	createPpkKeyring(keyring_name);
-	GnomeKeyringResult res=gnome_keyring_store_password_sync(&application, keyring_name, displayName, edata.string, "item", item, NULL);
-	
-	if(res!=GNOME_KEYRING_RESULT_OK)
-		setError(gnome_keyring_result_to_message(res));
-									 
-	return res==GNOME_KEYRING_RESULT_OK;
-}
-
-int getItem(const char* item, ppk_data *edata, unsigned int flags)
-{
-	static char* pwd[501];
-	
-	edata->type=ppk_string;
-	edata->string=(char*)pwd;
-	
-	createPpkKeyring(keyring_name);
-	
-	gchar* ret=NULL;
-	GnomeKeyringResult res=gnome_keyring_find_password_sync(&application, keyring_name, &ret, "item", item, NULL);
-
-	if(res!=GNOME_KEYRING_RESULT_OK)
-	{
-		setError(gnome_keyring_result_to_message(res));
-	}
-	else
-	{
-		strncpy(pwd, ret, sizeof(pwd)-1);
-		gnome_keyring_free_password(ret);
-	}
-	
-	return res==GNOME_KEYRING_RESULT_OK;
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }

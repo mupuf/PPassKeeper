@@ -12,6 +12,10 @@ extern "C" ppk_boolean getApplicationPassword(const char* appName, const char* u
 extern "C" ppk_boolean setItem(const char* item, const ppk_data edata, unsigned int flags);
 extern "C" ppk_boolean getItem(const char* item, ppk_data *edata, unsigned int flags);
 
+extern "C" ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, unsigned int flags);
+extern "C" ppk_boolean removeApplicationPassword(const char* appName, const char* user, unsigned int flags);
+extern "C" ppk_boolean removeItem(const char* item, unsigned int flags);
+
 extern "C" char** getItemList();
 
 extern "C" void constructor(void);

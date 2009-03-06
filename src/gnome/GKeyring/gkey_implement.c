@@ -226,6 +226,21 @@ ppk_boolean setItem(const char* item, const ppk_data edata, unsigned int flags)
 	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
+/*extern "C" ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, unsigned int flags);
+extern "C" ppk_boolean removeApplicationPassword(const char* appName, const char* user, unsigned int flags);
+*/
+
+ppk_boolean removeItem(const char* item, unsigned int flags)
+{
+	createPpkKeyring(keyring_name);
+	GnomeKeyringResult res=gnome_keyring_delete_password_sync(&item_schm, "item", item, NULL);
+	
+	if(res!=GNOME_KEYRING_RESULT_OK)
+		g_setError(gnome_keyring_result_to_message(res));
+									 
+	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
+}
+
 ppk_boolean getItem(const char* item, ppk_data *edata, unsigned int flags)
 {
 	static char pwd[1024]; 

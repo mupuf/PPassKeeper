@@ -176,7 +176,10 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
-	return PPK_FALSE;
+	if(entry.type == ppk_item)
+		return removeItem((entry.item, flags);
+	else
+		return PPK_FALSE;
 }
 
 extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)

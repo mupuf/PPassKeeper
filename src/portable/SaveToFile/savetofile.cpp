@@ -146,10 +146,15 @@ extern "C"
 
 	ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 	{
-		if( edata.type==ppk_string)
-			return writeFile(getKey(entry).c_str(), edata.string, flags)?PPK_TRUE:PPK_FALSE;
+		std::string data;
+		if (edata.type==ppk_blob)
+			data.assign((const char *) edata.blob.data, edata.blob.size);
+		else if(edata.type==ppk_string)
+			data.assign(edata.string);
 		else
 			return PPK_FALSE;
+		
+		return writeFile(getKey(entry).c_str(), data, flags)?PPK_TRUE:PPK_FALSE;
 	}
 	
 	ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)

@@ -225,6 +225,8 @@ int main(int argc, char **argv)
      					type="Item";
      					snprintf(entry, 200, "%s", list[i].item);
      				}
+					else
+						return 2;
      				
      				printf("	%s : %s\n", type, entry);
      			}

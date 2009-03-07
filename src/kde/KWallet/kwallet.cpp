@@ -12,6 +12,7 @@
 
 //plugin data
 KWallet::Wallet* _wallet;
+QApplication *_app;
 
 //local functions
 std::string* last_error()
@@ -29,16 +30,31 @@ extern "C" void constructor()
 {
 	//lazy initialization
 	_wallet=NULL;
+	_app=NULL;
+	
+	if (! qApp)
+	{
+		//we are not under a KApplication or a QApplication, so we create one
+		int argc = 0;
+		_app = new QApplication(argc, (char **) NULL);
+	}
 
-	//Init KDE
-	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-	KComponentData kcd(about);
+	if (! KApplication::instance())
+	{
+		//we are under QApplication, so do some additional initialization
+		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+		KComponentData kcd(about);
+		KCmdLineArgs::init(&about);
+	}
 }
 
 extern "C" void destructor()
 {
 	if (_wallet)
 		delete _wallet;
+
+	if (_app)
+		delete _app;
 }
 
 extern "C" ppk_boolean isWritable()

@@ -402,7 +402,7 @@ extern "C"
 static std::string elektraKeyName(const char* module_id, const char* key)
 {
 	std::ostringstream keyName;
-	keyName << "user/ppasskeeper/" << module_id << '/' << key;
+	keyName << "user/sw/ppasskeeper/" << module_id << '/' << key;
 	return keyName.str();
 }
 

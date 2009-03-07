@@ -59,25 +59,28 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	//Get the list
 	char** list=getItemList();
 	
-	//
-	std::string host, user, app, itm;
-	unsigned short port;
-	
-	int i=0;
-	while(list[i]!=NULL)
+	if(list!=NULL)
 	{
-		if(entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port))
-			count++;
-		else if(entry_types&ppk_application && matchAppPassword(list[i], user, app))
-			count++;
-		else if(entry_types&ppk_item && matchItemPassword(list[i], itm))
-			count++;
+		//tmp
+		std::string host, user, app, itm;
+		unsigned short port;
 		
-		free(list[i]);
-		i++;
+		int i=0;
+		while(list[i]!=NULL)
+		{
+			if(entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port))
+				count++;
+			else if(entry_types&ppk_application && matchAppPassword(list[i], user, app))
+				count++;
+			else if(entry_types&ppk_item && matchItemPassword(list[i], itm))
+				count++;
+			
+			free(list[i]);
+			i++;
+		}
+		
+		free(list);
 	}
-	
-	free(list);	
 	
 	return count;
 }
@@ -94,58 +97,61 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	static std::vector<appList> listApp;
 	static std::vector<itemList> listItem;
 	
-	//Clear needed buffers
-	if((entry_types&ppk_network)>0)
-		listNet.clear();
-	if((entry_types&ppk_application)>0)
-		listApp.clear();
-	if((entry_types&ppk_item)>0)	
-		listItem.clear();
-	
 	//Get the list
 	char** list=getItemList();
 	
-	//Parse the whole list
-	int i=0;
-	while(list[i]!=NULL && count < nbEntries)
+	if(list!=NULL)
 	{
-		networkList net;
-		appList app;
-		itemList itm;
+		//Clear needed buffers
+		if((entry_types&ppk_network)>0)
+			listNet.clear();
+		if((entry_types&ppk_application)>0)
+			listApp.clear();
+		if((entry_types&ppk_item)>0)	
+			listItem.clear();
 		
-		if(entry_types&ppk_network && matchNetworkPassword(list[i], net.user, net.host, net.port))
+		//Parse the whole list
+		int i=0;
+		while(list[i]!=NULL && count < nbEntries)
 		{
-			listNet.push_back(net);
+			networkList net;
+			appList app;
+			itemList itm;
 			
-			entryList[count].type=ppk_network;
-			entryList[count].net.host=listNet.back().host.c_str();
-			entryList[count].net.login=listNet.back().user.c_str();
-			entryList[count].net.port=listNet.back().port;
+			if(entry_types&ppk_network && matchNetworkPassword(list[i], net.user, net.host, net.port))
+			{
+				listNet.push_back(net);
+				
+				entryList[count].type=ppk_network;
+				entryList[count].net.host=listNet.back().host.c_str();
+				entryList[count].net.login=listNet.back().user.c_str();
+				entryList[count].net.port=listNet.back().port;
 
-			count++;
-		}
-		else if(entry_types&ppk_application && matchAppPassword(list[i], app.user, app.app))
-		{
-			listApp.push_back(app);
+				count++;
+			}
+			else if(entry_types&ppk_application && matchAppPassword(list[i], app.user, app.app))
+			{
+				listApp.push_back(app);
+				
+				entryList[count].type=ppk_application;
+				entryList[count].app.app_name=listApp.back().app.c_str();
+				entryList[count].app.username=listApp.back().user.c_str();
+				count++;
+			}
+			else if(entry_types&ppk_item && matchItemPassword(list[i], itm.key))
+			{
+				listItem.push_back(itm);
+				
+				entryList[count].type=ppk_item;
+				entryList[count].item=listItem.back().key.c_str();
+				count++;
+			}
 			
-			entryList[count].type=ppk_application;
-			entryList[count].app.app_name=listApp.back().app.c_str();
-			entryList[count].app.username=listApp.back().user.c_str();
-			count++;
+			free(list[i]);
+			i++;
 		}
-		else if(entry_types&ppk_item && matchItemPassword(list[i], itm.key))
-		{
-			listItem.push_back(itm);
-			
-			entryList[count].type=ppk_item;
-			entryList[count].item=listItem.back().key.c_str();
-			count++;
-		}
-		
-		free(list[i]);
-		i++;
+		free(list);	
 	}
-	free(list);	
 	
 	return count;
 }

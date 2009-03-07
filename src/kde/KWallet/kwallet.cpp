@@ -12,7 +12,7 @@
 
 //plugin data
 KWallet::Wallet* _wallet;
-QApplication *_app;
+KApplication *_app;
 
 //local functions
 std::string* last_error()
@@ -31,30 +31,33 @@ extern "C" void constructor()
 	//lazy initialization
 	_wallet=NULL;
 	_app=NULL;
-	
-	if (! qApp)
-	{
-		//we are not under a KApplication or a QApplication, so we create one
-		int argc = 0;
-		_app = new QApplication(argc, (char **) NULL);
-	}
+}
 
-	if (! KApplication::instance())
+bool init_kde_lazy()
+{
+	static bool initialized = false;
+	
+	if (! initialized)
 	{
-		//we are under QApplication, so do some additional initialization
-		KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-		KComponentData kcd(about);
-		KCmdLineArgs::init(&about);
+		if (! KApplication::instance())
+		{
+			static char kdeAppName[] = "ppasskeeper-kwallet";
+			int argc = 1;
+			char *argv[2] = { kdeAppName, NULL };
+			KAboutData about(QByteArray(kdeAppName),QByteArray(kdeAppName),KLocalizedString(),QByteArray("1.0"));
+			KCmdLineArgs::init(argc, argv, &about);
+			if (! qApp)
+				_app = new KApplication(true);
+		}
+
+		initialized = true;
 	}
 }
 
 extern "C" void destructor()
 {
-	if (_wallet)
-		delete _wallet;
-
-	if (_app)
-		delete _app;
+	delete _wallet;
+	delete _app;
 }
 
 extern "C" ppk_boolean isWritable()
@@ -91,6 +94,8 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		setError("openWallet : openWallet was not performed because it wasn't silent to do so.");
 		return NULL;
 	}
+
+	init_kde_lazy();
 
 	if (_wallet == NULL)
 	{

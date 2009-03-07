@@ -10,6 +10,9 @@
 #include <kaboutdata.h>
 #include <klocale.h>
 
+//plugin data
+KWallet::Wallet* _wallet;
+
 //local functions
 std::string* last_error()
 {
@@ -20,6 +23,22 @@ std::string* last_error()
 void setError(std::string error)
 {
 	*(last_error())="PPK_KWallet : " + error;
+}
+
+extern "C" void constructor()
+{
+	//lazy initialization
+	_wallet=NULL;
+
+	//Init KDE
+	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
+	KComponentData kcd(about);
+}
+
+extern "C" void destructor()
+{
+	if (_wallet)
+		delete _wallet;
 }
 
 extern "C" ppk_boolean isWritable()
@@ -50,40 +69,40 @@ extern "C" unsigned int listingFlagsAvailable()
 
 KWallet::Wallet* openWallet(unsigned int flags)
 {
-	if(KWallet::Wallet::isEnabled())
+	if (flags & ppk_lf_silent || flags & ppk_rf_silent || flags & ppk_wf_silent)
 	{
-		KWallet::Wallet* wallet=NULL;
-	
-		//OPen the wallet only if it won't annoy people who don't want to be prompted
-		if(KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()) || (int)(flags&ppk_lf_silent)>0 || (int)(flags&ppk_rf_silent)>0 || (int)(flags&ppk_wf_silent)>0)
-		{
-			wallet=KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
+		//continue only if it won't annoy people who don't want to be prompted
+		setError("openWallet : openWallet was not performed because it wasn't silent to do so.");
+		return NULL;
+	}
 
-			//if the wallet is oppened
-			if(wallet!=NULL)
-			{
-				return wallet;
-			}
-			else
-			{
-				setError("openWallet : openWallet failed");
-				return NULL;
-			}
-		}
-		else
+	if (_wallet == NULL)
+	{
+		//lazy init
+		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
+		if (_wallet == NULL)
 		{
-			setError("openWallet : openWallet was not performed because it wasn't silent to do so.");
+			setError("openWallet : openWallet failed");
 			return NULL;
 		}
 	}
-	else
+	
+	if (! KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet()))
 	{
-		setError("openWallet : KWallet is not available");
-		return NULL;
+		//is the wallet still open? if not, try to reinitialize it
+		delete _wallet;
+		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
+		if (_wallet == NULL)
+		{
+			setError("openWallet : openWallet failed");
+			return NULL;
+		}
 	}
+
+	return _wallet;
 }
 
-const char* _getPassword(const char* key, unsigned int flags)
+const char* getPassword(const char* key, unsigned int flags)
 {
 	static QString pwd;
 
@@ -103,7 +122,24 @@ const char* _getPassword(const char* key, unsigned int flags)
 		return false;
 }
 
-bool _setPassword(const char* key, const char* pwd, unsigned int flags)
+const char* getBlob(const char *key, int *size, unsigned int flags)
+{
+	static QByteArray blob;
+
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
+	{
+		if(wallet->readEntry(key, blob)==0)
+		{
+			*size = blob.size();
+			return blob;
+		}
+	}
+
+	return NULL;
+}
+
+bool setPassword(const char* key, const char* pwd, unsigned int flags)
 {
 	if((int)(flags&ppk_wf_silent)==0)
 	{
@@ -124,7 +160,7 @@ bool _setPassword(const char* key, const char* pwd, unsigned int flags)
 	return NULL;
 }
 
-bool _setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
+bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
 {
 	if((int)(flags&ppk_wf_silent)==0)
 	{
@@ -146,7 +182,7 @@ bool _setBlob(const char *key, const void *data, unsigned long size, unsigned in
 	return NULL;
 }
 
-bool _removePassword(const char* key, unsigned int flags)
+bool removePassword(const char* key, unsigned int flags)
 {
 	if((int)(flags&ppk_lf_silent)==0)
 	{
@@ -167,7 +203,7 @@ bool _removePassword(const char* key, unsigned int flags)
 	return false;
 }
 
-bool _passwordExists(const char* key, unsigned int flags)
+bool passwordExists(const char* key, unsigned int flags)
 {
 	static QString pwd;
 
@@ -183,59 +219,6 @@ bool _passwordExists(const char* key, unsigned int flags)
 			return false;
 		}
 	}
-	else
-		return false;
-}
-
-bool init_kde(unsigned int flags)
-{
-	//Init KDE
-	KAboutData about(QByteArray("ppasskeeper-kwallet"),QByteArray("ppasskeeper-kwallet"),KLocalizedString(),QByteArray("1.0"));	
-	KComponentData kcd(about);
-
-	return true;
-}
-const char* getPassword(const char* key, unsigned int flags)
-{
-	//Init KDE Application
-	if(init_kde(flags))
-		return _getPassword(key, flags);
-	else
-		return NULL;
-}
-
-bool setPassword(const char* key, const char* pwd, unsigned int flags)
-{
-	//Init KDE Application
-	if(init_kde(flags))
-		return _setPassword(key, pwd, flags);
-	else
-		return false;
-}
-
-bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
-{
-	//Init KDE Application
-	if(init_kde(flags))
-		return _setBlob(key, data, size, flags);
-	else
-		return false;
-}
-
-bool removePassword(const char* key, unsigned int flags)
-{
-	//Init KDE Application
-	if(init_kde(flags))
-		return _removePassword(key, flags);
-	else
-		return false;
-}
-
-bool passwordExists(const char* key, unsigned int flags)
-{
-	//Init KDE Application
-	if(init_kde(flags))
-		return _passwordExists(key, flags);
 	else
 		return false;
 }
@@ -295,18 +278,12 @@ extern "C" const int getABIVersion()
 
 extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
-	//Init KDE Application
-	if(init_kde(flags))
+	//Open the wallet
+	KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
+	if(wallet!=NULL)
 	{
-		//Open the wallet
-		KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
-		if(wallet!=NULL)
-		{
-			static ListPwd pwdl;		
-			return pwdl.getEntryListCount(wallet, entry_types, flags);
-		}
-		else
-			return 0;
+		static ListPwd pwdl;		
+		return pwdl.getEntryListCount(wallet, entry_types, flags);
 	}
 	else
 		return 0;
@@ -314,48 +291,19 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 
 extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 {
-	//Init KDE Application
-	if(init_kde(flags))
+	//Open the wallet
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
 	{
-		//Open the wallet
-		KWallet::Wallet* wallet=openWallet(flags);
-		if(wallet!=NULL)
-		{
-			static ListPwd pwdl;
-			return pwdl.getEntryList(wallet, entry_types, entryList, nbEntries, flags);
-		}
-		else
-			return 0;
+		static ListPwd pwdl;
+		return pwdl.getEntryList(wallet, entry_types, entryList, nbEntries, flags);
 	}
 	else
 		return 0;
 }
 
-extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+static bool generateKey(const ppk_entry entry, std::string &generatedKey)
 {
-	edata->type=ppk_string;
-	if(entry.type == ppk_network)
-	{
-		edata->string=getPassword(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags);
-		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
-	}
-	else if(entry.type == ppk_application)
-	{
-		edata->string=getPassword(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags);
-		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
-	}
-	else if(entry.type == ppk_item)
-	{
-		edata->string=getPassword(generateItemKey(entry.item).c_str(), flags);
-		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
-	}
-	else
-		return PPK_FALSE;
-}
-
-extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
-{
-	std::string generatedKey;
 	switch (entry.type)
 	{
 	case ppk_network:
@@ -368,6 +316,49 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 		generatedKey = generateItemKey(entry.item);
 		break;
 	default:
+		return PPK_FALSE;
+	}
+
+	return PPK_TRUE;
+}
+
+extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+{
+	std::string generatedKey;
+	if (generateKey(entry, generatedKey) == PPK_FALSE)
+	{
+		return PPK_FALSE;
+	}
+
+	KWallet::Wallet *wallet = openWallet(flags);
+	if (wallet == NULL)
+		return PPK_FALSE;
+	
+	KWallet::Wallet::EntryType entryType = wallet->entryType(generatedKey.c_str());
+
+	if (entryType == KWallet::Wallet::Password)
+	{
+		edata->type = ppk_string;
+		edata->string=getPassword(generatedKey.c_str(), flags);
+		return edata->string!=NULL?PPK_TRUE:PPK_FALSE;
+	}
+	else if (entryType == KWallet::Wallet::Stream)
+	{
+		int size;
+		edata->type = ppk_blob;
+		edata->blob.data = (const void *) getBlob(generatedKey.c_str(), &size, flags);
+		edata->blob.size = size;
+		return edata->blob.data != NULL?PPK_TRUE:PPK_FALSE;
+	}
+	
+	return PPK_FALSE;
+}
+
+extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
+{
+	std::string generatedKey;
+	if (generateKey(entry, generatedKey) == PPK_FALSE)
+	{
 		return PPK_FALSE;
 	}
 	

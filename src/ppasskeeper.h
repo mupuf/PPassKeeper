@@ -100,9 +100,9 @@ extern "C"
 	///Definition of a Network entry (login\@host:port)
 	typedef struct
 	{
-		///Host name of the service
+		///Host name of the service (UTF8)
 		const char* host;      
-		///Login
+		///Login (UTF8)
 		const char* login;    
 		///Port of the service
 		unsigned short port;   
@@ -111,9 +111,9 @@ extern "C"
 	///Definition of an Application entry (username\@app_name)
 	typedef struct
 	{
-		///Application's name
+		///Application's name (UTF8)
 		const char* app_name;     
-		///Username 
+		///Username (UTF8)
 		const char* username;      
 	} ppk_entry_app;                                 
 
@@ -150,7 +150,7 @@ extern "C"
 		ppk_data_type type;
 		union
 		{
-			///Basic text
+			///Basic text (UTF8)
 			const char *string;
 			///Binary value
 			ppk_data_blob blob;
@@ -164,12 +164,12 @@ extern "C"
 	/*! \brief Lock the library with the given password.
 	 * \param [in] pwd The password that will lock the library
 	* \return PPK_TRUE is the library has been locked with the password, PPK_FALSE else */
-	ppk_boolean ppk_setPassword(wchar_t* pwd);
+	ppk_boolean ppk_setPassword(const char* pwd);
 	
 	/*! \brief Try to unlock the library using the right password
 	 * \param [in] password The password to try to unlock the library
 	* \return PPK_TRUE is the library is unlocked, PPK_FALSE else */
-	ppk_boolean ppk_unlock(wchar_t* password);
+	ppk_boolean ppk_unlock(const char* password);
 
 	/*! \brief Get the count of available modules
 	* \return Return the count of available modules */
@@ -319,7 +319,19 @@ extern "C"
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data ppk_createBlobData(void* data, unsigned long size);
 
+	/*! \brief Store a module parameter. This parameter can be retrieved using ppk_getParam.
+	* \param module_id in: Module's ID.
+	* \param key in: The name of the parameter.
+	* \param value in: The value to store.
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
+	
+	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
+	* \param module_id in: Module's ID.
+	* \param key in: The name of the parameter.
+	* \param returnedString in: The variable that will hold the result of the request.
+	* \param maxSize in: The size the result value should not exceed.
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
 
 #ifdef __cplusplus 

@@ -13,9 +13,6 @@ MainWindow::MainWindow()
 
 	pwdlistModel = new PasswordListModel(this);
 	pwdlistView->setModel(pwdlistModel);
-	
-	//ppk_setPassword(L"Je suis mupuf");
-	//ppk_unlock(L"Je suis mupuf");
 
 	setupActions();
 
@@ -89,21 +86,21 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	bool res;
 	if (cur_type == ppk_application)
 	{
-		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
-				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
+				ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()),
+				ppk_createStringData(pwd.toUtf8().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_network)
 	{
-		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
-				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
+				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port),
+				ppk_createStringData(pwd.toUtf8().constData()), 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_item)
 	{
-		res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()),
-				ppk_createStringData(pwd.toLocal8Bit().constData()), 0)==PPK_TRUE;
+		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
+				ppk_createItemEntry(cur_item.key.toUtf8().constData()),
+				ppk_createStringData(pwd.toUtf8().constData()), 0)==PPK_TRUE;
 	}
 }
 
@@ -126,9 +123,9 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetAppEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
 			}
 			else
 				error="It is not a valid key name.";
@@ -140,9 +137,9 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetNetworkEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
 			}
 			else
 				error="It is not a valid key name.";
@@ -154,9 +151,9 @@ void MainWindow::onAddButtonClicked()
 			res=parseAndGetItemEntry(key, entry);
 			if(ok && res)
 			{
-				res = ppk_setEntry(m_moduleId.toLocal8Bit().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
+				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
 				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toLocal8Bit().constData()));
+					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
 			}
 			else
 				error="It is not a valid key name.";
@@ -177,18 +174,18 @@ void MainWindow::onDelButtonClicked()
 	ppk_boolean res=PPK_FALSE;
 	if (cur_type == ppk_application)
 	{
-		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()), 0);
+		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+				ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()), 0);
 	}
 	else if (cur_type == ppk_network)
 	{
-		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port), 0);
+		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port), 0);
 	}
 	else if (cur_type == ppk_item)
 	{
-		res = ppk_removeEntry(m_moduleId.toLocal8Bit().constData(),
-				ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()), 0);
+		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+				ppk_createItemEntry(cur_item.key.toUtf8().constData()), 0);
 	}
 	
 	if(!res)
@@ -222,28 +219,28 @@ void MainWindow::setPasswordVisible(bool b)
 		ppk_boolean res=PPK_FALSE;
 		if (cur_type == ppk_application)
 		{
-			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					ppk_createAppEntry(cur_app.app_name.toLocal8Bit().constData(), cur_app.username.toLocal8Bit().constData()),
+			res = ppk_getEntry(m_moduleId.toUtf8().constData(),
+					ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()),
 					&data, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
-			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					ppk_createNetworkEntry(cur_net.host.toLocal8Bit().constData(), cur_net.login.toLocal8Bit().constData(), cur_net.port),
+			res = ppk_getEntry(m_moduleId.toUtf8().constData(),
+					ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port),
 					&data, 0);
 		}
 		else if (cur_type == ppk_item)
 		{
-			res = ppk_getEntry(m_moduleId.toLocal8Bit().constData(),
-					ppk_createItemEntry(cur_item.key.toLocal8Bit().constData()),
+			res = ppk_getEntry(m_moduleId.toUtf8().constData(),
+					ppk_createItemEntry(cur_item.key.toUtf8().constData()),
 					&data, 0);
 		}
 		
 		if (res==PPK_TRUE)
 		{		
-			passwordEdit->setPlainText(data.string);
+			passwordEdit->setPlainText(QString::fromUtf8(data.string));
 			passwordEdit->setReadOnly(false);
-			tmp_sensitive_data=data.string;
+			tmp_sensitive_data=QString::fromUtf8(data.string);
 			timerValue = 0;
 			passwordTimer.start(1000, this);
 		}
@@ -340,7 +337,7 @@ void MainWindow::moduleChanged(int index)
 
 void MainWindow::listCurrentModule()
 {
-	pwdlistModel->setupModelData(m_moduleId.toLocal8Bit().constData());
+	pwdlistModel->setupModelData(m_moduleId.toUtf8().constData());
 }
 
 void MainWindow::focusChanged(QWidget* q_old, QWidget* q_new)

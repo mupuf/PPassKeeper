@@ -177,15 +177,15 @@ QVariant PasswordListModel::data(const QModelIndex &index, int role) const
 			if (index.internalId() == appChildId)
 			{
 				const ppk_entry &a = app_ent[index.row()];
-				return QVariant(QString("%1@%2").arg(a.app.username).arg(a.app.app_name));
+				return QVariant(QString::fromUtf8("%1@%2").arg(QString::fromUtf8(a.app.username)).arg(QString::fromUtf8(a.app.app_name)));
 			} else if (index.internalId() == netChildId)
 			{
 				const ppk_entry &n = net_ent[index.row()];
-				return QVariant(QString("%1@%2:%3").arg(n.net.login).arg(n.net.host).arg(n.net.port));
+				return QVariant(QString::fromUtf8("%1@%2:%3").arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port));
 			} else if (index.internalId() == itemChildId)
 			{
 				const ppk_entry &i = item_ent[index.row()];
-				return QVariant(QString(i.item));
+				return QVariant(QString::fromUtf8(i.item));
 			}
 		} else {
 			if (index.row() == 0)

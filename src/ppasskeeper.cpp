@@ -38,7 +38,7 @@ State& cState()
 	return state;
 }
 
-bool grantAccess(const wchar_t* pwd=L"")
+bool grantAccess(const char* pwd="")
 {
 	char hash_pwd[SHA512_HASH_SIZE*2+1];
 	char hash_file[SHA512_HASH_SIZE*2+1];
@@ -49,7 +49,7 @@ bool grantAccess(const wchar_t* pwd=L"")
 		fread(hash_file, sizeof(char), sizeof(hash_file),f);
 		fclose(f);
 
-		sha512(hash_pwd, pwd, wcslen(pwd));
+		sha512(hash_pwd, pwd, strlen(pwd));
 		
 		if(strcmp(hash_pwd, hash_file)==0)
 		{
@@ -82,7 +82,7 @@ bool isLocked()
 //Public functions
 extern "C"
 {	
-	ppk_boolean ppk_setPassword(wchar_t* pwd)
+	ppk_boolean ppk_setPassword(const char* pwd)
 	{
 		if(!isLocked())
 		{
@@ -91,7 +91,7 @@ extern "C"
 			FILE* f=fopen((dir()+"/lock").c_str(), "w");
 			if(f!=NULL)
 			{
-				sha512(hash_pwd, pwd, wcslen(pwd));
+				sha512(hash_pwd, pwd, strlen(pwd));
 				fwrite(hash_pwd, sizeof(char), sizeof(hash_pwd),f);
 				fclose(f);
 				
@@ -107,7 +107,7 @@ extern "C"
 		return isLocked()?PPK_TRUE:PPK_FALSE;
 	}
 	
-	ppk_boolean ppk_unlock(wchar_t* password)
+	ppk_boolean ppk_unlock(const char* password)
 	{
 		grantAccess(password);
 		return !isLocked()?PPK_TRUE:PPK_FALSE;

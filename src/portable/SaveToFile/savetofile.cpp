@@ -42,7 +42,13 @@ std::string generateItemPath(std::string key)
 
 bool deletePassword(std::string path, unsigned int flags)
 {
-	return remove(path.c_str())==0;
+	if(remove(path.c_str())==0)
+		return true;
+	else
+	{
+		setError("The file '"+path+"' cannot removed. Check your permissions !");
+		return false;
+	}
 }
 
 ppk_boolean fileExists(std::string filepath)
@@ -54,7 +60,10 @@ ppk_boolean fileExists(std::string filepath)
 		return PPK_TRUE;
 	}
 	else
+	{
+		setError("The file '" + filepath + "' cannot be oppened. Check your permissions !");
 		return PPK_FALSE;
+	}
 }
 
 //functions
@@ -67,7 +76,6 @@ extern "C"
 		return 1;
 	}
 	
-
 	ppk_boolean isWritable()
 	{
 		return PPK_TRUE;
@@ -118,13 +126,13 @@ extern "C"
 	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 	{
 		ListPwd pwdl;		
-		return pwdl.getEntryListCount(dir().c_str(), entry_types, flags);
+		return pwdl.getEntryListCount(dir().c_str(), entry_types, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 	{
 		static ListPwd pwdl;	
-		return pwdl.getEntryList(dir().c_str(), entry_types, entryList, nbEntries, flags);
+		return pwdl.getEntryList(dir().c_str(), entry_types, entryList, nbEntries, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	//Get and Set passwords
@@ -141,7 +149,10 @@ extern "C"
 			return PPK_TRUE;
 		}
 		else
+		{
+			setError("The entry doesn't exist");
 			return PPK_FALSE;
+		}
 	}
 
 	ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
@@ -152,7 +163,10 @@ extern "C"
 		else if(edata.type==ppk_string)
 			data.assign(edata.string);
 		else
+		{
+			setError("The data type doesn't exist");
 			return PPK_FALSE;
+		}
 		
 		return writeFile(getKey(entry).c_str(), data, flags)?PPK_TRUE:PPK_FALSE;
 	}

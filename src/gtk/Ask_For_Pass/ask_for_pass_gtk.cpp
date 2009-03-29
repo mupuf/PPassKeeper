@@ -167,7 +167,6 @@ bool GTK_Get_Password(std::string title, std::string default_label, std::string&
 	GtkWidget* pBoite;
 	GtkWidget* pEntry;
 	GtkWidget *pLabel;
-	//const gchar* sNom; FIX THIS
 
 	//Init GTK
 	gtk_init(0, NULL);
@@ -202,8 +201,6 @@ bool GTK_Get_Password(std::string title, std::string default_label, std::string&
 		//User clicked on OK
 		case GTK_RESPONSE_OK:
 			pwd = gtk_entry_get_text(GTK_ENTRY(pEntry));
-			//TO FIX -> sNom not initialized
-			//gtk_label_set_text(GTK_LABEL(pLabel), sNom);
 			succeded=true;
 			break;
 		 //User clicked on cancel

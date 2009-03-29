@@ -5,7 +5,7 @@
 
 #include <QBasicTimer>
 
-#include "mainwindow_ui.h"
+#include "ui_mainwindow.h"
 #include "passwordlistmodel.h"
 
 class MainWindow : public QMainWindow, Ui::MainWindow

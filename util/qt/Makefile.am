@@ -1,6 +1,6 @@
 bin_PROGRAMS = ppasskeeper-qt$(EXEEXT)
 MOC_SRC = mainwindow_moc.cpp passwordlistmodel_moc.cpp
-UI_INC = mainwindow_ui.h
+UI_INC = ui_mainwindow.h
 ppasskeeper_qt_SOURCES = $(MOC_SRC) $(UI_INC) main.cpp \
 		       mainwindow.h mainwindow.cpp \
 		       passwordlistmodel.h passwordlistmodel.cpp
@@ -16,7 +16,7 @@ Applications_DATA = ppasskeeper-qt.desktop
 %_moc.cpp: %.h
 	@MOC@ -o $@ $<
 
-%_ui.h: %.ui
+ui_%.h: %.ui
 	@UIC@ -o $@ $<
 
 INCLUDES = -I../../src @QTCORE_CFLAGS@ @QTGUI_CFLAGS@

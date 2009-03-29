@@ -29,6 +29,10 @@
 #ifndef _SHA512_H
 #define _SHA512_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #if HAVE_INTTYPES_H
 # include <inttypes.h>
 #else

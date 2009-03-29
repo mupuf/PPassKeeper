@@ -171,6 +171,11 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		text=generateApplicationKey(entry.app.app_name, entry.app.username);
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
+	else
+	{
+		setError("getEntry : Invalid entry type.");
+		return PPK_FALSE;
+	}
 	
 	const char* res=getPassword(text.c_str());
 

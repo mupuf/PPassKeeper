@@ -18,18 +18,6 @@ void setError(std::string error)
 	*(last_error())="PPK_Ask_For_Pass_WIN32 : " + error;
 }
 
-//constructors & destructors
-/*extern "C" void _init(void)
-{
-
-}
-
-extern "C" void _fini(void)
-{
-
-}*/
-
-
 //functions
 extern "C" const char* getModuleID()
 {

@@ -13,6 +13,7 @@ INCLUDE(FindPkgConfig)
 INCLUDE(FindQt4)
 #INCLUDE(FindKDE4)
 INCLUDE(FindPythonLibs)
+INCLUDE(FindPythonInterp)
 INCLUDE(FeatureSummary)
 
 OPTION(PPK_LIB "PPassKeeper library" ON)
@@ -22,7 +23,7 @@ OPTION(PPK_UTIL_QT "PPassKeeper GUI utility" ON)
 OPTION(PPK_PYTHON "Python binding" ON)
 OPTION(PPK_GTK "GTK plugin" ON)
 OPTION(PPK_GNOME "GNOME plugin" ON)
-#OPTION(PPK_KDE4 "KDE4 plugin" ON)
+OPTION(PPK_KDE4 "KDE4 plugin" ON)
 OPTION(PPK_QT "Qt plugin" ON)
 
 PKG_SEARCH_MODULE(elektra REQUIRED elektra)
@@ -45,6 +46,21 @@ IF(PPK_PYTHON)
 	SET(PPK_PYTHON OFF)
   ELSE(NOT PYTHONLIBS_FOUND)
 	INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+	FIND_PACKAGE(PythonInterp)
+	IF(NOT PYTHONINTERP_FOUND)
+	  SET(PPK_PYTHON OFF)
+	ELSE(NOT PYTHONINTERP_FOUND)
+	  EXECUTE_PROCESS(
+		COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib();"
+		RESULT_VARIABLE PYTHON_LIB_RESULT
+		OUTPUT_VARIABLE PYTHON_LIB_PATH
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	  IF(PYTHON_LIB_RESULT EQUAL 0)
+		MESSAGE("Python library found in ${PYTHON_LIB_PATH}")
+	  ELSE(PYTHON_LIB_RESULT EQUAL 0)
+		SET(PPK_PYTHON OFF)
+	  ENDIF(PYTHON_LIB_RESULT EQUAL 0)
+	ENDIF(NOT PYTHONINTERP_FOUND)
   ENDIF(NOT PYTHONLIBS_FOUND)
 ENDIF(PPK_PYTHON)
 
@@ -68,21 +84,12 @@ IF(PPK_GNOME)
   ENDIF(NOT gkeyring_FOUND)
 ENDIF(PPK_GNOME)
 
-#IF(PPK_KDE4)
-#  FIND_PACKAGE(KDE4)
-#  IF(NOT KDE4_FOUND)
-# 	SET(PPK_KDE4 OFF)
-#   ELSE(NOT KDE4_FOUND)
-# 	INCLUDE_DIRECTORIES(${KDE4_INCLUDES})
-# 	LINK_DIRECTORIES(${KDE4_LIB_DIR})
-#
-# 	# KDE4 adds -std=iso9899:1990, which breaks the build
-# 	STRING(REPLACE "-std=iso9899:1990" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-# 	STRING(REPLACE "-fvisibility=hidden" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-# 	STRING(REPLACE "-fvisibility=hidden" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-# 	#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_FIXED}")
-#   ENDIF(NOT KDE4_FOUND)
-# ENDIF(PPK_KDE4)
+IF(PPK_KDE4)
+  FIND_LIBRARY(KWALLET_LIB kdeinit4_kwalletd)
+  IF(NOT KWALLET_LIB)
+    SET(PPK_KDE4 OFF)
+  ENDIF(NOT KWALLET_LIB)
+ENDIF(PPK_KDE4)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
 SET(PPK_DIRECTORY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
@@ -117,7 +124,9 @@ IF(PPK_LIB)
   IF(HAVE_LIBDL)
 	TARGET_LINK_LIBRARIES(ppasskeeper "dl")
   ENDIF(HAVE_LIBDL)
+  SET_PROPERTY(TARGET ppasskeeper PROPERTY SOVERSION 1.0.0)
   TARGET_LINK_LIBRARIES(ppasskeeper ${elektra_LIBRARIES})
+  INSTALL(TARGETS ppasskeeper DESTINATION lib)
 ENDIF(PPK_LIB)
 
 # SaveToFile plugins
@@ -133,6 +142,7 @@ IF(PPK_STF)
 	"src/portable/SaveToFile/encrypted/base64.cpp"
 	"src/portable/SaveToFile/encrypted/base64.h"
 	"src/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
+  INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STF)
 
 # Command-line utility
@@ -140,6 +150,7 @@ IF(PPK_UTIL)
   ADD_EXECUTABLE(ppasskeeper-util "util/ppasskeeper-util.c")
   TARGET_LINK_LIBRARIES(ppasskeeper-util "ppasskeeper")
   SET_PROPERTY(TARGET ppasskeeper-util PROPERTY OUTPUT_NAME "ppasskeeper")
+  INSTALL(TARGETS ppasskeeper-util DESTINATION bin)
 ENDIF(PPK_UTIL)
 
 # Qt Utility
@@ -157,6 +168,7 @@ IF(PPK_UTIL_QT)
   ENDFOREACH(UI ${ppasskeeper-qt_UIS})
   ADD_EXECUTABLE(ppasskeeper-qt ${ppasskeeper-qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppasskeeper-qt ${QT_LIBRARIES} ppasskeeper)
+  INSTALL(TARGETS ppasskeeper-util DESTINATION bin)
 ENDIF(PPK_UTIL_QT)
 
 # Python binding
@@ -165,6 +177,8 @@ IF(PPK_PYTHON)
 	"python/*.[ch]")
   ADD_LIBRARY(ppk_python MODULE ${ppk_python_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_python ${PYTHON_LIBRARIES} ppasskeeper)
+  SET_PROPERTY(TARGET ppk_python PROPERTY OUTPUT_NAME "ppk")
+  INSTALL(TARGETS ppk_python DESTINATION "${PYTHON_LIB_PATH}")
 ENDIF(PPK_PYTHON)
 
 # GTK plugin
@@ -174,6 +188,7 @@ IF(PPK_GTK)
 	"src/gtk/Ask_For_Pass/*.cpp")
    ADD_LIBRARY(ppk_gtk MODULE ${ppk_gtk_SOURCES})
    TARGET_LINK_LIBRARIES(ppk_gtk ${gtk2_LIBRARIES})
+   INSTALL(TARGETS ppk_gtk DESTINATION lib/ppasskeeper)
 ENDIF(PPK_GTK)
 
 # GNOME plugin
@@ -183,16 +198,18 @@ IF(PPK_GNOME)
 	"src/gnome/GKeyring/*.cpp")
   ADD_LIBRARY(ppk_gnome MODULE ${ppk_gnome_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_gnome ${gkeyring_LIBRARIES})
+  INSTALL(TARGETS ppk_gnome DESTINATION lib/ppasskeeper)
 ENDIF(PPK_GNOME)
 
 # KDE4 plugin
-#IF(PPK_KDE4)
-#  FILE(GLOB ppk_kde4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-#	"src/kde/KWallet/*.[ch]"
-#	"src/kde/KWallet/*.cpp")
-#  ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kde4_SOURCES})
-#  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
-#ENDIF(PPK_KDE4)
+IF(PPK_KDE4)
+  FILE(GLOB ppk_kde4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/kde/KWallet/*.[ch]"
+	"src/kde/KWallet/*.cpp")
+  ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kde4_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
+  INSTALL(TARGETS ppk_kwallet DESTINATION lib/ppasskeeper)
+ENDIF(PPK_KDE4)
 
 # Qt plugin
 IF(PPK_QT)
@@ -201,4 +218,5 @@ IF(PPK_QT)
 	"src/qt/Ask_For_Pass/*.cpp")
   ADD_LIBRARY(ppk_qt MODULE ${ppk_qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_qt ${QT_LIBRARIES})
+  INSTALL(TARGETS ppk_qt DESTINATION lib/ppasskeeper)
 ENDIF(PPK_QT)

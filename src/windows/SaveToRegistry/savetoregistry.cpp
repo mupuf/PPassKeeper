@@ -115,17 +115,17 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 //Get available flags
 extern "C" unsigned int readFlagsAvailable()
 {
-	return ppk_rf_none;
+	return ppk_rf_none|ppk_rf_silent;
 }
 
 extern "C" unsigned int writeFlagsAvailable()
 {
-	return ppk_wf_none;
+	return ppk_wf_none|ppk_wf_silent;
 }
 
 extern "C" unsigned int listingFlagsAvailable()
 {
-	return ppk_lf_none;
+	return ppk_lf_none|ppk_lf_silent;
 }
 
 //List passwords available
@@ -197,7 +197,12 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 		text=generateApplicationKey(entry.app.app_name, entry.app.username);
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
-
+	else
+	{
+		setError("setEntry : Invalid entry type.");
+		return PPK_FALSE;
+	}
+	
 	//if everything went fine
 	if(setPassword(text.c_str(), edata.string))
 	{
@@ -217,6 +222,11 @@ extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 		text=generateApplicationKey(entry.app.app_name, entry.app.username);
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
+	else
+	{
+		setError("removeEntry : Invalid entry type.");
+		return PPK_FALSE;
+	}
 		
 	return removePassword(text.c_str())?PPK_TRUE:PPK_FALSE;
 }

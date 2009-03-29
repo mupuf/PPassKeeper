@@ -29,7 +29,7 @@ void sha512(char* hash, const void* data, unsigned int length)
 	SHA512Final(&s,sha512);
 	
 	for(int i = 0 ; i< SHA512_HASH_SIZE; i++)
-		snprintf(hash + i *2 -2,SHA512_HASH_SIZE+7,"%02x",sha512[i]);
+		snprintf(hash + i *2,SHA512_HASH_SIZE+7,"%02x",sha512[i]);
 }
 
 State& cState()

@@ -25,6 +25,7 @@ OPTION(PPK_GTK "GTK plugin" ON)
 OPTION(PPK_GNOME "GNOME plugin" ON)
 OPTION(PPK_KDE4 "KDE4 plugin" ON)
 OPTION(PPK_QT "Qt plugin" ON)
+OPTION(PPK_DEBUG "Debugging messages" OFF)
 
 PKG_SEARCH_MODULE(elektra REQUIRED elektra)
 INCLUDE_DIRECTORIES(${elektra_INCLUDE_DIRS})
@@ -91,6 +92,10 @@ IF(PPK_KDE4)
   ENDIF(NOT KWALLET_LIB)
 ENDIF(PPK_KDE4)
 
+IF(PPK_DEBUG)
+  ADD_DEFINITIONS(-DDEBUG_MSG)
+ENDIF(PPK_DEBUG)
+
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
 SET(PPK_DIRECTORY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
 ADD_DEFINITIONS(-DDIRECTORY_PATH="\\"${PPK_DIRECTORY_PATH}\\"")
@@ -127,6 +132,7 @@ IF(PPK_LIB)
   SET_PROPERTY(TARGET ppasskeeper PROPERTY SOVERSION 1.0.0)
   TARGET_LINK_LIBRARIES(ppasskeeper ${elektra_LIBRARIES})
   INSTALL(TARGETS ppasskeeper DESTINATION lib)
+  INSTALL(FILES "${CMAKE_SOURCE_DIR}/src/ppasskeeper.h" DESTINATION include)
 ENDIF(PPK_LIB)
 
 # SaveToFile plugins
@@ -151,6 +157,7 @@ IF(PPK_UTIL)
   TARGET_LINK_LIBRARIES(ppasskeeper-util "ppasskeeper")
   SET_PROPERTY(TARGET ppasskeeper-util PROPERTY OUTPUT_NAME "ppasskeeper")
   INSTALL(TARGETS ppasskeeper-util DESTINATION bin)
+  INSTALL(FILES "${CMAKE_SOURCE_DIR}/util/ppasskeeper.1" DESTINATION share/man/man1)
 ENDIF(PPK_UTIL)
 
 # Qt Utility
@@ -169,6 +176,7 @@ IF(PPK_UTIL_QT)
   ADD_EXECUTABLE(ppasskeeper-qt ${ppasskeeper-qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppasskeeper-qt ${QT_LIBRARIES} ppasskeeper)
   INSTALL(TARGETS ppasskeeper-util DESTINATION bin)
+  INSTALL(FILES "${CMAKE_SOURCE_DIR}/util/qt/ppasskeeper-qt.desktop" DESTINATION share/applications)
 ENDIF(PPK_UTIL_QT)
 
 # Python binding

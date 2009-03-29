@@ -91,7 +91,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 	if (flags & ppk_lf_silent || flags & ppk_rf_silent || flags & ppk_wf_silent)
 	{
 		//continue only if it won't annoy people who don't want to be prompted
-		setError("openWallet : openWallet was not performed because it wasn't silent to do so.");
+		setError("openWallet : openWallet was not performed because doing so would have conflicted with the silent flag.");
 		return NULL;
 	}
 
@@ -155,6 +155,8 @@ const char* getBlob(const char *key, int *size, unsigned int flags)
 			*size = blob.size();
 			return blob;
 		}
+		else
+			setError("getBlob: wallet->readEntry failed. Is the key ("+toString(key)+") valid ?");
 	}
 
 	return NULL;
@@ -261,6 +263,8 @@ std::string prefix(ppk_entry_type type)
 		case ppk_item:
 			return ppk_item_string;
 			break;
+		default:
+			setError("prefix : Invalid entry type.");
 	}
 	return std::string();
 }
@@ -337,6 +341,7 @@ static bool generateKey(const ppk_entry entry, std::string &generatedKey)
 		generatedKey = generateItemKey(entry.item);
 		break;
 	default:
+		setError("generateKey : The entry is invalid.");
 		return PPK_FALSE;
 	}
 
@@ -371,8 +376,11 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		edata->blob.size = size;
 		return edata->blob.data != NULL?PPK_TRUE:PPK_FALSE;
 	}
-	
-	return PPK_FALSE;
+	else
+	{
+		setError("getEntry : Invalid entry type. Have this entry been added using ppk ?");
+		return PPK_FALSE;
+	}
 }
 
 extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
@@ -393,6 +401,7 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 	}
 	else
 	{
+		setError("setEntry : Invalid entry type.");
 		return PPK_FALSE;
 	}
 }
@@ -406,7 +415,10 @@ extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 	else if(entry.type == ppk_item)
 		return removePassword(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
 	else
+	{
+		setError("removeEntry : Invalid entry type.");
 		return PPK_FALSE;
+	}
 }
 
 extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
@@ -418,7 +430,10 @@ extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 	else if(entry.type == ppk_item)
 		return passwordExists(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
 	else
+	{
+		setError("entryExists : Invalid entry type.");
 		return PPK_FALSE;
+	}
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

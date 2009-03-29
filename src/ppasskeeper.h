@@ -266,6 +266,9 @@ extern "C"
 	ppk_security_level ppk_securityLevel(const char* module_id);
 
 	//Errors
+	/*! \brief Return the last error of the given module
+	* \param module_id in: Module's ID, if NULL, it will return the last libppk error.
+	* \return  Return the last error.*/
 	const char* ppk_getLastError(const char* module_id);
 
 	/****************************************************************************************************/

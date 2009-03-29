@@ -64,8 +64,13 @@ bool grantAccess(const char* pwd="")
 	}
 	else
 	{
-		cState()=locked;
-		return true;				//Here is the problem for people who want this "security", you just have to delete the file and all the security is gone ...
+		cState()=unlocked;
+		
+		/*
+		 * Here is the problem for people who wants this "security", 
+		 * you just have to delete the file and all the security is gone ...
+		 */
+		return true;
 	}
 }
 
@@ -77,6 +82,17 @@ bool isLocked()
 	bool b_locked = (cState()==locked);
 	
 	return b_locked;
+}
+
+std::string* last_error()
+{
+	static std::string last_err;
+	return &last_err;
+}
+
+void setError(std::string error)
+{
+	*(last_error())="libppasskeeper : " + error;
 }
 
 //Public functions
@@ -97,6 +113,8 @@ extern "C"
 				
 				return PPK_TRUE;
 			}
+			else
+				setError("ppk_setPassword : The lock cannot be openned. Check your file permission !");
 		}
 		
 		return PPK_FALSE;
@@ -125,7 +143,10 @@ extern "C"
 			return modules.getModulesList(pmodules,nbModules);
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return 0;
+		}
 	}
 
 	ppk_boolean ppk_moduleAvailable(const char* module_id)
@@ -139,7 +160,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 
 	unsigned int ppk_readFlagsAvailable(const char* module_id)
@@ -153,7 +177,10 @@ extern "C"
 				return ppk_rf_none;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return ppk_rf_none;
+		}
 	}
 
 	unsigned int ppk_writeFlagsAvailable(const char* module_id)
@@ -167,7 +194,10 @@ extern "C"
 				return ppk_wf_none;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return ppk_wf_none;
+		}
 	}
 
 	unsigned int ppk_listingFlagsAvailable(const char* module_id)
@@ -181,7 +211,10 @@ extern "C"
 				return ppk_lf_none;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return ppk_lf_none;
+		}
 	}
 
 	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags)
@@ -192,7 +225,10 @@ extern "C"
 			if(mod!=NULL)
 				return mod->entryExists(entry, flags);
 			else
+			{
+				setError("You cannot access any information. The library is locked !");
 				return PPK_FALSE;
+			}
 		}
 		else
 			return PPK_FALSE;
@@ -209,7 +245,10 @@ extern "C"
 				return 0;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return 0;
+		}
 	}
 	
 	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags)
@@ -223,7 +262,10 @@ extern "C"
 				return 0;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return 0;
+		}
      }
      
      unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
@@ -237,7 +279,10 @@ extern "C"
 				return 0;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return 0;
+		}
      }
 	
 	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags)
@@ -251,7 +296,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 
 	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags)
@@ -265,7 +313,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 	
 	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags)
@@ -279,7 +330,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 
 	//Information about the module
@@ -294,7 +348,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 
 	ppk_security_level ppk_securityLevel(const char* module_id)
@@ -308,7 +365,10 @@ extern "C"
 				return ppk_sec_lowest;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return ppk_sec_lowest;
+		}
 	}
 
 
@@ -319,7 +379,7 @@ extern "C"
 		if(mod!=NULL)
 			return mod->getLastError();
 		else
-			return NULL;
+			return last_error()->c_str();
 	}
 
 	/****************************************************************************************************/
@@ -344,7 +404,10 @@ extern "C"
 				return PPK_FALSE;
 		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 	
 	/****************************************************************************************************/

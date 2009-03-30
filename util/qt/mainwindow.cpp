@@ -17,6 +17,8 @@ MainWindow::MainWindow()
 	setupActions();
 
 	setWindowTitle(qApp->applicationName());
+	
+	while(!unlockPPK()){}
 
 	fillModulesBox();
 }
@@ -50,6 +52,8 @@ void MainWindow::showInfoMessageUnderDevelopment()
 void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(actionLock_ppasskeeper, SIGNAL(triggered()), this, SLOT(setMasterPwd()));
+	
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
@@ -72,6 +76,7 @@ void MainWindow::setupActions()
 
 	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
+	
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 }
 
@@ -101,6 +106,45 @@ void MainWindow::updateSelectedPassword(QString pwd)
 		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
 				ppk_createItemEntry(cur_item.key.toUtf8().constData()),
 				ppk_createStringData(pwd.toUtf8().constData()), 0)==PPK_TRUE;
+	}
+}
+
+bool MainWindow::unlockPPK()
+{
+	if(ppk_isLocked()==PPK_TRUE)
+	{
+		bool ok;
+		std::string pwd=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper :", QLineEdit::Password,"", &ok).toStdString();
+		
+		if(ok && ppk_unlock(pwd.c_str())==PPK_TRUE)
+			return true;
+		
+		QMessageBox::critical(this, "Error : Incorrect password", "The password you entered is wrong.\nTry again ...");
+		return false;
+	}
+	else
+		return true;
+}
+
+void MainWindow::setMasterPwd()
+{
+	bool ok;
+	std::string pwd=QInputDialog::getText(NULL,"Please set up the new master password","Please key in the new master password :", QLineEdit::Password,"", &ok).toStdString();
+	if(ok)
+	{
+		std::string pwd2=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper a second time :", QLineEdit::Password,"", &ok).toStdString();
+		if(ok)
+		{
+			if(pwd==pwd2)
+			{
+				if(ppk_setPassword(pwd.c_str())==PPK_TRUE)
+					QMessageBox::information(this, "The password has been set", "The password you entered has been set as the new master password.");
+				else
+					QMessageBox::critical(this, "Error : An error occured", QString("PPassKeeper was unable to set this password.\nError : ")+ppk_getLastError(NULL));
+			}
+			else
+				QMessageBox::critical(this, "Error : The password are not the same", "The two passwords you entered are not matching.\nTry again ...");
+		}
 	}
 }
 
@@ -170,7 +214,7 @@ void MainWindow::onDelButtonClicked()
 {
 	std::string key;
 	QString error="";
-		
+	
 	ppk_boolean res=PPK_FALSE;
 	if (cur_type == ppk_application)
 	{
@@ -187,10 +231,10 @@ void MainWindow::onDelButtonClicked()
 		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
 				ppk_createItemEntry(cur_item.key.toUtf8().constData()), 0);
 	}
-	
+
 	if(!res)
 		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
-	
+		
 	listCurrentModule();
 }
 

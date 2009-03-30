@@ -10,6 +10,29 @@ PyObject *wrap_getAvailableModulesCount(PyObject *o, PyObject * args)
 	return result;
 }
 
+PyObject *wrap_isLocked(PyObject *o, PyObject * args)
+{
+	return ppk_isLocked()?Py_True:Py_False;
+}
+
+PyObject *wrap_setPassword(PyObject *o, PyObject * args)
+{
+	const char *pwd;
+	int ok = PyArg_ParseTuple(args, "s", &pwd);
+	if (! ok) return 0;
+	
+	return ppk_setPassword(pwd)?Py_True:Py_False;
+}
+
+PyObject *wrap_unlock(PyObject *o, PyObject * args)
+{
+	const char *pwd;
+	int ok = PyArg_ParseTuple(args, "s", &pwd);
+	if (! ok) return 0;
+	
+	return ppk_unlock(pwd)?Py_True:Py_False;
+}
+
 PyObject *wrap_getAvailableModules(PyObject *o, PyObject * args)
 {
 	unsigned int modules_count=ppk_getAvailableModulesCount();
@@ -391,6 +414,9 @@ static PyMethodDef ppkMethods[] =
 	{"securityLevel", wrap_securityLevel, METH_VARARGS, ""},
 	{"getLastError", wrap_getLastError, METH_VARARGS, ""},
 	{"setCustomPromptMessage", wrap_setCustomPromptMessage, METH_VARARGS, ""},
+	{"isLocked", wrap_isLocked, METH_VARARGS, ""},
+	{"setPassword", wrap_setPassword, METH_VARARGS, ""},
+	{"unlock", wrap_unlock, METH_VARARGS, ""},
 	{ NULL, NULL }
 };
 

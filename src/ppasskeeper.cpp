@@ -79,9 +79,7 @@ bool isLocked()
 	if(cState() == undefined)
 		cState()=grantAccess()?unlocked:locked;
 		
-	bool b_locked = (cState()==locked);
-	
-	return b_locked;
+	return cState()==locked;
 }
 
 std::string* last_error()
@@ -133,7 +131,13 @@ extern "C"
 
 	unsigned int ppk_getAvailableModulesCount()
 	{
-		return modules.size();
+		if(!isLocked())
+			return modules.size();
+		else
+		{
+			setError("You cannot access any information. The library is locked !");
+			return 0;
+		}
 	}
 
 	unsigned int ppk_getAvailableModules(ppk_module* pmodules, unsigned int nbModules)

@@ -8,14 +8,14 @@
 #include <errno.h>
 
 char mode = 0, pwd_type = 0, listing_type=0;
-char *module_id = NULL, *key = NULL, *password = NULL;
+char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL;
 
 void usage()
 {
 	printf("Usage:\n"
-			"ppasskeeper -L\n"
-			"ppasskeeper -G -m <module> -t <app|net|item> -k <name>\n"
-			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-p <password>]\n\n"
+			"ppasskeeper -L [-u <ppk_password>]\n"
+			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-u <ppk_password>]\n"
+			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-p <password> -u <ppk_password>]\n\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
 }
@@ -115,6 +115,9 @@ void parse_cmdline(int argc, char **argv)
 				n++;
 				if (password || *(flag + 1) || n >= argc) usage();
 				password = argv[n];
+			case 'u':
+				n++;
+				ppk_password = argv[n];
 				break;
 			default:
 				usage();
@@ -163,6 +166,21 @@ int main(int argc, char **argv)
 {
 	ppk_entry entry;
 	parse_cmdline(argc, argv);
+	
+	//Unlock ppk if needed
+	if(ppk_isLocked()==PPK_TRUE)
+	{
+		if(ppk_password==NULL)
+		{
+			printf("PPassKeeper is locked.\nPlease add -u <ppk_password> in the command line\n");
+			return 1;
+		}
+		else if(ppk_unlock(ppk_password)==PPK_FALSE)
+		{
+			printf("The password you gave to unlock PPassKeeper is wrong.\n");
+			return 1;
+		}
+	}
 
 	if (mode == 'L')
 	{

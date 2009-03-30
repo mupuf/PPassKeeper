@@ -55,12 +55,14 @@ private:
 	bool parseAndGetItemEntry(std::string str, ppk_entry& entry);
 	
 	void showInfoMessageUnderDevelopment();
+	bool unlockPPK();
 
 protected:
 	void timerEvent(QTimerEvent *event);
 	uint timerValue;
 
 public slots:
+	void setMasterPwd();
 	void onAppPasswordSelected(const char *app_name, const char *username);
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
 	void onItemPasswordSelected(const char *key);

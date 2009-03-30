@@ -1,8 +1,9 @@
 .\" man page for the ppasskeeper utility
 .\"
 .\" Denis Martinez: initial version (20080911)
+.\" Martin PERES: update to rc1 version (20090330)
 
-.TH ppasskeeper 1 "September 2008" "Portable Password Keeper" "A modular password manager"
+.TH ppasskeeper 1 "March 2009" "Portable Password Keeper" "A modular password manager"
 
 .SH NAME
 .P
@@ -10,11 +11,11 @@ ppasskeeper - password management utility
 
 .SH SYNOPSIS
 .P
-\fBppasskeeper\fR -L
+\fBppasskeeper\fR -L [-u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY
+\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY [-u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-p PASSWORD]
+\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-p PASSWORD -u PPK_PASSWORD]
 .br
 
 .SH DESCRIPTION
@@ -107,6 +108,13 @@ When setting a password, it can be specified either on the command-line, or inte
 .TP
 \fB-p \fIPASSWORD\fR
 Specify the password as an argument.
+
+.SS PPK_PASSWORD
+.P
+When the library is locked, you need to set-up PPK_PASSWORD to unlock it.
+.TP
+\fB-u \fIPPK_PASSWORD\fR
+Specify the ppk's password as an argument.
 
 .SH AUTHORS
 .P

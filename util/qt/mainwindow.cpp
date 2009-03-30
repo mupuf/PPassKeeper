@@ -18,7 +18,7 @@ MainWindow::MainWindow()
 
 	setWindowTitle(qApp->applicationName());
 	
-	while(!unlockPPK()){}
+	unlockPPK(true);
 
 	fillModulesBox();
 }
@@ -109,18 +109,29 @@ void MainWindow::updateSelectedPassword(QString pwd)
 	}
 }
 
-bool MainWindow::unlockPPK()
+bool MainWindow::unlockPPK(bool force)
 {
 	if(ppk_isLocked()==PPK_TRUE)
 	{
 		bool ok;
 		std::string pwd=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper :", QLineEdit::Password,"", &ok).toStdString();
 		
-		if(ok && ppk_unlock(pwd.c_str())==PPK_TRUE)
-			return true;
-		
-		QMessageBox::critical(this, "Error : Incorrect password", "The password you entered is wrong.\nTry again ...");
-		return false;
+		if(ok)
+		{
+			if(ppk_unlock(pwd.c_str())==PPK_TRUE)
+				return true;
+			else
+			{
+				QMessageBox::critical(this, "Error : Incorrect password", "The password you entered is wrong.\nTry again ...");
+
+				if(force)
+					return unlockPPK(force);
+				else
+					return false;
+			}
+		}
+		else
+			exit(1);
 	}
 	else
 		return true;

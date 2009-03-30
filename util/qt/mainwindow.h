@@ -55,7 +55,7 @@ private:
 	bool parseAndGetItemEntry(std::string str, ppk_entry& entry);
 	
 	void showInfoMessageUnderDevelopment();
-	bool unlockPPK();
+	bool unlockPPK(bool force=false);
 
 protected:
 	void timerEvent(QTimerEvent *event);

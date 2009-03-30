@@ -175,7 +175,7 @@ IF(PPK_UTIL_QT)
   ENDFOREACH(UI ${ppasskeeper-qt_UIS})
   ADD_EXECUTABLE(ppasskeeper-qt ${ppasskeeper-qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppasskeeper-qt ${QT_LIBRARIES} ppasskeeper)
-  INSTALL(TARGETS ppasskeeper-util DESTINATION bin)
+  INSTALL(TARGETS ppasskeeper-qt DESTINATION bin)
   INSTALL(FILES "${CMAKE_SOURCE_DIR}/util/qt/ppasskeeper-qt.desktop" DESTINATION share/applications)
 ENDIF(PPK_UTIL_QT)
 

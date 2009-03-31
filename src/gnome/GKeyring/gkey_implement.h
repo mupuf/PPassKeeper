@@ -16,7 +16,7 @@ extern "C" ppk_boolean removeNetworkPassword(const char* host, const char* login
 extern "C" ppk_boolean removeApplicationPassword(const char* appName, const char* user, unsigned int flags);
 extern "C" ppk_boolean removeItem(const char* item, unsigned int flags);
 
-extern "C" char** getItemList();
+extern "C" char** getItemList(unsigned int flags);
 
 extern "C" void constructor(void);
 extern "C" void destructor(void);

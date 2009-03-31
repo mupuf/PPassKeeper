@@ -57,7 +57,7 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	unsigned int count=0;
 	
 	//Get the list
-	char** list=getItemList();
+	char** list=getItemList(flags);
 	
 	if(list!=NULL)
 	{
@@ -98,7 +98,7 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	static std::vector<itemList> listItem;
 	
 	//Get the list
-	char** list=getItemList();
+	char** list=getItemList(flags);
 	
 	if(list!=NULL)
 	{
@@ -230,12 +230,11 @@ extern "C" const char* getLastError()
 	return last_error()->c_str();
 }
 
-extern "C" void setError(const std::string error)
+extern "C" void setError(const char* error)
 {
 	*(last_error())= getModuleID() + toString(" : ") + error;
 	std::cerr << getLastError() << std::endl;
 }
-
 
 //Private functions
 bool matchNetworkPassword(const std::string name, std::string& user, std::string& host, unsigned short& port)

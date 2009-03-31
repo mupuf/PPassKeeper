@@ -56,11 +56,14 @@ inline void PasswordListModel::freeEntries()
 	item_ent = NULL;
 }
 
+#include <iostream>
 void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
-
+	
+	std::cout << "avant listCountNetwork" << std::endl;
 	net_count = ppk_getEntryListCount(moduleId, ppk_network, 0);
+	std::cout << "après listCountNetwork" << std::endl;	
 	app_count = ppk_getEntryListCount(moduleId, ppk_application, 0);
 	item_count = ppk_getEntryListCount(moduleId, ppk_item, 0);
 	if (net_count > 0)

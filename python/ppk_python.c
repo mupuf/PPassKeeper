@@ -32,6 +32,33 @@ PyObject *wrap_unlock(PyObject *o, PyObject * args)
 	
 	return ppk_unlock(pwd)?Py_True:Py_False;
 }
+	
+PyObject *wrap_saveParam(PyObject *o, PyObject * args)
+{
+	const char *module_id, *key, *value;
+	int ok = PyArg_ParseTuple(args, "sss", &module_id, &key, &value);
+	if (! ok) return 0;
+	
+	ppk_boolean res = ppk_saveParam(module_id, key, value);
+	
+	return res==PPK_TRUE?Py_True:Py_False;
+}
+	
+///																	<--------- Doesn't seem to be working !
+PyObject *wrap_getParam(PyObject *o, PyObject * args)
+{
+	const char *module_id, *key;
+	int ok = PyArg_ParseTuple(args, "ss", &module_id, &key);
+	if (! ok) return 0;
+	
+	char returned[501];
+	ppk_boolean res = ppk_getParam(module_id, key, returned, sizeof(returned));
+	
+	if(res==PPK_FALSE)
+		returned[0]='\0';
+
+	return Py_BuildValue("s", returned);
+}
 
 PyObject *wrap_getAvailableModules(PyObject *o, PyObject * args)
 {
@@ -285,7 +312,8 @@ PyObject *wrap_securityLevel(PyObject *o, PyObject * args)
 	int ok = PyArg_ParseTuple(args, "s", &module_id);
 	if (! ok) return 0;
 	ppk_security_level result = ppk_securityLevel(module_id);
-	return Py_BuildValue("I", result);
+	PyObject *obj=Py_BuildValue("I", result);
+	return obj;
 }
 
 PyObject *wrap_getLastError(PyObject *o, PyObject * args)
@@ -417,6 +445,8 @@ static PyMethodDef ppkMethods[] =
 	{"isLocked", wrap_isLocked, METH_VARARGS, ""},
 	{"setPassword", wrap_setPassword, METH_VARARGS, ""},
 	{"unlock", wrap_unlock, METH_VARARGS, ""},
+	{"saveParam", wrap_saveParam, METH_VARARGS, ""},
+	{"getParam", wrap_getParam, METH_VARARGS, ""},
 	{ NULL, NULL }
 };
 

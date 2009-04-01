@@ -44,7 +44,6 @@ PyObject *wrap_saveParam(PyObject *o, PyObject * args)
 	return res==PPK_TRUE?Py_True:Py_False;
 }
 	
-///																	<--------- Doesn't seem to be working !
 PyObject *wrap_getParam(PyObject *o, PyObject * args)
 {
 	const char *module_id, *key;

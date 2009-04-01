@@ -21,9 +21,16 @@ std::string* last_error()
 	return &last_err;
 }
 
+extern "C" const char* getLastError()
+{
+	return last_error()->c_str();
+}
+
+
 void setError(std::string error)
 {
 	*(last_error())="PPK_KWallet : " + error;
+	std::cerr << getLastError() << std::endl;
 }
 
 extern "C" void constructor()
@@ -88,7 +95,9 @@ extern "C" unsigned int listingFlagsAvailable()
 
 KWallet::Wallet* openWallet(unsigned int flags)
 {
-	if (flags & ppk_lf_silent || flags & ppk_rf_silent || flags & ppk_wf_silent)
+	bool initialised=KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet());
+	
+	if (!initialised && (flags & ppk_lf_silent!=0 || flags & ppk_rf_silent!=0 || flags & ppk_wf_silent!=0))
 	{
 		//continue only if it won't annoy people who don't want to be prompted
 		setError("openWallet : openWallet was not performed because doing so would have conflicted with the silent flag.");
@@ -115,7 +124,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
 		if (_wallet == NULL)
 		{
-			setError("openWallet : openWallet failed");
+			std::cout << "openWallet : openWallet failed" << std::endl;
 			return NULL;
 		}
 	}
@@ -304,7 +313,7 @@ extern "C" const int getABIVersion()
 extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
 	//Open the wallet
-	KWallet::Wallet* wallet=openWallet(ppk_rf_silent);
+	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		static ListPwd pwdl;		
@@ -447,10 +456,4 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	}
 	
 	return 0;
-}
-
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
 }

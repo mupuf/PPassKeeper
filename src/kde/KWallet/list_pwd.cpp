@@ -191,7 +191,7 @@ unsigned int ListPwd::copyItemToPwdList(ppk_entry *entryList, unsigned int nbEnt
 		entryList[i].type=ppk_item;
 		entryList[i].item=listItem[i].key.c_str();
 	}
-
+	
 	return i;
 }
 

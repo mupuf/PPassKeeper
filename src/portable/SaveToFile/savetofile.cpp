@@ -3,11 +3,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <string.h>
 #include "list_pwd.h"
+
+#define STR_STRING "str :"
+#define BLOB_STRING "blob:"
 
 //local functions
 std::string shortName();
-const char* readFile(std::string filename, unsigned int flags);
+std::string& readFile(std::string filename, unsigned int flags);
 bool writeFile(std::string filename, std::string secret, unsigned int flags);
 
 //Personal portable functions
@@ -138,14 +142,26 @@ extern "C"
 	//Get and Set passwords
 	ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 	{
-		static std::string pwd;	
-
-		const char* res=readFile(getKey(entry), flags);
-		if(res!=NULL)
+		std::string pwd=readFile(getKey(entry), flags);
+		if(pwd!=std::string())
 		{
-			pwd=res;
-			edata->type=ppk_string;
-			edata->string=pwd.c_str();
+			if(pwd.substr(0,strlen(STR_STRING))==STR_STRING)
+			{
+				edata->type=ppk_string;
+				edata->string=pwd.c_str()+strlen(STR_STRING);
+			}
+			else if(pwd.substr(0,strlen(BLOB_STRING))==BLOB_STRING)
+			{
+				edata->type=ppk_blob;
+				edata->blob.data=pwd.data()+strlen(STR_STRING);
+				edata->blob.size=pwd.size()-strlen(BLOB_STRING);
+			}
+			else
+			{
+				setError("Unknown entry type");
+				return PPK_FALSE;
+			}
+			
 			return PPK_TRUE;
 		}
 		else
@@ -159,12 +175,18 @@ extern "C"
 	{
 		std::string data;
 		if (edata.type==ppk_blob)
+		{
 			data.assign((const char *) edata.blob.data, edata.blob.size);
+			data=BLOB_STRING+data;
+		}
 		else if(edata.type==ppk_string)
+		{
 			data.assign(edata.string);
+			data=STR_STRING+data;
+		}
 		else
 		{
-			setError("The data type doesn't exist");
+			setError("Unknown entry type");
 			return PPK_FALSE;
 		}
 		
@@ -188,7 +210,7 @@ extern "C"
 			case ppk_string:
 				return -1;
 			case ppk_blob:
-				return 0;
+				return -1;
 		}
 	
 		return 0;

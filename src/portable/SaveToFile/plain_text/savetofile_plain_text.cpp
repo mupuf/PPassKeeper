@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #ifdef HAVE_CHMOD
 	#include <sys/stat.h>
@@ -37,9 +38,11 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 	return ppk_sec_lowest;
 }
 
-const char* readFile(std::string filepath, unsigned int flags)
+std::string& readFile(std::string filepath, unsigned int flags)
 {
 	static std::string pwd;
+	
+	pwd=std::string();
 
 	//open the file
 	std::ifstream inputfile(filepath.c_str());
@@ -53,12 +56,12 @@ const char* readFile(std::string filepath, unsigned int flags)
 		//close the file
 		inputfile.close();
 
-		return pwd.c_str();
+		return pwd;
 	}
 	else
 	{
 		setError("Could not open " + filepath + " for reading access.");
-		return NULL;
+		return pwd;
 	}
 }
 

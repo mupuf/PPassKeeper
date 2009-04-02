@@ -233,7 +233,7 @@ extern "C" const char* getLastError()
 extern "C" void setError(const char* error)
 {
 	*(last_error())= getModuleID() + toString(" : ") + error;
-	std::cerr << getLastError() << std::endl;
+	/*std::cerr << getLastError() << std::endl;*/
 }
 
 //Private functions

@@ -179,7 +179,7 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 		if(wallet!=NULL)
 		{
 			//Set the password
-			if(wallet->writePassword(key,pwd)==0)
+			if(wallet->writePassword(key, pwd)==0)
 				return true;
 			else
 			{
@@ -189,7 +189,7 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 		}
 	}
 
-	return NULL;
+	return false;
 }
 
 bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
@@ -201,6 +201,7 @@ bool setBlob(const char *key, const void *data, unsigned long size, unsigned int
 		{
 			//Set the password
 			QByteArray blobData((const char *) data, size);
+			
 			if(wallet->writeEntry(key, blobData)==0)
 				return true;
 			else
@@ -211,7 +212,7 @@ bool setBlob(const char *key, const void *data, unsigned long size, unsigned int
 		}
 	}
 	
-	return NULL;
+	return false;
 }
 
 bool removePassword(const char* key, unsigned int flags)

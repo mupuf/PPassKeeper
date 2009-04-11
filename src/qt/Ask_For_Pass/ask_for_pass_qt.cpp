@@ -235,7 +235,8 @@ bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
 	if(QApplication::instance()==0)
 	{
 		//create the instance
-		QApplication app(0,NULL);
+		int argc;
+		QApplication app(argc,NULL);
 
 		//Retrieve the password
 		ok = PasswordDialog::getPassword(title, label, pwd);

@@ -16,8 +16,7 @@
 
 //functions
 extern void setError(std::string error);
-bool mkdir(std::string path);
-std::string dir();
+extern std::string setting_dir();
 
 //Interface
 std::string shortName()
@@ -85,9 +84,6 @@ std::string& readFile(std::string filepath, unsigned int flags)
 
 bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 {
-	//try to create the wanted directory
-	mkdir(dir());
-
 	//open the file
 	std::ofstream outputfile(filepath.c_str());
 	if(outputfile.is_open())

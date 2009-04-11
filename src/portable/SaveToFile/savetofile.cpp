@@ -15,8 +15,26 @@ std::string& readFile(std::string filename, unsigned int flags);
 bool writeFile(std::string filename, std::string secret, unsigned int flags);
 
 //Personal portable functions
-std::string dir();
-bool mkdir(std::string path);
+std::string setting_dir();
+
+//******************************************
+//*********        Windows         *********
+//******************************************
+#if defined(WIN32) || defined(WIN64)
+	#include <direct.h>
+	std::string setting_dir()
+	{
+		std::string userprofile=getenv("USERPROFILE");
+		std::string dir=userprofile+"/ppasskeeper/";
+		return dir;
+	}
+#else
+	std::string setting_dir()
+	{
+		return ppk_settingDirectory();
+	}
+#endif
+
 
 std::string* last_error()
 {
@@ -31,17 +49,17 @@ void setError(std::string error)
 
 std::string generateNetworkPath(std::string server, int port, std::string username)
 {
-	return ppk_settingDirectory()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
+	return setting_dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
 }
 
 std::string generateApplicationPath(std::string application_name, std::string username)
 {
-	return ppk_settingDirectory()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
+	return setting_dir()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
 }
 
 std::string generateItemPath(std::string key)
 {
-	return ppk_settingDirectory()+toString("/")+shortName()+"_ITM_"+key;
+	return setting_dir()+toString("/")+shortName()+"_ITM_"+key;
 }
 
 bool deletePassword(std::string path, unsigned int flags)
@@ -130,13 +148,13 @@ extern "C"
 	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 	{
 		ListPwd pwdl;		
-		return pwdl.getEntryListCount(dir().c_str(), entry_types, flags)?PPK_TRUE:PPK_FALSE;
+		return pwdl.getEntryListCount(setting_dir().c_str(), entry_types, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 	{
 		static ListPwd pwdl;	
-		return pwdl.getEntryList(dir().c_str(), entry_types, entryList, nbEntries, flags)?PPK_TRUE:PPK_FALSE;
+		return pwdl.getEntryList(setting_dir().c_str(), entry_types, entryList, nbEntries, flags)?PPK_TRUE:PPK_FALSE;
 	}
 
 	//Get and Set passwords

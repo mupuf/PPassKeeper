@@ -1,12 +1,14 @@
 #include "ppasskeeper.h"
 #include "ppasskeeper-module.h"
 #include "ppk_modules.h"
+#include "ppasskeeper-dir.h"
+#include "sha512.h"
+
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
 #include <string.h>
 
-#include "sha512.h"
 
 //Param
 #ifdef USE_ELEKTRA
@@ -27,9 +29,11 @@ PPK_Modules modules;
 //local definitions
 enum State {undefined, unlocked, locked };
 
-//Local functions
-bool mkdir(std::string path);
-std::string setting_dir();
+/*********************************************************************
+ *                                                                   *
+ *                          Local Functions                          *
+ *                                                                   *
+ *********************************************************************/
 
 void sha512(char* hash, const void* data, unsigned int length)
 {
@@ -105,7 +109,11 @@ void setError(std::string error)
 	*(last_error())="libppasskeeper : " + error;
 }
 
-//Public functions
+/*********************************************************************
+ *                                                                   *
+ *                          Public Functions                          *
+ *                                                                   *
+ *********************************************************************/
 extern "C"
 {	
 	ppk_boolean ppk_setPassword(const char* pwd)
@@ -426,13 +434,12 @@ extern "C"
 		}
 	}
 	
-	/****************************************************************************************************/
-	/****************************************************************************************************/
-	/*                                                                                                  */
-	/*                                       Convenient functions                                       */
-	/*                                                                                                  */
-	/****************************************************************************************************/
-	/****************************************************************************************************/
+
+/*********************************************************************
+ *                                                                   *
+ *                      Convenient functions                         *
+ *                                                                   *
+ *********************************************************************/
 	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port)
 	{
 		ppk_entry entry;

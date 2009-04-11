@@ -336,6 +336,10 @@ extern "C"
 	* \param maxSize in: The size the result value should not exceed.
 	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+		
+	/*! \brief Get ppk's setting directory
+	* \return  Return the setting directory of ppk*/
+	const char* ppk_settingDirectory();
 
 #ifdef __cplusplus 
 }

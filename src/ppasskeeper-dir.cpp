@@ -14,7 +14,7 @@
 		return _mkdir(path.c_str())==0;
 	}
 	
-	std::string dir()
+	std::string setting_dir()
 	{
 		std::string userprofile=getenv("USERPROFILE");
 		std::string dir=userprofile+"/ppasskeeper/";
@@ -35,7 +35,7 @@
 		return mkdir(path.c_str(), 0700)==0;
 	}
 	
-	std::string dir()
+	std::string setting_dir()
 	{
 		std::string home=getenv("HOME");
 		std::string dir=home+"/.ppasskeeper/";

@@ -31,17 +31,17 @@ void setError(std::string error)
 
 std::string generateNetworkPath(std::string server, int port, std::string username)
 {
-	return dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
+	return ppk_settingDirectory()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
 }
 
 std::string generateApplicationPath(std::string application_name, std::string username)
 {
-	return dir()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
+	return ppk_settingDirectory()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
 }
 
 std::string generateItemPath(std::string key)
 {
-	return dir()+toString("/")+shortName()+"_ITM_"+key;
+	return ppk_settingDirectory()+toString("/")+shortName()+"_ITM_"+key;
 }
 
 bool deletePassword(std::string path, unsigned int flags)

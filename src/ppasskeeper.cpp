@@ -6,10 +6,20 @@
 #include <cstdlib>
 #include <string.h>
 
-//libelektra
-#include <kdb.h>
-
 #include "sha512.h"
+
+//Param
+#ifdef USE_ELEKTRA
+	#include "elektraParam.h"
+	
+	ElektraParam elektraParam;
+	VParam* vparam=&elektraParam;
+#else
+	#include "xmlParam.h"
+	
+	XMLParam xmlParam(ppk_settingDirectory()+std::string("/xmlParam.xml"));
+	VParam* vparam=&xmlParam;
+#endif
 
 //global variables
 PPK_Modules modules;
@@ -18,7 +28,9 @@ PPK_Modules modules;
 enum State {undefined, unlocked, locked };
 
 //Local functions
-std::string dir();
+bool mkdir(std::string path);
+std::string setting_dir();
+
 void sha512(char* hash, const void* data, unsigned int length)
 {
 	uint8_t	sha512[SHA512_HASH_SIZE];
@@ -43,7 +55,7 @@ bool grantAccess(const char* pwd="")
 	char hash_pwd[SHA512_HASH_SIZE*2+1];
 	char hash_file[SHA512_HASH_SIZE*2+1];
 	
-	FILE* f=fopen((dir()+"/lock").c_str(), "r");
+	FILE* f=fopen((setting_dir()+"/lock").c_str(), "r");
 	if(f!=NULL)
 	{
 		fread(hash_file, sizeof(char), sizeof(hash_file),f);
@@ -102,7 +114,7 @@ extern "C"
 		{
 			char hash_pwd[SHA512_HASH_SIZE*2+1];
 			
-			FILE* f=fopen((dir()+"/lock").c_str(), "w");
+			FILE* f=fopen((setting_dir()+"/lock").c_str(), "w");
 			if(f!=NULL)
 			{
 				sha512(hash_pwd, pwd, strlen(pwd));
@@ -464,68 +476,28 @@ extern "C"
 		edata.blob.size=size;
 		return edata;
 	}
-}
-
-static std::string elektraKeyName(const char* module_id, const char* key)
-{
-	std::ostringstream keyName;
-	keyName << "user/sw/ppasskeeper/" << module_id << '/' << key;
-	return keyName.str();
-}
-
-ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
-{
-	ckdb::KDB* handle;
-	if ((handle = ckdb::kdbOpen()) == NULL)
+	
+	const char* ppk_settingDirectory()
 	{
-		perror("kdbOpen");
-		return PPK_FALSE;
+		static std::string settingDir=setting_dir();
+		return settingDir.c_str();	
 	}
-
-	ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, value, KEY_END);
-
-	ppk_boolean r;
-	if (k == NULL)
+	
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
 	{
-		std::cerr << "Invalid parameter name" << std::endl;
-		r = PPK_FALSE;
-	}
-	else
-	{
-		int err = ckdb::kdbSetKey(handle, k);
-		ckdb::keyDel(k);
-
-		if (err == 0)
-			r = PPK_TRUE;
+		if(vparam->saveParam(module_id, key, value))
+			return PPK_TRUE;
 		else
-		{
-			perror("kbdSetKey");
-			r = PPK_FALSE;
-		}
+			return PPK_FALSE;
 	}
 
-	if (ckdb::kdbClose(handle) != 0)
-		perror("kdbClose");
-	return r;
-}
-
-ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
-{
-	ckdb::KDB* handle;
-	if ((handle = ckdb::kdbOpen()) == NULL)
+	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
 	{
-		perror("kdbOpen");
-		return PPK_FALSE;
+		if(vparam->getParam(module_id, key, returnedString, maxSize))
+			return PPK_TRUE;
+		else
+			return PPK_FALSE;
 	}
-
-	int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, maxSize);
-
-	//avoid potential buffer overflows
-	returnedString[maxSize - 1] = '\0';
-
-	ppk_boolean r = (size > 0) ? PPK_TRUE : PPK_FALSE;
-
-	if (ckdb::kdbClose(handle) != 0)
-		perror("kdbClose");
-	return r;
 }
+
+

@@ -173,19 +173,16 @@ const char* getBlob(const char *key, int *size, unsigned int flags)
 
 bool setPassword(const char* key, const char* pwd, unsigned int flags)
 {
-	if((int)(flags&ppk_wf_silent)==0)
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
 	{
-		KWallet::Wallet* wallet=openWallet(flags);
-		if(wallet!=NULL)
+		//Set the password
+		if(wallet->writePassword(key,pwd)==0)
+			return false;
+		else
 		{
-			//Set the password
-			if(wallet->writePassword(key, pwd)==0)
-				return true;
-			else
-			{
-				setError("Set Entry: wallet->writePassword failed, key="+toString(key));
-				return false;
-			}
+			setError("Set Entry: wallet->writePassword failed, key="+toString(key));
+			return false;
 		}
 	}
 
@@ -194,46 +191,35 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 
 bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
 {
-	if((int)(flags&ppk_wf_silent)==0)
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
 	{
-		KWallet::Wallet* wallet=openWallet(flags);
-		if(wallet!=NULL)
+		//Set the password
+		QByteArray blobData((const char *) data, size);
+		if(wallet->writeEntry(key, blobData)==0)
+			return true;
+		else
 		{
-			//Set the password
-			QByteArray blobData((const char *) data, size);
-			
-			if(wallet->writeEntry(key, blobData)==0)
-				return true;
-			else
-			{
-				setError("Set Entry: wallet->writeEntry failed, key="+toString(key));
-				return false;
-			}
+			setError("Set Entry: wallet->writeEntry failed, key="+toString(key));
+			return false;
 		}
 	}
-	
-	return false;
 }
 
 bool removePassword(const char* key, unsigned int flags)
 {
-	if((int)(flags&ppk_lf_silent)==0)
+	KWallet::Wallet* wallet=openWallet(flags);
+	if(wallet!=NULL)
 	{
-		KWallet::Wallet* wallet=openWallet(flags);
-		if(wallet!=NULL)
+		//Set the password
+		if(wallet->removeEntry(key)==0)
+			return true;
+		else
 		{
-			//Set the password
-			if(wallet->removeEntry(key)==0)
-				return true;
-			else
-			{
-				setError("Remove Entry : wallet->removeEntry failed, key="+toString(key));
-				return false;
-			}
+			setError("Remove Entry : wallet->removeEntry failed, key="+toString(key));
+			return false;
 		}
 	}
-	
-	return false;
 }
 
 bool passwordExists(const char* key, unsigned int flags)

@@ -122,7 +122,6 @@ extern "C"
 	{
 		///Entry type
 		ppk_entry_type type;
-		
 		union
 		{
 			///Network entry

@@ -19,36 +19,58 @@ void setError(std::string error)
 	*(last_error())="PPK_SaveToRegistry : " + error;
 }
 
-const char* getPassword(const char* key)
+bool getPassword(const char* key, ppk_data* edata)
 {
-	static std::string pwd;
+	static char tmpBuf[1000000];
 
 	HKEY hk;
-	static char tmpBuf[101];
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
 	{
 		DWORD size=sizeof(tmpBuf);
-		long res=RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
+		LPDWORD type;
+		long res=RegQueryValueEx(hk, key, 0, &type, (BYTE*)tmpBuf, &size);
 		RegCloseKey(hk);
 		
 		if(res==ERROR_SUCCESS)
 		{
-			pwd=tmpBuf;
-			return pwd.c_str();
+			if(type==REG_BINARY)
+			{
+				edata->blob.data=tmpBuf;
+				edata->blob.size=size;
+				return true;
+			}
+			else (type==REG_SZ)
+			{
+				edata->string=tmpBuf;
+				return true;
+			}
+			else
+			{
+				setError("Unknown data type !");
+				return false;
+			}
 		}
 		else
-			return NULL;
+			return false;
 	}
 	else
-		return NULL;
+		return false;
 }
 
-bool setPassword(const char* key, const char* pwd)
+bool setPassword(const char* key, const ppk_data edata)
 {
 	HKEY hk;
 	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
-		long res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)pwd, strlen(pwd)+1);
+		long res;
+		
+		if(edata.type==ppk_string)
+			res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)edata.string, strlen(edata.string)+1);
+		else if(edata.type==ppk_blob)
+			res=RegSetValueEx(hk, key, 0, REG_BINARY, (const BYTE*)edata.blob.data, strlen(edata.blob.size)+1);
+		else
+			setError("setPassword : Undefined data type !");
+			
 		RegCloseKey(hk);
 		
 		return res==ERROR_SUCCESS;
@@ -177,14 +199,10 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		return PPK_FALSE;
 	}
 	
-	const char* res=getPassword(text.c_str());
-
 	//if everything went fine
-	if(res!=NULL)
+	if(getPassword(text.c_str(), edata))
 	{
 		setError("");
-		pwd=res;
-		edata->string=pwd.c_str();
 		return PPK_TRUE;
 	}
 	else
@@ -209,7 +227,7 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 	}
 	
 	//if everything went fine
-	if(setPassword(text.c_str(), edata.string))
+	if(setPassword(text.c_str(), edata))
 	{
 		setError("");
 		return PPK_TRUE;
@@ -247,9 +265,9 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	switch(type)
 	{
 		case ppk_string:
-			return -1;
+			return 1000000;
 		case ppk_blob:
-			return 0;
+			return 1000000;
 	}
 	
 	return 0;

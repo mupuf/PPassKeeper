@@ -304,7 +304,7 @@ MESSAGE("Library : ${PPK_LIB} (-DPPK_LIB=OFF to deactivate)")
 MESSAGE("	Using LibElektra for saving parameters: ${PPK_ELEKTRA} (-DPPK_ELEKTRA=OFF to use the fallback XML system)")
 MESSAGE("")
 
-MESSAGE("Modules : (-DPPK_BUILD_PLUGINS=OFF to deactivate)")
+MESSAGE("Modules : ${PPK_BUILD_PLUGINS} (-DPPK_BUILD_PLUGINS=OFF to deactivate)")
 MESSAGE("	SaveToFile : ${PPK_STF} (-DPPK_STF=OFF to deactivate)")
 MESSAGE("	Ask For Password GTK : ${PPK_AFP_GTK} (-DPPK_AFP_GTK=OFF to deactivate)")
 MESSAGE("	Ask For Password Qt : ${PPK_AFP_QT} (-DPPK_AFP_QT=OFF to deactivate)")

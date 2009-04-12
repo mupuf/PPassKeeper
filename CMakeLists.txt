@@ -17,40 +17,40 @@ INCLUDE(FindPythonInterp)
 INCLUDE(FeatureSummary)
 
 OPTION(PPK_LIB "PPassKeeper library" ON)
+OPTION(PPK_BUILD_PLUGINS "Build plugins" ON)
 OPTION(PPK_STF "SaveToFile plugins" ON)
+OPTION(PPK_STR "SaveToRegistry module (WIN32)" ON)
+OPTION(PPK_AFP_GTK "Ask For Password GTK plugin" ON)
+OPTION(PPK_AFP_QT "Ask For Password Qt plugin" ON)
+OPTION(PPK_AFP_WIN32 "Ask For Password Win32 plugin" ON)
+OPTION(PPK_GNOMEKEYRING "GNOME Keyring plugin" ON)
+OPTION(PPK_KWALLET4 "KWallet4 plugin" ON)
+OPTION(PPK_ELEKTRA "Use LibElektra" ON)
+OPTION(PPK_PYTHON "Python binding" ON)
+OPTION(PPK_DEBUG "Debugging messages" OFF)
 OPTION(PPK_UTIL "PPassKeeper command-line utility" ON)
 OPTION(PPK_UTIL_QT "PPassKeeper GUI utility" ON)
-OPTION(PPK_PYTHON "Python binding" ON)
-OPTION(PPK_GTK "GTK plugin" ON)
-OPTION(PPK_GNOME "GNOME plugin" ON)
-OPTION(PPK_KDE4 "KDE4 plugin" ON)
-OPTION(PPK_QT "Qt plugin" ON)
-OPTION(PPK_DEBUG "Debugging messages" OFF)
-OPTION(PPK_ELEKTRA "Use LibElektra" ON)
 
-IF(PPK_ELEKTRA)
-  PKG_SEARCH_MODULE(elektra elektra)
-  IF(elektra_FOUND)
-    INCLUDE_DIRECTORIES(${elektra_INCLUDE_DIRS})
-    LINK_DIRECTORIES(${elektra_LIBRARY_DIRS})
-    ADD_DEFINITIONS(-DUSE_ELEKTRA)
-    MESSAGE("Params : Compile against libelektra")
-  ELSE(elektra_FOUND)
-    MESSAGE("Params : Libelektra not found ! Fallback to xml")
-  ENDIF(elektra_FOUND)
-ELSE(PPK_ELEKTRA)
-  MESSAGE("Params : Forced to use the xml fallback instead of libelektra")
-ENDIF(PPK_ELEKTRA)
+IF(NOT PPK_BUILD_PLUGINS)
+  SET(PPK_STF OFF)
+  SET(PPK_STR OFF)
+  SET(PPK_AFP_QT OFF)
+  SET(PPK_AFP_GTK OFF)
+  SET(PPK_AFP_WIN32 OFF)
+  SET(PPK_GNOMEKEYRING OFF)
+  SET(PPK_KWALLET4 OFF)
+ENDIF(NOT PPK_BUILD_PLUGINS)
 
-IF(PPK_UTIL_QT OR PPK_QT)
+
+IF(PPK_UTIL_QT OR PPK_AFP_QT)
   FIND_PACKAGE(Qt4)
   IF(NOT QT4_FOUND)
 	SET(PPK_UTIL_QT OFF)
-	SET(PPK_QT OFF)
+	SET(PPK_AFP_QT OFF)
   ELSE(NOT QT4_FOUND)
 	INCLUDE(${QT_USE_FILE})
   ENDIF(NOT QT4_FOUND)
-ENDIF(PPK_UTIL_QT OR PPK_QT)
+ENDIF(PPK_UTIL_QT OR PPK_AFP_QT)
 
 IF(PPK_PYTHON)
   FIND_PACKAGE(PythonLibs)
@@ -76,32 +76,49 @@ IF(PPK_PYTHON)
   ENDIF(NOT PYTHONLIBS_FOUND)
 ENDIF(PPK_PYTHON)
 
-IF(PPK_GTK)
+IF(NOT CMAKE_HOST_WIN32)
+  SET(PPK_AFP_WIN32 OFF)
+  SET(PPK_STR OFF)
+ENDIF(NOT CMAKE_HOST_WIN32)
+
+IF(PPK_AFP_GTK)
   PKG_SEARCH_MODULE(gtk2 gtk+-2.0)
   IF(NOT gtk2_FOUND)
-	SET(PPK_GTK OFF)
+	SET(PPK_AFP_GTK OFF)
   ELSE(NOT gtk2 FOUND)
 	INCLUDE_DIRECTORIES(${gtk2_INCLUDE_DIRS})
 	LINK_DIRECTORIES(${gtk2_LIBRARY_DIRS})	
   ENDIF(NOT gtk2_FOUND)
-ENDIF(PPK_GTK)
+ENDIF(PPK_AFP_GTK)
 
-IF(PPK_GNOME)
+IF(PPK_GNOMEKEYRING)
   PKG_SEARCH_MODULE(gkeyring gnome-keyring-1)
   IF(NOT gkeyring_FOUND)
-	SET(PPK_GNOME OFF)
+	SET(PPK_GNOMEKEYRING OFF)
   ELSE(NOT gkeyring_FOUND)
 	INCLUDE_DIRECTORIES(${gkeyring_INCLUDE_DIRS})
 	LINK_DIRECTORIES(${gkeyring_LIBRARY_DIRS})	
   ENDIF(NOT gkeyring_FOUND)
-ENDIF(PPK_GNOME)
+ENDIF(PPK_GNOMEKEYRING)
 
-IF(PPK_KDE4)
+IF(PPK_KWALLET4)
   FIND_LIBRARY(KWALLET_LIB kdeinit4_kwalletd)
   IF(NOT KWALLET_LIB)
-    SET(PPK_KDE4 OFF)
+    SET(PPK_KWALLET4 OFF)
   ENDIF(NOT KWALLET_LIB)
-ENDIF(PPK_KDE4)
+ENDIF(PPK_KWALLET4)
+
+#Lib Elektra
+IF(PPK_ELEKTRA)
+  PKG_SEARCH_MODULE(elektra elektra)
+  IF(elektra_FOUND)
+    INCLUDE_DIRECTORIES(${elektra_INCLUDE_DIRS})
+    LINK_DIRECTORIES(${elektra_LIBRARY_DIRS})
+    ADD_DEFINITIONS(-DUSE_ELEKTRA)
+  ELSE(elektra_FOUND)
+    SET(PPK_ELEKTRA OFF)
+  ENDIF(elektra_FOUND)
+ENDIF(PPK_ELEKTRA)
 
 IF(PPK_DEBUG)
   ADD_DEFINITIONS(-DDEBUG_MSG)
@@ -164,6 +181,65 @@ IF(PPK_STF)
   INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STF)
 
+# GTK plugin
+IF(PPK_AFP_GTK)
+  FILE(GLOB ppk_afp_gtk_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/gtk/Ask_For_Pass/*.[ch]"
+	"src/gtk/Ask_For_Pass/*.cpp")
+   ADD_LIBRARY(ppk_afp_gtk MODULE ${ppk_afp_gtk_SOURCES})
+   TARGET_LINK_LIBRARIES(ppk_afp_gtk ${gtk2_LIBRARIES})
+   INSTALL(TARGETS ppk_afp_gtk DESTINATION lib/ppasskeeper)
+ENDIF(PPK_AFP_GTK)
+
+# Qt plugin
+IF(PPK_AFP_QT)
+  FILE(GLOB ppk_afp_qt_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/qt/Ask_For_Pass/*.[ch]"
+	"src/qt/Ask_For_Pass/*.cpp")
+  ADD_LIBRARY(ppk_afp_qt MODULE ${ppk_afp_qt_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
+  INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
+ENDIF(PPK_AFP_QT)
+
+#Win32 plugin
+IF(PPK_AFP_WIN32)
+  FILE(GLOB ppk_afp_win32_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/windows/Ask_For_Pass/*.[ch]"
+	"src/windows/Ask_For_Pass/*.cpp")
+  ADD_LIBRARY(ppk_afp_win32 MODULE ${ppk_afp_win32_SOURCES})
+  INSTALL(TARGETS ppk_afp_win32 DESTINATION lib/ppasskeeper)
+ENDIF(PPK_AFP_WIN32)
+
+
+# GNOME plugin
+IF(PPK_GNOMEKEYRING)
+  FILE(GLOB ppk_gnomekeyring_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/gnome/GKeyring/*.[ch]"
+	"src/gnome/GKeyring/*.cpp")
+  ADD_LIBRARY(ppk_gnomekeyring MODULE ${ppk_gnomekeyring_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_gnomekeyring ${gkeyring_LIBRARIES})
+  INSTALL(TARGETS ppk_gnomekeyring DESTINATION lib/ppasskeeper)
+ENDIF(PPK_GNOMEKEYRING)
+
+# KDE4 plugin
+IF(PPK_KWALLET4)
+  FILE(GLOB ppk_kwallet4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/kde/KWallet/*.[ch]"
+	"src/kde/KWallet/*.cpp")
+  ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kwallet4_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
+  INSTALL(TARGETS ppk_kwallet DESTINATION lib/ppasskeeper)
+ENDIF(PPK_KWALLET4)
+
+#Win32 module
+IF(PPK_STR)
+  FILE(GLOB ppk_savetoregistry_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
+	"src/windows/SaveToRegistry/*.[ch]"
+	"src/windows/SaveToRegistry/*.cpp")
+  ADD_LIBRARY(ppk_savetoregistry MODULE ${ppk_savetoregistry_SOURCES})
+  INSTALL(TARGETS ppk_savetoregistry DESTINATION lib/ppasskeeper)
+ENDIF(PPK_STR)
+
 # Command-line utility
 IF(PPK_UTIL)
   ADD_EXECUTABLE(ppasskeeper-util "util/ppasskeeper-util.c")
@@ -203,48 +279,65 @@ IF(PPK_PYTHON)
   INSTALL(TARGETS ppk_python DESTINATION "${PYTHON_LIB_PATH}")
 ENDIF(PPK_PYTHON)
 
-# GTK plugin
-IF(PPK_GTK)
-  FILE(GLOB ppk_gtk_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/gtk/Ask_For_Pass/*.[ch]"
-	"src/gtk/Ask_For_Pass/*.cpp")
-   ADD_LIBRARY(ppk_gtk MODULE ${ppk_gtk_SOURCES})
-   TARGET_LINK_LIBRARIES(ppk_gtk ${gtk2_LIBRARIES})
-   INSTALL(TARGETS ppk_gtk DESTINATION lib/ppasskeeper)
-ENDIF(PPK_GTK)
-
-# GNOME plugin
-IF(PPK_GNOME)
-  FILE(GLOB ppk_gnome_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/gnome/GKeyring/*.[ch]"
-	"src/gnome/GKeyring/*.cpp")
-  ADD_LIBRARY(ppk_gnome MODULE ${ppk_gnome_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_gnome ${gkeyring_LIBRARIES})
-  INSTALL(TARGETS ppk_gnome DESTINATION lib/ppasskeeper)
-ENDIF(PPK_GNOME)
-
-# KDE4 plugin
-IF(PPK_KDE4)
-  FILE(GLOB ppk_kde4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/kde/KWallet/*.[ch]"
-	"src/kde/KWallet/*.cpp")
-  ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kde4_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
-  INSTALL(TARGETS ppk_kwallet DESTINATION lib/ppasskeeper)
-ENDIF(PPK_KDE4)
-
-# Qt plugin
-IF(PPK_QT)
-  FILE(GLOB ppk_qt_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/qt/Ask_For_Pass/*.[ch]"
-	"src/qt/Ask_For_Pass/*.cpp")
-  ADD_LIBRARY(ppk_qt MODULE ${ppk_qt_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_qt ${QT_LIBRARIES})
-  INSTALL(TARGETS ppk_qt DESTINATION lib/ppasskeeper)
-ENDIF(PPK_QT)
 
 #PKG-CONFIG
 set(PPK_VERSION "1.0b2")
 configure_file(ppasskeeper.pc.in ppasskeeper.pc @ONLY)
 install(FILES ppasskeeper.pc DESTINATION lib/pkgconfig)
+
+#Final summary
+MESSAGE("")
+MESSAGE("")
+MESSAGE(" -------------------")
+MESSAGE("|                   |")
+MESSAGE("|      Summary      |")
+MESSAGE("|                   |")
+MESSAGE(" -------------------")
+MESSAGE("")
+
+MESSAGE("Here is the summary of what will be compiled (ON) or not(OFF).")
+MESSAGE("If you didn't deactivate one plugin but still get an OFF on it, then the dependencies of the plugin are not met.")
+MESSAGE("")
+MESSAGE("")
+
+MESSAGE("Library : ${PPK_LIB} (-DPPK_LIB=OFF to deactivate)")
+MESSAGE("	Using LibElektra for saving parameters: ${PPK_ELEKTRA} (-DPPK_ELEKTRA=OFF to use the fallback XML system)")
+MESSAGE("")
+
+MESSAGE("Modules : (-DPPK_BUILD_PLUGINS=OFF to deactivate)")
+MESSAGE("	SaveToFile : ${PPK_STF} (-DPPK_STF=OFF to deactivate)")
+MESSAGE("	Ask For Password GTK : ${PPK_AFP_GTK} (-DPPK_AFP_GTK=OFF to deactivate)")
+MESSAGE("	Ask For Password Qt : ${PPK_AFP_QT} (-DPPK_AFP_QT=OFF to deactivate)")
+MESSAGE("	Ask For Password Win32 : ${PPK_AFP_WIN32} (-DPPK_AFP_WIN32=OFF to deactivate)")
+MESSAGE("	Gnome Keyring : ${PPK_GNOMEKEYRING} (-DPPK_GNOME=OFF to deactivate)")
+MESSAGE("	KDE4 Wallet : ${PPK_KWALLET4} (-DPPK_KWALLET4=OFF to deactivate)")
+MESSAGE("	SaveToRegisry (Win32) : ${PPK_STR} (-DPPK_STR=OFF to deactivate)")
+MESSAGE("")
+
+MESSAGE("Bindings :")
+MESSAGE("	Python : ${PPK_PYTHON} (-DPPK_PYTHON=OFF to deactivate)")
+MESSAGE("")
+
+MESSAGE("Utils :")
+MESSAGE("	CLI : ${PPK_UTIL} (-DPPK_UTIL=OFF to deactivate)")
+MESSAGE("	GUI (based on Qt) : ${PPK_UTIL_QT} (-DPPK_UTIL_QT=OFF to deactivate)")
+MESSAGE("")
+
+
+MESSAGE("Options :")
+MESSAGE("	Debug Mode : ${PPK_DEBUG} (-DPPK_DEBUG=ON to activate)")
+MESSAGE("")
+
+MESSAGE("Install :")
+MESSAGE("	Prefix : '${CMAKE_INSTALL_PREFIX}' (-DCMAKE_INSTALL_PREFIX=/your/prefix to modify the prefix to /your/prefix)")
+MESSAGE("")
+
+MESSAGE("OK, now, run :")
+MESSAGE("$ make")
+MESSAGE("# make install	<--This line will install ppk in '${CMAKE_INSTALL_PREFIX}'")
+MESSAGE("")
+MESSAGE("Have fun !")
+
+MESSAGE("")
+MESSAGE("")
 

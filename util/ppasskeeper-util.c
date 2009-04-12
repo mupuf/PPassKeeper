@@ -8,14 +8,14 @@
 #include <errno.h>
 
 char mode = 0, pwd_type = 0, listing_type=0;
-char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL;
+char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL, *file = NULL;
 
 void usage()
 {
 	printf("Usage:\n"
 			"ppasskeeper -L [-u <ppk_password>]\n"
-			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-u <ppk_password>]\n"
-			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-p <password> -u <ppk_password>]\n\n"
+			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]\n"
+			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]\n\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
 }
@@ -117,7 +117,13 @@ void parse_cmdline(int argc, char **argv)
 				password = argv[n];
 			case 'u':
 				n++;
+				if (ppk_password || *(flag + 1) || n >= argc) usage();
 				ppk_password = argv[n];
+				break;
+			case 'f':
+				n++;
+				if (file || *(flag + 1) || n >= argc) usage();
+				file = argv[n];
 				break;
 			default:
 				usage();
@@ -257,7 +263,7 @@ int main(int argc, char **argv)
 	} else if (mode == 'S')
 	{
 		if (! pwd_type || ! module_id || ! key) usage();
-		if (! password)
+		if (! password && !file)
 		{
 			errno = 0;
 			password = getpass("Password (will not be echoed): ");
@@ -274,6 +280,7 @@ int main(int argc, char **argv)
 			struct net_params p = netParameters();
 			entry=ppk_createNetworkEntry(p.server, p.username, p.port);
 		}
+
 		
 		ppk_data edata;
 		edata.type=ppk_string;

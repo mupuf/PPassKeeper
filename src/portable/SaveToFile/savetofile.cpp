@@ -226,9 +226,9 @@ extern "C"
 		switch(type)
 		{
 			case ppk_string:
-				return -1;
+				return (unsigned int)-1;
 			case ppk_blob:
-				return -1;
+				return (unsigned int)-1;
 		}
 	
 		return 0;

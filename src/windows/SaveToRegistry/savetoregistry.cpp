@@ -27,7 +27,7 @@ bool getPassword(const char* key, ppk_data* edata)
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
 	{
 		DWORD size=sizeof(tmpBuf);
-		LPDWORD type;
+		DWORD type;
 		long res=RegQueryValueEx(hk, key, 0, &type, (BYTE*)tmpBuf, &size);
 		RegCloseKey(hk);
 		
@@ -39,7 +39,7 @@ bool getPassword(const char* key, ppk_data* edata)
 				edata->blob.size=size;
 				return true;
 			}
-			else (type==REG_SZ)
+			else if(type==REG_SZ)
 			{
 				edata->string=tmpBuf;
 				return true;
@@ -67,7 +67,7 @@ bool setPassword(const char* key, const ppk_data edata)
 		if(edata.type==ppk_string)
 			res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)edata.string, strlen(edata.string)+1);
 		else if(edata.type==ppk_blob)
-			res=RegSetValueEx(hk, key, 0, REG_BINARY, (const BYTE*)edata.blob.data, strlen(edata.blob.size)+1);
+			res=RegSetValueEx(hk, key, 0, REG_BINARY, (const BYTE*)edata.blob.data, edata.blob.size);
 		else
 			setError("setPassword : Undefined data type !");
 			

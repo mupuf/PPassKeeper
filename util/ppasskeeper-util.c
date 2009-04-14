@@ -166,6 +166,12 @@ struct net_params netParameters()
 	return params;
 }
 
+void die(const char* msg)
+{
+	printf("Fatal Error : %s\n", msg);
+	exit(-1);
+}
+
 int main(int argc, char **argv)
 {
 	ppk_entry entry;
@@ -217,9 +223,28 @@ int main(int argc, char **argv)
 			ppk_data edata;
 			ppk_boolean res=ppk_getEntry(module_id, entry , &edata, ppk_rf_none);
 			if(res==PPK_TRUE)
-				printf("%s\n", edata.string);
+			{
+				if(file)
+				{
+					FILE *pFile = fopen(file, "w");
+					if(pFile != NULL)
+					{					
+						if(fwrite(edata.blob.data, 1, edata.blob.size, pFile)==0)
+							die("Error while writing data to file !");
+
+						fclose(pFile);
+					}
+					else
+						die("The file cannot be openned in writing mode. Check your file permissions");
+				}
+				else if(edata.type==ppk_string)
+					printf("%s\n", edata.string);
+				else if(edata.type==ppk_blob)
+					fwrite(edata.blob.data, 1, edata.blob.size, stdout);
+				
+			}
 			else
-				return 1;
+				die("Password cannot be get. Does the entry really exist ?");
 		}
 		else if ( module_id && listing_type > 0)
 		{
@@ -261,12 +286,7 @@ int main(int argc, char **argv)
 	} else if (mode == 'S')
 	{
 		if (! pwd_type || ! module_id || ! key) usage();
-		if (! password && !file)
-		{
-			errno = 0;
-			password = getpass("Password (will not be echoed): ");
-			if (errno == ENXIO) return 1;
-		}
+		
 		if (pwd_type == ppk_item)
 			entry=ppk_createItemEntry(key);
 		else if (pwd_type == ppk_application)
@@ -278,12 +298,46 @@ int main(int argc, char **argv)
 			struct net_params p = netParameters();
 			entry=ppk_createNetworkEntry(p.server, p.username, p.port);
 		}
-
 		
 		ppk_data edata;
-		edata.type=ppk_string;
-		edata.string=password;
+		
+		if (! password && !file)
+		{
+			errno = 0;
+			password = getpass("Password (will not be echoed): ");
+			if (errno == ENXIO)return 1;
+			
+			edata.type=ppk_string;
+			edata.string=password;
+		}
+		else if(file)
+		{
+			FILE *pFile = fopen(file, "r");
+			if(pFile != NULL)
+			{
+				fseek(pFile, 0, SEEK_END);
+				unsigned int fileSize = ftell(pFile);
+				rewind(pFile);
+
+				edata.type=ppk_blob;
+				edata.blob.size=fileSize;
+				edata.blob.data = (char*)calloc(sizeof(char), fileSize+1);
+				if(edata.blob.data==NULL)
+					die("Alloc didn't manage to allocate the requested buffer.\nCheck the size of the file and your system's free memory.");
+				
+				if(fread((void*)edata.blob.data, 1, fileSize, pFile)==0)
+					die("Error while reading data from file !");
+
+				fclose(pFile);
+			}
+			else
+				die("The file cannot be openned. Check your file permissions");
+		}
+		else
+			die("Shouldn't happen ! Sky is falling on our heads !");
+
 		ppk_boolean res=ppk_setEntry(module_id, entry , edata, ppk_wf_none);
+		
 		if(res!=PPK_TRUE)
 			return 1;
 		

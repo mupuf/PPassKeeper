@@ -102,7 +102,7 @@ ppk_boolean openKeyring(unsigned int flags)
  * **************************************************/
 void constructor(void)
 {
-	g_set_application_name("ppk_gkeyring");
+	//g_set_application_name("ppk_gkeyring"); //Seems to be unnecessary
 }
 
 void destructor(void)

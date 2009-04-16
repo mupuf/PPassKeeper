@@ -244,7 +244,7 @@ int main(int argc, char **argv)
 				
 			}
 			else
-				die("Password cannot be get. Does the entry really exist ?");
+				die("Password cannot be retrieved. Does the entry really exist ?");
 		}
 		else if ( module_id && listing_type > 0)
 		{

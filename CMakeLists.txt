@@ -283,7 +283,7 @@ ENDIF(PPK_PYTHON)
 #PKG-CONFIG
 set(PPK_VERSION "1.0b2")
 configure_file(ppasskeeper.pc.in ppasskeeper.pc @ONLY)
-install(FILES ppasskeeper.pc DESTINATION lib/pkgconfig)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ppasskeeper.pc" DESTINATION lib/pkgconfig)
 
 #Final summary
 MESSAGE("")
@@ -340,4 +340,3 @@ MESSAGE("Have fun !")
 
 MESSAGE("")
 MESSAGE("")
-

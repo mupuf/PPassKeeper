@@ -334,7 +334,7 @@ MESSAGE("")
 
 MESSAGE("OK, now, run :")
 MESSAGE("$ make")
-MESSAGE("# make install	<--This line will install ppk in '${CMAKE_INSTALL_PREFIX}'")
+MESSAGE("# make install	<--This command will install ppk in '${CMAKE_INSTALL_PREFIX}'")
 MESSAGE("")
 MESSAGE("Have fun !")
 

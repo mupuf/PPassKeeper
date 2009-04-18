@@ -11,8 +11,9 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 PKG_SEARCH_MODULE(ppasskeeper REQUIRE ppasskeeper)
 
 # BLOB
-FILE(GLOB utstblob_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "blob/*.h" "blob/*.cpp" "blob/*.c")
-ADD_EXECUTABLE(utstblob "$(utstblob_SOURCES)")
+FILE(GLOB utstblob_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "blob/*.[ch]" "blob/*.cpp")
+MESSAGE("utstblob_SOURCES = ${utstblob_SOURCES}")
+ADD_EXECUTABLE(utstblob "${utstblob_SOURCES}")
 TARGET_LINK_LIBRARIES(utstblob "ppasskeeper")
 
 

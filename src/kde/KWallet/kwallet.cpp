@@ -26,18 +26,10 @@ extern "C" const char* getLastError()
 	return last_error()->c_str();
 }
 
-
 void setError(std::string error)
 {
 	*(last_error())="PPK_KWallet : " + error;
 	std::cerr << getLastError() << std::endl;
-}
-
-extern "C" void constructor()
-{
-	//lazy initialization
-	_wallet=NULL;
-	_app=NULL;
 }
 
 bool init_kde_lazy()
@@ -51,6 +43,7 @@ bool init_kde_lazy()
 			static char kdeAppName[] = "ppasskeeper-kwallet";
 			int argc = 1;
 			char *argv[2] = { kdeAppName, NULL };
+			
 			KAboutData about(QByteArray(kdeAppName),QByteArray(kdeAppName),KLocalizedString(),QByteArray("1.0"));
 			KCmdLineArgs::init(argc, argv, &about);
 			if (! qApp)
@@ -59,6 +52,15 @@ bool init_kde_lazy()
 
 		initialized = true;
 	}
+}
+
+extern "C" void constructor()
+{
+	//lazy initialization
+	_wallet=NULL;
+	_app=NULL;
+	
+	init_kde_lazy();
 }
 
 extern "C" void destructor()
@@ -104,12 +106,10 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		return NULL;
 	}
 
-	init_kde_lazy();
-
 	if (_wallet == NULL)
 	{
 		//lazy init
-		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
+		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(), NULL);
 		if (_wallet == NULL)
 		{
 			setError("openWallet : openWallet failed");
@@ -439,7 +439,7 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 		case ppk_string:
 			return -1;
 		case ppk_blob:
-			return 0;
+			return -1;
 	}
 	
 	return 0;

@@ -475,7 +475,7 @@ extern "C"
 		return data;
 	}
 	
-	ppk_data ppk_createBlobData(void* data, unsigned long size)
+	ppk_data ppk_createBlobData(const void* data, unsigned long size)
 	{
 		ppk_data edata;
 		edata.type=ppk_blob;

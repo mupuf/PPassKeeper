@@ -241,7 +241,6 @@ int main(int argc, char **argv)
 					printf("%s\n", edata.string);
 				else if(edata.type==ppk_blob)
 					fwrite(edata.blob.data, 1, edata.blob.size, stdout);
-				
 			}
 			else
 				die("Password cannot be retrieved. Does the entry really exist ?");

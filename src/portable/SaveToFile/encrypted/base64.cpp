@@ -15,7 +15,7 @@ void base64_enc_group(unsigned char *g, std::string &result, int startpos, int l
 
 std::string base64_enc(const std::string &str)
 {
-	int i = 0, j = 0, len = str.length();
+	int i = 0, j = 0, len = str.size();
 	unsigned char g2[4];
 	std::string result((1 + (len - 1) / 3) * 4, '\0');
 
@@ -74,7 +74,7 @@ void base64_dec_group(unsigned char *g, std::string &result, int startpos)
 
 std::string base64_dec(const std::string &str)
 {
-	int len = str.length();
+	int len = str.size();
 	if (len == 0 || len % 4 != 0) return std::string();
 	int j = 0;
 

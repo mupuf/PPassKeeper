@@ -59,8 +59,6 @@ extern "C" void constructor()
 	//lazy initialization
 	_wallet=NULL;
 	_app=NULL;
-	
-	init_kde_lazy();
 }
 
 extern "C" void destructor()
@@ -97,6 +95,8 @@ extern "C" unsigned int listingFlagsAvailable()
 
 KWallet::Wallet* openWallet(unsigned int flags)
 {
+	init_kde_lazy();
+	
 	bool initialised=KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet());
 	
 	if (!initialised && (flags & ppk_lf_silent!=0 || flags & ppk_rf_silent!=0 || flags & ppk_wf_silent!=0))

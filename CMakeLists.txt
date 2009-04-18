@@ -175,7 +175,7 @@ IF(PPK_STF)
 	"src/portable/SaveToFile/plain_text/savetofile_plain_text.cpp")
   ADD_LIBRARY(ppk_savetofile_enc MODULE
 	${ppk_savetofile_SOURCES}
-	"src/portable/SaveToFile/encrypted/base64.cpp"
+	"src/portable/SaveToFile/encrypted/base64.c"
 	"src/portable/SaveToFile/encrypted/base64.h"
 	"src/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
   INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)

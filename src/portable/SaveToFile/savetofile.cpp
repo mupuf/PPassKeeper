@@ -171,7 +171,7 @@ extern "C"
 			else if(pwd.substr(0,strlen(BLOB_STRING))==BLOB_STRING)
 			{
 				edata->type=ppk_blob;
-				edata->blob.data=pwd.data()+strlen(STR_STRING);
+				edata->blob.data=pwd.data()+strlen(BLOB_STRING);
 				edata->blob.size=pwd.size()-strlen(BLOB_STRING);
 			}
 			else

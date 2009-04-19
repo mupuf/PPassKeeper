@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 		if(max_size==0)
 			die(UTST_NO_BLOB_SUPPORT, utst_msg[UTST_NO_BLOB_SUPPORT]);
 		else if(max_size<file.size())
-			die(-2, "The maximum size admissible by the module is smaller than the testing file !");
+			file=file.substr(0, max_size);
 			
 		if(ppk_setEntry(module, ppk_createItemEntry("utstblob_write_blob"), ppk_createBlobData(file.data(), file.size()), ppk_wf_none)==PPK_FALSE)
 			die(UTST_WRITING_ERROR, "setEntry failed :\n" + std::string(ppk_getLastError(module)));

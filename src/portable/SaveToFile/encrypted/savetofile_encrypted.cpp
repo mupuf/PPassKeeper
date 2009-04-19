@@ -45,9 +45,14 @@ std::string encrypt(const std::string pwd)
 	
 	int size=ap_base64encode_len(pwd.size());
 	char* buf=new char[size+1];
-	int final_len=ap_base64encode_binary(buf, (const unsigned char*)pwd.data(), pwd.size());
-	res.assign(buf, final_len);
-	delete[] buf;
+	if(buf!=NULL)
+	{
+		int final_len=ap_base64encode_binary(buf, (const unsigned char*)pwd.data(), pwd.size());
+		res.assign(buf, final_len);
+		delete[] buf;
+	}
+	else
+		setError("Encrypt failed because the memory allocation failed !");
 	
 	return res;
 }
@@ -58,9 +63,14 @@ std::string decrypt(const std::string pwd_enc)
 	
 	int size=ap_base64decode_len(pwd_enc.data(), pwd_enc.size());
 	unsigned char* buf=new unsigned char[size+1];
-	int final_len=ap_base64decode_binary(buf, (const char*)pwd_enc.data(), pwd_enc.size());
-	res.assign((char*)buf, final_len);
-	delete[] buf;
+	if(buf!=NULL)
+	{
+		int final_len=ap_base64decode_binary(buf, (const char*)pwd_enc.data(), pwd_enc.size());
+		res.assign((char*)buf, final_len);
+		delete[] buf;
+	}
+	else
+		setError("Encrypt failed because the memory allocation failed !");
 	
 	return res;
 }

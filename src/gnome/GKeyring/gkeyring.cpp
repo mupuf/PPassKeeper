@@ -1,15 +1,65 @@
 #include "../../ppasskeeper.h"
 #include "gkey_implement.h"
 #include "../../tokenizer.h"
+#include "base64.h"
+#include "string.h"
 
 #include <string>
 #include <iostream>
+
+#define STR_STRING "str :"
+#define BLOB_STRING "blob:"
 
 //private functions prototypes
 bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port);
 bool matchAppPassword(std::string name, std::string& user, std::string& app);
 bool matchItemPassword(const std::string name, std::string& item);
+extern "C" void setError(const char* error);
 
+std::string* last_error()
+{
+	static std::string last_err;
+	return &last_err;
+}
+
+std::string encrypt(const ppk_data edata)
+{
+	std::string res;
+	
+	int size=ap_base64encode_len(edata.blob.size);
+	char* buf=new char[size+1];
+	if(buf!=NULL)
+	{
+		int final_len=ap_base64encode_binary(buf, (const unsigned char*)edata.blob.data, edata.blob.size);
+		res.assign(buf, final_len);
+		delete[] buf;
+	}
+	else
+		setError("Encrypt failed because the memory allocation failed !");
+	
+	return res;
+}
+
+std::string decrypt(const char* data)
+{
+	std::string res;
+	int len_data=strlen(data);
+	
+	int size=ap_base64decode_len((const char*)data, len_data);
+	unsigned char* buf=new unsigned char[size+1];
+	if(buf!=NULL)
+	{
+		int final_len=ap_base64decode_binary(buf, (const char*)data, len_data);
+		res.assign((char*)buf, final_len);
+		delete[] buf;
+	}
+	else
+		setError("Encrypt failed because the memory allocation failed !");
+	
+	return res;
+}
+
+//Public functions
 extern "C" ppk_boolean isWritable()
 {
 	return PPK_TRUE;
@@ -50,6 +100,17 @@ extern "C" const char* getModuleName()
 extern "C" const int getABIVersion()
 {
 	return 1;
+}
+
+extern "C" const char* getLastError()
+{
+	return last_error()->c_str();
+}
+
+extern "C" void setError(const char* error)
+{
+	*(last_error())= getModuleID() + toString(" : ") + error;
+	/*std::cerr << getLastError() << std::endl;*/
 }
 
 extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
@@ -158,24 +219,68 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 
 extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
 {
+	ppk_boolean res;
+	
 	if(entry.type == ppk_network)
-		return getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags);
+		res=getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags);
 	else if(entry.type == ppk_application)
-		return getApplicationPassword(entry.app.app_name, entry.app.username, edata, flags);
+		res=getApplicationPassword(entry.app.app_name, entry.app.username, edata, flags);
 	else if(entry.type == ppk_item)
-		return getItem(entry.item, edata, flags);
+		res=getItem(entry.item, edata, flags);
 	else
-		return PPK_FALSE;
+		res=PPK_FALSE;
+		
+	if(res!=PPK_FALSE)
+	{
+		if(strncmp(edata->string,STR_STRING,strlen(STR_STRING))==0)
+		{
+			edata->type=ppk_string;
+			edata->string=edata->string+strlen(STR_STRING);
+		}
+		else if(strncmp(edata->string,BLOB_STRING,strlen(BLOB_STRING))==0)
+		{
+			edata->type=ppk_blob;
+			static std::string ret=decrypt(edata->string+strlen(BLOB_STRING));
+			edata->blob.data=ret.data();
+			edata->blob.size=ret.size();
+		}
+		else
+		{
+			setError("Unknown entry type");
+			return PPK_FALSE;
+		}
+	}
+	
+	return res;
 }
 
 extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
 {
+	static std::string data;
+	ppk_data edata_mod=edata;
+	
+	if(edata.type==ppk_blob)
+	{
+		data=BLOB_STRING+encrypt(edata);
+		
+		edata_mod.type=ppk_blob;
+		edata_mod.blob.data=data.c_str();
+		edata_mod.blob.size=data.size();
+	}
+	else if(edata.type==ppk_string)
+	{
+		 data=STR_STRING+std::string(edata.string);
+		 
+		 edata_mod.type=ppk_string;
+		 edata_mod.string=data.c_str();
+	}
+	
 	if(entry.type == ppk_network)
-		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags);
+		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata_mod, flags);
 	else if(entry.type == ppk_application)
-		return setApplicationPassword(entry.app.app_name, entry.app.username, edata, flags);
+		return setApplicationPassword(entry.app.app_name, entry.app.username, edata_mod, flags);
 	else if(entry.type == ppk_item)
-		return setItem(entry.item, edata, flags);
+		return setItem(entry.item, edata_mod, flags);
 	else
 		return PPK_FALSE;
 }
@@ -211,29 +316,12 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	switch(type)
 	{
 		case ppk_string:
-			return -1;
+			return 7930;
 		case ppk_blob:
-			return 0;
+			return 5926;
 	}
 	
 	return 0;
-}
-
-std::string* last_error()
-{
-	static std::string last_err;
-	return &last_err;
-}
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
-}
-
-extern "C" void setError(const char* error)
-{
-	*(last_error())= getModuleID() + toString(" : ") + error;
-	/*std::cerr << getLastError() << std::endl;*/
 }
 
 //Private functions

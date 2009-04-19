@@ -15,6 +15,7 @@ void usage()
 	printf("Usage:\n"
 			"ppasskeeper -L [-u <ppk_password>]\n"
 			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]\n"
+			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]\n"
 			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]\n\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
@@ -284,6 +285,7 @@ int main(int argc, char **argv)
 			usage();
 	} else if (mode == 'S')
 	{
+		printf("password = %s\n", password);
 		if (! pwd_type || ! module_id || ! key) usage();
 		
 		if (pwd_type == ppk_item)
@@ -299,13 +301,14 @@ int main(int argc, char **argv)
 		}
 		
 		ppk_data edata;
+		edata.type=ppk_string;
+		edata.string=password;
 		
 		if (! password && !file)
 		{
 			errno = 0;
 			password = getpass("Password (will not be echoed): ");
 			if (errno == ENXIO)return 1;
-			
 			edata.type=ppk_string;
 			edata.string=password;
 		}

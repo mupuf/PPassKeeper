@@ -1,9 +1,9 @@
 .\" man page for the ppasskeeper utility
 .\"
 .\" Denis Martinez: initial version (20080911)
-.\" Martin PERES: update to rc1 version (20090330)
+.\" Martin PERES: update to beta2 version (20090419)
 
-.TH ppasskeeper 1 "March 2009" "Portable Password Keeper" "A modular password manager"
+.TH ppasskeeper 1 "April 2009" "Portable Password Keeper" "A modular password manager"
 
 .SH NAME
 .P
@@ -13,9 +13,11 @@ ppasskeeper - password management utility
 .P
 \fBppasskeeper\fR -L [-u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY [-u PPK_PASSWORD]
+\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY [-f file -u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-p PASSWORD -u PPK_PASSWORD]
+\fBppasskeeper\fR -G -m MODULE -l ani [-f file -u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-f file -p PASSWORD -u PPK_PASSWORD]
 .br
 
 .SH DESCRIPTION
@@ -25,10 +27,10 @@ List the available methods (modules) for getting/storing passwords through the p
 \fB-L\fR
 Shows a list of modules with a short description for each one.
 .P
-Get or set a password associated to a particular resource.
+Access the library in Read or Write mode.
 .TP
 \fB-G\fR
-Get a password and display it.
+Get an entry and display it or list the entries of a particular module.
 .TP
 \fB-S\fR
 Set a password.
@@ -56,14 +58,37 @@ Prompt the password through a Windows Dialog.
 \fBKWallet\fR
 Use the KDE4 Wallet.
 .TP
+\fBGKeyring\fR
+Use the Gnome Keyring.
+.TP
 \fBSave_To_File_Enc\fR
-Store passwords with a stupid encryption scheme (to make passwords unreadable at the first look).
+Store passwords with a simple encryption scheme (to make passwords unreadable at first glance).
 .TP
 \fBSave_To_File_PT\fR
 Store passwords as plain text.
 .TP
 \fBSaveToRegistry\fR
 Store passwords in the Windows registry.
+
+.SS LISTING
+.P
+Some modules enable you to list their entries.
+.TP
+\fB-l\fR
+\fIa\fR|\fIn\fR|\fIi\fR
+.P
+Resource types:
+.TP
+\fBa\fR
+List the application entries.
+.TP
+\fBn\fR
+List the network entries.
+.TP
+\fBi\fR
+List the item entries.
+.P
+The types can be combined.
 
 .SS RESOURCES
 .P
@@ -107,7 +132,14 @@ Key formats:
 When setting a password, it can be specified either on the command-line, or interactively on the terminal.
 .TP
 \fB-p \fIPASSWORD\fR
-Specify the password as an argument.
+Specify the password as an argument. You can also store a file, see the -f option.
+
+.SS FILE
+.P
+When setting or getting a password, you can choose to save/read to/from a file.
+.TP
+\fB-f \fIFILEPATH\fR
+Specify the file path as an argument. You can also store a string, see the -p option.
 
 .SS PPK_PASSWORD
 .P

@@ -29,10 +29,8 @@ std::string setting_dir();
 		return dir;
 	}
 #else
-	std::string setting_dir()
-	{
-		return ppk_settingDirectory();
-	}
+	#include "../../ppasskeeper-dir.h"
+	std::string setting_dir();
 #endif
 
 

@@ -169,7 +169,8 @@ ENDIF(PPK_LIB)
 IF(PPK_STF)
   FILE(GLOB ppk_savetofile_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
 	"src/portable/SaveToFile/*.[ch]"
-	"src/portable/SaveToFile/*.cpp")
+	"src/portable/SaveToFile/*.cpp"
+	"src/ppasskeeper-dir.cpp")
   ADD_LIBRARY(ppk_savetofile_pt MODULE
 	${ppk_savetofile_SOURCES}
 	"src/portable/SaveToFile/plain_text/savetofile_plain_text.cpp")

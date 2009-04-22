@@ -178,7 +178,7 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 	{
 		//Set the password
 		if(wallet->writePassword(key,pwd)==0)
-			return false;
+			return true;
 		else
 		{
 			setError("Set Entry: wallet->writePassword failed, key="+toString(key));

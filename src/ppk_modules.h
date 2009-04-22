@@ -7,6 +7,9 @@
 #include "ppasskeeper.h"
 #include "ppasskeeper-module.h"
 
+#define LIBPPK_DEFAULT_MODULE "Automatic"
+#define LIBPPK_DEFAULT_MODULE_DESC "Auto - Automatic choice of the most suitable module."
+
 class PPK_Modules
 {
 	private:
@@ -14,6 +17,8 @@ class PPK_Modules
 		
 		void loadPlugin(std::string dirpath, std::string filepath);
 		void loadPlugins(void);
+		
+		const char* autoModule();
 
 	public:
 		PPK_Modules();

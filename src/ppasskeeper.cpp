@@ -23,8 +23,7 @@
 #endif
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"
-#define LIBPPK_AUTO_MODULE "Automatic"
-#define LIBPPK_DEFAULT_MODULE "Automatic"
+#define LIBPPK_AUTO_MODULE LIBPPK_DEFAULT_MODULE
 
 //global variables
 PPK_Modules modules;

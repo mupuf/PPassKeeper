@@ -218,6 +218,7 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 PPK_Modules::PPK_Modules()
 {
 	loadPlugins();
+	
 }
 
 PPK_Modules::~PPK_Modules()
@@ -233,16 +234,20 @@ PPK_Modules::~PPK_Modules()
 
 unsigned int PPK_Modules::size()
 {
-	return modules.size();
+	return modules.size()+1;
 }
 
 unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int ModulesCount)
 {
 	if(modules.size()>0)
 	{
+		//Automatic module
+		pmodules[0].id=LIBPPK_DEFAULT_MODULE;
+		pmodules[0].display_name=LIBPPK_DEFAULT_MODULE_DESC;
+			
 		std::map<std::string,_module>::iterator iter;
 		unsigned int i;
-		for(i=0,iter=modules.begin(); i<ModulesCount && iter!=modules.end(); i++,iter++)
+		for(i=1,iter=modules.begin(); i<ModulesCount && iter!=modules.end(); i++,iter++)
 		{
 			pmodules[i].id=iter->second.id;
 			pmodules[i].display_name=iter->second.display_name;
@@ -256,12 +261,47 @@ unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int Modu
 
 const _module* PPK_Modules::getModuleByID(const char* module_id) //return the corresponding module or NULL if the module is not referenced
 {
+	//Get the real module name
+	if(strcmp(module_id, LIBPPK_DEFAULT_MODULE)==0)
+		module_id=autoModule();
+		
 	//Does the module exist ?
 	std::map<std::string,_module>::iterator fter = modules.find(module_id);
 	if(fter!=modules.end())
 		return &(fter->second);
 	else
 		return NULL;
+}
+
+const char* PPK_Modules::autoModule()
+{
+	if(getenv("GNOME_KEYRING_PID")!=NULL && \
+	   getenv("GNOME_DESKTOP_SESSION_ID")!=NULL && \
+	   ppk_moduleAvailable("GKeyring")
+	  )
+	{
+			return "GKeyring";
+	}
+	else if(getenv("KDE_FULL_SESSION")!=NULL && \
+	   strcmp(getenv("KDE_SESSION_VERSION"), "4")==0 && \
+	   ppk_moduleAvailable("KWallet4")
+	  )
+	{
+			return "KWallet4";
+	}
+	else if(ppk_moduleAvailable("SaveToFile_Enc"))
+		return "SaveToFile_Enc";
+	else if(ppk_moduleAvailable("SaveToFile_PT"))
+		return "SaveToFile_PT";
+	else if(ppk_moduleAvailable()>1)
+	{
+		ppk_module mods[2];
+		ppk_getAvailableModules(mods, sizeof(mods));
+		return mods[1].id;
+	}
+	else
+		return "";
+		
 }
 
 

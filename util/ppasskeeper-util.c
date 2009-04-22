@@ -17,6 +17,9 @@ void usage()
 			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]\n"
 			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]\n"
 			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]\n\n"
+			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]\n"
+			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]\n"
+			"ppasskeeper -D [-m <module> -u <ppk_password>]\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
 }
@@ -68,6 +71,9 @@ void parse_cmdline(int argc, char **argv)
 			case 'L':
 			case 'G':
 			case 'S':
+			case 'R':
+			case 'W':
+			case 'D':
 				if (mode) usage();
 				mode = *flag;
 				break;
@@ -114,6 +120,7 @@ void parse_cmdline(int argc, char **argv)
 				n++;
 				if (password || *(flag + 1) || n >= argc) usage();
 				password = argv[n];
+				break;
 			case 'u':
 				n++;
 				if (ppk_password || *(flag + 1) || n >= argc) usage();
@@ -129,7 +136,9 @@ void parse_cmdline(int argc, char **argv)
 			}
 		}
 	}
-	if (! mode) usage();
+	
+	if (! mode) 
+		usage();
 }
 
 struct app_params appParameters()
@@ -192,7 +201,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-
+	
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
@@ -283,7 +292,8 @@ int main(int argc, char **argv)
 		}
 		else
 			usage();
-	} else if (mode == 'S')
+	} 
+	else if (mode == 'S')
 	{
 		printf("password = %s\n", password);
 		if (! pwd_type || ! module_id || ! key) usage();
@@ -343,7 +353,40 @@ int main(int argc, char **argv)
 		if(res!=PPK_TRUE)
 			return 1;
 		
-	} else {
+	} 
+	else if (mode == 'R')
+	{
+		if (!module_id || !key) usage();
+		
+		char tmp[PPK_PARAM_MAX];
+		if(ppk_getParam(module_id, key, tmp, sizeof(tmp))==PPK_TRUE)
+			printf(tmp);
+		else
+			return 2;
+	}
+	else if (mode == 'W')
+	{
+		if (!module_id || !key || !password) usage();
+		
+		if(ppk_saveParam(module_id, key, password)==PPK_TRUE)
+			return 0;
+		else
+			return 1;
+	}
+	else if (mode == 'D')
+	{
+		if (!module_id)
+			printf(ppk_getDefaultModule());
+		else
+		{
+			if(ppk_setDefaultModule(module_id)==PPK_TRUE)
+				return 0;
+			else
+				return 1;
+		}
+	}
+	else
+	{
 		//shouldn't happen
 		return 1;
 	}

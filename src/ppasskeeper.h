@@ -263,7 +263,31 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \return  Return the security level. See security_level for more information about it.*/
 	ppk_security_level ppk_securityLevel(const char* module_id);
+	
+	/*! \brief Store a module parameter. This parameter can be retrieved using ppk_getParam.
+	* \param module_id in: Module's ID.
+	* \param key in: The name of the parameter.
+	* \param value in: The value to store.
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
+	
+	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
+	* \param module_id in: Module's ID.
+	* \param key in: The name of the parameter.
+	* \param returnedString in: The variable that will hold the result of the request.
+	* \param maxSize in: The size the result value should not exceed.
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
 
+	/*! \brief Set the default module. This parameter can be retrieved using ppk_getDefaultModule.
+	* \param module_id in: Module's ID.
+	* \return  Return PPK_TRUE if the module the module exists and has been set as the new default module, PPK_FALSE else.*/
+	ppk_boolean ppk_setDefaultModule(const char* module_id);
+	
+	/*! \brief Get the default module. This parameter can be set/updated with ppk_setDefaultModule.
+	* \return  Return the default module's name if there is one, NULL otherwise.*/
+	const char* ppk_getDefaultModule();
+	
 	//Errors
 	/*! \brief Return the last error of the given module
 	* \param module_id in: Module's ID, if NULL, it will return the last libppk error.
@@ -320,21 +344,6 @@ extern "C"
 	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data ppk_createBlobData(const void* data, unsigned long size);
-
-	/*! \brief Store a module parameter. This parameter can be retrieved using ppk_getParam.
-	* \param module_id in: Module's ID.
-	* \param key in: The name of the parameter.
-	* \param value in: The value to store.
-	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
-	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
-	
-	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
-	* \param module_id in: Module's ID.
-	* \param key in: The name of the parameter.
-	* \param returnedString in: The variable that will hold the result of the request.
-	* \param maxSize in: The size the result value should not exceed.
-	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
-	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
 		
 	/*! \brief Get ppk's setting directory
 	* \return  Return the setting directory of ppk*/

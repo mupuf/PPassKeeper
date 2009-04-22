@@ -9,7 +9,6 @@
 #include <cstdlib>
 #include <string.h>
 
-
 //Param
 #ifdef USE_ELEKTRA
 	#include "elektraParam.h"
@@ -22,6 +21,10 @@
 	XMLParam xmlParam(ppk_settingDirectory()+std::string("/xmlParam.xml"));
 	VParam* vparam=&xmlParam;
 #endif
+#define LIBPPK_MODULE_NAME "libppasskeeper"
+#define LIBPPK_KEY_DEFAULT_MODULE "default_module"
+#define LIBPPK_AUTO_MODULE "Automatic"
+#define LIBPPK_DEFAULT_MODULE "Automatic"
 
 //global variables
 PPK_Modules modules;
@@ -394,7 +397,44 @@ extern "C"
 			return ppk_sec_lowest;
 		}
 	}
+	
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
+	{
+		if(vparam->saveParam(module_id, key, value))
+			return PPK_TRUE;
+		else
+			return PPK_FALSE;
+	}
 
+	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+	{
+		if(vparam->getParam(module_id, key, returnedString, maxSize))
+			return PPK_TRUE;
+		else
+			return PPK_FALSE;
+	}
+
+	ppk_boolean ppk_setDefaultModule(const char* module_id)
+	{
+		if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_moduleAvailable(module_id)==PPK_TRUE)
+			return ppk_saveParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, module_id);
+		else
+			return PPK_FALSE;
+	}
+	
+	const char* ppk_getDefaultModule()
+	{
+		static char buf[PPK_PARAM_MAX];
+		if(ppk_getParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, buf, sizeof(buf))==PPK_TRUE)
+		{
+			if(ppk_moduleAvailable(buf)==PPK_TRUE)
+				return buf;
+			else
+				return LIBPPK_DEFAULT_MODULE;
+		}
+		else
+			return LIBPPK_DEFAULT_MODULE;
+	}
 
 	//Errors
 	const char* ppk_getLastError(const char* module_id)
@@ -488,22 +528,6 @@ extern "C"
 	{
 		static std::string settingDir=setting_dir();
 		return settingDir.c_str();	
-	}
-	
-	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
-	{
-		if(vparam->saveParam(module_id, key, value))
-			return PPK_TRUE;
-		else
-			return PPK_FALSE;
-	}
-
-	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
-	{
-		if(vparam->getParam(module_id, key, returnedString, maxSize))
-			return PPK_TRUE;
-		else
-			return PPK_FALSE;
 	}
 }
 

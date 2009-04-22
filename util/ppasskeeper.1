@@ -19,6 +19,12 @@ ppasskeeper - password management utility
 .br
 \fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-f file -p PASSWORD -u PPK_PASSWORD]
 .br
+\fBppasskeeper\fR -R -m MODULE -k KEY [-u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -W -m MODULE -k KEY -p VALUE [-u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -D [-m MODULE -u PPK_PASSWORD]
+.br
 
 .SH DESCRIPTION
 .P
@@ -34,6 +40,12 @@ Get an entry and display it or list the entries of a particular module.
 .TP
 \fB-S\fR
 Set a password.
+.TP
+\fB-R\fR
+Read a parameter.
+.TP
+\fB-W\fR
+Write a parameter.
 .P
 One of the actions \fB-L\fR, \fB-G\fR, or \fB-S\fR must be specified on the command-line.
 
@@ -70,9 +82,23 @@ Store passwords as plain text.
 \fBSaveToRegistry\fR
 Store passwords in the Windows registry.
 
+.SS DEFAULT MODULES
+.P
+You can set up a default module by using the 'D' mode combined with the 'm' option. 
+If you don't provide the 'm' option, you'll get the default value.
+.P
+Parameters :
+.TP
+\fB-m \fIMODULE\fR
+Specifies which module to use as default.
+.TP
+That's all folk.
+
 .SS LISTING
 .P
 Some modules enable you to list their entries.
+.P
+You should use the -G mode with :
 .TP
 \fB-l\fR
 \fIa\fR|\fIn\fR|\fIi\fR
@@ -89,6 +115,20 @@ List the network entries.
 List the item entries.
 .P
 The types can be combined.
+
+.SS PARAMETERS
+.P
+Some modules may need some parameters to run. You can set them using this interface.
+To set up or read a parameter, you'll need at least a module id (-m) and a key name (-k).
+
+.TP
+\fBWriting\fR
+ppasskeeper -W -m "module_id" -k "key_name" -p "my value"
+
+.TP
+\fBReading :\fR
+ppasskeeper -R -m "module_id" -k "key_name"
+
 
 .SS RESOURCES
 .P

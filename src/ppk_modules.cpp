@@ -293,7 +293,7 @@ const char* PPK_Modules::autoModule()
 		return "SaveToFile_Enc";
 	else if(ppk_moduleAvailable("SaveToFile_PT"))
 		return "SaveToFile_PT";
-	else if(ppk_moduleAvailable()>1)
+	else if(ppk_getAvailableModulesCount()>1)
 	{
 		ppk_module mods[2];
 		ppk_getAvailableModules(mods, sizeof(mods));

@@ -33,7 +33,11 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 	{
 		ppk_entry &i = item_ent[current.row()];
 		emit itemPasswordSelected(i.item);
-	} else if (current.internalId() == netId)
+	}
+	else
+		emit noItemSelected();
+
+	/* else if (current.internalId() == netId)
 	{
 		emit netPasswordSelected("", "", 0);
 	} else if (current.internalId() == appId)
@@ -42,8 +46,8 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 	} else if (current.internalId() == itemId)
 	{
 		emit itemPasswordSelected("");
-	}
-	
+	}*/
+
 }
 
 inline void PasswordListModel::freeEntries()
@@ -56,12 +60,11 @@ inline void PasswordListModel::freeEntries()
 	item_ent = NULL;
 }
 
-#include <iostream>
 void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
-	
-	net_count = ppk_getEntryListCount(moduleId, ppk_network, ppk_lf_none);	
+
+	net_count = ppk_getEntryListCount(moduleId, ppk_network, ppk_lf_none);
 	app_count = ppk_getEntryListCount(moduleId, ppk_application, ppk_lf_none);
 	item_count = ppk_getEntryListCount(moduleId, ppk_item, ppk_lf_none);
 	if (net_count > 0)

@@ -17,7 +17,7 @@ MainWindow::MainWindow()
 	setupActions();
 
 	setWindowTitle(qApp->applicationName());
-	
+
 	unlockPPK(true);
 
 	fillModulesBox();
@@ -53,7 +53,7 @@ void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(actionLock_ppasskeeper, SIGNAL(triggered()), this, SLOT(setMasterPwd()));
-	
+
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
@@ -73,10 +73,14 @@ void MainWindow::setupActions()
 			SIGNAL(itemPasswordSelected(const char *)),
 			this,
 			SLOT(onItemPasswordSelected(const char *)));
+	connect(pwdlistModel,
+			SIGNAL(noItemSelected()),
+			this,
+			SLOT(onNoItemSelected()));
 
 	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
-	
+
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 }
 
@@ -115,7 +119,7 @@ bool MainWindow::unlockPPK(bool force)
 	{
 		bool ok;
 		std::string pwd=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper :", QLineEdit::Password,"", &ok).toStdString();
-		
+
 		if(ok)
 		{
 			if(ppk_unlock(pwd.c_str())==PPK_TRUE)
@@ -165,16 +169,16 @@ void MainWindow::onAddButtonClicked()
 	QString error="";
 	const char* title="PPassKeeper : Please key in ....";
 	const char* default_string="Replace me";
-	
+
 	if(m_moduleId!="")
 	{
 		bool res=true, ok;
 		ppk_entry entry;
-		
+
 		if (cur_type == ppk_application)
 		{
 			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@app_name) :", QLineEdit::Normal,"", &ok).toStdString();
-			
+
 			res=parseAndGetAppEntry(key, entry);
 			if(ok && res)
 			{
@@ -188,7 +192,7 @@ void MainWindow::onAddButtonClicked()
 		else if (cur_type == ppk_network)
 		{
 			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@host:port) :").toStdString();
-			
+
 			res=parseAndGetNetworkEntry(key, entry);
 			if(ok && res)
 			{
@@ -202,7 +206,7 @@ void MainWindow::onAddButtonClicked()
 		else if (cur_type == ppk_item)
 		{
 			key=QInputDialog::getText(NULL,title,"Please key in the name :", QLineEdit::Normal,"", &ok).toStdString();
-			
+
 			res=parseAndGetItemEntry(key, entry);
 			if(ok && res)
 			{
@@ -213,10 +217,10 @@ void MainWindow::onAddButtonClicked()
 			else
 				error="It is not a valid key name.";
 		}
-		
+
 		if(!res)
-			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
-		
+			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
+
 		listCurrentModule();
 	}
 }
@@ -225,7 +229,7 @@ void MainWindow::onDelButtonClicked()
 {
 	std::string key;
 	QString error="";
-	
+
 	ppk_boolean res=PPK_FALSE;
 	if (cur_type == ppk_application)
 	{
@@ -244,8 +248,8 @@ void MainWindow::onDelButtonClicked()
 	}
 
 	if(!res)
-		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error); 
-		
+		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
+
 	listCurrentModule();
 }
 
@@ -290,9 +294,9 @@ void MainWindow::setPasswordVisible(bool b)
 					ppk_createItemEntry(cur_item.key.toUtf8().constData()),
 					&data, 0);
 		}
-		
+
 		if (res==PPK_TRUE)
-		{		
+		{
 			passwordEdit->setPlainText(QString::fromUtf8(data.string));
 			passwordEdit->setReadOnly(false);
 			tmp_sensitive_data=QString::fromUtf8(data.string);
@@ -321,7 +325,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
 	progressBar->setValue(timerValue * 100 / 30);
 	++timerValue;
-		
+
 }
 
 void MainWindow::onAppPasswordSelected(const char *app_name, const char *username)
@@ -331,6 +335,8 @@ void MainWindow::onAppPasswordSelected(const char *app_name, const char *usernam
 	cur_app.app_name = app_name;
 	cur_app.username = username;
 	updateInfoLabel();
+
+	showButton->setEnabled(true);
 }
 
 void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
@@ -341,6 +347,8 @@ void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsi
 	cur_net.login = login;
 	cur_net.port = port;
 	updateInfoLabel();
+
+	showButton->setEnabled(true);
 }
 
 void MainWindow::onItemPasswordSelected(const char *key)
@@ -349,6 +357,13 @@ void MainWindow::onItemPasswordSelected(const char *key)
 	cur_type = ppk_item;
 	cur_item.key = key;
 	updateInfoLabel();
+
+	showButton->setEnabled(true);
+}
+
+void MainWindow::onNoItemSelected()
+{
+	showButton->setEnabled(false);
 }
 
 void MainWindow::updateInfoLabel()
@@ -400,9 +415,9 @@ void MainWindow::focusChanged(QWidget* q_old, QWidget* q_new)
 	//If focus was on passwordEdit and passwordEdit's content has changed and the password was currently edited, save it
 	if (passwordTimer.isActive() && q_old==passwordEdit && passwordEdit->toPlainText()!=tmp_sensitive_data)
 	{
-		if(QMessageBox::question(this, tr("Would you like to save ..."), tr("You have modified the data stored.\n\nWould you like to save your modifications ?"), QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)		
-			updateSelectedPassword(passwordEdit->toPlainText());	
-		setPasswordVisible(false);	
+		if(QMessageBox::question(this, tr("Would you like to save ..."), tr("You have modified the data stored.\n\nWould you like to save your modifications ?"), QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
+			updateSelectedPassword(passwordEdit->toPlainText());
+		setPasswordVisible(false);
 	}
 }
 
@@ -454,7 +469,7 @@ bool MainWindow::parseAndGetAppEntry(std::string str, ppk_entry& entry)
 		entry.type=ppk_application;
 		entry.app.app_name=app.c_str();
 		entry.app.username=user.c_str();
-		
+
 		return true;
 	}
 	else
@@ -467,7 +482,7 @@ bool MainWindow::parseAndGetItemEntry(std::string str, ppk_entry& entry)
 	{
 		static std::string item;
 		item=str;
-		
+
 		entry.type=ppk_item;
 		entry.item=str.c_str();
 

@@ -24,6 +24,7 @@ signals:
 	void appPasswordSelected(const char *app_name, const char *username);
 	void netPasswordSelected(const char *host, const char *login, unsigned short int post);
 	void itemPasswordSelected(const char *key);
+	void noItemSelected();
 
 private slots:
 	void rowSelected(const QModelIndex &current, const QModelIndex &previous);

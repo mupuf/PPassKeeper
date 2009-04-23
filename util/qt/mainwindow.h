@@ -49,11 +49,11 @@ private:
 	void setupActions();
 	void fillModulesBox();
 	void listCurrentModule();
-	
+
 	bool parseAndGetNetworkEntry(std::string str, ppk_entry& entry);
 	bool parseAndGetAppEntry(std::string str, ppk_entry& entry);
 	bool parseAndGetItemEntry(std::string str, ppk_entry& entry);
-	
+
 	void showInfoMessageUnderDevelopment();
 	bool unlockPPK(bool force=false);
 
@@ -66,6 +66,7 @@ public slots:
 	void onAppPasswordSelected(const char *app_name, const char *username);
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
 	void onItemPasswordSelected(const char *key);
+	void onNoItemSelected();
 	void onAddButtonClicked();
 	void onDelButtonClicked();
 	void onImportButtonClicked();
@@ -78,7 +79,7 @@ private slots:
 	void moduleChanged(int index);
 	void updateInfoLabel();
 	void onShowButtonToggled(bool b);
-	
+
 };
 
 #endif

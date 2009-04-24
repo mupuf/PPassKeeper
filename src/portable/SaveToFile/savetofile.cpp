@@ -152,7 +152,7 @@ extern "C"
 	unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
 	{
 		static ListPwd pwdl;	
-		return pwdl.getEntryList(setting_dir().c_str(), entry_types, entryList, nbEntries, flags)?PPK_TRUE:PPK_FALSE;
+		return pwdl.getEntryList(setting_dir().c_str(), entry_types, entryList, nbEntries, flags);
 	}
 
 	//Get and Set passwords

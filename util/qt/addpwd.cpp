@@ -96,7 +96,10 @@ void AddPWD::setType(ppk_entry_type type)
 
 void AddPWD::onOK()
 {
-	const char* default_string="Replace me";
+	QString default_string=tr("Replace me");
+
+	QString error_fill_field_caption=tr("PPassKeeper : Error");
+	QString error_fill_field_text=tr("Error : You must fill every field of the form !");
 
 	ppk_entry entry;
 	std::string key;
@@ -113,23 +116,41 @@ void AddPWD::onOK()
 	{
 		key=user+"@"+app;
 		entry=ppk_createAppEntry(app.c_str(), user.c_str());
+
+		if(app=="" || user=="")
+		{
+			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
+			return;
+		}
 	}
 	else if (index==1)
 	{
 		entry=ppk_createNetworkEntry(host.c_str(), login.c_str(), port);
 		key=login+"@"+host+":"+QString::number(port).toStdString();
+
+		if(login=="" || host=="")
+		{
+			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
+			return;
+		}
 	}
 	else if (index==2)
 	{
 		entry=ppk_createItemEntry(item.c_str());
 		key=item;
+
+		if(item=="")
+		{
+			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
+			return;
+		}
 	}
 
-	bool res = ppk_setEntry(module_id.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
+	bool res = ppk_setEntry(module_id.toUtf8().constData(), entry, ppk_createStringData(default_string.toAscii().data()), 0)==PPK_TRUE;
 	if(!res)
 	{
 		QString error=QString("An error occured while adding the entry '%1'\n\nError : %2").arg(key.c_str()).arg(ppk_getLastError(module_id.toUtf8().constData()));
-		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
+		QMessageBox::critical(this, tr("PPassKeeper : Error while adding ..."), error);
 	}
 	else
 		success=true;

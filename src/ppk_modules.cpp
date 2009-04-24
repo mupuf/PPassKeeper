@@ -81,7 +81,7 @@ const char* libraryError();
 		struct dirent * mydirent;
 		
 #ifdef DEBUG_MSG
-		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper without the argument '--enable-debug'" << std::endl << std::endl;
+		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the argument '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
 #endif
 		
 		//Open Plugin's directory

@@ -84,6 +84,8 @@ void MainWindow::setupActions()
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
 
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
+
+	action_Del->setEnabled(false);
 }
 
 void MainWindow::onShowButtonToggled(bool b)
@@ -315,6 +317,7 @@ void MainWindow::onAppPasswordSelected(const char *app_name, const char *usernam
 	updateInfoLabel();
 
 	showButton->setEnabled(true);
+	action_Del->setEnabled(true);
 }
 
 void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
@@ -326,6 +329,7 @@ void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsi
 	updateInfoLabel();
 
 	showButton->setEnabled(true);
+	action_Del->setEnabled(true);
 }
 
 void MainWindow::onItemPasswordSelected(const char *key)
@@ -335,11 +339,13 @@ void MainWindow::onItemPasswordSelected(const char *key)
 	updateInfoLabel();
 
 	showButton->setEnabled(true);
+	action_Del->setEnabled(true);
 }
 
 void MainWindow::onNoItemSelected()
 {
 	showButton->setEnabled(false);
+	action_Del->setEnabled(false);
 
 	cur_availability = false;
 	updateInfoLabel();

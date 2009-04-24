@@ -74,6 +74,7 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="action"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -252,6 +253,16 @@
   <action name="actionLock_ppasskeeper">
    <property name="text">
     <string>Set a master password</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>?</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
    </property>
   </action>
  </widget>

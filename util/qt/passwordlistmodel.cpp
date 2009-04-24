@@ -69,6 +69,7 @@ inline void PasswordListModel::freeEntries()
 	item_ent = NULL;
 }
 
+#include <stdio.h>
 void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();

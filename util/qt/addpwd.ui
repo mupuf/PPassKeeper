@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>PPassKeeper : Add an entry</string>
+   <string>Add an entry</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

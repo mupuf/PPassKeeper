@@ -185,7 +185,6 @@ extern "C"
 	* \return  Return PPK_TRUE if the module is available, PPK_FALSE else.*/
     ppk_boolean ppk_moduleAvailable(const char* module_id);
 
-	
     /*! \brief Returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/

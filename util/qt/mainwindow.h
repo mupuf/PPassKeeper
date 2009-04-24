@@ -27,7 +27,6 @@ private:
 	 *    describes what data structure contains the corresponding data
 	 */
 	bool cur_availability;
-	ppk_entry_type cur_type;
 	struct
 	{
 		QString app_name;

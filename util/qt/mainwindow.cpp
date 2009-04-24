@@ -5,6 +5,8 @@
 #include <sstream>
 #include <ppasskeeper.h>
 
+#include "addpwd.h"
+
 MainWindow::MainWindow()
 	: QMainWindow(),
 	cur_availability(false)
@@ -93,6 +95,7 @@ void MainWindow::onShowButtonToggled(bool b)
 void MainWindow::updateSelectedPassword(QString pwd)
 {
 	bool res;
+	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 	if (cur_type == ppk_application)
 	{
 		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
@@ -165,92 +168,61 @@ void MainWindow::setMasterPwd()
 
 void MainWindow::onAddButtonClicked()
 {
-	std::string key;
-	QString error="";
-	const char* title="PPassKeeper : Please key in ....";
-	const char* default_string="Replace me";
+	AddPWD addpwd;
 
-	if(m_moduleId!="")
-	{
-		bool res=true, ok;
-		ppk_entry entry;
+	addpwd.setType(pwdlistModel->currentSelectedType());
+	addpwd.setModule(m_moduleId);
+	addpwd.show();
+	addpwd.exec();
 
-		if (cur_type == ppk_application)
-		{
-			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@app_name) :", QLineEdit::Normal,"", &ok).toStdString();
-
-			res=parseAndGetAppEntry(key, entry);
-			if(ok && res)
-			{
-				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
-				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
-			}
-			else
-				error="It is not a valid key name.";
-		}
-		else if (cur_type == ppk_network)
-		{
-			key=QInputDialog::getText(NULL,title,"Please key in the name (should be written like this login@host:port) :").toStdString();
-
-			res=parseAndGetNetworkEntry(key, entry);
-			if(ok && res)
-			{
-				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
-				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
-			}
-			else
-				error="It is not a valid key name.";
-		}
-		else if (cur_type == ppk_item)
-		{
-			key=QInputDialog::getText(NULL,title,"Please key in the name :", QLineEdit::Normal,"", &ok).toStdString();
-
-			res=parseAndGetItemEntry(key, entry);
-			if(ok && res)
-			{
-				res = ppk_setEntry(m_moduleId.toUtf8().constData(), entry, ppk_createStringData(default_string), 0)==PPK_TRUE;
-				if(!res)
-					error=QString("An error occured while adding the element '") + QString(key.c_str()) + QString("'\n\nError : ") + QString(ppk_getLastError(m_moduleId.toUtf8().constData()));
-			}
-			else
-				error="It is not a valid key name.";
-		}
-
-		if(!res)
-			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
-
+	if(addpwd.succeeded())
 		listCurrentModule();
-	}
 }
 
 void MainWindow::onDelButtonClicked()
 {
-	std::string key;
-	QString error="";
+	QString error="", entry_name;
 
-	ppk_boolean res=PPK_FALSE;
+	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
+
+	//Get the entry name
 	if (cur_type == ppk_application)
-	{
-		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
-				ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()), 0);
-	}
+		entry_name=cur_app.username+"@"+cur_app.app_name;
 	else if (cur_type == ppk_network)
-	{
-		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
-				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port), 0);
-	}
+		entry_name=cur_net.login+"@"+cur_net.host+":"+QString::number(cur_net.port);
 	else if (cur_type == ppk_item)
+		entry_name=cur_item.key;
+
+
+	QString title=tr("Are your sure ?");
+	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(m_moduleId);
+	if(QMessageBox::question(this, title, text, QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 	{
-		res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
-				ppk_createItemEntry(cur_item.key.toUtf8().constData()), 0);
+		ppk_boolean res=PPK_FALSE;
+		if (cur_type == ppk_application)
+		{
+			res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+					ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()), 0);
+		}
+		else if (cur_type == ppk_network)
+		{
+			res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+					ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port), 0);
+		}
+		else if (cur_type == ppk_item)
+		{
+			res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
+					ppk_createItemEntry(cur_item.key.toUtf8().constData()), 0);
+		}
+
+		if(!res)
+		{
+			error=ppk_getLastError(m_moduleId.toUtf8().constData());
+			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
+		}
+		else
+			listCurrentModule();
 	}
-
-	if(!res)
-		QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
-
-	listCurrentModule();
 }
 
 void MainWindow::onImportButtonClicked()
@@ -273,6 +245,8 @@ void MainWindow::setPasswordVisible(bool b)
 			showButton->setChecked(false);
 			return;
 		}
+
+		ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 
 		ppk_data data;
 		ppk_boolean res=PPK_FALSE;
@@ -303,6 +277,11 @@ void MainWindow::setPasswordVisible(bool b)
 			timerValue = 0;
 			passwordTimer.start(1000, this);
 		}
+		else
+		{
+			QMessageBox::critical(this, tr("An error occured while reading the password"), tr("An error occured while reading the password !\n\nThe error is : \n")+ppk_getLastError(m_moduleId.toUtf8().constData()));
+			setPasswordVisible(false);
+		}
 	} else {
 		passwordTimer.stop();
 		progressBar->setValue(0);
@@ -313,7 +292,7 @@ void MainWindow::setPasswordVisible(bool b)
 	}
 }
 
-void MainWindow::timerEvent(QTimerEvent *event)
+void MainWindow::timerEvent(QTimerEvent* /*event*/)
 {
 	if (timerValue == 30)
 	{
@@ -331,7 +310,6 @@ void MainWindow::timerEvent(QTimerEvent *event)
 void MainWindow::onAppPasswordSelected(const char *app_name, const char *username)
 {
 	cur_availability = true;
-	cur_type = ppk_application;
 	cur_app.app_name = app_name;
 	cur_app.username = username;
 	updateInfoLabel();
@@ -342,7 +320,6 @@ void MainWindow::onAppPasswordSelected(const char *app_name, const char *usernam
 void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
 {
 	cur_availability = true;
-	cur_type = ppk_network;
 	cur_net.host = host;
 	cur_net.login = login;
 	cur_net.port = port;
@@ -354,7 +331,6 @@ void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsi
 void MainWindow::onItemPasswordSelected(const char *key)
 {
 	cur_availability = true;
-	cur_type = ppk_item;
 	cur_item.key = key;
 	updateInfoLabel();
 
@@ -364,11 +340,16 @@ void MainWindow::onItemPasswordSelected(const char *key)
 void MainWindow::onNoItemSelected()
 {
 	showButton->setEnabled(false);
+
+	cur_availability = false;
+	updateInfoLabel();
 }
 
 void MainWindow::updateInfoLabel()
 {
 	QString str;
+	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
+
 	if (! cur_availability)
 	{
 		str = tr("(none selected)");
@@ -402,6 +383,8 @@ void MainWindow::moduleChanged(int index)
 		/* the displayed password becomes unavailable
 		 * after a module change */
 		cur_availability = false;
+
+		toolBar->setEnabled(true);
 	}
 }
 
@@ -410,7 +393,7 @@ void MainWindow::listCurrentModule()
 	pwdlistModel->setupModelData(m_moduleId.toUtf8().constData());
 }
 
-void MainWindow::focusChanged(QWidget* q_old, QWidget* q_new)
+void MainWindow::focusChanged(QWidget* q_old, QWidget* /*q_new*/)
 {
 	//If focus was on passwordEdit and passwordEdit's content has changed and the password was currently edited, save it
 	if (passwordTimer.isActive() && q_old==passwordEdit && passwordEdit->toPlainText()!=tmp_sensitive_data)

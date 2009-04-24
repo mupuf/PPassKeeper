@@ -20,6 +20,8 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 	void setupModelData(const char *moduleId);
 
+	ppk_entry_type currentSelectedType();
+
 signals:
 	void appPasswordSelected(const char *app_name, const char *username);
 	void netPasswordSelected(const char *host, const char *login, unsigned short int post);
@@ -37,6 +39,7 @@ private:
 	ppk_entry *app_ent;
 	ppk_entry *item_ent;
 	unsigned int net_count, app_count, item_count;
+	ppk_entry_type currentType;
 };
 
 #endif

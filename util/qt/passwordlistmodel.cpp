@@ -19,35 +19,44 @@ PasswordListModel::~PasswordListModel()
 	freeEntries();
 }
 
-void PasswordListModel::rowSelected(const QModelIndex &current, const QModelIndex &previous)
+void PasswordListModel::rowSelected(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
 	if (current.internalId() == appChildId)
 	{
 		ppk_entry &a = app_ent[current.row()];
+		currentType = ppk_application;
 		emit appPasswordSelected(a.app.app_name, a.app.username);
 	} else if (current.internalId() == netChildId)
 	{
 		ppk_entry &n = net_ent[current.row()];
+		currentType = ppk_network;
 		emit netPasswordSelected(n.net.host, n.net.login, n.net.port);
 	} else if (current.internalId() == itemChildId)
 	{
 		ppk_entry &i = item_ent[current.row()];
+		currentType = ppk_item;
 		emit itemPasswordSelected(i.item);
 	}
-	else
+	else if (current.internalId() == netId)
+	{
+		currentType = ppk_network;
 		emit noItemSelected();
+	}
+	else if (current.internalId() == appId)
+	{
+		currentType = ppk_application;
+		emit noItemSelected();
+	}
+	else if (current.internalId() == itemId)
+	{
+		currentType = ppk_item;
+		emit noItemSelected();
+	}
+}
 
-	/* else if (current.internalId() == netId)
-	{
-		emit netPasswordSelected("", "", 0);
-	} else if (current.internalId() == appId)
-	{
-		emit appPasswordSelected("", "");
-	} else if (current.internalId() == itemId)
-	{
-		emit itemPasswordSelected("");
-	}*/
-
+ppk_entry_type PasswordListModel::currentSelectedType()
+{
+	return currentType;
 }
 
 inline void PasswordListModel::freeEntries()
@@ -167,7 +176,7 @@ int PasswordListModel::rowCount(const QModelIndex &parent) const
 	return 0;
 }
 
-int PasswordListModel::columnCount(const QModelIndex &parent) const
+int PasswordListModel::columnCount(const QModelIndex & /*parent*/) const
 {
 	return 1;
 }

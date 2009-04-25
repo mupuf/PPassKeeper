@@ -267,7 +267,7 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param key in: The name of the parameter.
 	* \param value in: The value to store.
-	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	* \return  Return PPK_TRUE if the parameter has been saved, PPK_FALSE else.*/
 	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
 	
 	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
@@ -275,8 +275,21 @@ extern "C"
 	* \param key in: The name of the parameter.
 	* \param returnedString in: The variable that will hold the result of the request.
 	* \param maxSize in: The size the result value should not exceed.
-	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	* \return  Return PPK_TRUE if the parameter has been retrieved, PPK_FALSE else.*/
 	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+	
+	/*! \brief Retrieve the parameters list of a given module.
+	* \param module_id in: Module's ID.
+	* \param list out: The output list.
+	* \param maxEntries in: The maximum size of the list.
+	* \return  Returns the number of elements in the list.*/
+	unsigned int ppk_listParam(const char* module_id, const char*** list, unsigned int maxEntries);
+	
+	/*! \brief Delete a module parameter.
+	* \param module_id in: Module's ID.
+	* \param key in: The name of the parameter to delete.
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	ppk_boolean ppk_removeParam(const char* module_id, const char* key);
 
 	/*! \brief Set the default module. This parameter can be retrieved using ppk_getDefaultModule.
 	* \param module_id in: Module's ID.

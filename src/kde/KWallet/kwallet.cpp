@@ -44,7 +44,8 @@ bool init_kde_lazy()
 			int argc = 1;
 			char *argv[2] = { kdeAppName, NULL };
 			
-			KAboutData about(QByteArray(kdeAppName),QByteArray(kdeAppName),KLocalizedString(),QByteArray("1.0"));
+			QByteArray qbApp(kdeAppName);
+			KAboutData about(qbApp, qbApp, KLocalizedString(),QByteArray("1.0"));
 			KCmdLineArgs::init(argc, argv, &about);
 			if (! qApp)
 				_app = new KApplication(true);

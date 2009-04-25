@@ -23,11 +23,15 @@ class XMLParam: public XMLSP::Parser, public VParam
 		virtual bool on_document_end();
 		virtual void on_error(int errnr, int line, int col, const std::string& message);
 		
+		bool flush();
+		
 	public:
 		XMLParam(const std::string xmlPath);
 
 		bool saveParam(const char* module_id, const char* key, const char* value);
 		bool getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+		std::vector<std::string> listParams(const char* module_id);
+		bool removeParam(const char* module_id, const char* key);
 };
 
 #endif

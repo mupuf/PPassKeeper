@@ -4,6 +4,7 @@
 #include <QInputDialog>
 #include <sstream>
 #include <ppasskeeper.h>
+#include <stdio.h>
 
 #include "addpwd.h"
 
@@ -86,6 +87,21 @@ void MainWindow::setupActions()
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
 	action_Del->setEnabled(false);
+
+	/*if(ppk_removeParam("KWallet4", "osef")==PPK_TRUE)
+		printf("OK, il a bien été viré !\n");
+	else
+		printf("NOK, il n'a pas bien été viré !\n");
+
+	char** list=new char*[100];
+	unsigned int size=ppk_listParam("KWallet4", (const char***)&list, 100);
+
+	std::cout << "Il y a " << size << " params !" << std::endl;
+	for(unsigned int i=0;i<size;i++)
+	{
+		std::cout << "list[" << i << "] = " << list[i] << std::endl;
+	}
+	delete[] list;*/
 }
 
 void MainWindow::onShowButtonToggled(bool b)

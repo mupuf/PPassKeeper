@@ -13,6 +13,8 @@ class ElektraParam: public VParam
 	public:
 		bool saveParam(const char* module_id, const char* key, const char* value);
 		bool getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+		std::vector<std::string> listParams(const char* module_id);
+		bool removeParam(const char* module_id, const char* key);
 };
 
 #endif

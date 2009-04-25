@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <string.h>
+#include <stdio.h>
 
 //Param
 #ifdef USE_ELEKTRA
@@ -411,6 +412,23 @@ extern "C"
 			return PPK_TRUE;
 		else
 			return PPK_FALSE;
+	}
+	
+	unsigned int ppk_listParam(const char* module_id, const char*** list, unsigned int maxEntries)
+	{
+		static std::vector<std::string> vlist;
+		vlist=vparam->listParams(module_id);
+		
+		int i;
+		for(i=0;i<maxEntries && i<vlist.size();i++)
+			(*list)[i]=vlist[i].c_str();
+		
+		return i;
+	}
+	
+	ppk_boolean ppk_removeParam(const char* module_id, const char* key)
+	{
+		return vparam->removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
 	}
 
 	ppk_boolean ppk_setDefaultModule(const char* module_id)

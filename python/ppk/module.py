@@ -35,7 +35,7 @@ class Module:
     def set_custom_prompt_message(self, custom_message):
         return bool(_handle.ppk_setCustomPromptMessage(self.id, custom_message))
     def security_level(self):
-        return bool(_handle.ppk_securityLevel(self.id))
+        return _handle.ppk_securityLevel(self.id)
     def max_data_size(self, data_type):
         return _handle.ppk_maxDataSize(self.id, data_type)
     def get_entry(self, entry, flags = 0):

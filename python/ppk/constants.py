@@ -5,6 +5,9 @@ class SecurityLevel:
 
 class EntryType:
     network, application, item = (1, 2, 4)
+    @classmethod
+    def all(cls):
+        return cls.network | cls.application | cls.item
 
 class DataType:
     string, blob = (1, 2)

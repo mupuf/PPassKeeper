@@ -15,13 +15,13 @@ extern "C" const char* getLastError()
 bool WIN32_Get_Password(std::string title, std::string label, std::string& pwd);
 void setError(std::string error)
 {
-	*(last_error())="PPK_Ask_For_Pass_WIN32 : " + error;
+	*(last_error())="PPK_AskForPass_WIN32 : " + error;
 }
 
 //functions
 extern "C" const char* getModuleID()
 {
-	return "Ask_For_Pass_WIN32";
+	return "AskForPass_WIN32";
 }
 
 extern "C" const char* getModuleName()

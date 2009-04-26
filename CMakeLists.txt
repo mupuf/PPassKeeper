@@ -185,8 +185,8 @@ ENDIF(PPK_STF)
 # GTK plugin
 IF(PPK_AFP_GTK)
   FILE(GLOB ppk_afp_gtk_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/gtk/Ask_For_Pass/*.[ch]"
-	"src/gtk/Ask_For_Pass/*.cpp")
+	"src/gtk/AskForPass/*.[ch]"
+	"src/gtk/AskForPass/*.cpp")
    ADD_LIBRARY(ppk_afp_gtk MODULE ${ppk_afp_gtk_SOURCES})
    TARGET_LINK_LIBRARIES(ppk_afp_gtk ${gtk2_LIBRARIES})
    INSTALL(TARGETS ppk_afp_gtk DESTINATION lib/ppasskeeper)
@@ -195,8 +195,8 @@ ENDIF(PPK_AFP_GTK)
 # Qt plugin
 IF(PPK_AFP_QT)
   FILE(GLOB ppk_afp_qt_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/qt/Ask_For_Pass/*.[ch]"
-	"src/qt/Ask_For_Pass/*.cpp")
+	"src/qt/AskForPass/*.[ch]"
+	"src/qt/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_qt MODULE ${ppk_afp_qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
   INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
@@ -205,8 +205,8 @@ ENDIF(PPK_AFP_QT)
 #Win32 plugin
 IF(PPK_AFP_WIN32)
   FILE(GLOB ppk_afp_win32_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/windows/Ask_For_Pass/*.[ch]"
-	"src/windows/Ask_For_Pass/*.cpp")
+	"src/windows/AskForPass/*.[ch]"
+	"src/windows/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_win32 MODULE ${ppk_afp_win32_SOURCES})
   INSTALL(TARGETS ppk_afp_win32 DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_WIN32)

@@ -2,29 +2,27 @@
 #include "../../tokenizer.h"
 #include <string>
 
-
 //local functions
-bool GTK_Get_Password(std::string title, std::string label, std::string& pwd);
 std::string* last_error()
 {
 	static std::string last_err;
 	return &last_err;
 }
-
+bool Qt_Get_Password(std::string title, std::string label, std::string& pwd);
 void setError(std::string error)
 {
-	*(last_error())="PPK_Ask_For_Pass_GTK : " + error;
+	*(last_error())="PPK_AskForPass_Qt : " + error;
 }
 
 //functions
 extern "C" const char* getModuleID()
 {
-	return "Ask_For_Pass_GTK";
+	return "AskForPass_Qt";
 }
 
 extern "C" const char* getModuleName()
 {
-	return "Ask for the password through a GTK window";
+	return "Ask for the password through a Qt window";
 }
 
 extern "C" const int getABIVersion()
@@ -50,12 +48,12 @@ extern "C" unsigned int readFlagsAvailable()
 
 extern "C" unsigned int writeFlagsAvailable()
 {
-	return ppk_wf_none;
+	return ppk_wf_none|ppk_wf_none;
 }
 
 extern "C" unsigned int listingFlagsAvailable()
 {
-	return ppk_lf_none;
+	return ppk_lf_none|ppk_lf_none;
 }
 
 
@@ -82,7 +80,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		else if(entry.type==ppk_item)
 			text="this key("+toString(entry.item)+")";
 		
-		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
+		bool res=Qt_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
 		if(res)
@@ -122,7 +120,7 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	switch(type)
 	{
 		case ppk_string:
-			return -1;
+			return (unsigned int)-1;
 		case ppk_blob:
 			return 0;
 	}
@@ -135,7 +133,7 @@ extern "C" const char* getLastError()
 	return last_error()->c_str();
 }
 
-//optionnal
+//Optionnal
 std::string* customPrompt()
 {
 	static std::string msg;
@@ -155,65 +153,103 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 /*************************************************************************************************
 **************************************************************************************************
 *******************************										******************************
-*******************************				  GTK PART				******************************
+*******************************				  QT PART				******************************
 *******************************										******************************
 **************************************************************************************************
 **************************************************************************************************/
 
-#include <gtk/gtk.h>
+#include <qapplication.h>
+#include <qinputdialog.h>
 
-bool GTK_Get_Password(std::string title, std::string default_label, std::string& pwd)
+#include <qstring.h>
+
+#include <qdialog.h>
+#include <qboxlayout.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qdialogbuttonbox.h>
+#include <qstyle.h>
+
+class PasswordDialog : public QDialog
 {
-	bool succeded=false;
-	GtkWidget* pBoite;
-	GtkWidget* pEntry;
-	GtkWidget *pLabel;
-
-	//Init GTK
-	gtk_init(0, NULL);
-	
-	//Create the dialog box
-	pBoite = gtk_dialog_new_with_buttons(title.c_str(),
-		GTK_WINDOW(NULL),
-		GTK_DIALOG_MODAL,
-		GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OK,GTK_RESPONSE_OK,
-		NULL);
-
-	//Create the label
-	if(*(customPrompt())!=std::string())
-		pLabel = gtk_label_new(customPrompt()->c_str());
-	else
-		pLabel = gtk_label_new(default_label.c_str());
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(pBoite)->vbox), pLabel, TRUE, FALSE, 0);
-
-	//Create the editbox
-	pEntry = gtk_entry_new();
-	gtk_entry_set_visibility(GTK_ENTRY(pEntry), FALSE);
-	gtk_entry_set_text(GTK_ENTRY(pEntry), "");
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(pBoite)->vbox), pEntry, TRUE, FALSE, 0);
-
-	//Show the widgets
-	gtk_widget_show_all(GTK_DIALOG(pBoite)->vbox);
-
-	//Launch the dialog box and wait for events
-	switch (gtk_dialog_run(GTK_DIALOG(pBoite)))
+public:
+	static bool getPassword(const std::string &title, const std::string &label, std::string &pwd)
 	{
-		//User clicked on OK
-		case GTK_RESPONSE_OK:
-			pwd = gtk_entry_get_text(GTK_ENTRY(pEntry));
-			succeded=true;
-			break;
-		 //User clicked on cancel
-		case GTK_RESPONSE_CANCEL:
-		case GTK_RESPONSE_NONE:
-		default:
-			succeded=false;
-			break;
+		PasswordDialog dialog(title, label);
+		bool ok = dialog.exec() == QDialog::Accepted;
+		pwd=dialog.pwdEdit->text().toStdString();
+		return ok;
 	}
 
-	//Destroy the dialog box
-	gtk_widget_destroy(pBoite);
+private:
+	PasswordDialog(const std::string &title, const std::string &label) : QDialog()
+	{
+		setWindowTitle(QString::fromStdString(title));
 
-	return succeded;
+		QVBoxLayout *layout = new QVBoxLayout;
+
+		QString qlabel = QString::fromStdString(label);
+		qlabel.prepend("<b>");
+		qlabel.append("</b>");
+
+		QHBoxLayout *hlayout = new QHBoxLayout;
+		QLabel *iconLabel = new QLabel;
+		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		iconLabel->setPixmap(qApp->style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(64, 64));
+		hlayout->addWidget(iconLabel);
+		hlayout->addSpacing(12);
+		QLabel *textLabel = new QLabel(qlabel);
+		textLabel->setMinimumWidth(200);
+		textLabel->setWordWrap(true);
+		hlayout->addWidget(textLabel);
+		layout->addLayout(hlayout);
+
+		layout->addStretch();
+
+		pwdEdit = new QLineEdit();
+		pwdEdit->setEchoMode(QLineEdit::Password);
+		layout->addWidget(pwdEdit);
+
+		layout->addStretch();
+
+		QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
+		layout->addWidget(box);
+
+		connect(box, SIGNAL(accepted()), this, SLOT(accept()));
+		connect(box, SIGNAL(rejected()), this, SLOT(reject()));
+
+		setLayout(layout);
+	}
+
+	QLineEdit *pwdEdit;
+};
+
+bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
+{
+	bool ok;
+
+	//If there is a custom
+	if(*(customPrompt())!=std::string())
+		label=customPrompt()->c_str();
+
+	//Init Qt if it has not already been done
+	if(QApplication::instance()==0)
+	{
+		//create the instance
+		int argc;
+		QApplication app(argc,NULL);
+
+		//Retrieve the password
+		ok = PasswordDialog::getPassword(title, label, pwd);
+	}
+	else
+		ok = PasswordDialog::getPassword(title, label, pwd);
+
+	//if user pressed cancel
+	if(!ok)
+		setError("User pressed <Cancel>");
+
+	//Tell everything went fine
+	return ok;
 }
+

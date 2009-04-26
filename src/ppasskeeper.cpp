@@ -278,7 +278,7 @@ extern "C"
 		}
 	}
 	
-	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags)
+	unsigned int ppk_getEntryListCount(const char* module_id, size_t entry_types, unsigned int flags)
 	{
 		if(!isLocked())
 		{

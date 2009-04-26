@@ -11,12 +11,30 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Module Information</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>3</number>
    </property>
+   <item>
+    <widget class="QLabel" name="moduleNameLabel">
+     <property name="font">
+      <font>
+       <family>Helvetica</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>ModuleName</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -45,7 +63,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="securityLabel">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -69,16 +87,23 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="supportWritingLabel">
         <property name="text">
-         <string>String : Maximum admissible size is %1</string>
+         <string>Supports writing : %1</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="maxSizeStringLabel">
         <property name="text">
-         <string>Blob : Maximum admissible size is %1</string>
+         <string>String : Maximum admissible size is %1 bytes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="maxSizeBlobLabel">
+        <property name="text">
+         <string>Blob : Maximum admissible size is %1 bytes</string>
         </property>
        </widget>
       </item>
@@ -92,21 +117,21 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="readFlagsLabel">
         <property name="text">
          <string>Read : %1</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="writeFlagsLabel">
         <property name="text">
          <string>Write : %1</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="listFlagsLabel">
         <property name="text">
          <string>List : %1</string>
         </property>

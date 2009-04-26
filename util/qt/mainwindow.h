@@ -73,6 +73,7 @@ public slots:
 	void onDelButtonClicked();
 	void onImportButtonClicked();
 	void onExportButtonClicked();
+	void onInfoModuleButtonClicked();
 	void setPasswordVisible(bool b);
 	void focusChanged(QWidget* q_old, QWidget* q_new);
 

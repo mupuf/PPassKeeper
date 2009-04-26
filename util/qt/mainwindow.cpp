@@ -8,6 +8,7 @@
 #include <QFileDialog>
 
 #include "addpwd.h"
+#include "infomodule.h"
 
 MainWindow::MainWindow()
 	: QMainWindow(),
@@ -41,7 +42,7 @@ void MainWindow::fillModulesBox()
 	for (unsigned int i = 0; i < n; ++i)
 	{
 		/* we are only interested in modules that can be listed and that can actually store data */
-		if (ppk_isWritable(modules[i].id))
+		if (ppk_isWritable(modules[i].id)==PPK_TRUE)
 		{
 			modulesBox->addItem(modules[i].display_name, QVariant(modules[i].id));
 		}
@@ -61,6 +62,7 @@ void MainWindow::setupActions()
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
+	connect(actionInfos, SIGNAL(triggered()), this, SLOT(onInfoModuleButtonClicked()));
 	connect(action_Import, SIGNAL(triggered()), this, SLOT(onImportButtonClicked()));
 	connect(action_Export, SIGNAL(triggered()), this, SLOT(onExportButtonClicked()));
 	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
@@ -289,6 +291,15 @@ void MainWindow::onImportButtonClicked()
 void MainWindow::onExportButtonClicked()
 {
 	showInfoMessageUnderDevelopment();
+}
+
+void MainWindow::onInfoModuleButtonClicked()
+{
+	InfoModule infomod(this);
+	infomod.setModule(m_moduleId.toAscii().data());
+	infomod.setModal(true);
+	infomod.show();
+	infomod.exec();
 }
 
 void MainWindow::setPasswordVisible(bool b)

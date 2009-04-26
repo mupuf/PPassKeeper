@@ -261,7 +261,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 	
-	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type)
+	size_t ppk_maxDataSize(const char* module_id, ppk_data_type type)
 	{
 		if(!isLocked())
 		{

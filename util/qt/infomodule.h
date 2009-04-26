@@ -14,11 +14,15 @@ public:
     explicit InfoModule(QWidget *parent = 0);
     virtual ~InfoModule();
 
+    void setModule(const char* m_id);
+
 protected:
     virtual void changeEvent(QEvent *e);
 
 private:
     Ui::InfoModule *m_ui;
+
+    QString listFlags(unsigned int flags);
 };
 
 #endif // INFOMODULE_H

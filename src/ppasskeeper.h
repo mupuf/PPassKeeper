@@ -250,7 +250,7 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param type in: The type you want to know its maximum data size.
 	* \return  Returns the maximum data size*/
-	unsigned int ppk_maxDataSize(const char* module_id, ppk_data_type type);
+	size_t ppk_maxDataSize(const char* module_id, ppk_data_type type);
         
 	/*! \brief Tells whether a module are writable or not. It may be a stupid question given the name of the library,
 	* but some modules just allow you to key-in your password. For these modules, you are the keeper.

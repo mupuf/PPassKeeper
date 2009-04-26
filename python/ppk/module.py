@@ -27,9 +27,9 @@ class Module:
     def save_param(self, key, value):
         return bool(_handle.ppk_saveParam(self.id, key, value))
     def get_param(self, key):
-        returned_string = c_char * PPK_PARAM_MAX
+        returned_string = (c_char * PPK_PARAM_MAX)()
         if _handle.ppk_getParam(self.id, key, returned_string, PPK_PARAM_MAX):
-            return returned_string
+            return returned_string.value
         else:
             return None
     def set_custom_prompt_message(self, custom_message):

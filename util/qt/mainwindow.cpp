@@ -414,6 +414,8 @@ void MainWindow::saveValueToFile()
 	if (ok)
 	{
 		QString filepath=QFileDialog::getSaveFileName(this, tr("Save Value"), "", tr("All (*.*)"));
+		if (filepath.isEmpty())
+			return;
 
 		QFile file(filepath);
 		file.open(QIODevice::WriteOnly);
@@ -436,6 +438,8 @@ void MainWindow::saveValueToFile()
 void MainWindow::setBlobFromFile()
 {
 	QString filepath=QFileDialog::getOpenFileName(this, tr("Open a file to save"), "", tr("All (*.*)"));
+	if (filepath.isEmpty())
+		return;
 
 	QFile file(filepath);
 	if(file.size()<=ppk_maxDataSize(this->m_moduleId.toAscii().data(), ppk_blob))

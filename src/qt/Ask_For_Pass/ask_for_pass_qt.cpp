@@ -86,6 +86,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 		if(res)
 		{
 			setError("");
+			edata->type=ppk_string;
 			edata->string=pwd.c_str();
 			return PPK_TRUE;
 		}

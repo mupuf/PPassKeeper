@@ -1,5 +1,5 @@
 from constants import EntryType
-from types import StructNetworkEntry, StructApplicationEntry
+from types import StructNetworkEntry, StructApplicationEntry, StructEntry
 
 class NetworkEntry:
     def __init__(self, host, login, port):

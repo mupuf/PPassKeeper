@@ -35,12 +35,14 @@ bool getPassword(const char* key, ppk_data* edata)
 		{
 			if(type==REG_BINARY)
 			{
+				edata->type=ppk_blob;
 				edata->blob.data=tmpBuf;
 				edata->blob.size=size;
 				return true;
 			}
 			else if(type==REG_SZ)
 			{
+				edata->type=ppk_string;
 				edata->string=tmpBuf;
 				return true;
 			}

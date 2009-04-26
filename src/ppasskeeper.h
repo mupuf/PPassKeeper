@@ -228,7 +228,7 @@ extern "C"
 	* \param entry_types in: The entry types that should be taken into account.
 	* \param flags in: You can specify flags which will change the way the entry list will be got. See listingFlag.
 	* \return  Returns the number of entries counted.*/
-	unsigned int ppk_getEntryListCount(const char* module_id, unsigned int entry_types, unsigned int flags);
+	unsigned int ppk_getEntryListCount(const char* module_id, size_t entry_types, unsigned int flags);
 	
 	/*! \brief Get entries's name stored into a module.
 	* \param module_id in: Module's ID.
@@ -237,7 +237,7 @@ extern "C"
 	* \param nbEntries in: Maximum number of entries to be retrieved.
 	* \param flags in: You can specify flags which will change the way the entry list will be got. See listingFlag.
 	* \return  Returns the number of entries stored into entryList.*/
-	unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags);
+	unsigned int ppk_getEntryList(const char* module_id, size_t entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags);
 
 	/*! \brief Tells whether a module contains a specific entry or not.
 	* \param module_id in: Module's ID.

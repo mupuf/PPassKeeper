@@ -33,12 +33,6 @@ class BlobData:
         s.u.blob.data = self.blob
         s.u.blob.size = len(self.blob)
         return s
-    def _to_data(self):
-        if self.type == DataType.string:
-            return StringData(self.u.string)
-        elif self.type == DataType.blob:
-            return BlobData(self.u.blob)
-        return None
 
 def _struct_to_data(struct):
     if struct.type == DataType.string:

@@ -254,8 +254,8 @@ IF(PPK_UTIL_QT)
   FILE(GLOB ppasskeeper-qt_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
 	"util/qt/*.h"
 	"util/qt/*.cpp")
-  SET(ppasskeeper-qt_MOCS addpwd.h mainwindow.h passwordlistmodel.h)
-  SET(ppasskeeper-qt_UIS addpwd.ui mainwindow.ui)
+  SET(ppasskeeper-qt_MOCS addpwd.h mainwindow.h passwordlistmodel.h infomodule.h editparams.h)
+  SET(ppasskeeper-qt_UIS addpwd.ui mainwindow.ui infomodule.ui editparams.ui)
   SET(ppasskeeper-qt_RCC "util/qt/ressources.qrc")
   
   QT4_ADD_RESOURCES(ppasskeeper-qt_RCC_SRCS ${ppasskeeper-qt_RCC})

@@ -55,7 +55,7 @@ class Module:
         l = (StructEntry * count)()
         _handle.ppk_getEntryList(self.id, entry_types, l, count, flags)
         return map(lambda x: _struct_to_entry(x), l)
-    def has_entry(self, entry):
+    def has_entry(self, entry, flags = 0):
         return bool(_handle.ppk_entryExists(self.id, entry._to_struct(), flags))
 
 class ModuleList:

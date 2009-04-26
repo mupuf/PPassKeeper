@@ -56,6 +56,9 @@ private:
 	void showInfoMessageUnderDevelopment();
 	bool unlockPPK(bool force=false);
 
+	ppk_data getSelectedEntryData(bool& ok);
+	bool updateSelectedPassword(ppk_data data);
+
 protected:
 	void timerEvent(QTimerEvent *event);
 	uint timerValue;
@@ -71,14 +74,15 @@ public slots:
 	void onImportButtonClicked();
 	void onExportButtonClicked();
 	void setPasswordVisible(bool b);
-	void updateSelectedPassword(QString pwd);
 	void focusChanged(QWidget* q_old, QWidget* q_new);
 
 private slots:
 	void moduleChanged(int index);
 	void updateInfoLabel();
 	void onShowButtonToggled(bool b);
-
+	void onPasswordSelected();
+	void saveValueToFile();
+	void setBlobFromFile();
 };
 
 #endif

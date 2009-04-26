@@ -237,7 +237,7 @@ extern "C"
 	* \param nbEntries in: Maximum number of entries to be retrieved.
 	* \param flags in: You can specify flags which will change the way the entry list will be got. See listingFlag.
 	* \return  Returns the number of entries stored into entryList.*/
-	unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
+	unsigned int ppk_getEntryList(const char* module_id, unsigned int entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags);
 
 	/*! \brief Tells whether a module contains a specific entry or not.
 	* \param module_id in: Module's ID.
@@ -283,7 +283,7 @@ extern "C"
 	* \param list out: The output list.
 	* \param maxEntries in: The maximum size of the list.
 	* \return  Returns the number of elements in the list.*/
-	unsigned int ppk_listParam(const char* module_id, const char*** list, unsigned int maxEntries);
+	unsigned int ppk_listParam(const char* module_id, const char*** list, size_t maxEntries);
 	
 	/*! \brief Delete a module parameter.
 	* \param module_id in: Module's ID.

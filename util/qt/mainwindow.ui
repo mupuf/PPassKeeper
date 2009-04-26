@@ -74,7 +74,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="action_about"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -102,6 +103,9 @@
    <addaction name="action_Add"/>
    <addaction name="action_Del"/>
    <addaction name="separator"/>
+   <addaction name="actionInfos"/>
+   <addaction name="actionParams"/>
+   <addaction name="separator"/>
    <addaction name="action_Import"/>
    <addaction name="action_Export"/>
   </widget>
@@ -122,6 +126,9 @@
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>1</number>
+       </property>
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
@@ -130,7 +137,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>174</width>
-           <height>58</height>
+           <height>91</height>
           </size>
          </property>
         </spacer>
@@ -153,7 +160,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>90</height>
           </size>
          </property>
         </spacer>
@@ -169,6 +176,46 @@
         </widget>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="setBlobButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Set Blob</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="saveValueButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Save To File</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QPlainTextEdit" name="passwordEdit">
          <property name="locale">
           <locale language="English" country="UnitedKingdom"/>
@@ -178,44 +225,44 @@
          </property>
         </widget>
        </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QProgressBar" name="progressBar">
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>true</bool>
-         </property>
-         <property name="textDirection">
-          <enum>QProgressBar::TopToBottom</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="showButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Show value</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QProgressBar" name="progressBar">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="textVisible">
+            <bool>false</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="invertedAppearance">
+            <bool>true</bool>
+           </property>
+           <property name="textDirection">
+            <enum>QProgressBar::TopToBottom</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="showButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Show value</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -255,7 +302,7 @@
     <string>Set a master password</string>
    </property>
   </action>
-  <action name="action">
+  <action name="action_about">
    <property name="text">
     <string>?</string>
    </property>
@@ -263,6 +310,22 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionParams">
+   <property name="text">
+    <string>Params</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the parameters of the module</string>
+   </property>
+  </action>
+  <action name="actionInfos">
+   <property name="text">
+    <string>Infos</string>
+   </property>
+   <property name="toolTip">
+    <string>Information about the module</string>
    </property>
   </action>
  </widget>

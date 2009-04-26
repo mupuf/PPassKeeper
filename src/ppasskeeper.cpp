@@ -414,7 +414,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 	
-	unsigned int ppk_listParam(const char* module_id, const char*** list, unsigned int maxEntries)
+	unsigned int ppk_listParam(const char* module_id, const char*** list, size_t maxEntries)
 	{
 		static std::vector<std::string> vlist;
 		vlist=vparam->listParams(module_id);

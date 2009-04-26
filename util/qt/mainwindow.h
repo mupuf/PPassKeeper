@@ -84,6 +84,7 @@ private slots:
 	void onPasswordSelected();
 	void saveValueToFile();
 	void setBlobFromFile();
+	void onSetDefaultModule();
 };
 
 #endif

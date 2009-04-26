@@ -23,17 +23,17 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 {
 	if (current.internalId() == appChildId)
 	{
-		ppk_entry &a = app_ent[current.row()];
+		ppk_entry &a = e_app[current.row()];
 		currentType = ppk_application;
 		emit appPasswordSelected(a.app.app_name, a.app.username);
 	} else if (current.internalId() == netChildId)
 	{
-		ppk_entry &n = net_ent[current.row()];
+		ppk_entry &n = e_net[current.row()];
 		currentType = ppk_network;
 		emit netPasswordSelected(n.net.host, n.net.login, n.net.port);
 	} else if (current.internalId() == itemChildId)
 	{
-		ppk_entry &i = item_ent[current.row()];
+		ppk_entry &i = e_item[current.row()];
 		currentType = ppk_item;
 		emit itemPasswordSelected(i.item);
 	}
@@ -69,7 +69,6 @@ inline void PasswordListModel::freeEntries()
 	item_ent = NULL;
 }
 
-#include <stdio.h>
 void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
@@ -91,6 +90,64 @@ void PasswordListModel::setupModelData(const char *moduleId)
 	{
 		item_ent = new ppk_entry[item_count];
 		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, ppk_lf_none);
+	}
+
+	updateFilter();
+}
+
+bool PasswordListModel::filterAccept(QString entry)
+{
+	return !usefilter || (usefilter && (filter==QString() || entry.contains(filter, Qt::CaseInsensitive)));
+}
+
+void PasswordListModel::updateFilter()
+{
+	v_app.clear();
+	e_app.clear();
+	v_net.clear();
+	e_net.clear();
+	v_item.clear();
+	e_item.clear();
+
+	for(unsigned int i=0;i<app_count;i++)
+	{
+		const ppk_entry &a = app_ent[i];
+
+		QString entry("%1@%2");
+		entry=entry.arg(QString::fromUtf8(a.app.username)).arg(QString::fromUtf8(a.app.app_name));
+
+		if(filterAccept(entry))
+		{
+			v_app.push_back(entry);
+			e_app.push_back(a);
+		}
+	}
+
+	for(unsigned int i=0;i<net_count;i++)
+	{
+		const ppk_entry &n = net_ent[i];
+
+		QString entry("%1@%2:%3");
+		entry=entry.arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port);
+
+		if(filterAccept(entry))
+		{
+			v_net.push_back(entry);
+			e_net.push_back(n);
+		}
+	}
+
+	for(unsigned int i=0;i<item_count;i++)
+	{
+		const ppk_entry &it = item_ent[i];
+
+		QString entry=QString::fromUtf8(it.item);
+
+		if(filterAccept(entry))
+		{
+			v_item.push_back(entry);
+			e_item.push_back(it);
+		}
 	}
 
 	reset();
@@ -162,11 +219,11 @@ int PasswordListModel::rowCount(const QModelIndex &parent) const
 		switch (parent.internalId())
 		{
 		case appId:
-			return app_count;
+			return v_app.size();
 		case netId:
-			return net_count;
+			return v_net.size();
 		case itemId:
-			return item_count;
+			return v_item.size();
 		case appChildId:
 		case netChildId:
 		case itemChildId:
@@ -189,19 +246,14 @@ QVariant PasswordListModel::data(const QModelIndex &index, int role) const
 		if (index.parent().isValid())
 		{
 			if (index.internalId() == appChildId)
-			{
-				const ppk_entry &a = app_ent[index.row()];
-				return QVariant(QString::fromUtf8("%1@%2").arg(QString::fromUtf8(a.app.username)).arg(QString::fromUtf8(a.app.app_name)));
-			} else if (index.internalId() == netChildId)
-			{
-				const ppk_entry &n = net_ent[index.row()];
-				return QVariant(QString::fromUtf8("%1@%2:%3").arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port));
-			} else if (index.internalId() == itemChildId)
-			{
-				const ppk_entry &i = item_ent[index.row()];
-				return QVariant(QString::fromUtf8(i.item));
-			}
-		} else {
+				return QVariant(v_app[index.row()]);
+			else if (index.internalId() == netChildId)
+				return QVariant(v_net[index.row()]);
+			else if (index.internalId() == itemChildId)
+				return QVariant(v_item[index.row()]);
+		}
+		else
+		{
 			if (index.row() == 0)
 				return QVariant(tr("Application"));
 			else if (index.row() == 1)
@@ -220,4 +272,16 @@ QVariant PasswordListModel::headerData(int section, Qt::Orientation orientation,
 	if (role == Qt::DisplayRole && section == 0 && orientation == Qt::Horizontal)
 		return QVariant(tr("Key"));
 	return QVariant();
+}
+
+void PasswordListModel::useFilter(bool usefilter)
+{
+	this->usefilter=usefilter;
+	updateFilter();
+}
+
+void PasswordListModel::setFilter(QString filter)
+{
+	this->filter=filter;
+	updateFilter();
 }

@@ -58,8 +58,12 @@ void MainWindow::setupActions()
 {
 	connect(action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(actionLock_ppasskeeper, SIGNAL(triggered()), this, SLOT(setMasterPwd()));
+	connect(actionSetModuleDefault, SIGNAL(triggered()), this, SLOT(onSetDefaultModule()));
+	connect(actionAbout_Qt, SIGNAL(triggered()), QApplication::instance(), SLOT(aboutQt()));
 
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
+	connect(modulesBox, SIGNAL(currentIndexChanged(int)), pwdlistView, SLOT(expandAll()));
+
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
 	connect(actionInfos, SIGNAL(triggered()), this, SLOT(onInfoModuleButtonClicked()));
@@ -89,6 +93,11 @@ void MainWindow::setupActions()
 
 	connect(saveValueButton, SIGNAL(clicked()), this, SLOT(saveValueToFile()));
 	connect(setBlobButton, SIGNAL(clicked()), this, SLOT(setBlobFromFile()));
+
+	connect(filterNameCheckbox, SIGNAL(toggled(bool)), pwdlistModel, SLOT(useFilter(bool)));
+	connect(filterNameCheckbox, SIGNAL(toggled(bool)), pwdlistView, SLOT(expandAll()));
+	connect(filterNameText, SIGNAL(textEdited(QString)), pwdlistModel, SLOT(setFilter(QString)));
+	connect(filterNameText, SIGNAL(textEdited(QString)), pwdlistView, SLOT(expandAll()));
 
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
@@ -190,6 +199,11 @@ void MainWindow::setMasterPwd()
 				QMessageBox::critical(this, "Error : The password are not the same", "The two passwords you entered are not matching.\nTry again ...");
 		}
 	}
+}
+
+void MainWindow::onSetDefaultModule()
+{
+	ppk_setDefaultModule(m_moduleId.toAscii().data());
 }
 
 void MainWindow::onAddButtonClicked()
@@ -499,7 +513,11 @@ void MainWindow::moduleChanged(int index)
 		 * after a module change */
 		cur_availability = false;
 
+		bool is_default=(m_moduleId==ppk_getDefaultModule());
+
 		toolBar->setEnabled(true);
+		actionSetModuleDefault->setEnabled(true);
+		actionSetModuleDefault->setChecked(is_default);
 	}
 }
 

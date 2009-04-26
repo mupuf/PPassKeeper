@@ -38,14 +38,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="filterNameCheckbox">
         <property name="text">
          <string>Filter by name:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="filterNameText"/>
       </item>
      </layout>
     </item>
@@ -82,6 +82,7 @@
      <string>Actions</string>
     </property>
     <addaction name="actionLock_ppasskeeper"/>
+    <addaction name="actionSetModuleDefault"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuActions"/>
@@ -298,6 +299,9 @@
    </property>
   </action>
   <action name="actionLock_ppasskeeper">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Set a master password</string>
    </property>
@@ -326,6 +330,17 @@
    </property>
    <property name="toolTip">
     <string>Information about the module</string>
+   </property>
+  </action>
+  <action name="actionSetModuleDefault">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set this module as default</string>
    </property>
   </action>
  </widget>

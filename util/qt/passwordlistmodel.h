@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QVector>
 
 #include <ppasskeeper.h>
 
@@ -28,11 +29,17 @@ signals:
 	void itemPasswordSelected(const char *key);
 	void noItemSelected();
 
+public slots:
+	void useFilter(bool usefilter);
+	void setFilter(QString filter);
+
 private slots:
 	void rowSelected(const QModelIndex &current, const QModelIndex &previous);
 
 private:
 	void freeEntries();
+	void updateFilter();
+	bool filterAccept(QString entry);
 
 	//PPassKeeper data
 	ppk_entry *net_ent;
@@ -40,6 +47,12 @@ private:
 	ppk_entry *item_ent;
 	unsigned int net_count, app_count, item_count;
 	ppk_entry_type currentType;
+
+	//Filter
+	bool usefilter;
+	QString filter;
+	QVector<QString> v_app, v_net, v_item;
+	QVector<ppk_entry> e_app, e_net, e_item;
 };
 
 #endif

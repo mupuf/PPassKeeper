@@ -62,7 +62,7 @@ void MainWindow::setupActions()
 	connect(actionAbout_Qt, SIGNAL(triggered()), QApplication::instance(), SLOT(aboutQt()));
 
 	connect(modulesBox, SIGNAL(currentIndexChanged(int)), this, SLOT(moduleChanged(int)));
-	connect(modulesBox, SIGNAL(currentIndexChanged(int)), pwdlistView, SLOT(expandAll()));
+	//connect(modulesBox, SIGNAL(currentIndexChanged(int)), pwdlistView, SLOT(expandAll()));
 
 	connect(action_Add, SIGNAL(triggered()), this, SLOT(onAddButtonClicked()));
 	connect(action_Del, SIGNAL(triggered()), this, SLOT(onDelButtonClicked()));
@@ -117,6 +117,19 @@ void MainWindow::setupActions()
 		std::cout << "list[" << i << "] = " << list[i] << std::endl;
 	}
 	delete[] list;*/
+
+	/*if(ppk_setDefaultModule("GKeyring")==PPK_TRUE)
+		printf("Default module = %s\n", ppk_getDefaultModule());
+	else
+		printf("Set failed !!\n");*/
+
+	/*ppk_proto_param* list=ppk_availableParameters("AskForPass_Qt");
+	for(int i=0; list[i].expected_type!=cvariant_none; i++)
+	{
+		printf("paramsProtoList[%i].name = '%s'\n", i,list[i].name);
+	}
+
+	ppk_saveParam("AskForPass_Qt", "test_param", cvariant_from_string("guiliguili"));*/
 }
 
 void MainWindow::onShowButtonToggled(bool b)

@@ -1,6 +1,7 @@
 #include "../../ppasskeeper-module.h"
 #include "../../tokenizer.h"
 #include <string>
+#include <stdio.h>
 
 //local functions
 std::string* last_error()
@@ -126,6 +127,50 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	}
 	
 	return 0;
+}
+
+extern "C" ppk_proto_param* availableParameters()
+{
+	static ppk_proto_param tst_param;
+	tst_param.expected_type=cvariant_string;
+	tst_param.name="test_param";
+	tst_param.help_text="Supposed to be the help string. Sorry ...";
+	tst_param.default_value=cvariant_from_string("default_value for 'test_param'");
+	
+	static ppk_proto_param tst_param2;
+	tst_param2.expected_type=cvariant_int;
+	tst_param2.name="test_param2";
+	tst_param2.help_text="Supposed to be the help string. Sorry ...";
+	tst_param2.default_value=cvariant_from_int(123456789);
+	
+	static ppk_proto_param proto_null;
+	proto_null.expected_type=cvariant_none;
+	
+	static ppk_proto_param params[]={tst_param, tst_param2, proto_null};
+	
+	return params;
+}
+
+extern "C" void setParam(const char* paramName, const cvariant value)
+{
+	std::string key(paramName);
+	
+	if(key == "test_param")
+	{
+		if(cvariant_get_type(value)==cvariant_string)
+			printf("Set Param : paramName(%s), value(%s)\n", paramName, cvariant_get_string(value));
+		else
+			printf("Wrong data type for the parameter '%s' !\n", paramName);
+	}
+	else if(key == "test_param2")
+	{
+		if(cvariant_get_type(value)==cvariant_int)
+			printf("Set Param : paramName(%s), value(%i)\n", paramName, cvariant_get_int(value));
+		else
+			printf("Wrong data type for the parameter '%s' !\n", paramName);
+	}
+	else
+		printf("	Unknown param !!\n");
 }
 
 extern "C" const char* getLastError()

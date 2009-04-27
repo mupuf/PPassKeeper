@@ -3,6 +3,7 @@
 
 #include "xmlsp.h"
 #include "vparam.h"
+#include "cvariant.h"
 
 #include <string>
 #include <map>
@@ -11,7 +12,9 @@ class XMLParam: public XMLSP::Parser, public VParam
 {
 	private:
 		std::string xml_path;
-		std::map< std::pair<std::string, std::string>, std::string > params;
+		
+		//We associate <module, key> to <type, value>
+		std::map< std::pair<std::string, std::string>, std::pair<int, std::string> > params;
 		
 		virtual bool on_tag_open(const std::string& tag_name, XMLSP::StringMap& attributes);
 		virtual bool on_cdata(const std::string& cdata);
@@ -28,8 +31,8 @@ class XMLParam: public XMLSP::Parser, public VParam
 	public:
 		XMLParam(const std::string xmlPath);
 
-		bool saveParam(const char* module_id, const char* key, const char* value);
-		bool getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+		bool saveParam(const char* module_id, const char* key, const cvariant value);
+		cvariant getParam(const char* module_id, const char* key);
 		std::vector<std::string> listParams(const char* module_id);
 		bool removeParam(const char* module_id, const char* key);
 };

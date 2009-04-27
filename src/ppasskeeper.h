@@ -9,6 +9,7 @@
  */
  
 #include <wchar.h>
+#include <cvariant.h>
 
 ///Maximum size of saved parameters
 #define PPK_PARAM_MAX 4096
@@ -157,6 +158,28 @@ extern "C"
 			ppk_data_blob blob;
 		};
 	} ppk_data;
+	
+	///Definition of the prototype of a parameter
+	typedef struct
+	{
+		///The expected type of the final parameter
+		cvariant_type expected_type;
+		///Name of the parameter
+		const char* name;
+		///Contextual help of the parameter
+		const char* help_text;
+		///Default value of the parameter
+		cvariant default_value;
+	} ppk_proto_param;
+	
+	///Definition of what a parameter is
+	typedef struct
+	{
+		///Name of the parameter
+		const char* name;
+		///The value of the parameter
+		cvariant value;
+	} ppk_param;
 
 	/*! \brief Returns whether the library is locked, waiting for the right password, or not
 	* \return PPK_TRUE is the library is locked, PPK_FALSE else */
@@ -270,15 +293,15 @@ extern "C"
 	* \param key in: The name of the parameter.
 	* \param value in: The value to store.
 	* \return  Return PPK_TRUE if the parameter has been saved, PPK_FALSE else.*/
-	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value);
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const cvariant value);
 	
 	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
 	* \param module_id in: Module's ID.
 	* \param key in: The name of the parameter.
-	* \param returnedString in: The variable that will hold the result of the request.
+	* \param value in: The variable that will hold the result of the request.
 	* \param maxSize in: The size the result value should not exceed.
 	* \return  Return PPK_TRUE if the parameter has been retrieved, PPK_FALSE else.*/
-	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+	cvariant ppk_getParam(const char* module_id, const char* key);
 	
 	/*! \brief Retrieve the parameters list of a given module.
 	* \param module_id in: Module's ID.
@@ -292,6 +315,8 @@ extern "C"
 	* \param key in: The name of the parameter to delete.
 	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_removeParam(const char* module_id, const char* key);
+	
+	ppk_proto_param* ppk_availableParameters(const char* module_id);
 
 	/*! \brief Set the default module. This parameter can be retrieved using ppk_getDefaultModule.
 	* \param module_id in: Module's ID.
@@ -321,7 +346,6 @@ extern "C"
 	* \param customMessage in: Message to be used
 	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage);
-	
 	
 	/****************************************************************************************************/
 	/****************************************************************************************************/

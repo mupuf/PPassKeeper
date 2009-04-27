@@ -359,9 +359,13 @@ int main(int argc, char **argv)
 	{
 		if (!module_id || !key) usage();
 		
-		char tmp[PPK_PARAM_MAX];
-		if(ppk_getParam(module_id, key, tmp, sizeof(tmp))==PPK_TRUE)
-			printf(tmp);
+		cvariant cv=ppk_getParam(module_id, key);
+		if(cvariant_get_type(cv)==cvariant_string)
+			printf(cvariant_get_string(cv));
+		else if(cvariant_get_type(cv)==cvariant_int)
+			printf("%i",cvariant_get_int(cv));
+		else if(cvariant_get_type(cv)==cvariant_float)
+			printf("%f",cvariant_get_float(cv));
 		else
 			return 2;
 	}
@@ -369,7 +373,7 @@ int main(int argc, char **argv)
 	{
 		if (!module_id || !key || !password) usage();
 		
-		if(ppk_saveParam(module_id, key, password)==PPK_TRUE)
+		if(ppk_saveParam(module_id, key, cvariant_from_string(password))==PPK_TRUE)
 			return 0;
 		else
 			return 1;

@@ -3,6 +3,7 @@
 
 #include "settings.h"
 #include "ppasskeeper.h"
+#include "cvariant.h"
 #include <string>
 
 /**
@@ -71,7 +72,6 @@ extern "C"
 
 	
 	/*
-	
 	Flags can be passed to the module
 	*/
 	typedef unsigned int (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
@@ -115,6 +115,9 @@ extern "C"
 	return : void
 	*/
 	typedef void (*_destructor)(void);
+	
+	typedef ppk_proto_param* (*_availableParameters)();
+	typedef void (*_setParam)(const char* paramName, const cvariant value);
 
 	struct _module
 	{
@@ -142,6 +145,8 @@ extern "C"
 		_setCustomPromptMessage setCustomPromptMessage;
 		_constructor constructor;
 		_destructor destructor;
+		_availableParameters availableParameters;
+		_setParam setParam;
 	};
 #ifdef __cplusplus 
 }

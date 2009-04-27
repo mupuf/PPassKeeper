@@ -22,6 +22,7 @@
 	XMLParam xmlParam(ppk_settingDirectory()+std::string("/xmlParam.xml"));
 	VParam* vparam=&xmlParam;
 #endif
+
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"
 #define LIBPPK_AUTO_MODULE LIBPPK_DEFAULT_MODULE
@@ -398,54 +399,124 @@ extern "C"
 		}
 	}
 	
-	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const char* value)
+	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const cvariant value)
 	{
-		if(vparam->saveParam(module_id, key, value))
-			return PPK_TRUE;
+		if(!isLocked())
+		{
+			if(vparam->saveParam(module_id, key, value))
+			{
+				const _module* mod=modules.getModuleByID(module_id);
+				if(mod!=NULL)
+					mod->setParam(key, value);
+				
+				return PPK_TRUE;
+			}
+			else
+				return PPK_FALSE;
+		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 
-	ppk_boolean ppk_getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+	cvariant ppk_getParam(const char* module_id, const char* key)
 	{
-		if(vparam->getParam(module_id, key, returnedString, maxSize))
-			return PPK_TRUE;
+		if(!isLocked())
+		{
+			return vparam->getParam(module_id, key);
+		}
 		else
-			return PPK_FALSE;
+		{
+			setError("You cannot access any information. The library is locked !");
+			return cvariant_null();
+		}
 	}
 	
 	unsigned int ppk_listParam(const char* module_id, const char*** list, size_t maxEntries)
 	{
-		static std::vector<std::string> vlist;
-		vlist=vparam->listParams(module_id);
-		
-		int i;
-		for(i=0;i<maxEntries && i<vlist.size();i++)
-			(*list)[i]=vlist[i].c_str();
-		
-		return i;
+		if(!isLocked())
+		{
+			static std::vector<std::string> vlist;
+			vlist=vparam->listParams(module_id);
+			
+			int i;
+			for(i=0;i<maxEntries && i<vlist.size();i++)
+				(*list)[i]=vlist[i].c_str();
+			
+			return i;
+		}
+		else
+		{
+			setError("You cannot access any information. The library is locked !");
+			return 0;
+		}
 	}
 	
 	ppk_boolean ppk_removeParam(const char* module_id, const char* key)
 	{
-		return vparam->removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
+		if(!isLocked())
+		{
+			return vparam->removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
+		}
+		else
+		{
+			setError("You cannot access any information. The library is locked !");
+			return PPK_FALSE;
+		}
+	}
+	
+	ppk_proto_param* ppk_availableParameters(const char* module_id)
+	{
+		if(!isLocked())
+		{
+			const _module* mod=modules.getModuleByID(module_id);
+			if(mod!=NULL)
+				if(mod->availableParameters!=NULL)
+					return mod->availableParameters();
+				else
+					return 0;
+			else
+				return 0;
+		}
+		else
+		{
+			setError("You cannot access any information. The library is locked !");
+			return 0;
+		}
 	}
 
 	ppk_boolean ppk_setDefaultModule(const char* module_id)
 	{
-		if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_moduleAvailable(module_id)==PPK_TRUE)
-			return ppk_saveParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, module_id);
+		if(!isLocked())
+		{
+			if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_moduleAvailable(module_id)==PPK_TRUE)
+				return ppk_saveParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, cvariant_from_string(module_id));
+			else
+				return PPK_FALSE;
+		}
 		else
+		{
+			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
+		}
 	}
 	
 	const char* ppk_getDefaultModule()
 	{
-		static char buf[PPK_PARAM_MAX];
-		if(ppk_getParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, buf, sizeof(buf))==PPK_TRUE)
+		//static char buf[PPK_PARAM_MAX];
+		cvariant cv=ppk_getParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE);
+		if(cvariant_not_null(cv))
 		{
-			if(ppk_moduleAvailable(buf)==PPK_TRUE)
-				return buf;
+			if(cvariant_get_type(cv)==cvariant_string)
+			{
+				const char* buf=cvariant_get_string(cv);
+				if(ppk_moduleAvailable(buf)==PPK_TRUE)
+					return buf;
+				else
+					return LIBPPK_DEFAULT_MODULE;
+			}
 			else
 				return LIBPPK_DEFAULT_MODULE;
 		}
@@ -548,5 +619,3 @@ extern "C"
 		return settingDir.c_str();	
 	}
 }
-
-

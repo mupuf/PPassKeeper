@@ -129,14 +129,14 @@ std::string ElektraParam::elektraKeyName(const char* module_id, const char* key)
 	}
 	
 #else
-	bool ElektraParam::saveParam(const char* module_id, const char* key, const char* value)
+	bool ElektraParam::saveParam(const char* module_id, const char* key, const cvariant value)
 	{
 		return false;
 	}
 
-	bool ElektraParam::getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+	cvariant ElektraParam::getParam(const char* module_id, const char* key)
 	{
-		return false;
+		return cvariant_null();
 	}
 	
 	std::vector<std::string> ElektraParam::listParams(const char* module_id)

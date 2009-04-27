@@ -1,4 +1,5 @@
 #include "xmlParam.h"
+#include "tokenizer.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -9,7 +10,13 @@ bool XMLParam::on_tag_open(const std::string& tag_name, XMLSP::StringMap& attrib
 	if (tag_name == "entry")
 	{
 		std::pair<std::string, std::string> pair(attributes["module"], attributes["key"]);
-		params[pair]=attributes["value"];
+		
+		if(attributes["type"]=="string")
+			params[pair]=std::make_pair(cvariant_string, attributes["value"]);
+		else if(attributes["type"]=="int")
+			params[pair]=std::make_pair(cvariant_int, attributes["value"]);
+		else if(attributes["type"]=="float")
+			params[pair]=std::make_pair(cvariant_float, attributes["value"]);
 	}
 	return true;
 }
@@ -60,16 +67,34 @@ bool XMLParam::flush()
 	{
 		os << "<ppk_params>" << std::endl;
 		
-		std::map<std::pair<std::string, std::string>, std::string>::iterator iter;   
+		std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
 		for( iter = params.begin(); iter != params.end(); iter++ )
-			os << "	<entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" value=\"" <<  iter->second << "\" />" << std::endl;
+		{
+			std::string type;
+			switch(iter->second.first)
+			{
+				case cvariant_string:
+					type="string";
+					break;
+					
+				case cvariant_int:
+					type="int";
+					break;
+					
+				case cvariant_float:
+					type="float";
+					break;
+			}
+			
+			os << "	<entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" type=\"" <<  type << "\" value=\"" <<  iter->second.second << "\" />" << std::endl;
+		}
 
 		os << "</ppk_params>" << std::endl;
 		
 		return true;
 	}
 	else
-		std::cerr << "XMLParam::ppk_saveParam : '" << xml_path << "' cannot be openned." << std::endl << "Check your file permission." << std::endl;
+		std::cerr << "XMLParam::ppk_saveParam : '" << xml_path << "' cannot be opened for writing purpose." << std::endl << "Check your file permission." << std::endl;
 	
 	return false;
 }
@@ -87,47 +112,72 @@ XMLParam::XMLParam(const std::string xmlPath)
 			std::cerr << "XMLParam::XMLParam : parse(iss.str()) returned false !" << std::endl;
 		}
 	}
-	else
-		std::cerr << "XMLParam::XMLParam : '" << xmlPath << "' cannot be openned." << std::endl << "Check your file permission." << std::endl;
 		
 	this->xml_path=xmlPath;
 }
 
-bool XMLParam::saveParam(const char* module_id, const char* key, const char* value)
+bool XMLParam::saveParam(const char* module_id, const char* key, const cvariant value)
 {
-	params[std::make_pair(module_id, key)]=value;
+	std::string s_value;
+	switch(cvariant_get_type(value))
+	{
+		case cvariant_string:
+			s_value=cvariant_get_string(value);
+			break;
+			
+		case cvariant_int:
+			s_value=toString(cvariant_get_int(value));
+			break;
+			
+		case cvariant_float:
+			s_value=toString(cvariant_get_float(value));
+			break;
+	}
+	
+	params[std::make_pair(module_id, key)]=std::make_pair(cvariant_get_type(value), s_value);
 	
 	return flush();
 }
 
-bool XMLParam::getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+cvariant XMLParam::getParam(const char* module_id, const char* key)
 {
 	std::pair<std::string, std::string> pair(module_id, key);
-	std::string value=params[pair];
+	std::pair<int, std::string> value=params[pair];
 	
-	if(value!=std::string())
+	cvariant cv;
+	switch(value.first)
 	{
-		strncpy(returnedString, value.c_str(), maxSize);
-		return true;
+		case cvariant_string:
+			cv=cvariant_from_string(value.second.c_str());
+			break;
+			
+		case cvariant_int:
+			cv=cvariant_from_int(stringTo<int>(value.second.c_str()));
+			break;
+			
+		case cvariant_float:
+			cv=cvariant_from_float(stringTo<double>(value.second.c_str()));
+			break;
 	}
-	else
-		return false;
+			
+	return cv;
 }
 
 std::vector<std::string> XMLParam::listParams(const char* module_id)
 {
 	std::vector<std::string> list;
 	
-	std::map<std::pair<std::string, std::string>, std::string>::iterator iter;   
+	std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
 	for( iter = params.begin(); iter != params.end(); iter++ )
-		list.push_back(iter->first.second);
+		if(iter->first.first==module_id)
+			list.push_back(iter->first.second);
 		
 	return list;
 }
 
 bool XMLParam::removeParam(const char* module_id, const char* key)
 {
-	std::map<std::pair<std::string, std::string>, std::string>::iterator iter;   
+	std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
 	for( iter = params.begin(); iter != params.end(); iter++)
 	{
 		if(iter->first.second==key)

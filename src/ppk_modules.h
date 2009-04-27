@@ -19,6 +19,7 @@ class PPK_Modules
 		void loadPlugins(void);
 		
 		const char* autoModule();
+		void sendParameters(_module m);
 
 	public:
 		PPK_Modules();

@@ -1,5 +1,6 @@
 #include "ppk_modules.h"
 #include "tokenizer.h"
+#include "vparam.h"
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -158,6 +159,8 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			tm.setCustomPromptMessage=(_setCustomPromptMessage)loadSymbol(dlhandle, "setCustomPromptMessage");
 			tm.constructor=(_constructor)loadSymbol(dlhandle, "constructor");
 			tm.destructor=(_destructor)loadSymbol(dlhandle, "destructor");
+			tm.availableParameters=(_availableParameters)loadSymbol(dlhandle, "availableParameters");
+			tm.setParam=(_setParam)loadSymbol(dlhandle, "setParam");
 
 		#ifdef DEBUG_MSG
 			if(tm.getModuleID==NULL)std::cerr << "missing : getModuleID();";
@@ -182,12 +185,16 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.maxDataSize!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
 			{
 				//Get the ID of the library
-				tm.id=(tm.getModuleID)();
-				tm.display_name=(tm.getModuleName)();
+				tm.id=tm.getModuleID();
+				tm.display_name=tm.getModuleName();
 				
 				//Call its constructor
 				if(tm.constructor)
 					tm.constructor();
+					
+				//Send the parameters
+				if(tm.setParam!=NULL)
+					sendParameters(tm);
 
 				//Copy it into the modules list if it doesn't already exist
 				if(getModuleByID(tm.id)==NULL)
@@ -211,6 +218,21 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 		else
 			std::cerr << "FAILED (" << libraryError() << ")" << std::endl;
 #endif
+	}
+}
+
+void PPK_Modules::sendParameters(_module m)
+{
+	extern VParam* vparam;
+	
+	if(m.setParam!=NULL)
+	{
+		std::vector<std::string> listParams=vparam->listParams(m.id);
+		for(int i=0;i<listParams.size();i++)
+		{
+			cvariant cv=vparam->getParam(m.id, listParams[i].c_str());
+			m.setParam(listParams[i].c_str(), cv);
+		}
 	}
 }
 

@@ -11,8 +11,8 @@ class ElektraParam: public VParam
 		std::string elektraKeyName(const char* module_id, const char* key);
 		
 	public:
-		bool saveParam(const char* module_id, const char* key, const char* value);
-		bool getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize);
+		bool saveParam(const char* module_id, const char* key, const cvariant value);
+		cvariant getParam(const char* module_id, const char* key);
 		std::vector<std::string> listParams(const char* module_id);
 		bool removeParam(const char* module_id, const char* key);
 };

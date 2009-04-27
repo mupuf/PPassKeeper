@@ -173,7 +173,7 @@ IF(PPK_LIB)
   SET_PROPERTY(TARGET ppasskeeper PROPERTY SOVERSION 1)
   TARGET_LINK_LIBRARIES(ppasskeeper ${elektra_LIBRARIES})
   INSTALL(TARGETS ppasskeeper DESTINATION lib)
-  INSTALL(FILES "${CMAKE_SOURCE_DIR}/src/ppasskeeper.h" DESTINATION include)
+  INSTALL(FILES "${CMAKE_SOURCE_DIR}/src/ppasskeeper.h" "${CMAKE_SOURCE_DIR}/src/cvariant.h" DESTINATION include)
 ENDIF(PPK_LIB)
 
 # SaveToFile plugins

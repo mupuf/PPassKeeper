@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "cvariant.h"
+#include <ppasskeeper/cvariant.h>
 
 class VParam
 {

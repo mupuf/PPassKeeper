@@ -2,6 +2,7 @@
 #define _ELEKTRAPARAM_H
 
 #include "vparam.h"
+#include <ppasskeeper/cvariant.h>
 
 #include <string>
 

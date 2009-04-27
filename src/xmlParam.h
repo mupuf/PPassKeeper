@@ -3,7 +3,7 @@
 
 #include "xmlsp.h"
 #include "vparam.h"
-#include "cvariant.h"
+#include <ppasskeeper/cvariant.h>
 
 #include <string>
 #include <map>

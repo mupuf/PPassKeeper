@@ -1,5 +1,7 @@
 #include "passwordlistmodel.h"
 
+#include <ppasskeeper/ppasskeeper-key.h>
+
 static const quint32 appId = 0;
 static const quint32 netId = 1;
 static const quint32 itemId = 2;
@@ -100,6 +102,7 @@ bool PasswordListModel::filterAccept(QString entry)
 	return !usefilter || (usefilter && (filter==QString() || entry.contains(filter, Qt::CaseInsensitive)));
 }
 
+#include <stdio.h>
 void PasswordListModel::updateFilter()
 {
 	v_app.clear();
@@ -109,17 +112,19 @@ void PasswordListModel::updateFilter()
 	v_item.clear();
 	e_item.clear();
 
+	char buf[401];
+
 	for(unsigned int i=0;i<app_count;i++)
 	{
 		const ppk_entry &a = app_ent[i];
 
-		QString entry("%1@%2");
-		entry=entry.arg(QString::fromUtf8(a.app.username)).arg(QString::fromUtf8(a.app.app_name));
-
-		if(filterAccept(entry))
+		if(ppk_getKey(&a, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
-			v_app.push_back(entry);
-			e_app.push_back(a);
+			if(filterAccept(buf))
+			{
+				v_app.push_back(buf);
+				e_app.push_back(a);
+			}
 		}
 	}
 
@@ -130,23 +135,28 @@ void PasswordListModel::updateFilter()
 		QString entry("%1@%2:%3");
 		entry=entry.arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port);
 
-		if(filterAccept(entry))
-		{
-			v_net.push_back(entry);
-			e_net.push_back(n);
-		}
+		//Bug : protocol is ill initialised
+		/*if(ppk_getKey(&n, buf,sizeof(buf)-1)==PPK_TRUE)
+		{*/
+			if(filterAccept(entry))
+			{
+				v_net.push_back(entry);
+				e_net.push_back(n);
+			}
+		//}
 	}
 
 	for(unsigned int i=0;i<item_count;i++)
 	{
 		const ppk_entry &it = item_ent[i];
 
-		QString entry=QString::fromUtf8(it.item);
-
-		if(filterAccept(entry))
+		if(ppk_getKey(&it, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
-			v_item.push_back(entry);
-			e_item.push_back(it);
+			if(filterAccept(buf))
+			{
+				v_item.push_back(buf);
+				e_item.push_back(it);
+			}
 		}
 	}
 

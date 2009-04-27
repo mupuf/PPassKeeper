@@ -176,7 +176,7 @@ IF(PPK_LIB)
   INSTALL(TARGETS ppasskeeper DESTINATION lib)
   INSTALL(FILES "${CMAKE_SOURCE_DIR}/include/ppasskeeper.h"  DESTINATION include)
   INSTALL(FILES "${CMAKE_SOURCE_DIR}/include/ppasskeeper/cvariant.h"  DESTINATION include/ppasskeeper)
-
+  INSTALL(FILES "${CMAKE_SOURCE_DIR}/include/ppasskeeper/ppasskeeper-key.h"  DESTINATION include/ppasskeeper)
 ENDIF(PPK_LIB)
 
 # SaveToFile plugins

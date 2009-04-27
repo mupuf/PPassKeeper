@@ -1,4 +1,4 @@
-#include "ppasskeeper-key.h"
+#include <ppasskeeper/ppasskeeper-key.h>
 
 #include <cstring>
 #include <sstream>
@@ -43,6 +43,8 @@ size_t ppk_keyLength(const ppk_entry* entry)
 	return len + 1; // +1 for '\0'
 }
 
+#include <iostream>
+#include <stdio.h>
 ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_key_length)
 {
 	if (max_key_length == 0)
@@ -52,9 +54,11 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	switch(entry->type)
 	{
 	case ppk_network:
-		if (entry->net.protocol && entry->net.protocol[0] != '\0')
+		std::cout << "before" << std::endl;
+		if (entry->net.protocol!=NULL && entry->net.protocol[0] != '\0')
 			key << entry->net.protocol << "://";
 		key << entry->net.login << '@' << entry->net.host << ':' << entry->net.port;
+		std::cout << "key = " << key.str() << std::endl;
 		break;
 	case ppk_application:
 		key << entry->app.username << '@' << entry->app.app_name;
@@ -71,6 +75,7 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	else
 	{
 		key_str.copy(returned_key, key_len);
+		returned_key[key_len]='\0';
 		return PPK_TRUE;
 	}
 }

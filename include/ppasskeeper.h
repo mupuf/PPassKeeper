@@ -9,7 +9,7 @@
  */
  
 #include <wchar.h>
-#include <cvariant.h>
+#include <ppasskeeper/cvariant.h>
 
 ///Maximum size of saved parameters
 #define PPK_PARAM_MAX 4096

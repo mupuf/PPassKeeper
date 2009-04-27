@@ -1,5 +1,5 @@
 #include "gnome-keyring.h"
-#include "../../ppasskeeper.h"
+#include <ppasskeeper.h>
 #include "string.h"
 #include "stdio.h"
 

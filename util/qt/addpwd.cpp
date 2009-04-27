@@ -56,6 +56,8 @@ void AddPWD::showNet(bool show)
 	m_ui->loginEdit->setVisible(show);
 	m_ui->portLabel->setVisible(show);
 	m_ui->portSpin->setVisible(show);
+	m_ui->protocolLabel->setVisible(show);
+	m_ui->protocolEdit->setVisible(show);
 }
 
 void AddPWD::showItem(bool show)

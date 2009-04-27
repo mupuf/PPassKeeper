@@ -35,6 +35,7 @@ struct net_params
 	char *server;
 	int port;
 	char *username;
+	//TODO char *protocol;
 };
 
 #if defined(WIN32) || defined(WIN64)
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
 			} else if (pwd_type == ppk_network)
 			{
 				struct net_params p = netParameters();
-				entry=ppk_createNetworkEntry(p.server, p.username, p.port);
+				entry=ppk_createNetworkEntry(p.server, p.username, p.port, NULL); //TODO
 			} else {
 				//shouldn't happen
 				return 1;
@@ -307,7 +308,7 @@ int main(int argc, char **argv)
 		} else if (pwd_type == ppk_network)
 		{
 			struct net_params p = netParameters();
-			entry=ppk_createNetworkEntry(p.server, p.username, p.port);
+			entry=ppk_createNetworkEntry(p.server, p.username, p.port, NULL);
 		}
 		
 		ppk_data edata;

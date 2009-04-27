@@ -222,7 +222,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 	ppk_boolean res;
 	
 	if(entry.type == ppk_network)
-		res=getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata, flags);
+		res=getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, edata, flags);
 	else if(entry.type == ppk_application)
 		res=getApplicationPassword(entry.app.app_name, entry.app.username, edata, flags);
 	else if(entry.type == ppk_item)
@@ -276,7 +276,7 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 	}
 	
 	if(entry.type == ppk_network)
-		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, edata_mod, flags);
+		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, edata_mod, flags);
 	else if(entry.type == ppk_application)
 		return setApplicationPassword(entry.app.app_name, entry.app.username, edata_mod, flags);
 	else if(entry.type == ppk_item)
@@ -288,7 +288,7 @@ extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, uns
 extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 {
 	if(entry.type == ppk_network)
-		return removeNetworkPassword(entry.net.host, entry.net.login, entry.net.port, flags);
+		return removeNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, flags);
 	else if(entry.type == ppk_application)
 		return removeApplicationPassword(entry.app.app_name, entry.app.username, flags);
 	else if(entry.type == ppk_item)
@@ -302,7 +302,7 @@ extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 	ppk_data edata;
 	
 	if(entry.type == ppk_network)
-		return getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, &edata, flags);
+		return getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, &edata, flags);
 	else if(entry.type == ppk_application)
 		return getApplicationPassword(entry.app.app_name, entry.app.username, &edata, flags);
 	else if(entry.type == ppk_item)

@@ -3,8 +3,8 @@
 
 #include "../../ppasskeeper.h"
 
-extern "C" ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const ppk_data edata, unsigned int flags);
-extern "C" ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, ppk_data *edata, unsigned int flags);
+extern "C" ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, const ppk_data edata, unsigned int flags);
+extern "C" ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, ppk_data *edata, unsigned int flags);
 
 extern "C" ppk_boolean setApplicationPassword(const char* appName, const char* user, const ppk_data edata, unsigned int flags);
 extern "C" ppk_boolean getApplicationPassword(const char* appName, const char* user, ppk_data *edata, unsigned int flags);
@@ -12,7 +12,7 @@ extern "C" ppk_boolean getApplicationPassword(const char* appName, const char* u
 extern "C" ppk_boolean setItem(const char* item, const ppk_data edata, unsigned int flags);
 extern "C" ppk_boolean getItem(const char* item, ppk_data *edata, unsigned int flags);
 
-extern "C" ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, unsigned int flags);
+extern "C" ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, unsigned int flags);
 extern "C" ppk_boolean removeApplicationPassword(const char* appName, const char* user, unsigned int flags);
 extern "C" ppk_boolean removeItem(const char* item, unsigned int flags);
 

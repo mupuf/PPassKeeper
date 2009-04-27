@@ -30,6 +30,7 @@ OPTION(PPK_PYTHON "Python binding" ON)
 OPTION(PPK_DEBUG "Debugging messages" OFF)
 OPTION(PPK_UTIL "PPassKeeper command-line utility" ON)
 OPTION(PPK_UTIL_QT "PPassKeeper GUI utility" ON)
+OPTION(PPK_TESTS "Build the unit tests" OFF)
 
 IF(NOT PPK_BUILD_PLUGINS)
   SET(PPK_STF OFF)
@@ -300,6 +301,10 @@ ENDIF(PPK_PYTHON)
 set(PPK_VERSION "1.0b2")
 configure_file(ppasskeeper.pc.in ppasskeeper.pc @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ppasskeeper.pc" DESTINATION lib/pkgconfig)
+
+IF(PPK_TESTS)
+  INCLUDE("unittest/CMakeLists.txt")
+ENDIF(PPK_TESTS)
 
 #Final summary
 MESSAGE("")

@@ -497,13 +497,14 @@ extern "C"
  *                      Convenient functions                         *
  *                                                                   *
  *********************************************************************/
-	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port)
+	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port, const char* protocol)
 	{
 		ppk_entry entry;
 		entry.type=ppk_network;
 		entry.net.host=host;
 		entry.net.port=port;
 		entry.net.login=login;
+		entry.net.protocol=protocol;
 		return entry;
 	}
 	

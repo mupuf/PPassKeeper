@@ -19,6 +19,7 @@ GnomeKeyringPasswordSchema network_schm = {
 	   { "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
 	   { "host", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
 	   { "port", GNOME_KEYRING_ATTRIBUTE_TYPE_UINT32 },
+	   { "protocol", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
 	   { NULL, 0 }
   }
 };
@@ -159,7 +160,7 @@ char** getItemList(unsigned int flags)
 	return name_list;
 }
 
-ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const ppk_data edata, unsigned int flags)
+ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, const ppk_data edata, unsigned int flags)
 {
 	GnomeKeyringResult res=-100;
 	char displayName[101];
@@ -176,12 +177,12 @@ ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned sho
 	return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
 }
 
-ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, ppk_data *edata, unsigned int flags)
+ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, ppk_data *edata, unsigned int flags)
 {
 	if(openKeyring(flags)==PPK_TRUE)
 	{
 		free_ret_buf(ret_buf);
-		GnomeKeyringResult res=gnome_keyring_find_password_sync(&network_schm, &ret_buf, "username", login,"host", host, "port", port, NULL, 0);
+		GnomeKeyringResult res=gnome_keyring_find_password_sync(&network_schm, &ret_buf, "username", login,"host", host, "port", port, "protocol", protocol, NULL, 0);
 
 		if(res==GNOME_KEYRING_RESULT_OK)
 		{
@@ -275,7 +276,7 @@ ppk_boolean getItem(const char* item, ppk_data *edata, unsigned int flags)
 		return PPK_FALSE;
 }
 
-ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, unsigned int flags)
+ppk_boolean removeNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, unsigned int flags)
 {
 	if(openKeyring(flags)==PPK_TRUE)
 	{

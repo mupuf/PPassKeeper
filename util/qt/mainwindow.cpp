@@ -138,7 +138,7 @@ bool MainWindow::updateSelectedPassword(ppk_data data)
 	else if (cur_type == ppk_network)
 	{
 		res = ppk_setEntry(m_moduleId.toUtf8().constData(),
-				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port),
+				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()),
 				data, 0)==PPK_TRUE;
 	}
 	else if (cur_type == ppk_item)
@@ -236,7 +236,7 @@ ppk_data MainWindow::getSelectedEntryData(bool& ok)
 	else if (cur_type == ppk_network)
 	{
 		res = ppk_getEntry(m_moduleId.toUtf8().constData(),
-				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port),
+				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()),
 				&data, 0);
 	}
 	else if (cur_type == ppk_item)
@@ -278,7 +278,7 @@ void MainWindow::onDelButtonClicked()
 		else if (cur_type == ppk_network)
 		{
 			res = ppk_removeEntry(m_moduleId.toUtf8().constData(),
-					ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port), 0);
+					ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()), 0);
 		}
 		else if (cur_type == ppk_item)
 		{

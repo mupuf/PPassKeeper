@@ -23,7 +23,7 @@ size_t ppk_keyLength(const ppk_entry* entry)
 	switch(entry->type)
 	{
 	case ppk_network:
-		if (entry->net.protocol)
+		if (entry->net.protocol && entry->net.protocol[0] != '\0')
 			len = strlen(entry->net.protocol) + sizeof("://");
 		else
 			len = sizeof(URL_PREFIX "://");
@@ -52,7 +52,7 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	switch(entry->type)
 	{
 	case ppk_network:
-		if (entry->net.protocol)
+		if (entry->net.protocol && entry->net.protocol[0] != '\0')
 			key << entry->net.protocol << "://";
 		key << entry->net.login << '@' << entry->net.host << ':' << entry->net.port;
 		break;

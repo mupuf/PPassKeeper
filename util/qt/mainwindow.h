@@ -37,6 +37,7 @@ private:
 		QString host;
 		QString login;
 		unsigned short int port;
+		QString protocol;
 	} cur_net;
 	struct
 	{

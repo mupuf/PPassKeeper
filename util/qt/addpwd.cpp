@@ -108,6 +108,7 @@ void AddPWD::onOK()
 	std::string user=m_ui->userEdit->text().toStdString();
 	std::string login=m_ui->loginEdit->text().toStdString();
 	std::string host=m_ui->hostEdit->text().toStdString();
+	std::string protocol=m_ui->protocolEdit->text().toStdString();
 	int port=m_ui->portSpin->value();
 	std::string item=m_ui->itemEdit->text().toStdString();
 
@@ -125,7 +126,7 @@ void AddPWD::onOK()
 	}
 	else if (index==1)
 	{
-		entry=ppk_createNetworkEntry(host.c_str(), login.c_str(), port);
+		entry=ppk_createNetworkEntry(host.c_str(), login.c_str(), port, protocol.empty() ? NULL : protocol.c_str());
 		key=login+"@"+host+":"+QString::number(port).toStdString();
 
 		if(login=="" || host=="")

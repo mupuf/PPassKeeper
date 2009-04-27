@@ -106,6 +106,8 @@ extern "C"
 		const char* login;    
 		///Port of the service
 		unsigned short port;   
+		///Protocol name
+		const char* protocol;
 	} ppk_entry_net;
 
 	///Definition of an Application entry (username\@app_name)
@@ -329,12 +331,13 @@ extern "C"
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 
-	/*! \brief Generate a Network entry given a host, a login and a port. WARNING : Destroying original variables host and/or login will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
+	/*! \brief Generate a Network entry given a host, a login and a port. WARNING : Destroying original variables host, login, and/or protocol will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
 	* \param host in: The host (example : mupuf.org).
 	* \param login in: The login name (example : mupuf).
-	* \param port in: The service's port (example : 21).
+	* \param port in: The service's port (example : 21, 0 means the default port).
+	* \param port in: The protocol name (example : ftp, NULL means unspecified)
 	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port);
+	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port, const char* protocol);
 	
 	/*! \brief Generate an application entry given a username and an application name. WARNING : Destroying original variables username and/or app_name will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).  
 	* \param app_name in: The name of the application (example : PPassKeeper).

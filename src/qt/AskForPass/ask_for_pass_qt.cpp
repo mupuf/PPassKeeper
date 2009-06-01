@@ -64,7 +64,7 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 }
 
 extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
-{	
+{
 	return 0;
 }
 
@@ -80,7 +80,7 @@ extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned
 			text=toString(entry.app.username)+"@"+toString(entry.app.app_name);
 		else if(entry.type==ppk_item)
 			text="this key("+toString(entry.item)+")";
-		
+
 		bool res=Qt_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
@@ -125,7 +125,7 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 		case ppk_blob:
 			return 0;
 	}
-	
+
 	return 0;
 }
 
@@ -136,25 +136,25 @@ extern "C" ppk_proto_param* availableParameters()
 	tst_param.name="test_param";
 	tst_param.help_text="Supposed to be the help string. Sorry ...";
 	tst_param.default_value=cvariant_from_string("default_value for 'test_param'");
-	
+
 	static ppk_proto_param tst_param2;
 	tst_param2.expected_type=cvariant_int;
 	tst_param2.name="test_param2";
-	tst_param2.help_text="Supposed to be the help string. Sorry ...";
+	tst_param2.help_text="Supposed to be the second help string. Sorry ...";
 	tst_param2.default_value=cvariant_from_int(123456789);
-	
+
 	static ppk_proto_param proto_null;
 	proto_null.expected_type=cvariant_none;
-	
+
 	static ppk_proto_param params[]={tst_param, tst_param2, proto_null};
-	
+
 	return params;
 }
 
 extern "C" void setParam(const char* paramName, const cvariant value)
 {
 	std::string key(paramName);
-	
+
 	if(key == "test_param")
 	{
 		if(cvariant_get_type(value)==cvariant_string)
@@ -197,9 +197,9 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 
 /*************************************************************************************************
 **************************************************************************************************
-*******************************										******************************
-*******************************				  QT PART				******************************
-*******************************										******************************
+*******************************                                     ******************************
+*******************************               QT PART               ******************************
+*******************************                                     ******************************
 **************************************************************************************************
 **************************************************************************************************/
 

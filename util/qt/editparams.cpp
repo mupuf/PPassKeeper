@@ -6,6 +6,9 @@ EditParams::EditParams(QWidget *parent) :
     m_ui(new Ui::EditParams)
 {
     m_ui->setupUi(this);
+
+    m_ui->tableView->setModel(&model);
+    model.setupModelData("AskForPass_Qt");
 }
 
 EditParams::~EditParams()
@@ -17,9 +20,9 @@ void EditParams::changeEvent(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
+	   m_ui->retranslateUi(this);
+	   break;
     default:
-        break;
+	   break;
     }
 }

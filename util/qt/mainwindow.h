@@ -86,6 +86,7 @@ private slots:
 	void saveValueToFile();
 	void setBlobFromFile();
 	void onSetDefaultModule();
+	void onParamsTriggered();
 };
 
 #endif

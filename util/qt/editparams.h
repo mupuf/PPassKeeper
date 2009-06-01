@@ -2,6 +2,7 @@
 #define EDITPARAMS_H
 
 #include <QtGui/QDialog>
+#include "paramslistmodel.h"
 
 namespace Ui {
     class EditParams;
@@ -19,6 +20,7 @@ protected:
 
 private:
     Ui::EditParams *m_ui;
+    ParamsListModel model;
 };
 
 #endif // EDITPARAMS_H

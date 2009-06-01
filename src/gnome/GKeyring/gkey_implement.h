@@ -1,7 +1,7 @@
 #ifndef _PPK_GKEY_IMPLEMENT_H_
 #define _PPK_GKEY_IMPLEMENT_H_
 
-#include "../../ppasskeeper.h"
+#include <ppasskeeper.h>
 
 extern "C" ppk_boolean setNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, const ppk_data edata, unsigned int flags);
 extern "C" ppk_boolean getNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, ppk_data *edata, unsigned int flags);

@@ -16,6 +16,8 @@ INCLUDE(FindPythonLibs)
 INCLUDE(FindPythonInterp)
 INCLUDE(FeatureSummary)
 
+INCLUDE_DIRECTORIES("include/")
+
 OPTION(PPK_LIB "PPassKeeper library" ON)
 OPTION(PPK_BUILD_PLUGINS "Build plugins" ON)
 OPTION(PPK_STF "SaveToFile plugins" ON)

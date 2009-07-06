@@ -129,6 +129,11 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	return 0;
 }
 
+ppk_settings_group ppk_settings_basic = { "Basic", "Basic settings" };
+ppk_settings_group ppk_settings_network = { "Network", "Network-related parameters" };
+ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
+ppk_settings_group ppk_settings_security = { "Security", "Security-related parameters" };
+
 extern "C" ppk_proto_param* availableParameters()
 {
 	static ppk_proto_param tst_param;
@@ -136,15 +141,18 @@ extern "C" ppk_proto_param* availableParameters()
 	tst_param.name="test_param";
 	tst_param.help_text="Supposed to be the help string. Sorry ...";
 	tst_param.default_value=cvariant_from_string("default_value for 'test_param'");
+	tst_param.group=&ppk_settings_basic;
 
 	static ppk_proto_param tst_param2;
 	tst_param2.expected_type=cvariant_int;
 	tst_param2.name="test_param2";
 	tst_param2.help_text="Supposed to be the second help string. Sorry ...";
 	tst_param2.default_value=cvariant_from_int(123456789);
+	tst_param2.group=&ppk_settings_basic;
 
 	static ppk_proto_param proto_null;
 	proto_null.expected_type=cvariant_none;
+	proto_null.group=&ppk_settings_basic;
 
 	static ppk_proto_param params[]={tst_param, tst_param2, proto_null};
 

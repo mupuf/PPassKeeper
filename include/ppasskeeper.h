@@ -159,6 +159,15 @@ extern "C"
 		};
 	} ppk_data;
 	
+	///Definition of a group of parameter
+	typedef struct
+	{
+		///Name of the group (meant to be displayed)
+		const char *display_name;
+		///Description of the group
+		const char *description;
+	} ppk_settings_group;
+	
 	///Definition of the prototype of a parameter
 	typedef struct
 	{
@@ -170,6 +179,9 @@ extern "C"
 		const char* help_text;
 		///Default value of the parameter
 		cvariant default_value;
+		
+		///Group in which belongs this parameter
+		ppk_settings_group *group;
 	} ppk_proto_param;
 	
 	///Definition of what a parameter is

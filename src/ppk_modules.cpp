@@ -223,14 +223,14 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 
 void PPK_Modules::sendParameters(_module m)
 {
-	extern VParam* vparam;
+	VParam& param = VParam::instance();
 	
 	if(m.setParam!=NULL)
 	{
-		std::vector<std::string> listParams=vparam->listParams(m.id);
+		std::vector<std::string> listParams = param.listParams(m.id);
 		for(int i=0;i<listParams.size();i++)
 		{
-			cvariant cv=vparam->getParam(m.id, listParams[i].c_str());
+			cvariant cv = param.getParam(m.id, listParams[i].c_str());
 			m.setParam(listParams[i].c_str(), cv);
 		}
 	}

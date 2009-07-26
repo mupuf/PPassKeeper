@@ -5,13 +5,21 @@
 #include <vector>
 #include <ppasskeeper/cvariant.h>
 
+class VParamImpl;
+
 class VParam
 {
-	public:
-		virtual bool saveParam(const char* module_id, const char* key, const cvariant value)=0;
-		virtual cvariant getParam(const char* module_id, const char* key)=0;
-		virtual std::vector<std::string> listParams(const char* module_id)=0;
-		virtual bool removeParam(const char* module_id, const char* key)=0;
+private:
+	VParamImpl &impl();
+	VParam(); // unconstructible, use instance()
+
+public:
+	static VParam &instance();
+
+	bool saveParam(const char* module_id, const char* key, const cvariant value);
+	cvariant getParam(const char* module_id, const char* key);
+	std::vector<std::string> listParams(const char* module_id);
+	bool removeParam(const char* module_id, const char* key);
 };
 
 #endif

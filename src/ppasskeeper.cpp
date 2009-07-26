@@ -9,19 +9,7 @@
 #include <cstdlib>
 #include <string.h>
 #include <stdio.h>
-
-//Param
-#ifdef USE_ELEKTRA
-	#include "elektraParam.h"
-	
-	ElektraParam elektraParam;
-	VParam* vparam=&elektraParam;
-#else
-	#include "xmlParam.h"
-	
-	XMLParam xmlParam(ppk_settingDirectory()+std::string("/xmlParam.xml"));
-	VParam* vparam=&xmlParam;
-#endif
+#include <vparam.h>
 
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"
@@ -403,7 +391,8 @@ extern "C"
 	{
 		if(!isLocked())
 		{
-			if(vparam->saveParam(module_id, key, value))
+			VParam& param = VParam::instance();
+			if(param.saveParam(module_id, key, value))
 			{
 				const _module* mod=modules.getModuleByID(module_id);
 				if(mod!=NULL)
@@ -425,7 +414,8 @@ extern "C"
 	{
 		if(!isLocked())
 		{
-			return vparam->getParam(module_id, key);
+			VParam& param = VParam::instance();
+			return param.getParam(module_id, key);
 		}
 		else
 		{
@@ -438,8 +428,9 @@ extern "C"
 	{
 		if(!isLocked())
 		{
+			VParam& param = VParam::instance();
 			static std::vector<std::string> vlist;
-			vlist=vparam->listParams(module_id);
+			vlist = param.listParams(module_id);
 			
 			int i;
 			for(i=0;i<maxEntries && i<vlist.size();i++)
@@ -458,7 +449,8 @@ extern "C"
 	{
 		if(!isLocked())
 		{
-			return vparam->removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
+			VParam& param = VParam::instance();
+			return param.removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
 		}
 		else
 		{

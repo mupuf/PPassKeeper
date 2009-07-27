@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <string.h>
 #include <stdio.h>
-#include <vparam.h>
+#include "vparam.h"
 
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"

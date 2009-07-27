@@ -56,7 +56,7 @@ void QAbstractFormField::reset()
 void QAbstractFormField::showHelpText()
 {
 	QMessageBox::information(widget(), tr("Help on the parameter '%1'").arg(fieldName()),
-						tr("Help on the parameter '%1' : %2").arg(fieldName()).arg(helpText()));
+						tr("%1: %2").arg(fieldName()).arg(helpText()));
 }
 
 //Virtual functions, do nothing

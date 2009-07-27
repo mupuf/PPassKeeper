@@ -247,7 +247,6 @@ QWidget* EditParams::addCategory(QTabWidget* catTab, ppk_settings_group* categ)
 		{
 			QWidget* tab = new QWidget(catTab);
 			/*int pos=*/catTab->addTab(tab, categ->display_name);
-			qDebug("tab name = %s\n", categ->display_name);
 
 			categories[categ->display_name]=new QGridLayout(tab);
 

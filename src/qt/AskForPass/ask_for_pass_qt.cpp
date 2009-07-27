@@ -170,14 +170,21 @@ extern "C" void setParam(const char* paramName, const cvariant value)
 {
 	std::string key(paramName);
 
-	if(key == "test_param")
+	if(key == "Ein kleiner Test")
 	{
 		if(cvariant_get_type(value)==cvariant_string)
 			printf("Set Param : paramName(%s), value(%s)\n", paramName, cvariant_get_string(value));
 		else
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
-	else if(key == "test_param2")
+	else if(key == "Host")
+	{
+		if(cvariant_get_type(value)==cvariant_string)
+			printf("Set Param : paramName(%s), value(%s)\n", paramName, cvariant_get_string(value));
+		else
+			printf("Wrong data type for the parameter '%s' !\n", paramName);
+	}
+	else if(key == "Port")
 	{
 		if(cvariant_get_type(value)==cvariant_int)
 			printf("Set Param : paramName(%s), value(%i)\n", paramName, cvariant_get_int(value));
@@ -185,7 +192,7 @@ extern "C" void setParam(const char* paramName, const cvariant value)
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
 	else
-		printf("	Unknown param !!\n");
+		printf("	Unknown param(%s) !!\n", paramName);
 }
 
 extern "C" const char* getLastError()

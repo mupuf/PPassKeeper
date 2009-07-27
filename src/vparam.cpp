@@ -25,162 +25,162 @@ class VParamImpl
 	friend class VParam;
 
 	std::string elektraKeyName(const char* module_id, const char* key)
-		{
-			std::ostringstream keyName;
-			keyName << "user/sw/ppasskeeper/" << module_id << '/' << key;
-			return keyName.str();
-		}
+	{
+		std::ostringstream keyName;
+		keyName << "user/sw/ppasskeeper/" << module_id << '/' << key;
+		return keyName.str();
+	}
 
 	bool saveParam(const char* module_id, const char* key, const cvariant value)
+	{
+		ckdb::KDB* handle;
+		if ((handle = ckdb::kdbOpen()) == NULL)
 		{
-			ckdb::KDB* handle;
-			if ((handle = ckdb::kdbOpen()) == NULL)
-			{
-				perror("kdbOpen");
-				return false;
-			}
-
-			//Get the type of the value to store
-			std::string type, s_value, final_value;
-			switch(cvariant_get_type(value))
-			{
-			case cvariant_string:
-				type=STRING_TYPE;
-				s_value=cvariant_get_string(value);
-				break;
-
-			case cvariant_int:
-				type=INT_TYPE;
-				s_value=cvariant_get_int(value);
-				break;
-
-			case cvariant_float:
-				type=FLOAT_TYPE;
-				s_value=cvariant_get_float(value);
-				break;
-			}
-
-			final_value=type+TYPE_SEPARATOR+s_value;
-
-			ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, final_value.c_str(), KEY_END);
-
-			bool r;
-			if (k == NULL)
-			{
-				std::cerr << "Invalid parameter name" << std::endl;
-				r = false;
-			}
-			else
-			{
-				int err = ckdb::kdbSetKey(handle, k);
-				ckdb::keyDel(k);
-
-				if (err == 0)
-					r = true;
-				else
-				{
-					perror("kbdSetKey");
-					r = false;
-				}
-			}
-
-			if (ckdb::kdbClose(handle) != 0)
-				perror("kdbClose");
-			return r;
+			perror("kdbOpen");
+			return false;
 		}
 
-	cvariant getParam(const char* module_id, const char* key)
+		//Get the type of the value to store
+		std::string type, s_value, final_value;
+		switch(cvariant_get_type(value))
 		{
-			cvariant result=cvariant_null();
-			char returnedString[1001];
+		case cvariant_string:
+			type=STRING_TYPE;
+			s_value=cvariant_get_string(value);
+			break;
 
-			//Get data from elektra
-			ckdb::KDB* handle;
-			if ((handle = ckdb::kdbOpen()) == NULL)
-			{
-				perror("kdbOpen");
-				return result;
-			}
+		case cvariant_int:
+			type=INT_TYPE;
+			s_value=cvariant_get_int(value);
+			break;
 
-			int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, sizeof(returnedString)-1);
-
-			if (ckdb::kdbClose(handle) != 0)
-				perror("kdbClose");
-
-			//avoid potential buffer overflows
-			returnedString[sizeof(returnedString)] = '\0';
-			std::string value=returnedString;
-
-			if(value.substr(0, strlen(STRING_TYPE TYPE_SEPARATOR))==STRING_TYPE TYPE_SEPARATOR)
-			{
-				value=value.substr(strlen(STRING_TYPE TYPE_SEPARATOR));
-				result=cvariant_from_string_copy(value.c_str(), value.size());
-			}
-			else if(value.substr(0, strlen(INT_TYPE TYPE_SEPARATOR))==INT_TYPE TYPE_SEPARATOR)
-			{
-				value=value.substr(strlen(INT_TYPE TYPE_SEPARATOR));
-				result=cvariant_from_int(atoi(value.c_str()));
-			}
-
-			return result;
+		case cvariant_float:
+			type=FLOAT_TYPE;
+			s_value=cvariant_get_float(value);
+			break;
 		}
 
-	std::vector<std::string> listParams(const char* module_id)
+		final_value=type+TYPE_SEPARATOR+s_value;
+
+		ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, final_value.c_str(), KEY_END);
+
+		bool r;
+		if (k == NULL)
 		{
-			std::vector<std::string> list;
-
-			ckdb::KeySet *myConfig=ckdb::ksNew(0);
-			ckdb::KDB * handle=ckdb::kdbOpen();
-
-			int rc = 0;
-			int size = 0;
-
-			/* Get all value keys for this application */
-			if (ckdb::kdbGetByName(handle, myConfig, elektraKeyName(module_id,"").c_str(),  0) == -1)
-			{
-				perror("Couldn't get user configuration. Reason");
-			} else {
-				//size = (int)ksGetSize(myConfig);
-
-				ckdb::Key *current;
-				cursor_t cursor = ckdb::ksGetCursor (myConfig);
-				ckdb::ksRewind (myConfig);
-				while ((current = ckdb::ksNext (myConfig)) != 0)
-					list.push_back((const char*)keyBaseName(current));
-				ckdb::ksSetCursor(myConfig, cursor);
-			}
-
-			ckdb::kdbClose(handle);
-			ckdb::ksDel(myConfig);
-
-			return list;
+			std::cerr << "Invalid parameter name" << std::endl;
+			r = false;
 		}
-
-	bool removeParam(const char* module_id, const char* key)
+		else
 		{
-			bool r;
+			int err = ckdb::kdbSetKey(handle, k);
+			ckdb::keyDel(k);
 
-			ckdb::KDB* handle;
-			if ((handle = ckdb::kdbOpen()) == NULL)
-			{
-				perror("kdbOpen");
-				return false;
-			}
-
-			int err=ckdb::kdbRemove(handle, elektraKeyName(module_id, key).c_str());
 			if (err == 0)
 				r = true;
 			else
 			{
-				perror("kdbRemove");
+				perror("kbdSetKey");
 				r = false;
 			}
-
-			if (ckdb::kdbClose(handle) != 0)
-				perror("kdbClose");
-
-			return r;
 		}
+
+		if (ckdb::kdbClose(handle) != 0)
+			perror("kdbClose");
+		return r;
+	}
+
+	cvariant getParam(const char* module_id, const char* key)
+	{
+		cvariant result=cvariant_null();
+		char returnedString[1001];
+
+		//Get data from elektra
+		ckdb::KDB* handle;
+		if ((handle = ckdb::kdbOpen()) == NULL)
+		{
+			perror("kdbOpen");
+			return result;
+		}
+
+		int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, sizeof(returnedString)-1);
+
+		if (ckdb::kdbClose(handle) != 0)
+			perror("kdbClose");
+
+		//avoid potential buffer overflows
+		returnedString[sizeof(returnedString)] = '\0';
+		std::string value=returnedString;
+
+		if(value.substr(0, strlen(STRING_TYPE TYPE_SEPARATOR))==STRING_TYPE TYPE_SEPARATOR)
+		{
+			value=value.substr(strlen(STRING_TYPE TYPE_SEPARATOR));
+			result=cvariant_from_string_copy(value.c_str(), value.size());
+		}
+		else if(value.substr(0, strlen(INT_TYPE TYPE_SEPARATOR))==INT_TYPE TYPE_SEPARATOR)
+		{
+			value=value.substr(strlen(INT_TYPE TYPE_SEPARATOR));
+			result=cvariant_from_int(atoi(value.c_str()));
+		}
+
+		return result;
+	}
+
+	std::vector<std::string> listParams(const char* module_id)
+	{
+		std::vector<std::string> list;
+
+		ckdb::KeySet *myConfig=ckdb::ksNew(0);
+		ckdb::KDB * handle=ckdb::kdbOpen();
+
+		int rc = 0;
+		int size = 0;
+
+		/* Get all value keys for this application */
+		if (ckdb::kdbGetByName(handle, myConfig, elektraKeyName(module_id,"").c_str(),  0) == -1)
+		{
+			perror("Couldn't get user configuration. Reason");
+		} else {
+			//size = (int)ksGetSize(myConfig);
+
+			ckdb::Key *current;
+			cursor_t cursor = ckdb::ksGetCursor (myConfig);
+			ckdb::ksRewind (myConfig);
+			while ((current = ckdb::ksNext (myConfig)) != 0)
+				list.push_back((const char*)keyBaseName(current));
+			ckdb::ksSetCursor(myConfig, cursor);
+		}
+
+		ckdb::kdbClose(handle);
+		ckdb::ksDel(myConfig);
+
+		return list;
+	}
+
+	bool removeParam(const char* module_id, const char* key)
+	{
+		bool r;
+
+		ckdb::KDB* handle;
+		if ((handle = ckdb::kdbOpen()) == NULL)
+		{
+			perror("kdbOpen");
+			return false;
+		}
+
+		int err=ckdb::kdbRemove(handle, elektraKeyName(module_id, key).c_str());
+		if (err == 0)
+			r = true;
+		else
+		{
+			perror("kdbRemove");
+			r = false;
+		}
+
+		if (ckdb::kdbClose(handle) != 0)
+			perror("kdbClose");
+
+		return r;
+	}
 };
 
 #else // Use XML
@@ -204,39 +204,39 @@ class VParamImpl : public XMLSP::Parser
 	std::map< std::pair<std::string, std::string>, std::pair<int, std::string> > params;
 
 	VParamImpl()
+	{
+		xml_path = ppk_settingDirectory() + std::string("/xmlParam.xml");
+
+		std::ifstream is(xml_path.c_str());
+		if(is.is_open())
 		{
-			xml_path = ppk_settingDirectory() + std::string("/xmlParam.xml");
+			std::ostringstream iss;
+			iss << is.rdbuf();
 
-			std::ifstream is(xml_path.c_str());
-			if(is.is_open())
+			if(!parse(iss.str()))
 			{
-				std::ostringstream iss;
-				iss << is.rdbuf();
-
-				if(!parse(iss.str()))
-				{
-					std::cerr << "XMLParamImpl : parse(iss.str()) returned false !" << std::endl;
-				}
+				std::cerr << "XMLParamImpl : parse(iss.str()) returned false !" << std::endl;
 			}
-
-			this->xml_path = xml_path;
 		}
+
+		this->xml_path = xml_path;
+	}
 
 	virtual bool on_tag_open(const std::string& tag_name, XMLSP::StringMap& attributes)
+	{
+		if (tag_name == "entry")
 		{
-			if (tag_name == "entry")
-			{
-				std::pair<std::string, std::string> pair(attributes["module"], attributes["key"]);
+			std::pair<std::string, std::string> pair(attributes["module"], attributes["key"]);
 
-				if(attributes["type"]==STRING_TYPE)
-					params[pair]=std::make_pair(cvariant_string, attributes["value"]);
-				else if(attributes["type"]==INT_TYPE)
-					params[pair]=std::make_pair(cvariant_int, attributes["value"]);
-				else if(attributes["type"]==FLOAT_TYPE)
-					params[pair]=std::make_pair(cvariant_float, attributes["value"]);
-			}
-			return true;
+			if(attributes["type"]==STRING_TYPE)
+				params[pair]=std::make_pair(cvariant_string, attributes["value"]);
+			else if(attributes["type"]==INT_TYPE)
+				params[pair]=std::make_pair(cvariant_int, attributes["value"]);
+			else if(attributes["type"]==FLOAT_TYPE)
+				params[pair]=std::make_pair(cvariant_float, attributes["value"]);
 		}
+		return true;
+	}
 
 	virtual bool on_cdata(const std::string& cdata) { return true; }
 	virtual bool on_tag_close(const std::string& tag_name) { return true; }
@@ -248,117 +248,117 @@ class VParamImpl : public XMLSP::Parser
 	virtual void on_error(int errnr, int line, int col, const std::string& message) {}
 
 	bool flush()
+	{
+		std::ofstream os(xml_path.c_str());
+		if(os.is_open())
 		{
-			std::ofstream os(xml_path.c_str());
-			if(os.is_open())
+			os << "<ppk_params>" << std::endl;
+
+			std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
+			for( iter = params.begin(); iter != params.end(); iter++ )
 			{
-				os << "<ppk_params>" << std::endl;
-
-				std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
-				for( iter = params.begin(); iter != params.end(); iter++ )
+				std::string type;
+				switch(iter->second.first)
 				{
-					std::string type;
-					switch(iter->second.first)
-					{
-					case cvariant_string:
-						type=STRING_TYPE;
-						break;
+				case cvariant_string:
+					type=STRING_TYPE;
+					break;
 
-					case cvariant_int:
-						type=INT_TYPE;
-						break;
+				case cvariant_int:
+					type=INT_TYPE;
+					break;
 
-					case cvariant_float:
-						type=FLOAT_TYPE;
-						break;
-					}
-
-					os << " <entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" type=\"" <<  type << "\" value=\"" <<  iter->second.second << "\" />" << std::endl;
+				case cvariant_float:
+					type=FLOAT_TYPE;
+					break;
 				}
 
-				os << "</ppk_params>" << std::endl;
-
-				return true;
+				os << " <entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" type=\"" <<  type << "\" value=\"" <<  iter->second.second << "\" />" << std::endl;
 			}
-			else
-				std::cerr << "ppk_saveParam : '" << xml_path << "' cannot be opened for writing purpose." << std::endl << "Check your file permission." << std::endl;
 
-			return false;
+			os << "</ppk_params>" << std::endl;
+
+			return true;
 		}
+		else
+			std::cerr << "ppk_saveParam : '" << xml_path << "' cannot be opened for writing purpose." << std::endl << "Check your file permission." << std::endl;
+
+		return false;
+	}
 
 	bool saveParam(const char* module_id, const char* key, const cvariant value)
+	{
+		std::string s_value;
+		switch(cvariant_get_type(value))
 		{
-			std::string s_value;
-			switch(cvariant_get_type(value))
-			{
-			case cvariant_string:
-				s_value=cvariant_get_string(value);
-				break;
+		case cvariant_string:
+			s_value=cvariant_get_string(value);
+			break;
 
-			case cvariant_int:
-				s_value=toString(cvariant_get_int(value));
-				break;
+		case cvariant_int:
+			s_value=toString(cvariant_get_int(value));
+			break;
 
-			case cvariant_float:
-				s_value=toString(cvariant_get_float(value));
-				break;
-			}
-
-			params[std::make_pair(module_id, key)]=std::make_pair(cvariant_get_type(value), s_value);
-
-			return flush();
+		case cvariant_float:
+			s_value=toString(cvariant_get_float(value));
+			break;
 		}
+
+		params[std::make_pair(module_id, key)]=std::make_pair(cvariant_get_type(value), s_value);
+
+		return flush();
+	}
 
 	cvariant getParam(const char* module_id, const char* key)
+	{
+		std::pair<std::string, std::string> pair(module_id, key);
+		std::pair<int, std::string> value=params[pair];
+
+		cvariant cv=cvariant_null();
+		switch(value.first)
 		{
-			std::pair<std::string, std::string> pair(module_id, key);
-			std::pair<int, std::string> value=params[pair];
+		case cvariant_string:
+			cv=cvariant_from_string(value.second.c_str());
+			break;
 
-			cvariant cv=cvariant_null();
-			switch(value.first)
-			{
-			case cvariant_string:
-				cv=cvariant_from_string(value.second.c_str());
-				break;
+		case cvariant_int:
+			cv=cvariant_from_int(stringTo<int>(value.second.c_str()));
+			break;
 
-			case cvariant_int:
-				cv=cvariant_from_int(stringTo<int>(value.second.c_str()));
-				break;
-
-			case cvariant_float:
-				cv=cvariant_from_float(stringTo<double>(value.second.c_str()));
-				break;
-			}
-
-			return cv;
+		case cvariant_float:
+			cv=cvariant_from_float(stringTo<double>(value.second.c_str()));
+			break;
 		}
+
+		return cv;
+	}
 
 	std::vector<std::string> listParams(const char* module_id)
-		{
-			std::vector<std::string> list;
+	{
+		std::vector<std::string> list;
 
-			std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
-			for(iter = params.begin(); iter != params.end(); iter++)
-				if(iter->first.first==module_id)
-					list.push_back(iter->first.second);
+		std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
+		for(iter = params.begin(); iter != params.end(); iter++)
+			if(iter->first.first==module_id)
+				list.push_back(iter->first.second);
 
-			return list;
-		}
+		return list;
+	}
 
 	bool removeParam(const char* module_id, const char* key)
+	{
+		std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
+		for(iter = params.begin(); iter != params.end(); iter++)
 		{
-			std::map<std::pair<std::string, std::string>, std::pair<int, std::string> >::iterator iter;
-			for(iter = params.begin(); iter != params.end(); iter++)
+			if(iter->first.second==key)
 			{
-				if(iter->first.second==key)
-				{
-					params.erase(iter);
-					return flush();
-				}
+				params.erase(iter);
+				return flush();
 			}
-
-			return false;
 		}
+
+		return false;
+	}
 };
 
 #endif

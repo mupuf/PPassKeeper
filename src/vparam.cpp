@@ -267,7 +267,7 @@ class VParamImpl : public XMLSP::Parser
 			std::pair<std::string, std::string> pair(module_id, key);
 			std::pair<int, std::string> value=params[pair];
 
-			cvariant cv;
+			cvariant cv=cvariant_null();
 			switch(value.first)
 			{
 			case cvariant_string:

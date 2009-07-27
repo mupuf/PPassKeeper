@@ -5,29 +5,14 @@
 #include <QLineEdit>
 #include <QDoubleSpinBox>
 #include <QMessageBox>
+#include <QPushButton>
 
 EditParams::EditParams(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::EditParams)
+    m_ui(new Ui::EditParams),
+    catTab(NULL)
 {
 	m_ui->setupUi(this);
-
-	//model.setupModelData("AskForPass_Qt");
-	static ppk_proto_param tst_param;
-	tst_param.expected_type=cvariant_string;
-	tst_param.name="test_param";
-	tst_param.help_text="Supposed to be the help string. Sorry ...";
-	tst_param.default_value=cvariant_from_string("default_value for 'test_param'");
-	//tst_param.group=&ppk_settings_basic;
-	addParam(2, tst_param);
-
-	static ppk_proto_param tst_param2;
-	tst_param2.expected_type=cvariant_int;
-	tst_param2.name="test_param2";
-	tst_param2.help_text="Supposed to be the second help string. Sorry ...";
-	tst_param2.default_value=cvariant_from_int(42);
-	//tst_param.group=&ppk_settings_basic;
-	addParam(3, tst_param2);
 
 	connect(m_ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonBoxClicked(QAbstractButton*)));
 }
@@ -35,6 +20,36 @@ EditParams::EditParams(QWidget *parent) :
 EditParams::~EditParams()
 {
     delete m_ui;
+}
+
+void EditParams::setModule(QString module_name)
+{
+	//Set up the tab widget before rendering into it
+	if(catTab!=NULL)
+		delete catTab;
+	catTab = new QTabWidget(this);
+	m_ui->mainLayout->insertWidget(1, catTab);
+
+	//Change the module name
+	this->module_id=module_name;
+	m_ui->lbl_modulename->setText(module_name);
+	m_ui->lbl_textintro->setText("Edit settings of the \nmodule "+module_name);
+
+	//Show the available parameters
+	ppk_proto_param* list=ppk_availableParameters(qPrintable(module_name));
+	if(list)
+	{
+		int i=0;
+		while(list[i].expected_type!=cvariant_none)
+		{
+			if(!categories.contains(list->group->display_name))
+				addCategory(catTab, list->group);
+
+			addParam(catTab, categories[list->group->display_name], list);
+
+			list++;
+		}
+	}
 }
 
 void EditParams::changeEvent(QEvent *e)
@@ -50,31 +65,46 @@ void EditParams::changeEvent(QEvent *e)
 
 void EditParams::buttonBoxClicked(QAbstractButton* bbox)
 {
-	if(m_ui->buttonBox->standardButton(bbox)==QDialogButtonBox::RestoreDefaults)
-	{
-		QList<QObject*> klist=paramAssociated.keys();
+	QDialogButtonBox::StandardButton button=m_ui->buttonBox->standardButton(bbox);
 
-		for(int i=0;i<klist.size();i++)
-			resetParam(klist[i]);
+	if(button==QDialogButtonBox::RestoreDefaults)
+	{
+		for(int i=0;i<fields.size();i++)
+			fields[i]->reset();
+	}
+	else if(button==QDialogButtonBox::Cancel)
+		close();
+	else if(button==QDialogButtonBox::Save)
+	{
+		saveParam();
+		accept();
 	}
 }
 
-QString createNameString(ppk_proto_param pparam)
+
+
+
+
+/*
+  Parameter listing functions
+  */
+
+QString EditParams::createNameString(ppk_proto_param* pparam)
 {
 	QVariant default_value;
 
-	switch(cvariant_get_type(pparam.default_value))
+	switch(cvariant_get_type(pparam->default_value))
 	{
 		case cvariant_string:
-			default_value=cvariant_get_string(pparam.default_value);
+			default_value=cvariant_get_string(pparam->default_value);
 			break;
 
 		case cvariant_int:
-			default_value=cvariant_get_int(pparam.default_value);
+			default_value=cvariant_get_int(pparam->default_value);
 			break;
 
 		case cvariant_float:
-			default_value=cvariant_get_float(pparam.default_value);
+			default_value=cvariant_get_float(pparam->default_value);
 			break;
 
 		default:
@@ -85,13 +115,20 @@ QString createNameString(ppk_proto_param pparam)
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Helvetica'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: %2)</p></body></html>").arg(pparam.name).arg(default_value.toString());
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: %2)</p></body></html>").arg(pparam->name).arg(default_value.toString());
 }
 
-QWidget* EditParams::paramEditWidget(ppk_proto_param pparam)
+#include "form_fields/qtextfield.h"
+#include "form_fields/qspinfield.h"
+#include "form_fields/qdoublespinfield.h"
+
+QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, ppk_proto_param* pparam)
 {
-	QVariant value=10.365;
-	switch(cvariant_get_type(pparam.default_value))
+	//Get Param's value
+	cvariant c_value=ppk_getParam("AskForPass_Qt", pparam->name);
+
+	//Create the widget
+	switch(pparam->expected_type)
 	{
 		case cvariant_none:
 		{
@@ -100,116 +137,181 @@ QWidget* EditParams::paramEditWidget(ppk_proto_param pparam)
 
 		case cvariant_string:
 		{
-			//default_value=cvariant_get_string(pparam.default_value);
-			QLineEdit* lineEdit = new QLineEdit(value.toString(), m_ui->tab);
-			return (QWidget*)lineEdit;
+			QString default_value=cvariant_get_string(pparam->default_value);
+			QString value;
+			if(cvariant_not_null(c_value))
+				value=cvariant_get_string(c_value);
+			else
+				value=default_value;
+
+			QTextField* lineEdit = new QTextField(parent);
+			lineEdit->setDefaultValue(default_value);
+			lineEdit->setValue(value);
+			return (QAbstractFormField*)lineEdit;
 		}
 
 		case cvariant_int:
 		{
-			QSpinBox* spinBox = new QSpinBox(m_ui->tab);
-			spinBox->setValue(value.toInt());
-			return (QWidget*)spinBox;
+			int default_value=cvariant_get_int(pparam->default_value);
+			int value;
+			if(cvariant_not_null(c_value))
+				value=cvariant_get_int(c_value);
+			else
+				value=default_value;
+
+			QSpinField* spinBox = new QSpinField(parent);
+			spinBox->setDefaultValue(default_value);
+			spinBox->setValue(value);
+			return (QAbstractFormField*)spinBox;
 		}
 
 		case cvariant_float:
 		{
-			QDoubleSpinBox* doubleSpinBox = new QDoubleSpinBox(m_ui->tab);
-			doubleSpinBox->setValue(value.toDouble());
-			return (QWidget*)doubleSpinBox;
+			double default_value=cvariant_get_float(pparam->default_value);
+			double value;
+			if(cvariant_not_null(c_value))
+				value=cvariant_get_float(c_value);
+			else
+				value=default_value;
+
+			QDoubleSpinField* doubleSpinBox = new QDoubleSpinField(parent);
+			doubleSpinBox->setDefaultValue(default_value);
+			doubleSpinBox->setValue(value);
+			return (QAbstractFormField*)doubleSpinBox;
 		}
 	}
 
 	return NULL;
 }
 
-void EditParams::addParam(int line, ppk_proto_param pparam)
+void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param* pparam)
 {
-	QWidget* widget=paramEditWidget(pparam);
-	QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	sizePolicy.setHorizontalStretch(0);
-	sizePolicy.setVerticalStretch(0);
-	sizePolicy.setHeightForWidth(widget->sizePolicy().hasHeightForWidth());
-	widget->setSizePolicy(sizePolicy);
-	widget->setToolTip(pparam.help_text);
-	paramAssociated[widget]=qMakePair(pparam, widget);
-	m_ui->gridLayout->addWidget(widget, line, 1, 1, 1);
-
-	QLabel* nameParamLbl = new QLabel(createNameString(pparam), m_ui->tab);
-	nameParamLbl->setToolTip(pparam.help_text);
-	paramAssociated[nameParamLbl]=qMakePair(pparam, widget);
-	m_ui->gridLayout->addWidget(nameParamLbl, line, 0, 1, 1);
-
-	QPushButton* helpParamBtn = new QPushButton(tr("?"), m_ui->tab);
-	helpParamBtn->setObjectName(QString::fromUtf8("helpParamBtn"));
-	QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Fixed);
-	sizePolicy1.setHorizontalStretch(0);
-	sizePolicy1.setVerticalStretch(0);
-	sizePolicy1.setHeightForWidth(helpParamBtn->sizePolicy().hasHeightForWidth());
-	helpParamBtn->setSizePolicy(sizePolicy1);
-	helpParamBtn->setMaximumSize(QSize(40, 16777215));
-	helpParamBtn->setToolTip(pparam.help_text);
-	paramAssociated[helpParamBtn]=qMakePair(pparam, widget);
-	m_ui->gridLayout->addWidget(helpParamBtn, line, 2, 1, 1);
-
-	QDialogButtonBox* rstParamBtn = new QDialogButtonBox(m_ui->tab);
-	rstParamBtn->setObjectName(QString::fromUtf8("rstParamBtn"));
-	sizePolicy1.setHeightForWidth(rstParamBtn->sizePolicy().hasHeightForWidth());
-	rstParamBtn->setSizePolicy(sizePolicy1);
-	rstParamBtn->setStandardButtons(QDialogButtonBox::Reset);
-	rstParamBtn->setToolTip(tr("Reset to the default value"));
-	paramAssociated[rstParamBtn]=qMakePair(pparam, widget);
-	m_ui->gridLayout->addWidget(rstParamBtn, line, 3, 1, 1);
-
-	connect(helpParamBtn, SIGNAL(clicked()), this, SLOT(helpParamClicked()));
-	connect(rstParamBtn, SIGNAL(clicked(QAbstractButton*)), this, SLOT(resetParamClicked()));
-}
-
-void EditParams::resetParamClicked()
-{
-	QObject* resetSender=this->sender();
-
-	resetParam(resetSender);
-}
-
-void EditParams::helpParamClicked()
-{
-	QObject* resetSender=this->sender();
-	ppk_proto_param senderProtoParam=paramAssociated[resetSender].first;
-	QWidget* widgetParamValue=paramAssociated[resetSender].second;
-
-	QMessageBox::information(this, tr("Help on the parameter '%1'").arg(senderProtoParam.name),
-						tr("Help on the parameter '%1' : %2").arg(senderProtoParam.name).arg(senderProtoParam.help_text));
-}
-
-void EditParams::resetParam(QObject* resetSender)
-{
-	ppk_proto_param senderProtoParam=paramAssociated[resetSender].first;
-	QWidget* widgetParamValue=paramAssociated[resetSender].second;
-
-	switch(cvariant_get_type(senderProtoParam.default_value))
+	if(!layout)
 	{
-		case cvariant_string:
+		qDebug("EditParams::addParam: Tried to add a param to a NULL tab widget !\n");
+		return;
+	}
+
+	QAbstractFormField* field=abstractFormFieldFromParamProto(parent, pparam);
+	if(field)
+	{
+		field->setFieldName(pparam->name);
+		field->setHelpText(pparam->help_text);
+
+		int line=layout->rowCount();
+
+		QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+		sizePolicy.setHorizontalStretch(0);
+		sizePolicy.setVerticalStretch(0);
+		sizePolicy.setHeightForWidth(field->widget()->sizePolicy().hasHeightForWidth());
+		field->widget()->setSizePolicy(sizePolicy);
+		field->widget()->setToolTip(pparam->help_text);
+		layout->addWidget(field->widget(), line, 1, 1, 1);
+
+		QLabel* nameParamLbl = new QLabel(createNameString(pparam), parent);
+		nameParamLbl->setToolTip(pparam->help_text);
+		layout->addWidget(nameParamLbl, line, 0, 1, 1);
+
+		QPushButton* helpParamBtn = new QPushButton(tr("?"), parent);
+		helpParamBtn->setObjectName(QString::fromUtf8("helpParamBtn"));
+		QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Fixed);
+		sizePolicy1.setHorizontalStretch(0);
+		sizePolicy1.setVerticalStretch(0);
+		sizePolicy1.setHeightForWidth(helpParamBtn->sizePolicy().hasHeightForWidth());
+		helpParamBtn->setSizePolicy(sizePolicy1);
+		helpParamBtn->setMaximumSize(QSize(40, 16777215));
+		helpParamBtn->setToolTip(pparam->help_text);
+		layout->addWidget(helpParamBtn, line, 2, 1, 1);
+
+		QDialogButtonBox* rstParamBtn = new QDialogButtonBox(parent);
+		rstParamBtn->setObjectName(QString::fromUtf8("rstParamBtn"));
+		sizePolicy1.setHeightForWidth(rstParamBtn->sizePolicy().hasHeightForWidth());
+		rstParamBtn->setSizePolicy(sizePolicy1);
+		rstParamBtn->setStandardButtons(QDialogButtonBox::Reset);
+		rstParamBtn->setToolTip(tr("Reset to the default value"));
+		layout->addWidget(rstParamBtn, line, 3, 1, 1);
+
+		//Add the field to the field vector
+		fields.push_back(field);
+
+		connect(helpParamBtn, SIGNAL(clicked()), field, SLOT(showHelpText()));
+		connect(rstParamBtn, SIGNAL(clicked(QAbstractButton*)), field, SLOT(reset()));
+	}
+}
+
+QWidget* EditParams::addCategory(QTabWidget* catTab, ppk_settings_group* categ)
+{
+	if(categ)
+	{
+		if(!categories.contains(categ->display_name))
 		{
-			QLineEdit* lineEdit = (QLineEdit*)widgetParamValue;
-			lineEdit->setText(cvariant_get_string(senderProtoParam.default_value));
-			break;
+			QWidget* tab = new QWidget(catTab);
+			/*int pos=*/catTab->addTab(tab, categ->display_name);
+			qDebug("tab name = %s\n", categ->display_name);
+
+			categories[categ->display_name]=new QGridLayout(tab);
+
+			return tab;
+		}
+		else
+		{
+			qDebug("EditParams::addCategory: Trying to add an already existing category(%s) !\n", categ->display_name);
+			return NULL;
+		}
+	}
+	else
+	{
+		qDebug("EditParams::addCategory: categ==NULL !\n");
+		return NULL;
+	}
+}
+
+void EditParams::saveParam()
+{
+	for(int i=0;i<fields.size();i++)
+	{
+		QString name=fields[i]->fieldName();
+		QVariant fieldValue=fields[i]->value();
+		QVariant fieldDefaultValue=fields[i]->defaultValue();
+
+		cvariant new_value=cvariant_null();
+		switch(fields[i]->value().type())
+		{
+			case QVariant::Double:
+			{
+				new_value=cvariant_from_float(fieldValue.toDouble());
+				break;
+			}
+			case QVariant::Int:
+			{
+				new_value=cvariant_from_int(fieldValue.toInt());
+				break;
+			}
+			case QVariant::String:
+			{
+				new_value=cvariant_from_string_copy(qPrintable(fieldValue.toString()), fieldValue.toString().size()+1);
+				break;
+			}
+			default:
+				continue;
 		}
 
-		case cvariant_int:
+		//Compare the current value to the currently stored
+		cvariant cur_value=ppk_getParam(qPrintable(module_id), qPrintable(name));
+
+		//If there is an already existing key, replace it. or if we changed the default value
+		qDebug("name=%s, fieldValue=\"%s\", fieldDefaultValue=\"%s\" !\n", qPrintable(name), qPrintable(fieldValue.toString()), qPrintable(fieldDefaultValue.toString()));
+		if(cvariant_not_null(cur_value))
 		{
-			QSpinBox* spinBox = (QSpinBox*)widgetParamValue;
-			spinBox->setValue(cvariant_get_int(senderProtoParam.default_value));
-			break;
+			qDebug("	cvariant_not_null\n\n");
+			ppk_saveParam(qPrintable(module_id), qPrintable(name), new_value);
+		}
+		else if(fieldValue!=fieldDefaultValue)
+		{
+			qDebug("	fieldValue!=fieldDefaultValue\n\n");
+			ppk_saveParam(qPrintable(module_id), qPrintable(name), new_value);
 		}
 
-		case cvariant_float:
-		{
-			QDoubleSpinBox* doubleSpinBox = (QDoubleSpinBox*)widgetParamValue;
-			doubleSpinBox->setValue(cvariant_get_int(senderProtoParam.default_value));
-			break;
-		}
 
-		case cvariant_none:{}
 	}
 }

@@ -23,7 +23,7 @@ extern "C" const char* getModuleID()
 
 extern "C" const char* getModuleName()
 {
-	return "Ask for the password through a Qt window";
+	return "Ask for the password (Qt window)";
 }
 
 extern "C" const int getABIVersion()
@@ -138,23 +138,30 @@ extern "C" ppk_proto_param* availableParameters()
 {
 	static ppk_proto_param tst_param;
 	tst_param.expected_type=cvariant_string;
-	tst_param.name="test_param";
-	tst_param.help_text="Supposed to be the help string. Sorry ...";
-	tst_param.default_value=cvariant_from_string("default_value for 'test_param'");
+	tst_param.name="Ein kleiner Test";
+	tst_param.help_text="Some silly parameter :)";
+	tst_param.default_value=cvariant_from_string("Bah Beh Bih Boh Buh Byh");
 	tst_param.group=&ppk_settings_basic;
 
-	static ppk_proto_param tst_param2;
-	tst_param2.expected_type=cvariant_int;
-	tst_param2.name="test_param2";
-	tst_param2.help_text="Supposed to be the second help string. Sorry ...";
-	tst_param2.default_value=cvariant_from_int(123456789);
-	tst_param2.group=&ppk_settings_basic;
+	static ppk_proto_param p_ip;
+	p_ip.expected_type=cvariant_string;
+	p_ip.name="Host";
+	p_ip.help_text="The host you would like to connect to.\nIt can be both an IP address or an host name";
+	p_ip.default_value=cvariant_from_string("127.0.0.1");
+	p_ip.group=&ppk_settings_network;
+	
+	static ppk_proto_param p_port;
+	p_port.expected_type=cvariant_int;
+	p_port.name="Port";
+	p_port.help_text="The port you would like to connect to";
+	p_port.default_value=cvariant_from_int(80);
+	p_port.group=&ppk_settings_network;
 
 	static ppk_proto_param proto_null;
 	proto_null.expected_type=cvariant_none;
 	proto_null.group=&ppk_settings_basic;
 
-	static ppk_proto_param params[]={tst_param, tst_param2, proto_null};
+	static ppk_proto_param params[]={tst_param, p_ip, p_port, proto_null};
 
 	return params;
 }

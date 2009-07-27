@@ -1,6 +1,8 @@
 #ifndef _CVARIANT_H_
 #define _CVARIANT_H_
 
+#include <sys/types.h>
+
 #ifdef __cplusplus 
 extern "C"
 {
@@ -13,11 +15,11 @@ extern "C"
 		///None
 		cvariant_none=0,
 		///String
-		cvariant_string=1,
+		cvariant_string,
 		///Int
-		cvariant_int=2,
+		cvariant_int,
 		///Float
-		cvariant_float=3
+		cvariant_float
 	} cvariant_type;
 	
 	///CVariant
@@ -25,6 +27,7 @@ extern "C"
 	{
 		///Real type of the CVariant
 		cvariant_type type;
+		int to_free;
 		union
 		{
 			const char* string;
@@ -33,12 +36,19 @@ extern "C"
 		};
 	} cvariant;
 	
+	#define CVARIANT_EMPTY_STRING NULL
+	#define CVARIANT_EMPTY_INT 0
+	#define CVARIANT_EMPTY_FLOAT 0.0
+	
 	//Setters
 	///Create an empty CVariant
 	cvariant cvariant_null();
 	
 	///Create a CVariant from a given string
 	cvariant cvariant_from_string(const char* string);
+	
+	///Create a CVariant from a given string (copy, dynamically allocated)
+	cvariant cvariant_from_string_copy(const char* string, size_t n);
 	
 	///Create a CVariant from a given integer
 	cvariant cvariant_from_int(int value);
@@ -70,7 +80,20 @@ extern "C"
 	 * a float, -1.0 is returned.
 	 */
 	double cvariant_get_float(cvariant cv);
+
+	//Comparaison
+	/*!
+	 * Compare two cvariants. if a!=b, returns zero, otherwise, 
+	 * return a non-zero value.
+	 */
+	int cvariant_compare(cvariant a, cvariant b);
 	
+	
+	/*!
+	 * Frees the memory allocated by the variant (if any).
+	 */
+	void cvariant_free(cvariant cv);
+
 #ifdef __cplusplus 
 }
 #endif

@@ -2,8 +2,14 @@
 #define EDITPARAMS_H
 
 #include <QtGui/QDialog>
-#include "paramslistmodel.h"
 #include <QAbstractButton>
+#include <QList>
+#include <QMap>
+#include <QGridLayout>
+#include <QTabWidget>
+#include "paramslistmodel.h"
+
+#include "form_fields/qabstractformfield.h"
 
 namespace Ui {
     class EditParams;
@@ -23,17 +29,22 @@ protected:
 
 private slots:
 	void buttonBoxClicked(QAbstractButton* bbox);
-	void resetParamClicked();
-	void helpParamClicked();
+
 private:
 	Ui::EditParams *m_ui;
+	QTabWidget* catTab;
 	ParamsListModel model;
+	QString module_id;
 
-	QMap<QObject*, QPair<ppk_proto_param, QWidget*> > paramAssociated;
+	QList<QAbstractFormField*> fields;
+	QMap<QString, QGridLayout*> categories;
 
-	void resetParam(QObject* resetSender);
-	void addParam(int line, ppk_proto_param pparam);
-	QWidget* paramEditWidget(ppk_proto_param pparam);
+	QString createNameString(ppk_proto_param* pparam);
+	QAbstractFormField* abstractFormFieldFromParamProto(QWidget* parent, ppk_proto_param* pparam);
+	void addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param* pparam);
+	QWidget* addCategory(QTabWidget* catTab, ppk_settings_group* categ);
+
+	void saveParam();
 };
 
 #endif // EDITPARAMS_H

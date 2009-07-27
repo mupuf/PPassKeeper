@@ -1,11 +1,15 @@
 #include <ppasskeeper/cvariant.h>
 
+#include <string.h>
+#include <stdlib.h>
+
 //Setters
 ///Create an empty CVariant
 cvariant cvariant_null()
 {
 	cvariant cv;
 	cv.type=cvariant_none;
+	cv.to_free=0;
 	return cv;
 }
 
@@ -15,6 +19,21 @@ cvariant cvariant_from_string(const char* string)
 	cvariant cv;
 	cv.type=cvariant_string;
 	cv.string=string;
+	cv.to_free=0;
+	return cv;
+}
+
+///Create a CVariant from a given string (copy, dynamically allocated)
+cvariant cvariant_from_string_copy(const char* string, size_t n)
+{
+	cvariant cv;
+	cv.type = cvariant_string;
+	char *copy = (char *) malloc(n + 1);
+	strncpy(copy, string, n);
+	// cv.string may or may not be NULL-terminated, so we add an extra '\0'
+	copy[n] = '\0';
+	cv.string = copy;
+	cv.to_free=1;
 	return cv;
 }
 
@@ -24,6 +43,7 @@ cvariant cvariant_from_int(int value)
 	cvariant cv;
 	cv.type=cvariant_int;
 	cv.int_value=value;
+	cv.to_free=0;
 	return cv;
 }
 
@@ -33,6 +53,7 @@ cvariant cvariant_from_float(double value)
 	cvariant cv;
 	cv.type=cvariant_float;
 	cv.float_value=value;
+	cv.to_free=0;
 	return cv;
 }
 
@@ -58,7 +79,7 @@ const char* cvariant_get_string(cvariant cv)
 	if(cv.type==cvariant_string)
 		return cv.string;
 	else
-		return 0;
+		return CVARIANT_EMPTY_STRING;
 }
 
 /*!
@@ -70,7 +91,7 @@ int cvariant_get_int(cvariant cv)
 	if(cv.type==cvariant_int)
 		return cv.int_value;
 	else
-		return -1;
+		return CVARIANT_EMPTY_INT;
 }
 
 /*!
@@ -82,5 +103,32 @@ double cvariant_get_float(cvariant cv)
 	if(cv.type==cvariant_float)
 		return cv.float_value;
 	else
-		return -1.0;
+		return CVARIANT_EMPTY_FLOAT;
 }
+
+//Comparaison
+/*!
+* Compare two cvariants. if a!=b, returns zero, otherwise, 
+* return a non-zero value.
+*/
+int cvariant_compare(cvariant a, cvariant b)
+{
+	if(a.type==b.type)
+	{
+		if(a.type==cvariant_int)
+			return a.int_value-b.int_value;
+		else if(a.type==cvariant_float)
+			return a.float_value-b.float_value;
+		else if(a.type==cvariant_string)
+			return strcmp(a.string, b.string);
+	}
+	else
+		return 0;
+}
+
+void cvariant_free(cvariant cv)
+{
+	if (cv.type == cvariant_string && cv.to_free)
+		free((char *) cv.string);
+}
+

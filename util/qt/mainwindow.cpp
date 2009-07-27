@@ -41,13 +41,7 @@ void MainWindow::fillModulesBox()
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; i < n; ++i)
-	{
-		/* we are only interested in modules that can be listed and that can actually store data */
-		//if (ppk_isWritable(modules[i].id)==PPK_TRUE)
-		//{
-			modulesBox->addItem(modules[i].display_name, QVariant(modules[i].id));
-		//}
-	}
+		modulesBox->addItem(modules[i].display_name, QVariant(modules[i].id));
 }
 
 void MainWindow::showInfoMessageUnderDevelopment()
@@ -314,6 +308,7 @@ void MainWindow::onDelButtonClicked()
 void MainWindow::onParamsTriggered()
 {
 	EditParams params;
+	params.setModule(m_moduleId);
 
 	params.exec();
 
@@ -563,8 +558,8 @@ void MainWindow::focusChanged(QWidget* q_old, QWidget* /*q_new*/)
 bool MainWindow::parseAndGetNetworkEntry(std::string str, ppk_entry& entry)
 {
 	//Parse the file's name
-	unsigned int pos_at=str.find_first_of("@");
-	unsigned int pos_sc=str.find(":",pos_at+1);
+	size_t pos_at=str.find_first_of("@");
+	size_t pos_sc=str.find(":",pos_at+1);
 
 	//if it has found the separators
 	if(pos_at!=std::string::npos && pos_sc!=std::string::npos)
@@ -594,7 +589,7 @@ bool MainWindow::parseAndGetNetworkEntry(std::string str, ppk_entry& entry)
 bool MainWindow::parseAndGetAppEntry(std::string str, ppk_entry& entry)
 {
 	//Parse the file's name
-	unsigned int pos_at=str.find_first_of("@");
+	size_t pos_at=str.find_first_of("@");
 
 	//if it has found the separators
 	if(pos_at!=std::string::npos)

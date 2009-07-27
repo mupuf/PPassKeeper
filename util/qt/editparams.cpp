@@ -299,18 +299,7 @@ void EditParams::saveParam()
 		cvariant cur_value=ppk_getParam(qPrintable(module_id), qPrintable(name));
 
 		//If there is an already existing key, replace it. or if we changed the default value
-		qDebug("name=%s, fieldValue=\"%s\", fieldDefaultValue=\"%s\" !\n", qPrintable(name), qPrintable(fieldValue.toString()), qPrintable(fieldDefaultValue.toString()));
-		if(cvariant_not_null(cur_value))
-		{
-			qDebug("	cvariant_not_null\n\n");
+		if(cvariant_not_null(cur_value) || fieldValue!=fieldDefaultValue)
 			ppk_saveParam(qPrintable(module_id), qPrintable(name), new_value);
-		}
-		else if(fieldValue!=fieldDefaultValue)
-		{
-			qDebug("	fieldValue!=fieldDefaultValue\n\n");
-			ppk_saveParam(qPrintable(module_id), qPrintable(name), new_value);
-		}
-
-
 	}
 }

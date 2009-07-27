@@ -2,6 +2,11 @@
 
 #include <ppasskeeper.h>
 
+#define STRING_TYPE "string"
+#define INT_TYPE "int"
+#define FLOAT_TYPE "float"
+#define TYPE_SEPARATOR ":"
+
 #ifdef USE_ELEKTRA
 
 //===----------------------------------------------------------------------===//
@@ -9,6 +14,11 @@
 //===----------------------------------------------------------------------===//
 
 #include <kdb.h>
+#include <sstream>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 class VParamImpl
 {
@@ -21,7 +31,7 @@ class VParamImpl
 			return keyName.str();
 		}
 
-	bool saveParam(const char* module_id, const char* key, const char* value)
+	bool saveParam(const char* module_id, const char* key, const cvariant value)
 		{
 			ckdb::KDB* handle;
 			if ((handle = ckdb::kdbOpen()) == NULL)
@@ -30,7 +40,29 @@ class VParamImpl
 				return false;
 			}
 
-			ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, value, KEY_END);
+			//Get the type of the value to store
+			std::string type, s_value, final_value;
+			switch(cvariant_get_type(value))
+			{
+			case cvariant_string:
+				type=STRING_TYPE;
+				s_value=cvariant_get_string(value);
+				break;
+
+			case cvariant_int:
+				type=INT_TYPE;
+				s_value=cvariant_get_int(value);
+				break;
+
+			case cvariant_float:
+				type=FLOAT_TYPE;
+				s_value=cvariant_get_float(value);
+				break;
+			}
+
+			final_value=type+TYPE_SEPARATOR+s_value;
+
+			ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, final_value.c_str(), KEY_END);
 
 			bool r;
 			if (k == NULL)
@@ -57,25 +89,40 @@ class VParamImpl
 			return r;
 		}
 
-	bool getParam(const char* module_id, const char* key, char* returnedString, size_t maxSize)
+	cvariant getParam(const char* module_id, const char* key)
 		{
+			cvariant result=cvariant_null();
+			char returnedString[1001];
+
+			//Get data from elektra
 			ckdb::KDB* handle;
 			if ((handle = ckdb::kdbOpen()) == NULL)
 			{
 				perror("kdbOpen");
-				return false;
+				return result;
 			}
 
-			int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, maxSize);
-
-			//avoid potential buffer overflows
-			returnedString[maxSize - 1] = '\0';
-
-			bool r = (size > 0);
+			int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, sizeof(returnedString)-1);
 
 			if (ckdb::kdbClose(handle) != 0)
 				perror("kdbClose");
-			return r;
+
+			//avoid potential buffer overflows
+			returnedString[sizeof(returnedString)] = '\0';
+			std::string value=returnedString;
+
+			if(value.substr(0, strlen(STRING_TYPE TYPE_SEPARATOR))==STRING_TYPE TYPE_SEPARATOR)
+			{
+				value=value.substr(strlen(STRING_TYPE TYPE_SEPARATOR));
+				result=cvariant_from_string_copy(value.c_str(), value.size());
+			}
+			else if(value.substr(0, strlen(INT_TYPE TYPE_SEPARATOR))==INT_TYPE TYPE_SEPARATOR)
+			{
+				value=value.substr(strlen(INT_TYPE TYPE_SEPARATOR));
+				result=cvariant_from_int(atoi(value.c_str()));
+			}
+
+			return result;
 		}
 
 	std::vector<std::string> listParams(const char* module_id)
@@ -181,11 +228,11 @@ class VParamImpl : public XMLSP::Parser
 			{
 				std::pair<std::string, std::string> pair(attributes["module"], attributes["key"]);
 
-				if(attributes["type"]=="string")
+				if(attributes["type"]==STRING_TYPE)
 					params[pair]=std::make_pair(cvariant_string, attributes["value"]);
-				else if(attributes["type"]=="int")
+				else if(attributes["type"]==INT_TYPE)
 					params[pair]=std::make_pair(cvariant_int, attributes["value"]);
-				else if(attributes["type"]=="float")
+				else if(attributes["type"]==FLOAT_TYPE)
 					params[pair]=std::make_pair(cvariant_float, attributes["value"]);
 			}
 			return true;
@@ -214,15 +261,15 @@ class VParamImpl : public XMLSP::Parser
 					switch(iter->second.first)
 					{
 					case cvariant_string:
-						type="string";
+						type=STRING_TYPE;
 						break;
 
 					case cvariant_int:
-						type="int";
+						type=INT_TYPE;
 						break;
 
 					case cvariant_float:
-						type="float";
+						type=FLOAT_TYPE;
 						break;
 					}
 

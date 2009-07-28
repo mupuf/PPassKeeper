@@ -4,8 +4,8 @@
 
 /**
  * \file ppasskeeper.h
- * \author MùPùF
- * \date 11-23-2008
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>free<dot>fr)
+ * \date 27-07-2009
  */
 
 #include <ppasskeeper/cvariant.h>

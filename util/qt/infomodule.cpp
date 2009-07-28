@@ -65,9 +65,17 @@ void InfoModule::setModule(const char* m_id)
 	m_ui->maxSizeBlobLabel->setText(m_ui->maxSizeBlobLabel->text().arg(QString::number(sizeMaxBlob)));
 
 	//Supported flags
-	QString rflags=listFlags(ppk_module_read_flags(m_id));
-	QString wflags=listFlags(ppk_module_write_flags(m_id));
-	QString lflags=listFlags(ppk_module_listing_flags(m_id));
+	unsigned int flags;
+
+	ppk_module_read_flags(m_id, &flags);
+	QString rflags=listFlags(flags);
+
+	ppk_module_write_flags(m_id, &flags);
+	QString wflags=listFlags(flags);
+
+	ppk_module_listing_flags(m_id, &flags);
+	QString lflags=listFlags(flags);
+
 	m_ui->readFlagsLabel->setText(m_ui->readFlagsLabel->text().arg(rflags));
 	m_ui->writeFlagsLabel->setText(m_ui->writeFlagsLabel->text().arg(rflags));
 	m_ui->listFlagsLabel->setText(m_ui->listFlagsLabel->text().arg(rflags));

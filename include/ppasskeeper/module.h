@@ -82,18 +82,21 @@ extern "C"
 
 	/*! \brief Returns supported reading flags for a given module
 	* \param module_id in: Module's ID.
+	* \param flags out: Supported flags.
 	* \return  Return available reading flags. See readFlag for more information about flags.*/
-	unsigned int ppk_module_read_flags(const char* module_id);
+	ppk_error ppk_module_read_flags(const char* module_id, unsigned int* flags);
 
 	/*! \brief Returns supported writing flags for a given module
 	* \param module_id in: Module's ID.
+	* \param flags out: Supported flags.
 	* \return  Return available read flags. See writeFlag for more information about flags.*/
-	unsigned int ppk_module_write_flags(const char* module_id);
+	ppk_error ppk_module_write_flags(const char* module_id, unsigned int* flags);
 
 	/*! \brief Returns supported password listing flags for a given module
 	* \param module_id in: Module's ID.
+	* \param flags out: Supported flags.
 	* \return  Return available listing flags. See listingFlag for more information about flags.*/
-	unsigned int ppk_module_listing_flags(const char* module_id);
+	ppk_error ppk_module_listing_flags(const char* module_id, unsigned int* flags);
 
 	/*! \brief How secure is the module ?
 	* \param module_id in: Module's ID.

@@ -182,55 +182,61 @@ extern "C"
 		}
 	}
 
-	unsigned int ppk_module_read_flags(const char* module_id)
+	ppk_error ppk_module_read_flags(const char* module_id, unsigned int* flags)
 	{
 		if(!isLocked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->readFlagsAvailable();
+			{
+				if(flags!=NULL)
+					*flags=mod->readFlagsAvailable();
+
+				return PPK_OK;
+			}
 			else
-				return ppk_rf_none;
+				return PPK_MODULE_UNAVAILABLE;
 		}
 		else
-		{
-			setError("You cannot access any information. The library is locked !");
-			return ppk_rf_none;
-		}
+			return PPK_LOCKED_NO_ACCESS;
 	}
 
-	unsigned int ppk_module_write_flags(const char* module_id)
+	ppk_error ppk_module_write_flags(const char* module_id, unsigned int* flags)
 	{
 		if(!isLocked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->writeFlagsAvailable();
+			{
+				if(flags!=NULL)
+					*flags=mod->writeFlagsAvailable();
+
+				return PPK_OK;
+			}
 			else
-				return ppk_wf_none;
+				return PPK_MODULE_UNAVAILABLE;
 		}
 		else
-		{
-			setError("You cannot access any information. The library is locked !");
-			return ppk_wf_none;
-		}
+			return PPK_LOCKED_NO_ACCESS;
 	}
 
-	unsigned int ppk_module_listing_flags(const char* module_id)
+	ppk_error ppk_module_listing_flags(const char* module_id, unsigned int* flags)
 	{
 		if(!isLocked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->listingFlagsAvailable();
+			{
+				if(flags!=NULL)
+					*flags=mod->listingFlagsAvailable();
+
+				return PPK_OK;
+			}
 			else
-				return ppk_lf_none;
+				return PPK_MODULE_UNAVAILABLE;
 		}
 		else
-		{
-			setError("You cannot access any information. The library is locked !");
-			return ppk_lf_none;
-		}
+			return PPK_LOCKED_NO_ACCESS;
 	}
 
 	ppk_boolean ppk_module_has_entry(const char* module_id, const ppk_entry entry, unsigned int flags)

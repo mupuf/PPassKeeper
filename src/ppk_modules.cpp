@@ -299,26 +299,26 @@ const char* PPK_Modules::autoModule()
 {
 	if(getenv("GNOME_KEYRING_PID")!=NULL && \
 	   getenv("GNOME_DESKTOP_SESSION_ID")!=NULL && \
-	   ppk_moduleAvailable("GKeyring")
+	   ppk_module_is_available("GKeyring")
 	  )
 	{
-			return "GKeyring";
+		return "GKeyring";
 	}
 	else if(getenv("KDE_FULL_SESSION")!=NULL && \
 	   strcmp(getenv("KDE_SESSION_VERSION"), "4")==0 && \
-	   ppk_moduleAvailable("KWallet4")
+	   ppk_module_is_available("KWallet4")
 	  )
 	{
-			return "KWallet4";
+		return "KWallet4";
 	}
-	else if(ppk_moduleAvailable("SaveToFile_Enc"))
+	else if(ppk_module_is_available("SaveToFile_Enc"))
 		return "SaveToFile_Enc";
-	else if(ppk_moduleAvailable("SaveToFile_PT"))
+	else if(ppk_module_is_available("SaveToFile_PT"))
 		return "SaveToFile_PT";
-	else if(ppk_getAvailableModulesCount()>1)
+	else if(ppk_module_count()>1)
 	{
 		ppk_module mods[2];
-		ppk_getAvailableModules(mods, sizeof(mods));
+		ppk_module_list(mods, sizeof(mods));
 		return mods[1].id;
 	}
 	else

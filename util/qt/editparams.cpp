@@ -125,7 +125,7 @@ QString EditParams::createNameString(ppk_proto_param* pparam)
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, ppk_proto_param* pparam)
 {
 	//Get Param's value
-	cvariant c_value=ppk_getParam("AskForPass_Qt", pparam->name);
+	cvariant c_value=ppk_module_get_param("AskForPass_Qt", pparam->name);
 
 	//Create the widget
 	switch(pparam->expected_type)
@@ -296,10 +296,10 @@ void EditParams::saveParam()
 		}
 
 		//Compare the current value to the currently stored
-		cvariant cur_value=ppk_getParam(qPrintable(module_id), qPrintable(name));
+		cvariant cur_value=ppk_module_get_param(qPrintable(module_id), qPrintable(name));
 
 		//If there is an already existing key, replace it. or if we changed the default value
 		if(cvariant_not_null(cur_value) || fieldValue!=fieldDefaultValue)
-			ppk_saveParam(qPrintable(module_id), qPrintable(name), new_value);
+			ppk_module_save_param(qPrintable(module_id), qPrintable(name), new_value);
 	}
 }

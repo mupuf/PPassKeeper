@@ -75,23 +75,23 @@ void PasswordListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
 
-	net_count = ppk_getEntryListCount(moduleId, ppk_network, ppk_lf_none);
-	app_count = ppk_getEntryListCount(moduleId, ppk_application, ppk_lf_none);
-	item_count = ppk_getEntryListCount(moduleId, ppk_item, ppk_lf_none);
+	net_count = ppk_module_get_entry_count(moduleId, ppk_network, ppk_lf_none);
+	app_count = ppk_module_get_entry_count(moduleId, ppk_application, ppk_lf_none);
+	item_count = ppk_module_get_entry_count(moduleId, ppk_item, ppk_lf_none);
 	if (net_count > 0)
 	{
 		net_ent = new ppk_entry[net_count];
-		net_count=ppk_getEntryList(moduleId, ppk_network, net_ent, net_count, ppk_lf_none);
+		net_count=ppk_module_get_entry_list(moduleId, ppk_network, net_ent, net_count, ppk_lf_none);
 	}
 	if (app_count > 0)
 	{
 		app_ent = new ppk_entry[app_count];
-		app_count=ppk_getEntryList(moduleId, ppk_application, app_ent, app_count, ppk_lf_none);
+		app_count=ppk_module_get_entry_list(moduleId, ppk_application, app_ent, app_count, ppk_lf_none);
 	}
 	if (item_count > 0)
 	{
 		item_ent = new ppk_entry[item_count];
-		item_count=ppk_getEntryList(moduleId, ppk_item, item_ent, item_count, ppk_lf_none);
+		item_count=ppk_module_get_entry_list(moduleId, ppk_item, item_ent, item_count, ppk_lf_none);
 	}
 
 	updateFilter();

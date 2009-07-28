@@ -149,10 +149,10 @@ void AddPWD::onOK()
 		}
 	}
 
-	bool res = ppk_setEntry(module_id.toUtf8().constData(), entry, ppk_createStringData(default_string.toAscii().data()), 0)==PPK_TRUE;
+	bool res = ppk_module_set_entry(module_id.toUtf8().constData(), entry, ppk_createStringData(default_string.toAscii().data()), 0)==PPK_TRUE;
 	if(!res)
 	{
-		QString error=QString("An error occured while adding the entry '%1'\n\nError : %2").arg(key.c_str()).arg(ppk_getLastError(module_id.toUtf8().constData()));
+		QString error=QString("An error occured while adding the entry '%1'\n\nError : %2").arg(key.c_str()).arg("TODO" /*ppk_getLastError(module_id.toUtf8().constData()*/);
 		QMessageBox::critical(this, tr("PPassKeeper : Error while adding ..."), error);
 	}
 	else

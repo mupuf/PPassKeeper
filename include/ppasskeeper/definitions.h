@@ -12,15 +12,17 @@ typedef enum
 
 ///Error codes
 typedef enum
-{           
+{
         PPK_OK = 0,
-        PPK_LOCKED_NO_ACCESS,
-        PPK_ALREADY_LOCKED,
-        PPK_CANNOT_LOCK,
-        PPK_CANNOT_UNLOCK,
-        PPK_NOT_LOCKED,
-        PPK_MODULE_UNAVAILABLE,
-        PPK_UNKNOWN_ERROR,
+	PPK_UNKNOWN_ERROR=1,
+	PPK_LOCKED_NO_ACCESS=100,
+        PPK_ALREADY_LOCKED=101,
+        PPK_CANNOT_LOCK=102,
+        PPK_CANNOT_UNLOCK=103,
+        PPK_NOT_LOCKED=104,
+        PPK_MODULE_UNAVAILABLE=200,
+	PPK_CANNOT_SAVE_PARAM=300,
+	PPK_CANNOT_GET_PARAM=301,
 } ppk_error;
 
 ///Security Level

@@ -41,7 +41,7 @@ void InfoModule::setModule(const char* m_id)
 	m_ui->moduleNameLabel->setText(m_id);
 
 	//Security
-	ppk_security_level slevel=ppk_securityLevel(m_id);
+	ppk_security_level slevel=ppk_module_security_level(m_id);
 	QString txt_security="Security Level : ";
 	if(slevel==ppk_sec_lowest)
 		txt_security+="Not secured at all !";
@@ -57,17 +57,17 @@ void InfoModule::setModule(const char* m_id)
 	m_ui->securityProgress->setValue(slevel);
 
 	//Limits
-	QString supportWriting=(ppk_isWritable(m_id)==PPK_TRUE?tr("yes"):tr("no"));
-	size_t sizeMaxString=ppk_maxDataSize(m_id, ppk_string);
-	size_t sizeMaxBlob=ppk_maxDataSize(m_id, ppk_blob);
+	QString supportWriting=(ppk_module_is_writable(m_id)==PPK_TRUE?tr("yes"):tr("no"));
+	size_t sizeMaxString=ppk_module_max_data_size(m_id, ppk_string);
+	size_t sizeMaxBlob=ppk_module_max_data_size(m_id, ppk_blob);
 	m_ui->supportWritingLabel->setText(m_ui->supportWritingLabel->text().arg(supportWriting));
 	m_ui->maxSizeStringLabel->setText(m_ui->maxSizeStringLabel->text().arg(QString::number(sizeMaxString)));
 	m_ui->maxSizeBlobLabel->setText(m_ui->maxSizeBlobLabel->text().arg(QString::number(sizeMaxBlob)));
 
 	//Supported flags
-	QString rflags=listFlags(ppk_readFlagsAvailable(m_id));
-	QString wflags=listFlags(ppk_writeFlagsAvailable(m_id));
-	QString lflags=listFlags(ppk_listingFlagsAvailable(m_id));
+	QString rflags=listFlags(ppk_module_read_flags(m_id));
+	QString wflags=listFlags(ppk_module_write_flags(m_id));
+	QString lflags=listFlags(ppk_module_listing_flags(m_id));
 	m_ui->readFlagsLabel->setText(m_ui->readFlagsLabel->text().arg(rflags));
 	m_ui->writeFlagsLabel->setText(m_ui->writeFlagsLabel->text().arg(rflags));
 	m_ui->listFlagsLabel->setText(m_ui->listFlagsLabel->text().arg(rflags));

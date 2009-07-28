@@ -64,7 +64,7 @@ void ParamsListModel::setupModelData(const char *moduleId)
 		p.help_text=p_list[i].help_text;
 
 		//Get the value of the parameter
-		cvariant value=ppk_getParam(moduleId, p.key_name.toAscii().data());
+		cvariant value=ppk_module_get_param(moduleId, p.key_name.toAscii().data());
 
 		//Depending on the expected type
 		if(p_list[i].expected_type==cvariant_string)

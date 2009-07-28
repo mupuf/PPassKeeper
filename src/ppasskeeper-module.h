@@ -3,7 +3,6 @@
 
 #include "settings.h"
 #include "ppasskeeper.h"
-#include <ppasskeeper/cvariant.h>
 #include <string>
 
 /**

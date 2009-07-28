@@ -1,4 +1,4 @@
-#include <ppasskeeper.h>
+#include "ppasskeeper.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 	parse_cmdline(argc, argv);
 	
 	//Unlock ppk if needed
-	if(ppk_isLocked()==PPK_TRUE)
+	if(ppk_is_locked()==PPK_TRUE)
 	{
 		if(ppk_password==NULL)
 		{
@@ -206,9 +206,9 @@ int main(int argc, char **argv)
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
-		int c = ppk_getAvailableModulesCount();
+		int c = ppk_module_count();
 		ppk_module modules[c];
-		ppk_getAvailableModules(modules, c);
+		ppk_module_list(modules, c);
 		int i;
 		for (i = 0; i < c; i++)
 			printf("%s: %s\n", modules[i].id, modules[i].display_name);
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
 			}
 		
 			ppk_data edata;
-			ppk_boolean res=ppk_getEntry(module_id, entry , &edata, ppk_rf_none);
+			ppk_boolean res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
 			if(res==PPK_TRUE)
 			{
 				if(file)
@@ -258,11 +258,11 @@ int main(int argc, char **argv)
 		}
 		else if ( module_id && listing_type > 0)
 		{
-			int len = ppk_getEntryListCount(module_id, listing_type, ppk_lf_none);
+			int len = ppk_module_get_entry_count(module_id, listing_type, ppk_lf_none);
 			ppk_entry* list=calloc(len, sizeof(ppk_entry));
 			if (list)
 			{
-     			int i, nb=ppk_getEntryList(module_id, listing_type, list, len, ppk_lf_none);
+     			int i, nb=ppk_module_get_entry_list(module_id, listing_type, list, len, ppk_lf_none);
      			printf("Listing %s gave %i results :\n", module_id, nb);
      			for(i=0; i< nb; i++)
      			{
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
 		else
 			die("Shouldn't happen ! Sky is falling on our heads !");
 
-		ppk_boolean res=ppk_setEntry(module_id, entry , edata, ppk_wf_none);
+		ppk_boolean res=ppk_module_set_entry(module_id, entry , edata, ppk_wf_none);
 		
 		if(res!=PPK_TRUE)
 			return 1;
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
 	{
 		if (!module_id || !key) usage();
 		
-		cvariant cv=ppk_getParam(module_id, key);
+		cvariant cv=ppk_module_get_param(module_id, key);
 		if(cvariant_get_type(cv)==cvariant_string)
 			printf(cvariant_get_string(cv));
 		else if(cvariant_get_type(cv)==cvariant_int)
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
 	{
 		if (!module_id || !key || !password) usage();
 		
-		if(ppk_saveParam(module_id, key, cvariant_from_string(password))==PPK_TRUE)
+		if(ppk_module_save_param(module_id, key, cvariant_from_string(password))==PPK_TRUE)
 			return 0;
 		else
 			return 1;
@@ -381,10 +381,10 @@ int main(int argc, char **argv)
 	else if (mode == 'D')
 	{
 		if (!module_id)
-			printf(ppk_getDefaultModule());
+			printf(ppk_module_get_default());
 		else
 		{
-			if(ppk_setDefaultModule(module_id)==PPK_TRUE)
+			if(ppk_module_set_default(module_id)==PPK_OK)
 				return 0;
 			else
 				return 1;

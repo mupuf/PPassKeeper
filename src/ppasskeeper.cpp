@@ -108,7 +108,7 @@ void setError(std::string error)
  *********************************************************************/
 extern "C"
 {	
-	ppk_boolean ppk_setPassword(const char* pwd)
+	ppk_boolean ppk_set_password(const char* pwd)
 	{
 		if(!isLocked())
 		{
@@ -130,7 +130,7 @@ extern "C"
 		return PPK_FALSE;
 	}
 
-	ppk_boolean ppk_isLocked()
+	ppk_boolean ppk_is_locked()
 	{
 		return isLocked()?PPK_TRUE:PPK_FALSE;
 	}
@@ -141,7 +141,7 @@ extern "C"
 		return !isLocked()?PPK_TRUE:PPK_FALSE;
 	}
 
-	unsigned int ppk_getAvailableModulesCount()
+	unsigned int ppk_module_count()
 	{
 		if(!isLocked())
 			return modules.size();
@@ -152,7 +152,7 @@ extern "C"
 		}
 	}
 
-	unsigned int ppk_getAvailableModules(ppk_module* pmodules, unsigned int nbModules)
+	size_t ppk_module_list(ppk_module* pmodules, unsigned int nbModules)
 	{
 		if(!isLocked())
 		{
@@ -165,7 +165,7 @@ extern "C"
 		}
 	}
 
-	ppk_boolean ppk_moduleAvailable(const char* module_id)
+	ppk_boolean ppk_module_is_available(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -182,7 +182,7 @@ extern "C"
 		}
 	}
 
-	unsigned int ppk_readFlagsAvailable(const char* module_id)
+	unsigned int ppk_module_read_flags(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -199,7 +199,7 @@ extern "C"
 		}
 	}
 
-	unsigned int ppk_writeFlagsAvailable(const char* module_id)
+	unsigned int ppk_module_write_flags(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -216,7 +216,7 @@ extern "C"
 		}
 	}
 
-	unsigned int ppk_listingFlagsAvailable(const char* module_id)
+	unsigned int ppk_module_listing_flags(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -233,7 +233,7 @@ extern "C"
 		}
 	}
 
-	ppk_boolean ppk_entryExists(const char* module_id, const ppk_entry entry, unsigned int flags)
+	ppk_boolean ppk_module_has_entry(const char* module_id, const ppk_entry entry, unsigned int flags)
 	{
 		if(!isLocked())
 		{
@@ -250,7 +250,7 @@ extern "C"
 			return PPK_FALSE;
 	}
 	
-	size_t ppk_maxDataSize(const char* module_id, ppk_data_type type)
+	size_t ppk_module_max_data_size(const char* module_id, ppk_data_type type)
 	{
 		if(!isLocked())
 		{
@@ -267,7 +267,7 @@ extern "C"
 		}
 	}
 	
-	unsigned int ppk_getEntryListCount(const char* module_id, size_t entry_types, unsigned int flags)
+	size_t ppk_module_get_entry_count(const char* module_id, int entry_types, unsigned int flags)
 	{
 		if(!isLocked())
 		{
@@ -282,11 +282,11 @@ extern "C"
 			setError("You cannot access any information. The library is locked !");
 			return 0;
 		}
-     }
-     
-     unsigned int ppk_getEntryList(const char* module_id, size_t entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags)
-     {
-     	if(!isLocked())
+	}
+
+	size_t ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags)
+	{
+		if(!isLocked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -299,9 +299,9 @@ extern "C"
 			setError("You cannot access any information. The library is locked !");
 			return 0;
 		}
-     }
+	}
 	
-	ppk_boolean ppk_getEntry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags)
+	ppk_boolean ppk_module_get_entry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags)
 	{
 		if(!isLocked())
 		{
@@ -318,7 +318,7 @@ extern "C"
 		}
 	}
 
-	ppk_boolean ppk_setEntry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags)
+	ppk_boolean ppk_module_set_entry(const char *module_id, const ppk_entry entry, const ppk_data edata, unsigned int flags)
 	{
 		if(!isLocked())
 		{
@@ -335,7 +335,7 @@ extern "C"
 		}
 	}
 	
-	ppk_boolean ppk_removeEntry(const char* module_id, const ppk_entry entry, unsigned int flags)
+	ppk_boolean ppk_module_remove_entry(const char* module_id, const ppk_entry entry, unsigned int flags)
 	{
 		if(!isLocked())
 		{
@@ -353,7 +353,7 @@ extern "C"
 	}
 
 	//Information about the module
-	ppk_boolean ppk_isWritable(const char* module_id)
+	ppk_boolean ppk_module_is_writable(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -370,7 +370,7 @@ extern "C"
 		}
 	}
 
-	ppk_security_level ppk_securityLevel(const char* module_id)
+	ppk_security_level ppk_module_security_level(const char* module_id)
 	{
 		if(!isLocked())
 		{
@@ -387,7 +387,7 @@ extern "C"
 		}
 	}
 	
-	ppk_boolean ppk_saveParam(const char* module_id, const char* key, const cvariant value)
+	ppk_boolean ppk_module_save_param(const char* module_id, const char* key, const cvariant value)
 	{
 		if(!isLocked())
 		{
@@ -410,7 +410,7 @@ extern "C"
 		}
 	}
 
-	cvariant ppk_getParam(const char* module_id, const char* key)
+	cvariant ppk_module_get_param(const char* module_id, const char* key)
 	{
 		if(!isLocked())
 		{
@@ -424,7 +424,7 @@ extern "C"
 		}
 	}
 	
-	unsigned int ppk_listParam(const char* module_id, const char*** list, size_t maxEntries)
+	size_t ppk_module_list_params(const char* module_id, const char*** list, size_t maxEntries)
 	{
 		if(!isLocked())
 		{
@@ -445,7 +445,7 @@ extern "C"
 		}
 	}
 	
-	ppk_boolean ppk_removeParam(const char* module_id, const char* key)
+	ppk_boolean ppk_module_remove_param(const char* module_id, const char* key)
 	{
 		if(!isLocked())
 		{
@@ -479,32 +479,32 @@ extern "C"
 		}
 	}
 
-	ppk_boolean ppk_setDefaultModule(const char* module_id)
+	ppk_error ppk_module_set_default(const char* module_id)
 	{
 		if(!isLocked())
 		{
-			if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_moduleAvailable(module_id)==PPK_TRUE)
-				return ppk_saveParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, cvariant_from_string(module_id));
+			if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_module_is_available(module_id)==PPK_TRUE)
+			{
+				ppk_boolean res=ppk_module_save_param(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE, cvariant_from_string(module_id));
+				return res==PPK_TRUE?PPK_OK:PPK_CANNOT_SAVE_PARAM;
+			}
 			else
-				return PPK_FALSE;
+				return PPK_MODULE_UNAVAILABLE;
 		}
 		else
-		{
-			setError("You cannot access any information. The library is locked !");
-			return PPK_FALSE;
-		}
+			return PPK_LOCKED_NO_ACCESS;
 	}
 	
-	const char* ppk_getDefaultModule()
+	const char* ppk_module_get_default()
 	{
 		//static char buf[PPK_PARAM_MAX];
-		cvariant cv=ppk_getParam(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE);
+		cvariant cv=ppk_module_get_param(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE);
 		if(cvariant_not_null(cv))
 		{
 			if(cvariant_get_type(cv)==cvariant_string)
 			{
 				const char* buf=cvariant_get_string(cv);
-				if(ppk_moduleAvailable(buf)==PPK_TRUE)
+				if(ppk_module_is_available(buf)==PPK_TRUE)
 					return buf;
 				else
 					return LIBPPK_DEFAULT_MODULE;
@@ -534,7 +534,7 @@ extern "C"
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	
-	ppk_boolean ppk_setCustomPromptMessage(const char* module_id, const char* customMessage)
+	ppk_boolean ppk_afp_set_custom_prompt_message(const char* module_id, const char* customMessage)
 	{
 		if(!isLocked())
 		{

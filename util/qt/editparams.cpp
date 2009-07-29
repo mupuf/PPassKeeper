@@ -36,7 +36,7 @@ void EditParams::setModule(QString module_name)
 	m_ui->lbl_textintro->setText("Edit settings of the \nmodule "+module_name);
 
 	//Show the available parameters
-	ppk_proto_param* list=ppk_availableParameters(qPrintable(module_name));
+	ppk_proto_param* list=ppk_module_available_parameters(qPrintable(module_name));
 	if(list)
 	{
 		int i=0;

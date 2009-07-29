@@ -54,7 +54,7 @@ void ParamsListModel::setupModelData(const char *moduleId)
 {
 	freeEntries();
 
-	ppk_proto_param* p_list=ppk_availableParameters(moduleId);
+	ppk_proto_param* p_list=ppk_module_available_parameters(moduleId);
 
 	for(int i=0;p_list!=NULL && p_list[i].expected_type!=cvariant_none;i++)
 	{

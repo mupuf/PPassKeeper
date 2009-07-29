@@ -115,12 +115,10 @@ extern "C"
 	* \return  Returns the maximum data size*/
 	size_t ppk_module_max_data_size(const char* module_id, ppk_data_type type);
 
-	/*! \brief Return the last error of the given module
-	* \param module_id in: Module's ID, if NULL, it will return the last libppk error.
-	* \return  Return the last error.*/
-	///const char* ppk_module_get_last_error(const char* module_id); //crap, use error codes instead
-
-	/* TODO: error codes */
+	/*! \brief Get a string from an error code explaining the error code
+	* \param error_code in: The error code you would like to be translated into human-readable text
+	* \return  Return the string corresponding to the error code (should not be freed)*/
+	const char *ppk_error_get_string(ppk_error error_code);
 
 	/*! \brief Get the number of entries stored into a module.
 	* \param module_id in: Module's ID.
@@ -221,8 +219,11 @@ extern "C"
 	* \param key in: The name of the parameter to delete.
 	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
 	ppk_boolean ppk_module_remove_param(const char* module_id, const char* key);
-	
-	ppk_proto_param* ppk_availableParameters(const char* module_id);
+
+	/*! \brief Retrieve the list of supported parameters's prototype (type, default value, help text) for a given module
+	* \param module_id in: Module's ID.
+	* \return  Return a list of ppk_proto_param terminated by an parameter with cvariant_none as expected_type.*/
+	ppk_proto_param* ppk_module_available_parameters(const char* module_id);
 
 #ifdef __cplusplus 
 }

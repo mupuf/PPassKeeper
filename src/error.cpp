@@ -3,6 +3,11 @@
 #include <libintl.h>
 
 /// Error messages matching ppk_error (see definitions.h)
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 const char *ppk_error_get_string(ppk_error error_code)
 {
 	const char *msg;
@@ -43,3 +48,7 @@ const char *ppk_error_get_string(ppk_error error_code)
 
 	return msg ? gettext(msg) : "<unknown error>";
 }
+
+#ifdef __cplusplus
+}
+#endif

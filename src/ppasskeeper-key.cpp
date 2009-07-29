@@ -4,8 +4,6 @@
 #include <sstream>
 #include <cstdlib>
 
-#define URL_PREFIX "ppasskeeper"
-
 static size_t digits(unsigned int number)
 {
 	int digits = 0, step = 1;

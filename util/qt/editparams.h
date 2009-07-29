@@ -7,7 +7,7 @@
 #include <QMap>
 #include <QGridLayout>
 #include <QTabWidget>
-#include "paramslistmodel.h"
+#include "ppasskeeper.h"
 
 #include "form_fields/qabstractformfield.h"
 
@@ -33,7 +33,6 @@ private slots:
 private:
 	Ui::EditParams *m_ui;
 	QTabWidget* catTab;
-	ParamsListModel model;
 	QString module_id;
 
 	QList<QAbstractFormField*> fields;

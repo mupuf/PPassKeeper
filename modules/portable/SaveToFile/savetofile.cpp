@@ -1,5 +1,5 @@
-#include "../../ppasskeeper-module.h"
-#include "../../tokenizer.h"
+#include "ppasskeeper.h"
+#include "tokenizer.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -29,7 +29,7 @@ std::string setting_dir();
 		return dir;
 	}
 #else
-	#include "../../ppasskeeper-dir.h"
+	#include "ppasskeeper-dir.h"
 	std::string setting_dir();
 #endif
 

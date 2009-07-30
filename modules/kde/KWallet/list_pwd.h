@@ -1,4 +1,4 @@
-#include "../../ppasskeeper-module.h"
+#include "ppasskeeper.h"
 #include <vector>
 #include <string>
 

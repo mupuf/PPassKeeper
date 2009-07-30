@@ -1,5 +1,5 @@
 #include <ppasskeeper.h>
-#include "../../tokenizer.h"
+#include "tokenizer.h"
 #include <string>
 
 

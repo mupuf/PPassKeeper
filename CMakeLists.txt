@@ -188,25 +188,25 @@ ENDIF(PPK_LIB)
 # SaveToFile plugins
 IF(PPK_STF)
   FILE(GLOB ppk_savetofile_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/portable/SaveToFile/*.[ch]"
-	"src/portable/SaveToFile/*.cpp"
-	"src/ppasskeeper-dir.cpp")
+	"modules/portable/SaveToFile/*.[ch]"
+	"modules/portable/SaveToFile/*.cpp"
+	"modules/ppasskeeper-dir.cpp")
   ADD_LIBRARY(ppk_savetofile_pt MODULE
 	${ppk_savetofile_SOURCES}
-	"src/portable/SaveToFile/plain_text/savetofile_plain_text.cpp")
+	"modules/portable/SaveToFile/plain_text/savetofile_plain_text.cpp")
   ADD_LIBRARY(ppk_savetofile_enc MODULE
 	${ppk_savetofile_SOURCES}
-	"src/portable/SaveToFile/encrypted/base64.c"
-	"src/portable/SaveToFile/encrypted/base64.h"
-	"src/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
+	"modules/portable/SaveToFile/encrypted/base64.c"
+	"modules/portable/SaveToFile/encrypted/base64.h"
+	"modules/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
   INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STF)
 
 # GTK plugin
 IF(PPK_AFP_GTK)
   FILE(GLOB ppk_afp_gtk_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/gtk/AskForPass/*.[ch]"
-	"src/gtk/AskForPass/*.cpp")
+	"modules/gtk/AskForPass/*.[ch]"
+	"modules/gtk/AskForPass/*.cpp")
    ADD_LIBRARY(ppk_afp_gtk MODULE ${ppk_afp_gtk_SOURCES})
    TARGET_LINK_LIBRARIES(ppk_afp_gtk ${gtk2_LIBRARIES})
    INSTALL(TARGETS ppk_afp_gtk DESTINATION lib/ppasskeeper)
@@ -215,8 +215,8 @@ ENDIF(PPK_AFP_GTK)
 # Qt plugin
 IF(PPK_AFP_QT)
   FILE(GLOB ppk_afp_qt_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/qt/AskForPass/*.[ch]"
-	"src/qt/AskForPass/*.cpp")
+	"modules/qt/AskForPass/*.[ch]"
+	"modules/qt/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_qt MODULE ${ppk_afp_qt_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
   INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
@@ -225,8 +225,8 @@ ENDIF(PPK_AFP_QT)
 #Win32 plugin
 IF(PPK_AFP_WIN32)
   FILE(GLOB ppk_afp_win32_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/windows/AskForPass/*.[ch]"
-	"src/windows/AskForPass/*.cpp")
+	"modules/windows/AskForPass/*.[ch]"
+	"modules/windows/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_win32 MODULE ${ppk_afp_win32_SOURCES})
   INSTALL(TARGETS ppk_afp_win32 DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_WIN32)
@@ -234,8 +234,8 @@ ENDIF(PPK_AFP_WIN32)
 # GNOME plugin
 IF(PPK_GNOMEKEYRING)
   FILE(GLOB ppk_gnomekeyring_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/gnome/GKeyring/*.[ch]"
-	"src/gnome/GKeyring/*.cpp")
+	"modules/gnome/GKeyring/*.[ch]"
+	"modules/gnome/GKeyring/*.cpp")
   ADD_LIBRARY(ppk_gnomekeyring MODULE ${ppk_gnomekeyring_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_gnomekeyring ${gkeyring_LIBRARIES})
   INSTALL(TARGETS ppk_gnomekeyring DESTINATION lib/ppasskeeper)
@@ -244,8 +244,8 @@ ENDIF(PPK_GNOMEKEYRING)
 # KDE4 plugin
 IF(PPK_KWALLET4)
   FILE(GLOB ppk_kwallet4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/kde/KWallet/*.[ch]"
-	"src/kde/KWallet/*.cpp")
+	"modules/kde/KWallet/*.[ch]"
+	"modules/kde/KWallet/*.cpp")
   ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kwallet4_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
   INSTALL(TARGETS ppk_kwallet DESTINATION lib/ppasskeeper)
@@ -254,8 +254,8 @@ ENDIF(PPK_KWALLET4)
 #Win32 module
 IF(PPK_STR)
   FILE(GLOB ppk_savetoregistry_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"src/windows/SaveToRegistry/*.[ch]"
-	"src/windows/SaveToRegistry/*.cpp")
+	"modules/windows/SaveToRegistry/*.[ch]"
+	"modules/windows/SaveToRegistry/*.cpp")
   ADD_LIBRARY(ppk_savetoregistry MODULE ${ppk_savetoregistry_SOURCES})
   INSTALL(TARGETS ppk_savetoregistry DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STR)

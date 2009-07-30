@@ -1,4 +1,4 @@
-#include "../../../ppasskeeper-module.h"
+#include "ppasskeeper.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -12,67 +12,29 @@
 	#include <errno.h>
 #endif
 
-#include "base64.h"
-
 //functions
 extern void setError(std::string error);
-extern std::string setting_dir();
+std::string dir();
 
-//Interface
+
 std::string shortName()
 {
-	return "ENC";
+	return "PT";
 }
 
 extern "C" const char* getModuleID()
 {
-	return "SaveToFile_Enc";
+	return "SaveToFile_PT";
 }
 
 extern "C" const char* getModuleName()
 {
-	return "Poorly-encrypted storage";
+	return "Plain-text storage";
 }
 
 extern "C" ppk_security_level securityLevel(const char* module_id)
 {
-	return ppk_sec_scrambled;
-}
-
-std::string encrypt(const std::string pwd)
-{
-	std::string res;
-	
-	int size=ap_base64encode_len(pwd.size());
-	char* buf=new char[size+1];
-	if(buf!=NULL)
-	{
-		int final_len=ap_base64encode_binary(buf, (const unsigned char*)pwd.data(), pwd.size());
-		res.assign(buf, final_len);
-		delete[] buf;
-	}
-	else
-		setError("Encrypt failed because the memory allocation failed !");
-	
-	return res;
-}
-
-std::string decrypt(const std::string pwd_enc)
-{
-	std::string res;
-	
-	int size=ap_base64decode_len(pwd_enc.data(), pwd_enc.size());
-	unsigned char* buf=new unsigned char[size+1];
-	if(buf!=NULL)
-	{
-		int final_len=ap_base64decode_binary(buf, (const char*)pwd_enc.data(), pwd_enc.size());
-		res.assign((char*)buf, final_len);
-		delete[] buf;
-	}
-	else
-		setError("Encrypt failed because the memory allocation failed !");
-	
-	return res;
+	return ppk_sec_lowest;
 }
 
 std::string& readFile(std::string filepath, unsigned int flags)
@@ -92,11 +54,7 @@ std::string& readFile(std::string filepath, unsigned int flags)
 
 		//close the file
 		inputfile.close();
-		
-		//Set the error to none
-		setError("");
 
-		pwd=decrypt(pwd);
 		return pwd;
 	}
 	else
@@ -111,9 +69,9 @@ bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 	//open the file
 	std::ofstream outputfile(filepath.c_str());
 	if(outputfile.is_open())
-	{
+	{		
 		//Save it
-		outputfile << encrypt(secret);
+		outputfile << secret;
 
 		//close the file
 		outputfile.close();
@@ -126,9 +84,6 @@ bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 				fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
 		#endif
 
-		//Set the error to none
-		setError("");
-
 		return true;
 	}
 	else
@@ -137,3 +92,4 @@ bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 		return false;
 	}
 }
+

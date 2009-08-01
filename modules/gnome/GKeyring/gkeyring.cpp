@@ -22,20 +22,18 @@ std::string* last_error()
 	return &last_err;
 }
 
-std::string encrypt(const ppk_data edata)
+std::string encrypt(const ppk_data* edata)
 {
 	std::string res;
 	
-	int size=ap_base64encode_len(edata.blob.size);
+	int size=ap_base64encode_len(edata->blob.size);
 	char* buf=new char[size+1];
 	if(buf!=NULL)
 	{
-		int final_len=ap_base64encode_binary(buf, (const unsigned char*)edata.blob.data, edata.blob.size);
+		int final_len=ap_base64encode_binary(buf, (const unsigned char*)edata->blob.data, edata->blob.size);
 		res.assign(buf, final_len);
 		delete[] buf;
 	}
-	else
-		setError("Encrypt failed because the memory allocation failed !");
 	
 	return res;
 }
@@ -53,8 +51,6 @@ std::string decrypt(const char* data)
 		res.assign((char*)buf, final_len);
 		delete[] buf;
 	}
-	else
-		setError("Encrypt failed because the memory allocation failed !");
 	
 	return res;
 }
@@ -217,98 +213,98 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	return count;
 }
 
-extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+#include <stdio.h>
+extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 {
-	ppk_boolean res;
+	ppk_error res;
+	ppk_data* tmp_data;
 	
-	if(entry.type == ppk_network)
-		res=getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, edata, flags);
-	else if(entry.type == ppk_application)
-		res=getApplicationPassword(entry.app.app_name, entry.app.username, edata, flags);
-	else if(entry.type == ppk_item)
-		res=getItem(entry.item, edata, flags);
+	if(entry->type == ppk_network)
+		res=getNetworkPassword(entry->net.host, entry->net.login, entry->net.port, entry->net.protocol, &tmp_data, flags);
+	else if(entry->type == ppk_application)
+		res=getApplicationPassword(entry->app.app_name, entry->app.username, &tmp_data, flags);
+	else if(entry->type == ppk_item)
+		res=getItem(entry->item, &tmp_data, flags);
 	else
-		res=PPK_FALSE;
+		res=PPK_UNKNOWN_ENTRY_TYPE;
 		
-	if(res!=PPK_FALSE)
+	if(res==PPK_OK)
 	{
-		if(strncmp(edata->string,STR_STRING,strlen(STR_STRING))==0)
+		if(strncmp(tmp_data->string, STR_STRING, strlen(STR_STRING))==0)
+			*edata=ppk_string_data_new(tmp_data->string+strlen(STR_STRING));
+		else if(strncmp(tmp_data->string, BLOB_STRING, strlen(STR_STRING))==0)
 		{
-			edata->type=ppk_string;
-			edata->string=edata->string+strlen(STR_STRING);
-		}
-		else if(strncmp(edata->string,BLOB_STRING,strlen(BLOB_STRING))==0)
-		{
-			edata->type=ppk_blob;
-			static std::string ret=decrypt(edata->string+strlen(BLOB_STRING));
-			edata->blob.data=ret.data();
-			edata->blob.size=ret.size();
+			std::string ret=decrypt(tmp_data->string+strlen(BLOB_STRING));
+			*edata=ppk_blob_data_new(ret.data(), ret.size());
 		}
 		else
 		{
-			setError("Unknown entry type");
-			return PPK_FALSE;
+			ppk_data_free(*edata);
+			return PPK_UNKNOWN_ENTRY_TYPE;
 		}
 	}
 	
 	return res;
 }
 
-extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
+extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 {
 	static std::string data;
-	ppk_data edata_mod=edata;
+	ppk_data* edata_mod;
 	
-	if(edata.type==ppk_blob)
+	if(edata->type==ppk_blob)
 	{
 		data=BLOB_STRING+encrypt(edata);
-		
-		edata_mod.type=ppk_blob;
-		edata_mod.blob.data=data.c_str();
-		edata_mod.blob.size=data.size();
+		edata_mod=ppk_blob_data_new(data.c_str(), data.size());
 	}
-	else if(edata.type==ppk_string)
+	else if(edata->type==ppk_string)
 	{
-		 data=STR_STRING+std::string(edata.string);
-		 
-		 edata_mod.type=ppk_string;
-		 edata_mod.string=data.c_str();
+		data=STR_STRING+std::string(edata->string);
+		edata_mod=ppk_string_data_new(data.c_str());
 	}
-	
-	if(entry.type == ppk_network)
-		return setNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, edata_mod, flags);
-	else if(entry.type == ppk_application)
-		return setApplicationPassword(entry.app.app_name, entry.app.username, edata_mod, flags);
-	else if(entry.type == ppk_item)
-		return setItem(entry.item, edata_mod, flags);
 	else
-		return PPK_FALSE;
+		return PPK_UNKNOWN_ENTRY_TYPE;
+
+	ppk_error res;
+	if(entry->type == ppk_network)
+		res=setNetworkPassword(entry->net.host, entry->net.login, entry->net.port, entry->net.protocol, edata_mod, flags);
+	else if(entry->type == ppk_application)
+		res=setApplicationPassword(entry->app.app_name, entry->app.username, edata_mod, flags);
+	else if(entry->type == ppk_item)
+		res=setItem(entry->item, edata_mod, flags);
+
+	ppk_data_free(edata_mod);
+
+	return res;
 }
 
-extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 {
-	if(entry.type == ppk_network)
-		return removeNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, flags);
-	else if(entry.type == ppk_application)
-		return removeApplicationPassword(entry.app.app_name, entry.app.username, flags);
-	else if(entry.type == ppk_item)
-		return removeItem(entry.item, flags);
+	if(entry->type == ppk_network)
+		return removeNetworkPassword(entry->net.host, entry->net.login, entry->net.port, entry->net.protocol, flags);
+	else if(entry->type == ppk_application)
+		return removeApplicationPassword(entry->app.app_name, entry->app.username, flags);
+	else if(entry->type == ppk_item)
+		return removeItem(entry->item, flags);
 	else
-		return PPK_FALSE;
+		return PPK_UNKNOWN_ENTRY_TYPE;
 }
 
-extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 {
-	ppk_data edata;
-	
-	if(entry.type == ppk_network)
-		return getNetworkPassword(entry.net.host, entry.net.login, entry.net.port, entry.net.protocol, &edata, flags);
-	else if(entry.type == ppk_application)
-		return getApplicationPassword(entry.app.app_name, entry.app.username, &edata, flags);
-	else if(entry.type == ppk_item)
-		return getItem(entry.item, &edata, flags);
+	ppk_data* edata;
+
+	ppk_error res;
+	if(entry->type == ppk_network)
+		res=getNetworkPassword(entry->net.host, entry->net.login, entry->net.port, entry->net.protocol, &edata, flags);
+	else if(entry->type == ppk_application)
+		res=getApplicationPassword(entry->app.app_name, entry->app.username, &edata, flags);
+	else if(entry->type == ppk_item)
+		res=getItem(entry->item, &edata, flags);
 	else
 		return PPK_FALSE;
+
+	return res==PPK_OK?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

@@ -69,7 +69,7 @@ extern "C"
 	* \param port in: The service's port (example : 21, 0 means the default port).
 	* \param port in: The protocol name (example : ftp, NULL means unspecified)
 	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry* ppk_network_entry_new(const char* host, const char* login, unsigned int port, const char* protocol);
+	ppk_entry* ppk_network_entry_new(const char* host, const char* login, unsigned short port, const char* protocol);
 	
 	/*! \brief Generate an application entry given a username and an application name.
 	* \param app_name in: The name of the application (example : PPassKeeper).
@@ -90,7 +90,7 @@ extern "C"
 	* \param port in: The service's port (example : 21, 0 means the default port).
 	* \param port in: The protocol name (example : ftp, NULL means unspecified)
 	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port, const char* protocol);
+	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned short port, const char* protocol);
 
 	/* \brief Generate an application entry given a username and an application name.WARNING : Destroying original variables username and/or app_name will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).
 	* \param app_name in: The name of the application (example : PPassKeeper).

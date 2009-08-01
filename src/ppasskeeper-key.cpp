@@ -52,11 +52,9 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	switch(entry->type)
 	{
 	case ppk_network:
-		std::cout << "before" << std::endl;
 		if (entry->net.protocol!=NULL && entry->net.protocol[0] != '\0')
 			key << entry->net.protocol << "://";
 		key << entry->net.login << '@' << entry->net.host << ':' << entry->net.port;
-		std::cout << "key = " << key.str() << std::endl;
 		break;
 	case ppk_application:
 		key << entry->app.username << '@' << entry->app.app_name;
@@ -73,7 +71,7 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	else
 	{
 		key_str.copy(returned_key, key_len);
-		returned_key[key_len]='\0';
+		returned_key[key_len-1]='\0';
 		return PPK_TRUE;
 	}
 }

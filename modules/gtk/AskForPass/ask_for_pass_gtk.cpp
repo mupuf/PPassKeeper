@@ -69,52 +69,50 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	return 0;
 }
 
-extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+#include "ppasskeeper/data.h"
+extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 {
-	static std::string pwd;
 	if((int)(flags&ppk_rf_silent)==0)
 	{
 		std::string text;
-		if(entry.type==ppk_network)
-			text=toString(entry.net.login)+"@"+toString(entry.net.host)+":"+toString(entry.net.port);
-		else if(entry.type==ppk_application)
-			text=toString(entry.app.username)+"@"+toString(entry.app.app_name);
-		else if(entry.type==ppk_item)
-			text="this key("+toString(entry.item)+")";
-		
+		if(entry->type==ppk_network)
+			text=toString(entry->net.login)+"@"+toString(entry->net.host)+":"+toString(entry->net.port);
+		else if(entry->type==ppk_application)
+			text=toString(entry->app.username)+"@"+toString(entry->app.app_name);
+		else if(entry->type==ppk_item)
+			text="this key("+toString(entry->item)+")";
+		else
+			return PPK_UNKNOWN_ENTRY_TYPE;
+
+		std::string pwd;
 		bool res=GTK_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
 
 		//if everything went fine
 		if(res)
 		{
-			setError("");
-			edata->type=ppk_string;
-			edata->string=pwd.c_str();
-			return PPK_TRUE;
+			*edata=ppk_string_data_new(pwd.c_str());
+			return PPK_OK;
 		}
 		else
-		{
-			setError("User pressed cancel");
-			return PPK_FALSE;
-		}
+			return PPK_USER_CANCELLED;
 	}
 	else
-		return PPK_FALSE;
+		return PPK_INCOMPATIBLE_FLAGS;
 }
 
-extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
+extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
+{
+	return PPK_UNSUPPORTED_METHOD;
+}
+
+extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
+{
+	return PPK_UNSUPPORTED_METHOD;
+}
+
+extern "C" ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 {
 	return PPK_FALSE;
-}
-
-extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
-{
-	return PPK_FALSE;
-}
-
-extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
-{
-	return PPK_TRUE;
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

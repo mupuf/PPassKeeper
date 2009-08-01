@@ -37,12 +37,8 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 	return ppk_sec_lowest;
 }
 
-std::string& readFile(std::string filepath, unsigned int flags)
+ppk_error readFile(std::string filepath, std::string& filecontent, unsigned int flags)
 {
-	static std::string pwd;
-	
-	pwd=std::string();
-
 	//open the file
 	std::ifstream inputfile(filepath.c_str());
 	if(inputfile.is_open())
@@ -50,21 +46,18 @@ std::string& readFile(std::string filepath, unsigned int flags)
 		//Read the password from the file
 		std::ostringstream pwd_s;
 		pwd_s << inputfile.rdbuf();
-		pwd=pwd_s.str();
+		filecontent=pwd_s.str();
 
 		//close the file
 		inputfile.close();
 
-		return pwd;
+		return PPK_OK;
 	}
 	else
-	{
-		setError("Could not open " + filepath + " for reading access.");
-		return pwd;
-	}
+		return PPK_ENTRY_UNAVAILABLE;
 }
 
-bool writeFile(std::string filepath, std::string secret, unsigned int flags)
+ppk_error writeFile(std::string filepath, std::string secret, unsigned int flags)
 {
 	//open the file
 	std::ofstream outputfile(filepath.c_str());
@@ -84,12 +77,9 @@ bool writeFile(std::string filepath, std::string secret, unsigned int flags)
 				fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
 		#endif
 
-		return true;
+		return PPK_OK;
 	}
 	else
-	{
-		setError("Could not open " + filepath + " for write access.");
-		return false;
-	}
+		return PPK_ENTRY_UNAVAILABLE;
 }
 

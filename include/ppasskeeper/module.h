@@ -115,11 +115,6 @@ extern "C"
 	* \return  Returns the maximum data size*/
 	size_t ppk_module_max_data_size(const char* module_id, ppk_data_type type);
 
-	/*! \brief Get a string from an error code explaining the error code
-	* \param error_code in: The error code you would like to be translated into human-readable text
-	* \return  Return the string corresponding to the error code (should not be freed)*/
-	const char *ppk_error_get_string(ppk_error error_code);
-
 	/*! \brief Get the number of entries stored into a module.
 	* \param module_id in: Module's ID.
 	* \param entry_types in: The entry types that should be taken into account.
@@ -151,7 +146,15 @@ extern "C"
 	* \param entry in: The entry to be listed.
 	* \param flags in: You can specify flags which will change the way the entry will be removed. See readFlags.
 	* \return  Returns PPK_TRUE if the entry exists, PPK_FALSE else.*/
-	ppk_boolean ppk_module_has_entry(const char* module_id, const ppk_entry entry, unsigned int flags);
+	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags);
+
+	/*! \brief Get an Entry from a module
+	* \param module_id in: Module's ID.
+	* \param entry in: The entry to get.
+	* \param edata out: Result will be stored here.
+	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
+	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.*/
+	ppk_error ppk_module_get_entry(const char *module_id, const ppk_entry* entry, ppk_data** edata, unsigned int flags);
 
 	/* \brief Get an Entry from a module
 	* \param module_id in: Module's ID.
@@ -159,15 +162,7 @@ extern "C"
 	* \param *edata out: Result will be stored here.
 	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
 	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.
-	ppk_data* ppk_module_get_entry(const char *module_id, const ppk_entry* entry, unsigned int flags);*/
-
-	/*! \brief Get an Entry from a module
-	* \param module_id in: Module's ID.
-	* \param entry in: The entry to get.
-	* \param *edata out: Result will be stored here.
-	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
-	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.*/
-	ppk_boolean ppk_module_get_entry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);
+	ppk_boolean ppk_module_get_entry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);*/
 
 	/*! \brief Set an Entry to a module
 	* \param module_id in: Module's ID.
@@ -175,15 +170,14 @@ extern "C"
 	* \param edata in: What should be stored.
 	* \param flags in: You can specify flags which will change the way the entry will be set. See writeFlag.
 	* \return  Returns PPK_TRUE if setEntry worked fine, PPK_FALSE else.*/
-	//ppk_boolean ppk_module_set_entry(const char *module_id, const ppk_entry entry, const ppk_data* edata, unsigned int flags);
-	ppk_boolean ppk_module_set_entry(const char *module_id, const ppk_entry entry, ppk_data edata, unsigned int flags);
+	ppk_error ppk_module_set_entry(const char *module_id, const ppk_entry* entry, const ppk_data* edata, unsigned int flags);
 
 	/*! \brief Remove an Entry from a module
 	* \param module_id in: Module's ID.
 	* \param entry in: The entry to be removed.
 	* \param flags in: You can specify flags which will change the way the entry will be removed. See writeFlags.
 	* \return  Returns PPK_TRUE if setEntry worked fine, PPK_FALSE else.*/
-	ppk_boolean ppk_module_remove_entry(const char* module_id, const ppk_entry entry, unsigned int flags);
+	ppk_error ppk_module_remove_entry(const char* module_id, const ppk_entry* entry, unsigned int flags);
 
 	/*! \brief Store a module parameter. This parameter can be retrieved using ppk_getParam.
 	* \param module_id in: Module's ID.

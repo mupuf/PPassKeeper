@@ -7,9 +7,20 @@
 
 #include "../error.h"
 
-void die(unsigned int error_num, const std::string error)
+extern "C" void die(unsigned int error_num, const char* error)
 {
-	std::cerr << "Fatal Error : " << error << std::endl;
+	if(error_num>0)
+	{
+		std::cerr << "Fatal Error : " << utst_msg[error_num];
+		if(error)
+			std::cerr << std::endl << "	Error was : '" << error << "'";
+	}
+	else if(error_num==0)
+		std::cerr << utst_msg[error_num];
+	else
+		std::cerr << "Unknown Error Code!";
+
+	std::cerr << std::endl;
 	exit(error_num);
 }
 
@@ -50,51 +61,73 @@ int main(int argc, char** argv)
 	
 	const char* module=argv[1];
 	
-	if(ppk_isLocked()==PPK_TRUE)
-		die(UTST_LIB_LOCKED, "The library is locked, please reset the password in order to let the test run !");
+	if(ppk_is_locked()==PPK_TRUE)
+		die(UTST_LIB_LOCKED);
 	
 	std::string file=readFile(argv[0]);
 	if(file!=std::string())
 	{
-		if(ppk_moduleAvailable(module)==PPK_FALSE)
-			die(UTST_INVALID_MODULE_NAME, "Invalid module name");
+		if(ppk_module_is_available(module)==PPK_FALSE)
+			die(UTST_INVALID_MODULE_NAME);
 		
-		unsigned int max_size=ppk_maxDataSize(module, ppk_blob);
+		size_t max_size=ppk_module_max_data_size(module, ppk_blob);
 		if(max_size==0)
-			die(UTST_NO_BLOB_SUPPORT, utst_msg[UTST_NO_BLOB_SUPPORT]);
+			die(UTST_NO_BLOB_SUPPORT);
 		else if(max_size<file.size())
 			file=file.substr(0, max_size);
+
+		ppk_entry* entry=ppk_item_entry_new("utstblob_write_blob");
+		ppk_data* data=ppk_blob_data_new(file.data(), file.size());
+
+		printf("Write: ");
+		ppk_error res=ppk_module_set_entry(module, entry, data, ppk_wf_none);
+		if(res!=PPK_OK)
+		{
+			printf("NOK\n");
+			die(UTST_WRITING_ERROR, ppk_error_get_string(res));
+		}
+		else
+			printf("OK\n");
+
+		ppk_data_free(data);
+
+		printf("Read: ");
+		ppk_data* edata;
+		res=ppk_module_get_entry(module, entry, &edata, ppk_rf_none);
+		if(res!=PPK_OK)
+		{
+			printf("NOK\n");
+			die(UTST_READING_ERROR, ppk_error_get_string(res));
+		}
+		else
+			printf("OK\n");
+
+		ppk_entry_free(entry);
 			
-		if(ppk_setEntry(module, ppk_createItemEntry("utstblob_write_blob"), ppk_createBlobData(file.data(), file.size()), ppk_wf_none)==PPK_FALSE)
-			die(UTST_WRITING_ERROR, "setEntry failed :\n" + std::string(ppk_getLastError(module)));
-			
-		ppk_data edata;
-		if(ppk_getEntry(module, ppk_createItemEntry("utstblob_write_blob"), &edata, ppk_wf_none)==PPK_FALSE)
-			die(UTST_READING_ERROR, "getEntry failed :\n" + std::string(ppk_getLastError(module)));
-			
-		if(edata.type==ppk_blob)
+		if(edata->type==ppk_blob)
 		{
 			std::string res;
-			res.assign((const char*)edata.blob.data, edata.blob.size);
+			res.assign((const char*)edata->blob.data, edata->blob.size);
+
+			ppk_data_free(data);
 			
 			if(res==file)
-			{
-				std::cout << "BRAVO : Valid Module !" << std::endl;
-				return UTST_OK;
-			}
+				die(UTST_OK);
 			else
 			{
 				std::cout << "Before : size = " << file.size() << " and data = " << (const char*)file.data() << std::endl;
-				std::cout << "After  : size = " << edata.blob.size << " and data = " << (const char*)edata.blob.data << std::endl;
-				die(UTST_INVALID_DATA, "Invalid return data !");
+				std::cout << "After  : size = " << edata->blob.size << " and data = " << (const char*)edata->blob.data << std::endl;
+				die(UTST_INVALID_DATA);
 			}
 		}
 		else
-			die(UTST_INVALID_ENTRY_TYPE, "Wrong entry type, should have been 'ppk_blob'");
-		
+		{
+			ppk_data_free(data);
+			die(UTST_INVALID_ENTRY_TYPE);
+		}
 	}
 	else
-		die(UTST_CANNOT_OPEN_FILE, "Cannot read file '" + std::string(argv[0]) + "'");
+		die(UTST_CANNOT_OPEN_FILE, ("Cannot read file '" + std::string(argv[0]) + "'").c_str());
 	
 	return 0;
 }

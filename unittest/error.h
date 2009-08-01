@@ -19,3 +19,12 @@ const char* utst_msg[] = {
 	"The retrieved data is invalid", //UTST_INVALID_DATA
 	"The module doesn't support blobs" //UTST_NO_BLOB_SUPPORT
 };
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	void die(unsigned int error_num, const char* error=NULL);
+#ifdef __cplusplus
+}
+#endif

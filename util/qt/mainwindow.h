@@ -57,8 +57,8 @@ private:
 	void showInfoMessageUnderDevelopment();
 	bool unlockPPK(bool force=false);
 
-	ppk_data getSelectedEntryData(bool& ok);
-	bool updateSelectedPassword(ppk_data data);
+	ppk_data* getSelectedEntryData(bool& ok);
+	bool updateSelectedPassword(ppk_data* data);
 
 protected:
 	void timerEvent(QTimerEvent *event);

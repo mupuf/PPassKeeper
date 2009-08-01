@@ -11,8 +11,8 @@
 
 //local functions
 std::string shortName();
-std::string& readFile(std::string filename, unsigned int flags);
-bool writeFile(std::string filename, std::string secret, unsigned int flags);
+ppk_error readFile(std::string filename, std::string& filecontent, unsigned int flags);
+ppk_error writeFile(std::string filename, std::string secret, unsigned int flags);
 
 //Personal portable functions
 std::string setting_dir();
@@ -60,15 +60,12 @@ std::string generateItemPath(std::string key)
 	return setting_dir()+toString("/")+shortName()+"_ITM_"+key;
 }
 
-bool deletePassword(std::string path, unsigned int flags)
+ppk_error deletePassword(std::string path, unsigned int flags)
 {
 	if(remove(path.c_str())==0)
-		return true;
+		return PPK_OK;
 	else
-	{
-		setError("The file '"+path+"' cannot removed. Check your permissions !");
-		return false;
-	}
+		return PPK_FILE_CANNOT_BE_ACCESSED;
 }
 
 ppk_boolean fileExists(std::string filepath)
@@ -117,25 +114,25 @@ extern "C"
 		return ppk_lf_none|ppk_lf_silent;
 	}
 
-	std::string getKey(const ppk_entry entry)
+	std::string getKey(const ppk_entry* entry)
 	{
 		std::string key;
 		
-		switch(entry.type)
+		switch(entry->type)
 		{
 			case ppk_network:
 			{
-				key=generateNetworkPath(entry.net.host, entry.net.port, entry.net.login);
+				key=generateNetworkPath(entry->net.host, entry->net.port, entry->net.login);
 				break;
 			}
 			case ppk_application:
 			{
-				key=generateApplicationPath(entry.app.app_name, entry.app.username);
+				key=generateApplicationPath(entry->app.app_name, entry->app.username);
 				break;
 			}
 			case ppk_item:
 			{
-				key=generateItemPath(entry.item);
+				key=generateItemPath(entry->item);
 				break;
 			}
 		}
@@ -145,7 +142,7 @@ extern "C"
 
 	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 	{
-		ListPwd pwdl;		
+		ListPwd pwdl;	
 		return pwdl.getEntryListCount(setting_dir().c_str(), entry_types, flags);
 	}
 
@@ -156,65 +153,51 @@ extern "C"
 	}
 
 	//Get and Set passwords
-	ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+	#include "ppasskeeper/data.h"
+	ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 	{
-		std::string pwd=readFile(getKey(entry), flags);
-		if(pwd!=std::string())
+		std::string pwd;
+		ppk_error res_read=readFile(getKey(entry), pwd, flags);
+		if(res_read==PPK_OK)
 		{
 			if(pwd.substr(0,strlen(STR_STRING))==STR_STRING)
-			{
-				edata->type=ppk_string;
-				edata->string=pwd.c_str()+strlen(STR_STRING);
-			}
+				*edata=ppk_string_data_new(pwd.c_str()+strlen(STR_STRING));
 			else if(pwd.substr(0,strlen(BLOB_STRING))==BLOB_STRING)
-			{
-				edata->type=ppk_blob;
-				edata->blob.data=pwd.data()+strlen(BLOB_STRING);
-				edata->blob.size=pwd.size()-strlen(BLOB_STRING);
-			}
+				*edata=ppk_blob_data_new(pwd.data()+strlen(BLOB_STRING), pwd.size()-strlen(BLOB_STRING));
 			else
-			{
-				setError("Unknown entry type");
-				return PPK_FALSE;
-			}
+				return PPK_UNKNOWN_ENTRY_TYPE;
 			
-			return PPK_TRUE;
+			return PPK_OK;
 		}
 		else
-		{
-			setError("The entry doesn't exist");
-			return PPK_FALSE;
-		}
+			return res_read;
 	}
 
-	ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
+	ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 	{
 		std::string data;
-		if (edata.type==ppk_blob)
+		if (edata->type==ppk_blob)
 		{
-			data.assign((const char *) edata.blob.data, edata.blob.size);
+			data.assign((const char *) edata->blob.data, edata->blob.size);
 			data=BLOB_STRING+data;
 		}
-		else if(edata.type==ppk_string)
+		else if(edata->type==ppk_string)
 		{
-			data.assign(edata.string);
+			data.assign(edata->string);
 			data=STR_STRING+data;
 		}
 		else
-		{
-			setError("Unknown entry type");
-			return PPK_FALSE;
-		}
+			return PPK_UNKNOWN_ENTRY_TYPE;
 		
-		return writeFile(getKey(entry).c_str(), data, flags)?PPK_TRUE:PPK_FALSE;
+		return writeFile(getKey(entry).c_str(), data, flags);
 	}
 	
-	ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
+	ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 	{
-		return deletePassword(getKey(entry), flags)?PPK_TRUE:PPK_FALSE;
+		return deletePassword(getKey(entry), flags);
 	}
 
-	ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
+	ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 	{
 		return fileExists(getKey(entry));
 	}

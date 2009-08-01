@@ -39,47 +39,41 @@ extern "C" ppk_security_level securityLevel(const char* module_id)
 	return ppk_sec_scrambled;
 }
 
-std::string encrypt(const std::string pwd)
+ppk_error encrypt(std::string& pwd)
 {
-	std::string res;
-	
 	int size=ap_base64encode_len(pwd.size());
 	char* buf=new char[size+1];
 	if(buf!=NULL)
 	{
 		int final_len=ap_base64encode_binary(buf, (const unsigned char*)pwd.data(), pwd.size());
-		res.assign(buf, final_len);
+		pwd.assign(buf, final_len);
 		delete[] buf;
+
+		return PPK_OK;
 	}
 	else
-		setError("Encrypt failed because the memory allocation failed !");
-	
-	return res;
+		return PPK_INSUFFICIENT_MEMORY;
 }
 
-std::string decrypt(const std::string pwd_enc)
+ppk_error decrypt(std::string& pwd_enc)
 {
-	std::string res;
-	
 	int size=ap_base64decode_len(pwd_enc.data(), pwd_enc.size());
 	unsigned char* buf=new unsigned char[size+1];
 	if(buf!=NULL)
 	{
 		int final_len=ap_base64decode_binary(buf, (const char*)pwd_enc.data(), pwd_enc.size());
-		res.assign((char*)buf, final_len);
+		pwd_enc.assign((char*)buf, final_len);
 		delete[] buf;
+
+		return PPK_OK;
 	}
 	else
-		setError("Encrypt failed because the memory allocation failed !");
-	
-	return res;
+		return PPK_INSUFFICIENT_MEMORY;
 }
 
-std::string& readFile(std::string filepath, unsigned int flags)
+ppk_error readFile(std::string filepath, std::string& filecontent, unsigned int flags)
 {
-	static std::string pwd;
-	
-	pwd=std::string();
+	filecontent=std::string();
 
 	//open the file
 	std::ifstream inputfile(filepath.c_str());
@@ -88,52 +82,45 @@ std::string& readFile(std::string filepath, unsigned int flags)
 		//Read the password from the file
 		std::ostringstream pwd_s;
 		pwd_s << inputfile.rdbuf();
-		pwd=pwd_s.str();
+		filecontent=pwd_s.str();
 
 		//close the file
 		inputfile.close();
-		
-		//Set the error to none
-		setError("");
 
-		pwd=decrypt(pwd);
-		return pwd;
+		return decrypt(filecontent);
 	}
 	else
-	{
-		setError("Could not open " + filepath + " for reading access.");
-		return pwd;
-	}
+		return PPK_ENTRY_UNAVAILABLE;
 }
 
-bool writeFile(std::string filepath, std::string secret, unsigned int flags)
+ppk_error writeFile(std::string filepath, std::string secret, unsigned int flags)
 {
 	//open the file
 	std::ofstream outputfile(filepath.c_str());
 	if(outputfile.is_open())
 	{
 		//Save it
-		outputfile << encrypt(secret);
+		ppk_error enc_res=encrypt(secret);
+		if(enc_res==PPK_OK)
+		{
+			outputfile << secret;
 
-		//close the file
-		outputfile.close();
+			//close the file
+			outputfile.close();
 
-		//Allow the file just to be read and written by its owner
-		#ifdef HAVE_CHMOD
-			int rc;
-			rc = chmod(filepath.c_str(), 0600);
-			if (rc == -1)
-				fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
-		#endif
+			//Allow the file just to be read and written by its owner
+			#ifdef HAVE_CHMOD
+				int rc;
+				rc = chmod(filepath.c_str(), 0600);
+				if (rc == -1)
+					fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
+			#endif
 
-		//Set the error to none
-		setError("");
-
-		return true;
+			return PPK_OK;
+		}
+		else
+			return enc_res;
 	}
 	else
-	{
-		setError("Could not open " + filepath + " for write access.");
-		return false;
-	}
+		return PPK_FILE_CANNOT_BE_ACCESSED;
 }

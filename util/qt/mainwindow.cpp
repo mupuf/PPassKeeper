@@ -134,30 +134,43 @@ void MainWindow::onShowButtonToggled(bool b)
 	else showButton->setText(tr("Show value"));
 }
 
-bool MainWindow::updateSelectedPassword(ppk_data data)
+bool MainWindow::updateSelectedPassword(ppk_data* data)
 {
-	bool res=false;
+	ppk_error res;
+	ppk_entry* entry;
+
 	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 	if (cur_type == ppk_application)
 	{
-		res = ppk_module_set_entry(m_moduleId.toUtf8().constData(),
-				ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()),
-				data, 0)==PPK_TRUE;
+		entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+		res = ppk_module_set_entry(qPrintable(m_moduleId), entry, data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
-		res = ppk_module_set_entry(m_moduleId.toUtf8().constData(),
-				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()),
-				data, 0)==PPK_TRUE;
+		entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+		res = ppk_module_set_entry(qPrintable(m_moduleId), entry, data, 0);
 	}
 	else if (cur_type == ppk_item)
 	{
-		res = ppk_module_set_entry(m_moduleId.toUtf8().constData(),
-				ppk_createItemEntry(cur_item.key.toUtf8().constData()),
-				data, 0)==PPK_TRUE;
+		entry=ppk_item_entry_new(qPrintable(cur_item.key));
+		res = ppk_module_set_entry(qPrintable(m_moduleId), entry, data, 0);
+	}
+	else
+		return false;
+
+	//Show errors
+	if(res!=PPK_OK)
+	{
+		char key[101];
+		ppk_getKey(entry, key, sizeof(key)-1);
+		QString error=QString("An error occured while updating the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+		QMessageBox::critical(this, tr("PPassKeeper : Error while updating the password"), error);
 	}
 
-	return res;
+	//Free the entry
+	ppk_entry_free(entry);
+
+	return res==PPK_OK;
 }
 
 bool MainWindow::unlockPPK(bool force)
@@ -229,33 +242,49 @@ void MainWindow::onAddButtonClicked()
 		listCurrentModule();
 }
 
-ppk_data MainWindow::getSelectedEntryData(bool& ok)
+ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 {
-	ppk_data data;
-	ppk_boolean res=PPK_FALSE;
+	ppk_data* data;
+	ppk_error res;;
+	ppk_entry* entry;
+
+	ok=false;
 
 	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
-
 	if (cur_type == ppk_application)
 	{
-		res = ppk_module_get_entry(m_moduleId.toUtf8().constData(),
-				ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()),
-				&data, 0);
+		entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+		res = ppk_module_get_entry(qPrintable(m_moduleId), entry, &data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
-		res = ppk_module_get_entry(m_moduleId.toUtf8().constData(),
-				ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()),
-				&data, 0);
+		entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+		res = ppk_module_get_entry(qPrintable(m_moduleId), entry, &data, 0);
 	}
 	else if (cur_type == ppk_item)
 	{
-		res = ppk_module_get_entry(m_moduleId.toUtf8().constData(),
-				ppk_createItemEntry(cur_item.key.toUtf8().constData()),
-				&data, 0);
+		entry=ppk_item_entry_new(qPrintable(cur_item.key));
+		res = ppk_module_get_entry(qPrintable(m_moduleId), entry, &data, 0);
+	}
+	else
+		return data;
+
+	//Show errors
+	if(res!=PPK_OK)
+	{
+		char key[101];
+		if(ppk_getKey(entry, key, sizeof(key)-1)==PPK_FALSE)
+			strncpy(key, "<invalid_entry>", sizeof(key)-1);
+
+		QString error=QString("An error occured while accessing the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+		QMessageBox::critical(this, tr("PPassKeeper : Error while accessing the entry"), error);
 	}
 
-	ok=(res==PPK_TRUE);
+	//Free the entry
+	ppk_entry_free(entry);
+
+	ok=(res==PPK_OK);
+
 	return data;
 }
 
@@ -278,27 +307,36 @@ void MainWindow::onDelButtonClicked()
 	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(m_moduleId);
 	if(QMessageBox::question(this, title, text, QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 	{
-		ppk_boolean res=PPK_FALSE;
+		ppk_error res;
+		ppk_entry* entry;
+
 		if (cur_type == ppk_application)
 		{
-			res = ppk_module_remove_entry(m_moduleId.toUtf8().constData(),
-					ppk_createAppEntry(cur_app.app_name.toUtf8().constData(), cur_app.username.toUtf8().constData()), 0);
+			entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+			res = ppk_module_remove_entry(qPrintable(m_moduleId), entry, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
-			res = ppk_module_remove_entry(m_moduleId.toUtf8().constData(),
-					ppk_createNetworkEntry(cur_net.host.toUtf8().constData(), cur_net.login.toUtf8().constData(), cur_net.port, cur_net.protocol.toUtf8().constData()), 0);
+			entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+			res = ppk_module_remove_entry(qPrintable(m_moduleId), entry, 0);
 		}
 		else if (cur_type == ppk_item)
 		{
-			res = ppk_module_remove_entry(m_moduleId.toUtf8().constData(),
-					ppk_createItemEntry(cur_item.key.toUtf8().constData()), 0);
+			entry=ppk_item_entry_new(qPrintable(cur_item.key));
+			res = ppk_module_remove_entry(qPrintable(m_moduleId), entry, 0);
+		}
+		else
+		{
+			QMessageBox::critical(this, "PPassKeeper : Error while deleting ...", "The current type of the selected password is unknown.");
+			return;
 		}
 
-		if(!res)
+		if(res!=PPK_OK)
 		{
-			error="TODO"; //ppk_getLastError(m_moduleId.toUtf8().constData());
-			QMessageBox::critical(this, "PPassKeeper : Error while adding ...", error);
+			char key[101];
+			ppk_getKey(entry, key, sizeof(key)-1);
+			QString error=QString("An error occured while deleting the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+			QMessageBox::critical(this, "PPassKeeper : Error while deleting ...", error);
 		}
 		else
 			listCurrentModule();
@@ -345,14 +383,14 @@ void MainWindow::setPasswordVisible(bool b)
 		}
 
 		bool ok=false;
-		ppk_data data=getSelectedEntryData(ok);
+		ppk_data* data=getSelectedEntryData(ok);
 		if (ok)
 		{
-			if(data.type==ppk_string)
+			if(data->type==ppk_string)
 			{
-				passwordEdit->setPlainText(QString::fromUtf8(data.string));
+				passwordEdit->setPlainText(QString::fromUtf8(data->string));
 				passwordEdit->setReadOnly(false);
-				tmp_sensitive_data=QString::fromUtf8(data.string);
+				tmp_sensitive_data=QString::fromUtf8(data->string);
 
 				timerValue = 0;
 				passwordTimer.start(1000, this);
@@ -364,6 +402,8 @@ void MainWindow::setPasswordVisible(bool b)
 				passwordEdit->setReadOnly(true);
 				tmp_sensitive_data=blob_str;
 			}
+
+			ppk_data_free(data);
 		}
 		else
 		{
@@ -442,7 +482,7 @@ void MainWindow::onNoItemSelected()
 void MainWindow::saveValueToFile()
 {
 	bool ok=false;
-	ppk_data data=getSelectedEntryData(ok);
+	ppk_data* data=getSelectedEntryData(ok);
 	if (ok)
 	{
 		QString filepath=QFileDialog::getSaveFileName(this, tr("Save Value"), "", tr("All (*.*)"));
@@ -453,15 +493,17 @@ void MainWindow::saveValueToFile()
 		file.open(QIODevice::WriteOnly);
 		if(file.isWritable())
 		{
-			if(data.type==ppk_string)
-				file.write(data.string);
-			else if(data.type==ppk_blob)
-				file.write((const char*)data.blob.data, data.blob.size);
+			if(data->type==ppk_string)
+				file.write(data->string);
+			else if(data->type==ppk_blob)
+				file.write((const char*)data->blob.data, data->blob.size);
 			else
 				QMessageBox::critical(this, tr("An error occured while reading the password"), tr("Reading error : Unknown data type."));
 		}
 		else
 			QMessageBox::critical(this, tr("Writing Error : The file is not writable"), tr("Writing error : The file is not writable.\n\nCheck your file permission or try another one."));
+
+		ppk_data_free(data);
 	}
 	else
 		QMessageBox::critical(this, tr("An error occured while reading the password"), tr("An error occured while reading the password !\n\nThe error is : TODO\n")/*+ppk_getLastError(m_moduleId.toUtf8().constData())*/);
@@ -474,16 +516,24 @@ void MainWindow::setBlobFromFile()
 		return;
 
 	QFile file(filepath);
-	if(file.size()<=ppk_module_max_data_size(this->m_moduleId.toAscii().data(), ppk_blob))
+	if(file.size()<=ppk_module_max_data_size(qPrintable(m_moduleId), ppk_blob))
 	{
 		file.open(QIODevice::ReadOnly);
 		if(file.isReadable())
 		{
 			QByteArray fdata=file.readAll();
-			if(updateSelectedPassword(ppk_createBlobData(fdata.data(), fdata.size())))
-				QMessageBox::information(this, tr("Success : The blob has been set correctly"), tr("The blob has been set correctly."));
+			ppk_data* data=ppk_blob_data_new(fdata.data(), fdata.size());
+			if(data)
+			{
+				if(updateSelectedPassword(data))
+					QMessageBox::information(this, tr("Success : The blob has been set correctly"), tr("The blob has been set correctly."));
+				else
+					QMessageBox::critical(this, tr("PPassKeeper Error : The entry cannot be set"), tr("PPassKeeper Error : The entry cannot be set.\n\nThe error is : TODO\n")/*+ppk_getLastError(m_moduleId.toUtf8().constData())*/);
+
+				ppk_data_free(data);
+			}
 			else
-				QMessageBox::critical(this, tr("PPassKeeper Error : The entry cannot be set"), tr("PPassKeeper Error : The entry cannot be set.\n\nThe error is : TODO\n")/*+ppk_getLastError(m_moduleId.toUtf8().constData())*/);
+				QMessageBox::critical(this, tr("Error : Could not create the blob"), tr("The blob cannot be created."));
 		}
 		else
 			QMessageBox::critical(this, tr("Error : The file is not readable"), tr("Error : The file is not readable.\n\nCheck your file permission."));
@@ -549,8 +599,15 @@ void MainWindow::focusChanged(QWidget* q_old, QWidget* /*q_new*/)
 	//If focus was on passwordEdit and passwordEdit's content has changed and the password was currently edited, save it
 	if (passwordTimer.isActive() && q_old==passwordEdit && passwordEdit->toPlainText()!=tmp_sensitive_data)
 	{
-		if(QMessageBox::question(this, tr("Would you like to save ..."), tr("You have modified the data stored.\n\nWould you like to save your modifications ?"), QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
-			updateSelectedPassword(ppk_createStringData(passwordEdit->toPlainText().toAscii().data()));
+		if(QMessageBox::question(this, tr("Would you like to save ..."),
+							tr("You have modified the data stored.\n\nWould you like to save your modifications ?"),
+							QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
+		{
+			ppk_data* data=ppk_string_data_new(qPrintable(passwordEdit->toPlainText()));
+			updateSelectedPassword(data);
+			ppk_data_free(data);
+		}
+
 		setPasswordVisible(false);
 	}
 }

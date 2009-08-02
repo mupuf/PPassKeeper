@@ -10,7 +10,7 @@ extern "C"
 
 const char *ppk_error_get_string(ppk_error error_code)
 {
-	const char *msg;
+	const char *msg = NULL;
 
 	switch(error_code)
 	{

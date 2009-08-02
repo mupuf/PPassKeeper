@@ -42,17 +42,17 @@ struct net_params
 char* getpass(const char* prompt)
 {
 	static char* pwd[101];
-	
+
 	printf("Password : ");
 	fgets((char*)pwd, sizeof(pwd)-1, stdin);
-	
+
 	//Get rid of the \r\n characters
 	char* p;
 	if ((p = strchr((char*)pwd, '\n')) != NULL)
-      *p = '\0';
+	  *p = '\0';
 	if ((p = strchr((char*)pwd, '\r')) != NULL)
-      *p = '\0';
-	
+	  *p = '\0';
+
 	return (char*)pwd;
 }
 #endif
@@ -137,8 +137,8 @@ void parse_cmdline(int argc, char **argv)
 			}
 		}
 	}
-	
-	if (! mode) 
+
+	if (! mode)
 		usage();
 }
 
@@ -147,7 +147,7 @@ struct app_params appParameters()
 	struct app_params params;
 
 	char *p = strstr(key, ":");
-        if (! p) usage();
+		if (! p) usage();
 	*p = '\0';
 
 	params.name = key;
@@ -161,7 +161,7 @@ struct net_params netParameters()
 
 	char *p1 = strstr(key, "@");
 	if (! p1) usage();
-        *p1 = '\0';
+		*p1 = '\0';
 	char *p2 = strstr(p1 + 1, ":");
 	if (! p2) usage();
 	*p2 = '\0';
@@ -173,7 +173,7 @@ struct net_params netParameters()
 	params.server = p1 + 1;
 	params.port = port;
 	params.username = key;
-	
+
 	return params;
 }
 
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 {
 	ppk_entry entry;
 	parse_cmdline(argc, argv);
-	
+
 	//Unlock ppk if needed
 	if(ppk_is_locked()==PPK_TRUE)
 	{
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-	
+
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 				//shouldn't happen
 				return 1;
 			}
-		
+
 			ppk_data edata;
 			ppk_boolean res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
 			if(res==PPK_TRUE)
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 				{
 					FILE *pFile = fopen(file, "w");
 					if(pFile != NULL)
-					{					
+					{
 						if(fwrite(edata.blob.data, 1, edata.blob.size, pFile)==0)
 							die("Error while writing data to file !");
 
@@ -262,43 +262,43 @@ int main(int argc, char **argv)
 			ppk_entry* list=calloc(len, sizeof(ppk_entry));
 			if (list)
 			{
-     			int i, nb=ppk_module_get_entry_list(module_id, listing_type, list, len, ppk_lf_none);
-     			printf("Listing %s gave %i results :\n", module_id, nb);
-     			for(i=0; i< nb; i++)
-     			{
-     				char* type, entry[201];
-     				if(list[i].type==ppk_application)
-     				{
-     					type="Application";
-     					snprintf(entry, 200, "%s@%s", list[i].app.username, list[i].app.app_name);
-     				}
-     				else if(list[i].type==ppk_network)
-     				{
-     					type="Network";
-     					snprintf(entry, 200, "%s@%s:%i", list[i].net.login, list[i].net.host, list[i].net.port);
-     				}
-     				else if(list[i].type==ppk_item)
-     				{
-     					type="Item";
-     					snprintf(entry, 200, "%s", list[i].item);
-     				}
+				int i, nb=ppk_module_get_entry_list(module_id, listing_type, list, len, ppk_lf_none);
+				printf("Listing %s gave %i results :\n", module_id, nb);
+				for(i=0; i< nb; i++)
+				{
+					char* type, entry[201];
+					if(list[i].type==ppk_application)
+					{
+						type="Application";
+						snprintf(entry, 200, "%s@%s", list[i].app.username, list[i].app.app_name);
+					}
+					else if(list[i].type==ppk_network)
+					{
+						type="Network";
+						snprintf(entry, 200, "%s@%s:%i", list[i].net.login, list[i].net.host, list[i].net.port);
+					}
+					else if(list[i].type==ppk_item)
+					{
+						type="Item";
+						snprintf(entry, 200, "%s", list[i].item);
+					}
 					else
 						return 2;
-     				
-     				printf("	%s : %s\n", type, entry);
-     			}
-     		}
-     		else
-     			return 2;
+
+					printf("	%s : %s\n", type, entry);
+				}
+			}
+			else
+				return 2;
 		}
 		else
 			usage();
-	} 
+	}
 	else if (mode == 'S')
 	{
 		printf("password = %s\n", password);
 		if (! pwd_type || ! module_id || ! key) usage();
-		
+
 		if (pwd_type == ppk_item)
 			entry=ppk_createItemEntry(key);
 		else if (pwd_type == ppk_application)
@@ -310,11 +310,11 @@ int main(int argc, char **argv)
 			struct net_params p = netParameters();
 			entry=ppk_createNetworkEntry(p.server, p.username, p.port, NULL);
 		}
-		
+
 		ppk_data edata;
 		edata.type=ppk_string;
 		edata.string=password;
-		
+
 		if (! password && !file)
 		{
 			errno = 0;
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 				edata.blob.data = (char*)calloc(sizeof(char), fileSize+1);
 				if(edata.blob.data==NULL)
 					die("Alloc didn't manage to allocate the requested buffer.\nCheck the size of the file and your system's free memory.");
-				
+
 				if(fread((void*)edata.blob.data, 1, fileSize, pFile)==0)
 					die("Error while reading data from file !");
 
@@ -350,15 +350,15 @@ int main(int argc, char **argv)
 			die("Shouldn't happen ! Sky is falling on our heads !");
 
 		ppk_boolean res=ppk_module_set_entry(module_id, entry , edata, ppk_wf_none);
-		
+
 		if(res!=PPK_TRUE)
 			return 1;
-		
-	} 
+
+	}
 	else if (mode == 'R')
 	{
 		if (!module_id || !key) usage();
-		
+
 		cvariant cv=ppk_module_get_param(module_id, key);
 		if(cvariant_get_type(cv)==cvariant_string)
 			printf(cvariant_get_string(cv));
@@ -372,7 +372,7 @@ int main(int argc, char **argv)
 	else if (mode == 'W')
 	{
 		if (!module_id || !key || !password) usage();
-		
+
 		if(ppk_module_save_param(module_id, key, cvariant_from_string(password))==PPK_TRUE)
 			return 0;
 		else

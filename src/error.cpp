@@ -1,6 +1,7 @@
 #include <ppasskeeper/definitions.h>
 
 #include <libintl.h>
+#include <cstdlib>
 
 /// Error messages matching ppk_error (see definitions.h)
 #ifdef __cplusplus

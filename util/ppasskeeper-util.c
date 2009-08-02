@@ -24,20 +24,6 @@ void usage()
 	exit(1);
 }
 
-struct app_params
-{
-	char *name;
-	char *username;
-};
-
-struct net_params
-{
-	char *server;
-	int port;
-	char *username;
-	//TODO char *protocol;
-};
-
 #if defined(WIN32) || defined(WIN64)
 char* getpass(const char* prompt)
 {
@@ -142,41 +128,6 @@ void parse_cmdline(int argc, char **argv)
 		usage();
 }
 
-struct app_params appParameters()
-{
-	struct app_params params;
-
-	char *p = strstr(key, ":");
-		if (! p) usage();
-	*p = '\0';
-
-	params.name = key;
-	params.username = p + 1;
-	return params;
-}
-
-struct net_params netParameters()
-{
-	struct net_params params;
-
-	char *p1 = strstr(key, "@");
-	if (! p1) usage();
-		*p1 = '\0';
-	char *p2 = strstr(p1 + 1, ":");
-	if (! p2) usage();
-	*p2 = '\0';
-	char *endptr;
-	errno = 0;
-	int port = strtol(p2 + 1, &endptr, 10);
-	if (errno || endptr == p2 + 1) usage();
-
-	params.server = p1 + 1;
-	params.port = port;
-	params.username = key;
-
-	return params;
-}
-
 void die(const char* msg)
 {
 	printf("Fatal Error : %s\n", msg);
@@ -185,7 +136,7 @@ void die(const char* msg)
 
 int main(int argc, char **argv)
 {
-	ppk_entry *entry;
+	ppk_entry* entry;
 	parse_cmdline(argc, argv);
 
 	//Unlock ppk if needed
@@ -216,20 +167,10 @@ int main(int argc, char **argv)
 	{
 		if (pwd_type && module_id && key && !password)
 		{
-			if (pwd_type == ppk_item)
-				entry=ppk_item_entry_new(key);
-			else if (pwd_type == ppk_application)
-			{
-				struct app_params p = appParameters();
-				entry=ppk_application_entry_new(p.name, p.username);
-			} else if (pwd_type == ppk_network)
-			{
-				struct net_params p = netParameters();
-				entry=ppk_network_entry_new(p.server, p.username, p.port, NULL); //TODO
-			} else {
-				//shouldn't happen
+			entry = ppk_entry_new_from_key(key);
+			if (entry == NULL)
+				// invalid key
 				return 1;
-			}
 
 			ppk_data *edata;
 			ppk_boolean res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
@@ -301,31 +242,24 @@ int main(int argc, char **argv)
 		printf("password = %s\n", password);
 		if (! pwd_type || ! module_id || ! key) usage();
 
-		if (pwd_type == ppk_item)
-			entry=ppk_item_entry_new(key);
-		else if (pwd_type == ppk_application)
+		entry = ppk_entry_new_from_key(key);
+		if (entry == NULL)
+			// invalid key
+			return 1;
+
+		ppk_data* edata;
+		if (password)
 		{
-			struct app_params p = appParameters();
-			entry=ppk_application_entry_new(p.name, p.username);
-		} else if (pwd_type == ppk_network)
-		{
-			struct net_params p = netParameters();
-			entry=ppk_network_entry_new(p.server, p.username, p.port, NULL);
+			edata = ppk_string_data_new(password);
 		}
-
-		ppk_data edata;
-		edata.type=ppk_string;
-		edata.string=password;
-
-		if (! password && !file)
+		else if (! password && !file)
 		{
 			errno = 0;
 			password = getpass("Password (will not be echoed): ");
-			if (errno == ENXIO)return 1;
-			edata.type=ppk_string;
-			edata.string=password;
+			if (errno == ENXIO) return 1;
+			edata = ppk_string_data_new(password);
 		}
-		else if(file)
+		else if (file)
 		{
 			FILE *pFile = fopen(file, "r");
 			if(pFile != NULL)
@@ -334,16 +268,16 @@ int main(int argc, char **argv)
 				unsigned int fileSize = ftell(pFile);
 				rewind(pFile);
 
-				edata.type=ppk_blob;
-				edata.blob.size=fileSize;
-				edata.blob.data = (char*)calloc(sizeof(char), fileSize+1);
-				if(edata.blob.data==NULL)
+				char* blobdata = (char*)calloc(sizeof(char), fileSize+1);
+				if(blobdata==NULL)
 					die("Alloc didn't manage to allocate the requested buffer.\nCheck the size of the file and your system's free memory.");
 
-				if(fread((void*)edata.blob.data, 1, fileSize, pFile)==0)
+				if(fread((void*)blobdata, 1, fileSize, pFile)==0)
 					die("Error while reading data from file !");
 
 				fclose(pFile);
+
+				edata = ppk_blob_data_new(blobdata, fileSize);
 			}
 			else
 				die("The file cannot be openned. Check your file permissions");
@@ -351,8 +285,9 @@ int main(int argc, char **argv)
 		else
 			die("Shouldn't happen ! Sky is falling on our heads !");
 
-		ppk_boolean res=ppk_module_set_entry(module_id, entry , &edata, ppk_wf_none);
+		ppk_boolean res=ppk_module_set_entry(module_id, entry, edata, ppk_wf_none);
 		ppk_entry_free(entry);
+		ppk_data_free(edata);
 
 		if(res!=PPK_TRUE)
 			return 1;

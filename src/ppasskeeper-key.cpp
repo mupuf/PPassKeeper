@@ -15,10 +15,8 @@ static size_t digits(unsigned int number)
 	return digits ? digits : 1;
 }
 
-#ifdef __cplusplus
 extern "C"
 {
-#endif
 
 size_t ppk_key_length(const ppk_entry* entry)
 {
@@ -81,8 +79,10 @@ ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_k
 	}
 }
 
-ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
+ppk_entry* ppk_entry_new_from_key(const char* key)
 {
+	ppk_entry* entry = ppk_entry_new();
+
 	static std::string login, host, protocol, username, app_name, item;
 
 	std::string key_str(key);
@@ -90,14 +90,22 @@ ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
 	std::size_t pos = key_str.find("://");
 	if (pos != std::string::npos)
 	{
-		if (pos == 0 || pos + 6 > key_len) return PPK_FALSE;
+		if (pos == 0 || pos + 6 > key_len)
+		{
+			ppk_entry_free(entry);
+			return NULL;
+		}
 		entry->type = ppk_network;
 		protocol = key_str.substr(0, pos);
 		entry->net.protocol = (protocol == URL_PREFIX) ? NULL : protocol.c_str();
 
 		std::size_t loginpos = pos + 3;
 		std::size_t hostpos = key_str.find('@', loginpos + 1);
-		if (hostpos == std::string::npos || hostpos == key_len - 1) return PPK_FALSE;
+		if (hostpos == std::string::npos || hostpos == key_len - 1)
+		{
+			ppk_entry_free(entry);
+			return NULL;
+		}
 		else
 		{
 			hostpos++;
@@ -115,9 +123,17 @@ ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
 				// ppk://aaaaaaaaa@bbbbbbbb:111
 				//       ^loginpos ^hostpos ^portpos
 				//       6         17       26
-				if (portpos == key_len) return PPK_FALSE;
+				if (portpos == key_len)
+				{
+					ppk_entry_free(entry);
+					return NULL;
+				}
 				unsigned int port = atoi(key_str.substr(portpos).c_str());
-				if (port == 0) return PPK_FALSE;
+				if (port == 0)
+				{
+					ppk_entry_free(entry);
+					return NULL;
+				}
 				entry->net.port = port;
 				host = key_str.substr(hostpos, portpos - hostpos - 1);
 				entry->net.host = host.c_str();
@@ -137,7 +153,11 @@ ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
 		else
 		{
 			//it's an application key
-			if (pos == key_len - 1) return PPK_FALSE;
+			if (pos == key_len - 1)
+			{
+				ppk_entry_free(entry);
+				return NULL;
+			}
 			entry->type = ppk_application;
 			username = key_str.substr(0, pos);
 			app_name = key_str.substr(pos + 1);
@@ -145,9 +165,7 @@ ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
 			entry->app.app_name = app_name.c_str();
 		}
 	}
-	return PPK_TRUE;
+	return entry;
 }
 
-#ifdef __cplusplus
-}
-#endif
+} /* extern "C" */

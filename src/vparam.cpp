@@ -195,6 +195,8 @@ class VParamImpl
 #include "tokenizer.h"
 #include "xmlsp.h"
 
+#include <ppasskeeper/utils.h>
+
 class VParamImpl : public XMLSP::Parser
 {
 	friend class VParam;
@@ -205,7 +207,7 @@ class VParamImpl : public XMLSP::Parser
 
 	VParamImpl()
 	{
-		xml_path = ppk_settingDirectory() + std::string("/xmlParam.xml");
+		xml_path = ppk_settings_directory() + std::string("/xmlParam.xml");
 
 		std::ifstream is(xml_path.c_str());
 		if(is.is_open())

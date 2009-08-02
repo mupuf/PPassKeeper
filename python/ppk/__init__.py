@@ -17,7 +17,7 @@ _handle.ppk_getEntryList.restype = ctypes.c_uint
 _handle.ppk_maxDataSize.restype = ctypes.c_uint
 _handle.ppk_getLastError.restype = ctypes.c_char_p
 _handle.ppk_getDefaultModule.restype = ctypes.c_char_p
-_handle.ppk_settingDirectory.restype = ctypes.c_char_p
+_handle.ppk_settings_directory.restype = ctypes.c_char_p
 
 _handle.ppk_setPassword.argtypes = [ctypes.c_char_p]
 _handle.ppk_unlock.argtypes = [ctypes.c_char_p]

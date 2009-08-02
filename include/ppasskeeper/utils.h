@@ -25,8 +25,8 @@ extern "C"
 	const char *ppk_error_get_string(ppk_error error_code);
 
 	/* \brief Get ppk's settings directory
-	* \return  Return the settings directory of ppk
-	const char* ppk_settings_directory();*/
+	* \return  Return the settings directory of ppk */
+	const char* ppk_settings_directory();
 
 #ifdef __cplusplus 
 }

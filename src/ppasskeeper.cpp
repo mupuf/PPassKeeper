@@ -584,7 +584,7 @@ extern "C"
 		return edata;
 	}*/
 	
-	const char* ppk_settingDirectory()
+	const char* ppk_settings_directory()
 	{
 		static std::string settingDir=setting_dir();
 		return settingDir.c_str();	

@@ -18,4 +18,4 @@ def get_default_module():
     return ModuleList()[_handle.ppk_getDefaultModule()]
 
 def setting_directory():
-    return _handle.ppk_settingDirectory()
+    return _handle.ppk_settings_directory()

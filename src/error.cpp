@@ -17,9 +17,6 @@ const char *ppk_error_get_string(ppk_error error_code)
 		case PPK_OK:
 			msg="Everything went fine";
 			break;
-		case PPK_UNKNOWN_ERROR:
-			msg="Unknown error";
-			break;
 		case PPK_UNSUPPORTED_METHOD:
 			msg="Unsupported method";
 			break;
@@ -68,9 +65,13 @@ const char *ppk_error_get_string(ppk_error error_code)
 		case PPK_INCOMPATIBLE_FLAGS:
 			msg="The requested flags are incompatibles with the chosen method";
 			break;
+		case PPK_UNKNOWN_ERROR:
+		default:
+			msg="Unknown error";
+			break;
 	}
 
-	return msg ? /*gettext(*/msg/*)*/ : "<unknown error>";
+	return gettext(msg);
 }
 
 #ifdef __cplusplus

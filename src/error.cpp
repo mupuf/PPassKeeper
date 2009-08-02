@@ -66,11 +66,11 @@ const char *ppk_error_get_string(ppk_error error_code)
 			msg="User pressed cancel";
 			break;
 		case PPK_INCOMPATIBLE_FLAGS:
-			msg="The requested flags are incompatibles with the chosen method";
+			msg="The requested flags are incompatible with the chosen method";
 			break;
 	}
 
-	return msg ? /*gettext(*/msg/*)*/ : "<unknown error>";
+	return msg ? gettext(msg) : gettext("<Undefined error>");
 }
 
 #ifdef __cplusplus

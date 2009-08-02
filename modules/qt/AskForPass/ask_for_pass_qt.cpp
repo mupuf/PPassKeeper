@@ -163,7 +163,7 @@ extern "C" ppk_proto_param* availableParameters()
 
 extern "C" void setParam(const char* paramName, const cvariant value)
 {
-	std::string key(paramName);
+	/*std::string key(paramName);
 
 	if(key == "Ein kleiner Test")
 	{
@@ -187,7 +187,7 @@ extern "C" void setParam(const char* paramName, const cvariant value)
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
 	else
-		printf("	Unknown param(%s) !!\n", paramName);
+		printf("	Unknown param(%s) !!\n", paramName);*/
 }
 
 extern "C" const char* getLastError()

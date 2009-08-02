@@ -144,7 +144,7 @@ extern "C"
 	/*! \brief Tells whether a module contains a specific entry or not.
 	* \param module_id in: Module's ID.
 	* \param entry in: The entry to be listed.
-	* \param flags in: You can specify flags which will change the way the entry will be removed. See readFlags.
+	* \param flags in: You can specify flags which will change the way the entry will be tested as accessible or not. See readFlags.
 	* \return  Returns PPK_TRUE if the entry exists, PPK_FALSE else.*/
 	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags);
 
@@ -155,14 +155,6 @@ extern "C"
 	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
 	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.*/
 	ppk_error ppk_module_get_entry(const char *module_id, const ppk_entry* entry, ppk_data** edata, unsigned int flags);
-
-	/* \brief Get an Entry from a module
-	* \param module_id in: Module's ID.
-	* \param entry in: The entry to get.
-	* \param *edata out: Result will be stored here.
-	* \param flags in: You can specify flags which will change the way the entry will be retrieved. See readFlag.
-	* \return  Returns PPK_TRUE if getEntry worked fine, PPK_FALSE else.
-	ppk_boolean ppk_module_get_entry(const char *module_id, const ppk_entry entry, ppk_data *edata, unsigned int flags);*/
 
 	/*! \brief Set an Entry to a module
 	* \param module_id in: Module's ID.

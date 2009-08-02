@@ -80,6 +80,16 @@ int main(int argc, char** argv)
 	else
 		printf("OK\n");
 
+	printf("Delete: ");
+	res=ppk_module_remove_entry(module, entry, ppk_rf_none);
+	if(res!=PPK_OK)
+	{
+		printf("NOK\n");
+		die(UTST_WRITING_ERROR, ppk_error_get_string(res));
+	}
+	else
+		printf("OK\n");
+
 	ppk_entry_free(entry);
 
 	if(edata->type==ppk_string)

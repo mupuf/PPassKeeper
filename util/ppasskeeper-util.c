@@ -185,7 +185,7 @@ void die(const char* msg)
 
 int main(int argc, char **argv)
 {
-	ppk_entry entry;
+	ppk_entry *entry;
 	parse_cmdline(argc, argv);
 
 	//Unlock ppk if needed
@@ -217,22 +217,23 @@ int main(int argc, char **argv)
 		if (pwd_type && module_id && key && !password)
 		{
 			if (pwd_type == ppk_item)
-				entry=ppk_createItemEntry(key);
+				entry=ppk_item_entry_new(key);
 			else if (pwd_type == ppk_application)
 			{
 				struct app_params p = appParameters();
-				entry=ppk_createAppEntry(p.name, p.username);
+				entry=ppk_application_entry_new(p.name, p.username);
 			} else if (pwd_type == ppk_network)
 			{
 				struct net_params p = netParameters();
-				entry=ppk_createNetworkEntry(p.server, p.username, p.port, NULL); //TODO
+				entry=ppk_network_entry_new(p.server, p.username, p.port, NULL); //TODO
 			} else {
 				//shouldn't happen
 				return 1;
 			}
 
-			ppk_data edata;
+			ppk_data *edata;
 			ppk_boolean res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
+			ppk_entry_free(entry);
 			if(res==PPK_TRUE)
 			{
 				if(file)
@@ -240,7 +241,7 @@ int main(int argc, char **argv)
 					FILE *pFile = fopen(file, "w");
 					if(pFile != NULL)
 					{
-						if(fwrite(edata.blob.data, 1, edata.blob.size, pFile)==0)
+						if(fwrite(edata->blob.data, 1, edata->blob.size, pFile)==0)
 							die("Error while writing data to file !");
 
 						fclose(pFile);
@@ -248,10 +249,11 @@ int main(int argc, char **argv)
 					else
 						die("The file cannot be openned in writing mode. Check your file permissions");
 				}
-				else if(edata.type==ppk_string)
-					printf("%s\n", edata.string);
-				else if(edata.type==ppk_blob)
-					fwrite(edata.blob.data, 1, edata.blob.size, stdout);
+				else if(edata->type==ppk_string)
+					printf("%s\n", edata->string);
+				else if(edata->type==ppk_blob)
+					fwrite(edata->blob.data, 1, edata->blob.size, stdout);
+				ppk_data_free(edata);
 			}
 			else
 				die("Password cannot be retrieved. Does the entry really exist ?");
@@ -300,15 +302,15 @@ int main(int argc, char **argv)
 		if (! pwd_type || ! module_id || ! key) usage();
 
 		if (pwd_type == ppk_item)
-			entry=ppk_createItemEntry(key);
+			entry=ppk_item_entry_new(key);
 		else if (pwd_type == ppk_application)
 		{
 			struct app_params p = appParameters();
-			entry=ppk_createAppEntry(p.name, p.username);
+			entry=ppk_application_entry_new(p.name, p.username);
 		} else if (pwd_type == ppk_network)
 		{
 			struct net_params p = netParameters();
-			entry=ppk_createNetworkEntry(p.server, p.username, p.port, NULL);
+			entry=ppk_network_entry_new(p.server, p.username, p.port, NULL);
 		}
 
 		ppk_data edata;
@@ -349,7 +351,8 @@ int main(int argc, char **argv)
 		else
 			die("Shouldn't happen ! Sky is falling on our heads !");
 
-		ppk_boolean res=ppk_module_set_entry(module_id, entry , edata, ppk_wf_none);
+		ppk_boolean res=ppk_module_set_entry(module_id, entry , &edata, ppk_wf_none);
+		ppk_entry_free(entry);
 
 		if(res!=PPK_TRUE)
 			return 1;

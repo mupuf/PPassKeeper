@@ -16,7 +16,6 @@ class PPK_Modules
 		std::map<std::string, _module> modules;
 		
 		void loadPlugin(std::string dirpath, std::string filepath);
-		void loadPlugins(void);
 		
 		const char* autoModule();
 		void sendParameters(_module m);
@@ -24,6 +23,8 @@ class PPK_Modules
 	public:
 		PPK_Modules();
 		~PPK_Modules();
+
+		void reload(void);
 	
 		unsigned int size();
 		unsigned int getModulesList(ppk_module* pmodules, unsigned int ModulesCount);

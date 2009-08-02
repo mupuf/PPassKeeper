@@ -63,8 +63,10 @@ extern "C"
 	* \return  Return the count of available modules*/
 	size_t ppk_module_list(ppk_module* modules, unsigned int nbModules); //returns the number of modules
 
-	/* TODO ppk_update_modules
-	   reloads the plugins from the plugin dir and updates the module count and list */
+	/*! \brief Reloads the plugins from the plugin dir and updates the module count and list.
+	* WARNING: This function is NOT thread-safe. Make sure no other thread uses ppk while calling this function.
+	* \return  void*/
+	ppk_error ppk_module_reload_list();
 
 	/*! \brief Get the default module. This parameter can be set/updated with ppk_setDefaultModule.
 	* \return  Return the default module's name if there is one, NULL otherwise.*/

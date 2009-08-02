@@ -152,6 +152,17 @@ extern "C"
 		}
 	}
 
+	ppk_error ppk_module_reload_list()
+	{
+		if(!isLocked())
+		{
+			modules.reload();
+			return PPK_OK;
+		}
+		else
+			return PPK_LOCKED_NO_ACCESS;
+	}
+	
 	size_t ppk_module_list(ppk_module* pmodules, unsigned int nbModules)
 	{
 		if(!isLocked())

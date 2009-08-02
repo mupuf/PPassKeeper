@@ -20,36 +20,39 @@ const char* libraryError();
 	const char* libraryError(){return "";}
 
 	static const char* baseKey="Software\\PPassKeeper\\";
-	const char* getRegistryValue(const char* key)
+	size_t getRegistryValue(const char* key, char* ret, size_t max_size)
 	{
-		static std::string value;
-
 		HKEY hk;
-		static char tmpBuf[101];
+		char tmpBuf[512];
 		if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
 		{
 			DWORD size=sizeof(tmpBuf);
 			RegQueryValueEx(hk, key, 0, 0, (BYTE*)tmpBuf, &size);
 			RegCloseKey(hk);
 		
-			value=tmpBuf;
-			return value.c_str();
+			strncpy(ret, tmpBuf, max_size-1);
+
+			return size;
 		}
 		else
-			return "";
+			return 0;
 	}
 	
-	void PPK_Modules::loadPlugins(void)
+	void PPK_Modules::reload(void)
 	{	
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
+
+		modules.clear();
 	
 		//char dir_path[2048];
 		//unsigned int len=GetEnvironmentVariableA("ppasskeeperMods", dir_path, (DWORD)sizeof(dir_path));
-		std::string dirpath=getRegistryValue("mods_path");
+		char dir_path[512];
+		getRegistryValue("mods_path", tmpBuf, sizeof(tmpBuf));
+		std::string dirpath=dir_path;
 		
 #ifdef DEBUG_MSG
-		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper without the argument '--enable-debug'" << std::endl << std::endl;
+		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
 #endif
 		hSearch = FindFirstFile((dirpath+"\\*.dll").c_str(), &File);
 		if (hSearch != INVALID_HANDLE_VALUE)
@@ -76,13 +79,15 @@ const char* libraryError();
 	void* loadSymbol(void* dlhandle, const char* symbolName){return dlsym(dlhandle, symbolName);}
 	const char* libraryError(){return dlerror();}
 	
-	void PPK_Modules::loadPlugins(void)
+	void PPK_Modules::reload(void)
 	{	
 		DIR * plugindir;
 		struct dirent * mydirent;
+
+		modules.clear();
 		
 #ifdef DEBUG_MSG
-		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the argument '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
+		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
 #endif
 		
 		//Open Plugin's directory
@@ -239,7 +244,7 @@ void PPK_Modules::sendParameters(_module m)
 //Public functions
 PPK_Modules::PPK_Modules()
 {
-	loadPlugins();
+	reload();
 	
 }
 

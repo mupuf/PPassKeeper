@@ -15,7 +15,12 @@ static size_t digits(unsigned int number)
 	return digits ? digits : 1;
 }
 
-size_t ppk_keyLength(const ppk_entry* entry)
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+size_t ppk_key_length(const ppk_entry* entry)
 {
 	size_t len = 0;
 	switch(entry->type)
@@ -43,7 +48,7 @@ size_t ppk_keyLength(const ppk_entry* entry)
 
 #include <iostream>
 #include <stdio.h>
-ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_key_length)
+ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_key_length)
 {
 	if (max_key_length == 0)
 		return PPK_FALSE;
@@ -76,7 +81,7 @@ ppk_boolean ppk_getKey(const ppk_entry* entry, char* returned_key, size_t max_ke
 	}
 }
 
-ppk_boolean ppk_getEntryFromKey(ppk_entry* entry, const char* key)
+ppk_boolean ppk_get_entry_from_key(ppk_entry* entry, const char* key)
 {
 	static std::string login, host, protocol, username, app_name, item;
 
@@ -142,3 +147,7 @@ ppk_boolean ppk_getEntryFromKey(ppk_entry* entry, const char* key)
 	}
 	return PPK_TRUE;
 }
+
+#ifdef __cplusplus
+}
+#endif

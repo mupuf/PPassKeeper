@@ -7,6 +7,7 @@
 #define UTST_INVALID_ENTRY_TYPE 6
 #define UTST_INVALID_DATA 7
 #define UTST_NO_BLOB_SUPPORT 8
+#define UTST_NO_STRING_SUPPORT 9
 
 const char* utst_msg[] = {
 	"The Unit Test ran fine !", //UTST_OK
@@ -17,7 +18,8 @@ const char* utst_msg[] = {
 	"An error occured while reading the password", //UTST_READING_ERROR
 	"The entry type is invalid", //UTST_INVALID_ENTRY_TYPE
 	"The retrieved data is invalid", //UTST_INVALID_DATA
-	"The module doesn't support blobs" //UTST_NO_BLOB_SUPPORT
+	"The module doesn't support blobs", //UTST_NO_BLOB_SUPPORT
+	"The module doesn't support strings" //UTST_NO_STRING_SUPPORT
 };
 
 #ifdef __cplusplus

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 INCLUDE_DIRECTORIES(BEFORE "${CMAKE_SOURCE_DIR}/include")
 LINK_DIRECTORIES(BEFORE "${CMAKE_SOURCE_DIR}/src")
 
-SET(UNITTESTS "blob")
+SET(UNITTESTS "get-set-blob" "get-set-string")
 
 FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/unittest")
 

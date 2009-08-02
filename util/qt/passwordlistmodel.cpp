@@ -118,7 +118,7 @@ void PasswordListModel::updateFilter()
 	{
 		const ppk_entry &a = app_ent[i];
 
-		if(ppk_getKey(&a, buf,sizeof(buf)-1)==PPK_TRUE)
+		if(ppk_get_key(&a, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
 			if(filterAccept(buf))
 			{
@@ -150,7 +150,7 @@ void PasswordListModel::updateFilter()
 	{
 		const ppk_entry &it = item_ent[i];
 
-		if(ppk_getKey(&it, buf,sizeof(buf)-1)==PPK_TRUE)
+		if(ppk_get_key(&it, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
 			if(filterAccept(buf))
 			{

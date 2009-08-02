@@ -74,7 +74,7 @@ ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_k
 	else
 	{
 		key_str.copy(returned_key, key_len);
-		returned_key[key_len-1]='\0';
+		returned_key[key_len]='\0';
 		return PPK_TRUE;
 	}
 }

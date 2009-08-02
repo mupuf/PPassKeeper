@@ -1,19 +1,44 @@
 #include <ppasskeeper/data.h>
 
-ppk_data* ppk_string_data_new(const char* string)
-{
-	char *copy = strdup(string);
-	if (copy == NULL)
-		return NULL;
+#include <assert.h>
 
+extern "C" ppk_data* ppk_string_data_new(const char* string)
+{
 	ppk_data* data = new ppk_data;
-	data->type = ppk_string;
-	data->string = copy;
+	size_t len;
+	data->type=ppk_string;
+	len = strlen(string);
+	data->string = new char[len + 1];
+	strcpy((char*)data->string, string);
 	return data;
 }
 
-/*
-ppk_data* ppk_blob_data_new(const void* data, size_t size)
+extern "C" ppk_data* ppk_blob_data_new(const void* data, size_t size)
 {
+	ppk_data* edata = new ppk_data;
+	size_t len;
+	edata->type=ppk_blob;
+	edata->blob.data = new char[size];
+	memcpy((char*)edata->blob.data, data, size);
+	edata->blob.size=size;
+	return edata;
 }
-*/
+
+extern "C" void ppk_data_free(ppk_data* data)
+{
+	if (data == NULL)
+		return;
+	switch (data->type)
+	{
+	case ppk_string:
+		delete[] data->string;
+		break;
+	case ppk_blob:
+		delete[] (char*)data->blob.data;
+		break;
+	default:
+		assert(false);
+	};
+	delete data;
+}
+

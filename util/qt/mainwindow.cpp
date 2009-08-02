@@ -98,34 +98,6 @@ void MainWindow::setupActions()
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
 	action_Del->setEnabled(false);
-
-	/*if(ppk_removeParam("KWallet4", "osef")==PPK_TRUE)
-		printf("OK, il a bien été viré !\n");
-	else
-		printf("NOK, il n'a pas bien été viré !\n");
-
-	char** list=new char*[100];
-	unsigned int size=ppk_listParam("KWallet4", (const char***)&list, 100);
-
-	std::cout << "Il y a " << size << " params !" << std::endl;
-	for(unsigned int i=0;i<size;i++)
-	{
-		std::cout << "list[" << i << "] = " << list[i] << std::endl;
-	}
-	delete[] list;*/
-
-	/*if(ppk_setDefaultModule("GKeyring")==PPK_TRUE)
-		printf("Default module = %s\n", ppk_getDefaultModule());
-	else
-		printf("Set failed !!\n");*/
-
-	/*ppk_proto_param* list=ppk_availableParameters("AskForPass_Qt");
-	for(int i=0; list[i].expected_type!=cvariant_none; i++)
-	{
-		printf("paramsProtoList[%i].name = '%s'\n", i,list[i].name);
-	}
-
-	ppk_saveParam("AskForPass_Qt", "test_param", cvariant_from_string("guiliguili"));*/
 }
 
 void MainWindow::onShowButtonToggled(bool b)
@@ -162,7 +134,7 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 	if(res!=PPK_OK)
 	{
 		char key[101];
-		ppk_getKey(entry, key, sizeof(key)-1);
+		ppk_get_key(entry, key, sizeof(key)-1);
 		QString error=QString("An error occured while updating the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
 		QMessageBox::critical(this, tr("PPassKeeper : Error while updating the password"), error);
 	}
@@ -273,7 +245,7 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 	if(res!=PPK_OK)
 	{
 		char key[101];
-		if(ppk_getKey(entry, key, sizeof(key)-1)==PPK_FALSE)
+		if(ppk_get_key(entry, key, sizeof(key)-1)==PPK_FALSE)
 			strncpy(key, "<invalid_entry>", sizeof(key)-1);
 
 		QString error=QString("An error occured while accessing the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
@@ -334,7 +306,7 @@ void MainWindow::onDelButtonClicked()
 		if(res!=PPK_OK)
 		{
 			char key[101];
-			ppk_getKey(entry, key, sizeof(key)-1);
+			ppk_get_key(entry, key, sizeof(key)-1);
 			QString error=QString("An error occured while deleting the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
 			QMessageBox::critical(this, "PPassKeeper : Error while deleting ...", error);
 		}

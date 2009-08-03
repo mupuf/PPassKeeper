@@ -81,41 +81,30 @@ ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_k
 
 ppk_entry* ppk_entry_new_from_key(const char* key)
 {
-	ppk_entry* entry = ppk_entry_new();
-
-	static std::string login, host, protocol, username, app_name, item;
-
 	std::string key_str(key);
 	std::size_t key_len = key_str.size();
 	std::size_t pos = key_str.find("://");
 	if (pos != std::string::npos)
 	{
 		if (pos == 0 || pos + 6 > key_len)
-		{
-			ppk_entry_free(entry);
 			return NULL;
-		}
-		entry->type = ppk_network;
-		protocol = key_str.substr(0, pos);
-		entry->net.protocol = (protocol == URL_PREFIX) ? NULL : protocol.c_str();
-
+		std::string protocol = key_str.substr(0, pos);
 		std::size_t loginpos = pos + 3;
 		std::size_t hostpos = key_str.find('@', loginpos + 1);
 		if (hostpos == std::string::npos || hostpos == key_len - 1)
-		{
-			ppk_entry_free(entry);
 			return NULL;
-		}
 		else
 		{
+			std::string login = key_str.substr(loginpos, hostpos - loginpos);
 			hostpos++;
 			std::size_t portpos = key_str.find(':', hostpos + 1);
+			unsigned int port;
+			std::string host;
 			if (portpos == std::string::npos)
 			{
 				//port unspecified, use 0
-				entry->net.port = 0;
+				port = 0;
 				host = key_str.substr(hostpos).c_str();
-				entry->net.host = host.c_str();
 			}
 			else
 			{
@@ -123,49 +112,28 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 				// ppk://aaaaaaaaa@bbbbbbbb:111
 				//       ^loginpos ^hostpos ^portpos
 				//       6         17       26
-				if (portpos == key_len)
-				{
-					ppk_entry_free(entry);
+				if (portpos == key_len || (port = atoi(key_str.substr(portpos).c_str())) == 0)
 					return NULL;
-				}
-				unsigned int port = atoi(key_str.substr(portpos).c_str());
-				if (port == 0)
-				{
-					ppk_entry_free(entry);
-					return NULL;
-				}
-				entry->net.port = port;
 				host = key_str.substr(hostpos, portpos - hostpos - 1);
-				entry->net.host = host.c_str();
 			}
+			return ppk_network_entry_new(host.c_str(), login.c_str(), port, (protocol == URL_PREFIX) ? NULL : protocol.c_str());
 		}
 	}
 	else
 	{
 		pos = key_str.find('@');
 		if (pos == std::string::npos)
-		{
-			//no @, it's an item
-			entry->type = ppk_item;
-			item = key_str;
-			entry->item = key_str.c_str();
-		}
+			return ppk_item_entry_new(key_str.c_str());
 		else
 		{
 			//it's an application key
 			if (pos == key_len - 1)
-			{
-				ppk_entry_free(entry);
 				return NULL;
-			}
-			entry->type = ppk_application;
-			username = key_str.substr(0, pos);
-			app_name = key_str.substr(pos + 1);
-			entry->app.username = username.c_str();
-			entry->app.app_name = app_name.c_str();
+			std::string username = key_str.substr(0, pos);
+			std::string app_name = key_str.substr(pos + 1);
+			return ppk_application_entry_new(username.c_str(), app_name.c_str());
 		}
 	}
-	return entry;
 }
 
 } /* extern "C" */

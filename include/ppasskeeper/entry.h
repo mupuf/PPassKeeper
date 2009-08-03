@@ -82,8 +82,6 @@ extern "C"
 	* \return  Return the ppk_Entry corresponding to the parameters*/
 	ppk_entry* ppk_item_entry_new(const char* item);
 
-	// creates an empty entry
-	ppk_entry* ppk_entry_new();
 	void ppk_entry_free(ppk_entry* entry);
 
 	/* \brief Generate a Network entry given a host, a login and a port.WARNING : Destroying original variables host, login, and/or protocol will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).

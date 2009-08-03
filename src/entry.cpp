@@ -1,5 +1,5 @@
 #include "ppasskeeper/entry.h"
-#include "ppasskeeper/ppasskeeper-key.h"
+#include "ppasskeeper/key.h"
 #include "ppasskeeper/definitions.h"
 
 #include <stdlib.h>

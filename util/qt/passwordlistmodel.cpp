@@ -1,6 +1,6 @@
 #include "passwordlistmodel.h"
 
-#include <ppasskeeper/ppasskeeper-key.h>
+#include <ppasskeeper/key.h>
 
 static const quint32 appId = 0;
 static const quint32 netId = 1;

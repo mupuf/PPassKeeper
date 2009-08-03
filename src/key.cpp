@@ -1,4 +1,4 @@
-#include <ppasskeeper/ppasskeeper-key.h>
+#include <ppasskeeper/key.h>
 
 #include <cstring>
 #include <sstream>

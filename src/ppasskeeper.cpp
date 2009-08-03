@@ -551,23 +551,6 @@ extern "C"
  *                                                                   *
  *********************************************************************/
 	
-	ppk_data ppk_createStringData(const char* string)
-	{
-		ppk_data data;
-		data.type=ppk_string;
-		data.string=string;
-		return data;
-	}
-	
-	ppk_data ppk_createBlobData(const void* data, unsigned long size)
-	{
-		ppk_data edata;
-		edata.type=ppk_blob;
-		edata.blob.data=data;
-		edata.blob.size=size;
-		return edata;
-	}*/
-	
 	const char* ppk_settings_directory()
 	{
 		static std::string settingDir=setting_dir();

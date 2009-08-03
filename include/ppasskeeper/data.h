@@ -53,16 +53,6 @@ extern "C"
 
 	void ppk_data_free(ppk_data* data);
 
-	/* \brief Generate a string ppk_data. WARNING : Destroying original variable string will result in data corruption into the created ppk_data as no data are copied in the function (it only uses pointers).
-	* \param string in: The string to be stored (example : MySecretPassword).
-	* \return  Return the ppk_data corresponding to the parameters
-	ppk_data ppk_createStringData(const char* string);
-
-	/* \brief Generate a blob ppk_data. WARNING : Destroying original variable data will result in data corruption into the created ppk_data as no data are copied in the function (it only uses pointers).
-	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
-	* \return  Return the ppk_data corresponding to the parameters
-	ppk_data ppk_createBlobData(const void* data, unsigned long size);*/
-
 #ifdef __cplusplus 
 }
 #endif

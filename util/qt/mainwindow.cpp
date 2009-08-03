@@ -18,6 +18,7 @@ Q_DECLARE_METATYPE(ppk_module*); // to make it storable in QVariant
 MainWindow::MainWindow()
 	: QMainWindow(),
 	  cur_availability(false),
+	  m_moduleList(NULL),
 	  m_module(NULL)
 {
 	setupUi(this);
@@ -34,19 +35,24 @@ MainWindow::MainWindow()
 	fillModulesBox();
 }
 
+MainWindow::~MainWindow()
+{
+	delete[] m_moduleList;
+}
+
 void MainWindow::fillModulesBox()
 {
 	modulesBox->clear();
 
 	unsigned int n = ppk_module_count();
-	ppk_module modules[n];									//HACK !
-	ppk_module_list(modules, n);
+	m_moduleList = new ppk_module[n];
+	ppk_module_list(m_moduleList, n);
 
 	modulesBox->addItem("Select one:", qVariantFromValue((ppk_module*) NULL));
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; i < n; ++i)
-		modulesBox->addItem(modules[i].display_name, qVariantFromValue(&(modules[i])));
+		modulesBox->addItem(m_moduleList[i].display_name, qVariantFromValue(&(m_moduleList[i])));
 }
 
 void MainWindow::showInfoMessageUnderDevelopment()
@@ -548,7 +554,7 @@ void MainWindow::updateInfoLabel()
 
 void MainWindow::moduleChanged(int index)
 {
-	ppk_module* module = qVariantValue<ppk_module*>(modulesBox->itemData(index));
+	ppk_module* module = modulesBox->itemData(index).value<ppk_module*>();
 	if (module != NULL)
 	{
 		m_module = module;

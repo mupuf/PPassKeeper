@@ -8,7 +8,7 @@ typedef enum
 {
 	///String
 	ppk_string=1,
-	
+
 	///Binary
 	ppk_blob=2
 } ppk_data_type;
@@ -36,7 +36,7 @@ typedef struct
 	};
 } ppk_data;
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -45,7 +45,7 @@ extern "C"
 	* \param string in: The string to be stored (example : MySecretPassword).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_string_data_new(const char* string);
-	
+
 	/*! \brief Generate a blob ppk_data.
 	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
 	* \return  Return the ppk_data corresponding to the parameters*/
@@ -53,7 +53,7 @@ extern "C"
 
 	void ppk_data_free(ppk_data* data);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
 #endif
 

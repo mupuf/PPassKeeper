@@ -8,15 +8,18 @@
 #include "ui_mainwindow.h"
 #include "passwordlistmodel.h"
 
+#include <ppasskeeper/module.h>
+
 class MainWindow : public QMainWindow, Ui::MainWindow
 {
 	Q_OBJECT
 public:
 	MainWindow();
-	const QString &moduleId() const { return m_moduleId; };
+	const ppk_module* module() const { return m_module; };
 
 private:
-	QString m_moduleId, tmp_sensitive_data;
+	ppk_module* m_module;
+	QString tmp_sensitive_data;
 	PasswordListModel *pwdlistModel;
 
 	/* description of the current selected password

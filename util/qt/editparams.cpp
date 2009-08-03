@@ -10,7 +10,8 @@
 EditParams::EditParams(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::EditParams),
-    catTab(NULL)
+    catTab(NULL),
+	module(NULL)
 {
 	m_ui->setupUi(this);
 
@@ -22,7 +23,7 @@ EditParams::~EditParams()
     delete m_ui;
 }
 
-void EditParams::setModule(QString module_name)
+void EditParams::setModule(ppk_module* module)
 {
 	//Set up the tab widget before rendering into it
 	if(catTab!=NULL)
@@ -31,12 +32,12 @@ void EditParams::setModule(QString module_name)
 	m_ui->mainLayout->insertWidget(1, catTab);
 
 	//Change the module name
-	this->module_id=module_name;
-	m_ui->lbl_modulename->setText(module_name);
-	m_ui->lbl_textintro->setText("Edit settings of the \nmodule "+module_name);
+	this->module = module;
+	m_ui->lbl_modulename->setText(module->display_name);
+	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(module->display_name));
 
 	//Show the available parameters
-	ppk_proto_param* list=ppk_module_available_parameters(qPrintable(module_name));
+	ppk_proto_param* list=ppk_module_available_parameters(module->id);
 	if(list)
 	{
 		int i=0;
@@ -296,10 +297,10 @@ void EditParams::saveParam()
 		}
 
 		//Compare the current value to the currently stored
-		cvariant cur_value=ppk_module_get_param(qPrintable(module_id), qPrintable(name));
+		cvariant cur_value=ppk_module_get_param(module->id, qPrintable(name));
 
 		//If there is an already existing key, replace it. or if we changed the default value
 		if(cvariant_not_null(cur_value) || fieldValue!=fieldDefaultValue)
-			ppk_module_save_param(qPrintable(module_id), qPrintable(name), new_value);
+			ppk_module_save_param(module->id, qPrintable(name), new_value);
 	}
 }

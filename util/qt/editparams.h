@@ -7,7 +7,7 @@
 #include <QMap>
 #include <QGridLayout>
 #include <QTabWidget>
-#include "ppasskeeper.h"
+#include <ppasskeeper.h>
 
 #include "form_fields/qabstractformfield.h"
 
@@ -22,7 +22,7 @@ public:
 	explicit EditParams(QWidget *parent = 0);
 	virtual ~EditParams();
 
-	void setModule(QString module_name);
+	void setModule(ppk_module* module);
 
 protected:
 	virtual void changeEvent(QEvent *e);
@@ -33,7 +33,7 @@ private slots:
 private:
 	Ui::EditParams *m_ui;
 	QTabWidget* catTab;
-	QLatin1String module_id;
+	ppk_module* module;
 
 	QList<QAbstractFormField*> fields;
 	QMap<QString, QGridLayout*> categories;

@@ -7,7 +7,8 @@ AddPWD::AddPWD(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::AddPWD),
     cancel(false),
-    success(false)
+    success(false),
+	module(NULL)
 {
 	m_ui->setupUi(this);
 
@@ -81,9 +82,9 @@ void AddPWD::entryTypeChanged(int index)
 	this->adjustSize();
 }
 
-void AddPWD::setModule(QString module)
+void AddPWD::setModule(ppk_module* module)
 {
-	module_id=module;
+	this->module = module;
 }
 
 void AddPWD::setType(ppk_entry_type type)
@@ -150,7 +151,7 @@ void AddPWD::onOK()
 	}
 
 	ppk_data* data=ppk_string_data_new(default_string.toAscii().data());
-	ppk_error res = ppk_module_set_entry(module_id.toUtf8().constData(), entry, data, 0);
+	ppk_error res = ppk_module_set_entry(module->id, entry, data, 0);
 	if(res!=PPK_OK)
 	{
 		QString error=QString("An error occured while adding the entry '%1'\n\nError : %2").arg(key.c_str()).arg(ppk_error_get_string(res));

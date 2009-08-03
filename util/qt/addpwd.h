@@ -18,7 +18,7 @@ public:
 	bool succeeded();
 	bool cancelled();
 
-	void setModule(QString module);
+	void setModule(ppk_module* module);
 	void setType(ppk_entry_type type);
 
 protected:
@@ -32,7 +32,7 @@ private:
 
 	Ui::AddPWD *m_ui;
 	bool cancel, success;
-	QLatin1String module_id;
+	ppk_module* module;
 
 private slots:
 	void entryTypeChanged(int);

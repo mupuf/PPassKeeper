@@ -33,7 +33,7 @@ private slots:
 private:
 	Ui::EditParams *m_ui;
 	QTabWidget* catTab;
-	QString module_id;
+	QLatin1String module_id;
 
 	QList<QAbstractFormField*> fields;
 	QMap<QString, QGridLayout*> categories;

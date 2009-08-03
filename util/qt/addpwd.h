@@ -32,7 +32,7 @@ private:
 
 	Ui::AddPWD *m_ui;
 	bool cancel, success;
-	QString module_id;
+	QLatin1String module_id;
 
 private slots:
 	void entryTypeChanged(int);

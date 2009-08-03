@@ -10,11 +10,6 @@
 
 extern "C"
 {
-	ppk_entry* ppk_entry_new()
-	{
-		return new ppk_entry;
-	}
-
 	ppk_entry* ppk_network_entry_new(const char* host, const char* login, unsigned short port, const char* protocol)
 	{
 		ppk_entry *entry = new ppk_entry;

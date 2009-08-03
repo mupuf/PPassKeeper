@@ -84,26 +84,6 @@ extern "C"
 
 	void ppk_entry_free(ppk_entry* entry);
 
-	/* \brief Generate a Network entry given a host, a login and a port.WARNING : Destroying original variables host, login, and/or protocol will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).
-	* \param host in: The host (example : mupuf.org).
-	* \param login in: The login name (example : mupuf).
-	* \param port in: The service's port (example : 21, 0 means the default port).
-	* \param port in: The protocol name (example : ftp, NULL means unspecified)
-	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned short port, const char* protocol);
-
-	/* \brief Generate an application entry given a username and an application name.WARNING : Destroying original variables username and/or app_name will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).
-	* \param app_name in: The name of the application (example : PPassKeeper).
-	* \param username in: The user name (example : mupuf).
-	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry ppk_createAppEntry(const char* app_name, const char* username);
-
-	/* \brief Generate an item entry given an item name.
-		WARNING : Destroying original variable item will result in data corruption into the created entry as no data are copied in the function (it only uses pointers).
-	* \param item in: The item (example : MyWPAKey).
-	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry ppk_createItemEntry(const char* item);
-
 #ifdef __cplusplus 
 }
 #endif

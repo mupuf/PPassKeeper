@@ -550,33 +550,6 @@ extern "C"
  *                      Convenient functions                         *
  *                                                                   *
  *********************************************************************/
-	/*ppk_entry ppk_createNetworkEntry(const char* host, const char* login, unsigned int port, const char* protocol)
-	{
-		ppk_entry entry;
-		entry.type=ppk_network;
-		entry.net.host=host;
-		entry.net.port=port;
-		entry.net.login=login;
-		entry.net.protocol=protocol;
-		return entry;
-	}
-	
-     ppk_entry ppk_createAppEntry(const char* app_name, const char* username)
-     {
-		ppk_entry entry;
-		entry.type=ppk_application;
-		entry.app.app_name=app_name;
-		entry.app.username=username;
-		return entry;
-	}
-	
-     ppk_entry ppk_createItemEntry(const char* item)
-     {
-		ppk_entry entry;
-		entry.type=ppk_item;
-		entry.item=item;
-		return entry;
-	}
 	
 	ppk_data ppk_createStringData(const char* string)
 	{

@@ -48,7 +48,7 @@ void MainWindow::fillModulesBox()
 	m_moduleList = new ppk_module[n];
 	ppk_module_list(m_moduleList, n);
 
-	modulesBox->addItem("Select one:", qVariantFromValue((ppk_module*) NULL));
+	modulesBox->addItem(tr("Select one:"), qVariantFromValue((ppk_module*) NULL));
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; i < n; ++i)
@@ -57,7 +57,7 @@ void MainWindow::fillModulesBox()
 
 void MainWindow::showInfoMessageUnderDevelopment()
 {
-	QMessageBox::information(this, "PPassKeeper : This is still a development version", "This function has not been implemented yet. \n\nPPassKeeper is still under heavy development, so, we do apologize.");
+	QMessageBox::information(this, tr("PPassKeeper: This is still a development version"), tr("This function has not been implemented yet. \n\nPPassKeeper is still under heavy development, so, we do apologize."));
 }
 
 void MainWindow::setupActions()
@@ -146,8 +146,8 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 	{
 		char key[101];
 		ppk_get_key(entry, key, sizeof(key)-1);
-		QString error=QString("An error occured while updating the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
-		QMessageBox::critical(this, tr("PPassKeeper : Error while updating the password"), error);
+		QString error=tr("An error occured while updating the entry '%1'\n\nError: %2").arg(key).arg(ppk_error_get_string(res));
+		QMessageBox::critical(this, tr("PPassKeeper: Error while updating the password"), error);
 	}
 
 	//Free the entry
@@ -161,7 +161,7 @@ bool MainWindow::unlockPPK(bool force)
 	if(ppk_is_locked()==PPK_TRUE)
 	{
 		bool ok;
-		std::string pwd=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper :", QLineEdit::Password,"", &ok).toStdString();
+		std::string pwd=QInputDialog::getText(NULL, tr("Unlock PPassKeeper"), tr("Please key in the password to unlock PPassKeeper:"), QLineEdit::Password,QString(), &ok).toStdString();
 
 		if(ok)
 		{
@@ -169,7 +169,7 @@ bool MainWindow::unlockPPK(bool force)
 				return true;
 			else
 			{
-				QMessageBox::critical(this, "Error : Incorrect password", "The password you entered is wrong.\nTry again ...");
+				QMessageBox::critical(this, tr("Error: Incorrect password"), tr("The password you entered is wrong.\nTry again ..."));
 
 				if(force)
 					return unlockPPK(force);
@@ -187,21 +187,21 @@ bool MainWindow::unlockPPK(bool force)
 void MainWindow::setMasterPwd()
 {
 	bool ok;
-	std::string pwd=QInputDialog::getText(NULL,"Please set up the new master password","Please key in the new master password :", QLineEdit::Password,"", &ok).toStdString();
+	std::string pwd=QInputDialog::getText(NULL, tr("Please set up the new master password"), tr("Please key in the new master password :"), QLineEdit::Password, QString(), &ok).toStdString();
 	if(ok)
 	{
-		std::string pwd2=QInputDialog::getText(NULL,"Unlock PPassKeeper","Please key in the password to unlock PPassKeeper a second time :", QLineEdit::Password,"", &ok).toStdString();
+		std::string pwd2=QInputDialog::getText(NULL,tr("Unlock PPassKeeper"), tr("Please key in the password to unlock PPassKeeper a second time :"), QLineEdit::Password, QString(), &ok).toStdString();
 		if(ok)
 		{
 			if(pwd==pwd2)
 			{
 				if(ppk_set_password(pwd.c_str())==PPK_TRUE)
-					QMessageBox::information(this, "The password has been set", "The password you entered has been set as the new master password.");
+					QMessageBox::information(this, tr("The password has been set"), tr("The password you entered has been set as the new master password."));
 				else
-					QMessageBox::critical(this, "Error : An error occured", QString("PPassKeeper was unable to set this password.\nError : TODO")/*ppk_getLastError(NULL)*/);
+					QMessageBox::critical(this, tr("Error: An error occured"), tr("PPassKeeper was unable to set this password.\nError : TODO")/*ppk_getLastError(NULL)*/);
 			}
 			else
-				QMessageBox::critical(this, "Error : The password are not the same", "The two passwords you entered are not matching.\nTry again ...");
+				QMessageBox::critical(this, tr("Error: The password are not the same"), tr("The two passwords you entered are not matching.\nTry again ..."));
 		}
 	}
 }
@@ -259,7 +259,7 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 		if(ppk_get_key(entry, key, sizeof(key)-1)==PPK_FALSE)
 			strncpy(key, "<invalid_entry>", sizeof(key)-1);
 
-		QString error=QString("An error occured while accessing the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+		QString error=tr("An error occured while accessing the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
 		QMessageBox::critical(this, tr("PPassKeeper : Error while accessing the entry"), error);
 	}
 
@@ -273,7 +273,7 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 
 void MainWindow::onDelButtonClicked()
 {
-	QString error="", entry_name;
+	QString error, entry_name;
 
 	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 
@@ -310,7 +310,7 @@ void MainWindow::onDelButtonClicked()
 		}
 		else
 		{
-			QMessageBox::critical(this, "PPassKeeper : Error while deleting ...", "The current type of the selected password is unknown.");
+			QMessageBox::critical(this, tr("PPassKeeper : Error while deleting ..."), tr("The current type of the selected password is unknown."));
 			return;
 		}
 
@@ -318,8 +318,8 @@ void MainWindow::onDelButtonClicked()
 		{
 			char key[101];
 			ppk_get_key(entry, key, sizeof(key)-1);
-			QString error=QString("An error occured while deleting the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
-			QMessageBox::critical(this, "PPassKeeper : Error while deleting ...", error);
+			QString error=tr("An error occured while deleting the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+			QMessageBox::critical(this, tr("PPassKeeper : Error while deleting ..."), error);
 		}
 		else
 			listCurrentModule();
@@ -468,7 +468,7 @@ void MainWindow::saveValueToFile()
 	ppk_data* data=getSelectedEntryData(ok);
 	if (ok)
 	{
-		QString filepath=QFileDialog::getSaveFileName(this, tr("Save Value"), "", tr("All (*.*)"));
+		QString filepath=QFileDialog::getSaveFileName(this, tr("Save Value"), QString(), tr("All (*.*)"));
 		if (filepath.isEmpty())
 			return;
 
@@ -494,7 +494,7 @@ void MainWindow::saveValueToFile()
 
 void MainWindow::setBlobFromFile()
 {
-	QString filepath=QFileDialog::getOpenFileName(this, tr("Open a file to save"), "", tr("All (*.*)"));
+	QString filepath=QFileDialog::getOpenFileName(this, tr("Open a file to save"), QString(), tr("All (*.*)"));
 	if (filepath.isEmpty())
 		return;
 

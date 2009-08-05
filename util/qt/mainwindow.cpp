@@ -17,9 +17,9 @@ Q_DECLARE_METATYPE(ppk_module*); // to make it storable in QVariant
 
 MainWindow::MainWindow()
 	: QMainWindow(),
-	  cur_availability(false),
 	  m_moduleList(NULL),
-	  m_module(NULL)
+	  m_module(NULL),
+	  cur_availability(false)
 {
 	setupUi(this);
 
@@ -499,7 +499,7 @@ void MainWindow::setBlobFromFile()
 		return;
 
 	QFile file(filepath);
-	if(file.size()<=ppk_module_max_data_size(m_module->id, ppk_blob))
+	if((size_t)file.size()<=ppk_module_max_data_size(m_module->id, ppk_blob))
 	{
 		file.open(QIODevice::ReadOnly);
 		if(file.isReadable())

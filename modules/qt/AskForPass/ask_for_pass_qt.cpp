@@ -1,7 +1,24 @@
 #include "ppasskeeper.h"
 #include "tokenizer.h"
 #include <string>
+#include <map>
 #include <stdio.h>
+
+#include <qstring.h>
+
+//Parameters
+std::map<std::string, cvariant> parameters;
+#define PARAM_IMG_APP "App image"
+#define PARAM_IMG_NET "Net image"
+#define PARAM_IMG_ITEM "Item image"
+#define PARAM_WINDOW_CAPTION "Window's caption"
+#define PARAM_MAIN_TEXT "Main text"
+
+#define PARAM_IMG_APP_DEFAULT ""
+#define PARAM_IMG_NET_DEFAULT ""
+#define PARAM_IMG_ITEM_DEFAULT ""
+#define PARAM_WINDOW_CAPTION_DEFAULT "Please key in the item ..."
+#define PARAM_MAIN_TEXT_DEFAULT "Please key in the item corresponding to %1 :"
 
 //local functions
 std::string* last_error()
@@ -9,13 +26,28 @@ std::string* last_error()
 	static std::string last_err;
 	return &last_err;
 }
-bool Qt_Get_Password(std::string title, std::string label, std::string& pwd);
+bool Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd);
 void setError(std::string error)
 {
 	*(last_error())="PPK_AskForPass_Qt : " + error;
 }
 
 //functions
+extern "C" void constructor()
+{
+	//Set parameters's default value
+	parameters[PARAM_IMG_APP]=cvariant_from_string(PARAM_IMG_APP_DEFAULT);
+	parameters[PARAM_IMG_NET]=cvariant_from_string(PARAM_IMG_NET_DEFAULT);
+	parameters[PARAM_IMG_ITEM]=cvariant_from_string(PARAM_IMG_ITEM_DEFAULT);
+	parameters[PARAM_WINDOW_CAPTION]=cvariant_from_string(PARAM_WINDOW_CAPTION_DEFAULT);
+	parameters[PARAM_MAIN_TEXT_DEFAULT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
+}
+
+extern "C" void destructor()
+{
+	//Nothing to free
+}
+
 extern "C" const char* getModuleID()
 {
 	return "AskForPass_Qt";
@@ -74,14 +106,27 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 	{
 		std::string text;
 		if(entry->type==ppk_network)
-			text=toString(entry->net.login)+"@"+toString(entry->net.host)+":"+toString(entry->net.port);
+			text=toString(entry->net.login)+toString("@")+toString(entry->net.host)+toString(":")+toString(entry->net.port);
 		else if(entry->type==ppk_application)
 			text=toString(entry->app.username)+"@"+toString(entry->app.app_name);
 		else if(entry->type==ppk_item)
-			text="this key("+toString(entry->item)+")";
+			text=+entry->item;
 
 		std::string pwd;
-		bool res=Qt_Get_Password("Please key in the item ...","Please key in the item corresponding to " + text + " : ",pwd);
+		QString icon;
+		QString title=QString::fromUtf8(cvariant_get_string(parameters[PARAM_WINDOW_CAPTION]));
+		QString label=QString::fromUtf8(cvariant_get_string(parameters[PARAM_MAIN_TEXT])).arg(QString::fromUtf8(text.c_str()));
+
+		printf("text=%s\n", text.c_str());
+
+		if(entry->type==ppk_application)
+			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_APP]));
+		else if(entry->type==ppk_network)
+			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_NET]));
+		else if(entry->type==ppk_item)
+			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_ITEM]));
+
+		bool res=Qt_Get_Password(title, label, icon, pwd);
 
 		//if everything went fine
 		if(res)
@@ -124,70 +169,96 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	return 0;
 }
 
-ppk_settings_group ppk_settings_basic = { "Basic", "Basic settings" };
-ppk_settings_group ppk_settings_network = { "Network", "Network-related parameters" };
 ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
-ppk_settings_group ppk_settings_security = { "Security", "Security-related parameters" };
+ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by ask_for_pass_qt" };
 
 extern "C" ppk_proto_param* availableParameters()
 {
-	static ppk_proto_param tst_param;
-	tst_param.expected_type=cvariant_string;
-	tst_param.name="Ein kleiner Test";
-	tst_param.help_text="Some silly parameter :)";
-	tst_param.default_value=cvariant_from_string("Bah Beh Bih Boh Buh Byh");
-	tst_param.group=&ppk_settings_basic;
+	static ppk_proto_param img_app;
+	img_app.expected_type=cvariant_string;
+	img_app.name=PARAM_IMG_APP;
+	img_app.help_text="The image you would like to be displayed when you're ask to enter a application password";
+	img_app.default_value=cvariant_from_string("");
+	img_app.group=&ppk_settings_display;
 
-	static ppk_proto_param p_ip;
-	p_ip.expected_type=cvariant_string;
-	p_ip.name="Host";
-	p_ip.help_text="The host you would like to connect to.\nIt can be both an IP address or an host name";
-	p_ip.default_value=cvariant_from_string("127.0.0.1");
-	p_ip.group=&ppk_settings_network;
+	static ppk_proto_param img_net;
+	img_net.expected_type=cvariant_string;
+	img_net.name=PARAM_IMG_NET;
+	img_net.help_text="The image you would like to be displayed when you're ask to enter a network password";
+	img_net.default_value=cvariant_from_string("");
+	img_net.group=&ppk_settings_display;
+
+	static ppk_proto_param img_item;
+	img_item.expected_type=cvariant_string;
+	img_item.name=PARAM_IMG_ITEM;
+	img_item.help_text="The image you would like to be displayed when you're ask to enter an item's value";
+	img_item.default_value=cvariant_from_string("");
+	img_item.group=&ppk_settings_display;
+
+	static ppk_proto_param win_cap;
+	win_cap.expected_type=cvariant_string;
+	win_cap.name=PARAM_WINDOW_CAPTION;
+	win_cap.help_text="The caption you would like to see";
+	win_cap.default_value=cvariant_from_string(PARAM_WINDOW_CAPTION_DEFAULT);
+	win_cap.group=&ppk_settings_custom_texts;
 	
-	static ppk_proto_param p_port;
-	p_port.expected_type=cvariant_int;
-	p_port.name="Port";
-	p_port.help_text="The port you would like to connect to";
-	p_port.default_value=cvariant_from_int(80);
-	p_port.group=&ppk_settings_network;
+	static ppk_proto_param win_text;
+	win_text.expected_type=cvariant_string;
+	win_text.name=PARAM_MAIN_TEXT;
+	win_text.help_text="The main text you would like to shown.\nUse %1 were you actually want the key to be shown.";
+	win_text.default_value=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
+	win_text.group=&ppk_settings_custom_texts;
 
 	static ppk_proto_param proto_null;
 	proto_null.expected_type=cvariant_none;
-	proto_null.group=&ppk_settings_basic;
+	proto_null.group=&ppk_settings_custom_texts;
 
-	static ppk_proto_param params[]={tst_param, p_ip, p_port, proto_null};
+	static ppk_proto_param params[]={img_app, img_net, img_item, win_cap, win_text, proto_null};
 
 	return params;
 }
 
 extern "C" void setParam(const char* paramName, const cvariant value)
 {
-	/*std::string key(paramName);
+	std::string key(paramName);
 
-	if(key == "Ein kleiner Test")
+	if(key == PARAM_IMG_APP)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
-			printf("Set Param : paramName(%s), value(%s)\n", paramName, cvariant_get_string(value));
+			parameters[PARAM_IMG_APP]=value;
 		else
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
-	else if(key == "Host")
+	else if(key == PARAM_IMG_NET)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
-			printf("Set Param : paramName(%s), value(%s)\n", paramName, cvariant_get_string(value));
+			parameters[PARAM_IMG_NET]=value;
 		else
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
-	else if(key == "Port")
+	else if(key == PARAM_IMG_ITEM)
 	{
-		if(cvariant_get_type(value)==cvariant_int)
-			printf("Set Param : paramName(%s), value(%i)\n", paramName, cvariant_get_int(value));
+		if(cvariant_get_type(value)==cvariant_string)
+			parameters[PARAM_IMG_ITEM]=value;
+		else
+			printf("Wrong data type for the parameter '%s' !\n", paramName);
+	}
+	else if(key == PARAM_WINDOW_CAPTION)
+	{
+		if(cvariant_get_type(value)==cvariant_string)
+			parameters[PARAM_WINDOW_CAPTION]=value;
+		else
+			printf("Wrong data type for the parameter '%s' !\n", paramName);
+	}
+	else if(key == PARAM_MAIN_TEXT)
+	{
+		if(cvariant_get_type(value)==cvariant_string)
+			parameters[PARAM_MAIN_TEXT]=value;
 		else
 			printf("Wrong data type for the parameter '%s' !\n", paramName);
 	}
 	else
-		printf("	Unknown param(%s) !!\n", paramName);*/
+		printf("	Unknown param(%s) !!\n", paramName);
 }
 
 extern "C" const char* getLastError()
@@ -223,8 +294,6 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 #include <qapplication.h>
 #include <qinputdialog.h>
 
-#include <qstring.h>
-
 #include <qdialog.h>
 #include <qboxlayout.h>
 #include <qlabel.h>
@@ -235,29 +304,35 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 class PasswordDialog : public QDialog
 {
 public:
-	static bool getPassword(const std::string &title, const std::string &label, std::string &pwd)
+	static bool getPassword(const QString &title, const QString &label, const QString& icon, std::string &pwd)
 	{
-		PasswordDialog dialog(title, label);
+		PasswordDialog dialog(title, label, icon);
 		bool ok = dialog.exec() == QDialog::Accepted;
 		pwd=dialog.pwdEdit->text().toStdString();
 		return ok;
 	}
 
 private:
-	PasswordDialog(const std::string &title, const std::string &label) : QDialog()
+	PasswordDialog(const QString &title, const QString &label, const QString& icon=QString()) : QDialog()
 	{
-		setWindowTitle(QString::fromStdString(title));
+		setWindowTitle(title);
 
 		QVBoxLayout *layout = new QVBoxLayout;
 
-		QString qlabel = QString::fromStdString(label);
+		QString qlabel = label;
 		qlabel.prepend(QString::fromAscii("<b>"));
 		qlabel.append(QString::fromAscii("</b>"));
+
+		QPixmap pixmap;
+		if(icon!=QString() && pixmap.load(icon))
+		{}
+		else
+			pixmap=qApp->style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(32, 32);
 
 		QHBoxLayout *hlayout = new QHBoxLayout;
 		QLabel *iconLabel = new QLabel;
 		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		iconLabel->setPixmap(qApp->style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(64, 64));
+		iconLabel->setPixmap(pixmap);
 		hlayout->addWidget(iconLabel);
 		hlayout->addSpacing(12);
 		QLabel *textLabel = new QLabel(qlabel);
@@ -286,13 +361,13 @@ private:
 	QLineEdit *pwdEdit;
 };
 
-bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
+bool Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd)
 {
 	bool ok;
 
-	//If there is a custom
+	//If there is a custom text
 	if(*(customPrompt())!=std::string())
-		label=customPrompt()->c_str();
+		label=QString::fromUtf8(customPrompt()->c_str());
 
 	//Init Qt if it has not already been done
 	if(QApplication::instance()==0)
@@ -302,10 +377,10 @@ bool Qt_Get_Password(std::string title, std::string label, std::string& pwd)
 		QApplication app(argc,NULL);
 
 		//Retrieve the password
-		ok = PasswordDialog::getPassword(title, label, pwd);
+		ok = PasswordDialog::getPassword(title, label, icon, pwd);
 	}
 	else
-		ok = PasswordDialog::getPassword(title, label, pwd);
+		ok = PasswordDialog::getPassword(title, label, icon, pwd);
 
 	//if user pressed cancel
 	if(!ok)

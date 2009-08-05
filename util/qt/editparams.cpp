@@ -116,7 +116,7 @@ QString EditParams::createNameString(ppk_proto_param* pparam)
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Helvetica'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: %2)</p></body></html>").arg(QString::fromUtf8(pparam->name)).arg(default_value.toString());
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: '%2')</p></body></html>").arg(QString::fromUtf8(pparam->name)).arg(default_value.toString());
 }
 
 #include "form_fields/qtextfield.h"
@@ -211,6 +211,7 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param*
 
 		QLabel* nameParamLbl = new QLabel(createNameString(pparam), parent);
 		nameParamLbl->setToolTip(QString::fromUtf8(pparam->help_text));
+		nameParamLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		layout->addWidget(nameParamLbl, line, 0, 1, 1);
 
 		QPushButton* helpParamBtn = new QPushButton(tr("?"), parent);

@@ -33,8 +33,8 @@ void EditParams::setModule(ppk_module* module)
 
 	//Change the module name
 	this->module = module;
-	m_ui->lbl_modulename->setText(module->display_name);
-	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(module->display_name));
+	m_ui->lbl_modulename->setText(QString::fromUtf8(module->display_name));
+	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(QString::fromUtf8(module->display_name)));
 
 	//Show the available parameters
 	ppk_proto_param* list=ppk_module_available_parameters(module->id);
@@ -43,10 +43,10 @@ void EditParams::setModule(ppk_module* module)
 		int i=0;
 		while(list[i].expected_type!=cvariant_none)
 		{
-			if(!categories.contains(list->group->display_name))
+			if(!categories.contains(QString::fromUtf8(list->group->display_name)))
 				addCategory(catTab, list->group);
 
-			addParam(catTab, categories[list->group->display_name], list);
+			addParam(catTab, categories[QString::fromUtf8(list->group->display_name)], list);
 
 			list++;
 		}
@@ -97,7 +97,7 @@ QString EditParams::createNameString(ppk_proto_param* pparam)
 	switch(cvariant_get_type(pparam->default_value))
 	{
 		case cvariant_string:
-			default_value=cvariant_get_string(pparam->default_value);
+			default_value=QString::fromUtf8(cvariant_get_string(pparam->default_value));
 			break;
 
 		case cvariant_int:
@@ -109,14 +109,14 @@ QString EditParams::createNameString(ppk_proto_param* pparam)
 			break;
 
 		default:
-			return "Unknown";
+			return tr("Unknown");
 	}
 
 	return QString::fromUtf8("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Helvetica'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: %2)</p></body></html>").arg(pparam->name).arg(default_value.toString());
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">%1</span> (Default: %2)</p></body></html>").arg(QString::fromUtf8(pparam->name)).arg(default_value.toString());
 }
 
 #include "form_fields/qtextfield.h"
@@ -138,10 +138,10 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 
 		case cvariant_string:
 		{
-			QString default_value=cvariant_get_string(pparam->default_value);
+			QString default_value=QString::fromUtf8(cvariant_get_string(pparam->default_value));
 			QString value;
 			if(cvariant_not_null(c_value))
-				value=cvariant_get_string(c_value);
+				value=QString::fromUtf8(cvariant_get_string(c_value));
 			else
 				value=default_value;
 
@@ -196,8 +196,8 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param*
 	QAbstractFormField* field=abstractFormFieldFromParamProto(parent, pparam);
 	if(field)
 	{
-		field->setFieldName(pparam->name);
-		field->setHelpText(pparam->help_text);
+		field->setFieldName(QString::fromUtf8(pparam->name));
+		field->setHelpText(QString::fromUtf8(pparam->help_text));
 
 		int line=layout->rowCount();
 
@@ -206,11 +206,11 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param*
 		sizePolicy.setVerticalStretch(0);
 		sizePolicy.setHeightForWidth(field->widget()->sizePolicy().hasHeightForWidth());
 		field->widget()->setSizePolicy(sizePolicy);
-		field->widget()->setToolTip(pparam->help_text);
+		field->widget()->setToolTip(QString::fromUtf8(pparam->help_text));
 		layout->addWidget(field->widget(), line, 1, 1, 1);
 
 		QLabel* nameParamLbl = new QLabel(createNameString(pparam), parent);
-		nameParamLbl->setToolTip(pparam->help_text);
+		nameParamLbl->setToolTip(QString::fromUtf8(pparam->help_text));
 		layout->addWidget(nameParamLbl, line, 0, 1, 1);
 
 		QPushButton* helpParamBtn = new QPushButton(tr("?"), parent);
@@ -221,7 +221,7 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param*
 		sizePolicy1.setHeightForWidth(helpParamBtn->sizePolicy().hasHeightForWidth());
 		helpParamBtn->setSizePolicy(sizePolicy1);
 		helpParamBtn->setMaximumSize(QSize(40, 16777215));
-		helpParamBtn->setToolTip(pparam->help_text);
+		helpParamBtn->setToolTip(QString::fromUtf8(pparam->help_text));
 		layout->addWidget(helpParamBtn, line, 2, 1, 1);
 
 		QDialogButtonBox* rstParamBtn = new QDialogButtonBox(parent);
@@ -244,12 +244,12 @@ QWidget* EditParams::addCategory(QTabWidget* catTab, ppk_settings_group* categ)
 {
 	if(categ)
 	{
-		if(!categories.contains(categ->display_name))
+		if(!categories.contains(QString::fromUtf8(categ->display_name)))
 		{
 			QWidget* tab = new QWidget(catTab);
-			/*int pos=*/catTab->addTab(tab, categ->display_name);
+			/*int pos=*/catTab->addTab(tab, QString::fromUtf8(categ->display_name));
 
-			categories[categ->display_name]=new QGridLayout(tab);
+			categories[QString::fromUtf8(categ->display_name)]=new QGridLayout(tab);
 
 			return tab;
 		}

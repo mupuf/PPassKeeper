@@ -120,9 +120,9 @@ void PasswordListModel::updateFilter()
 
 		if(ppk_get_key(&a, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
-			if(filterAccept(buf))
+			if(filterAccept(QString::fromAscii(buf)))
 			{
-				v_app.push_back(buf);
+				v_app.push_back(QString::fromAscii(buf));
 				e_app.push_back(a);
 			}
 		}
@@ -132,7 +132,7 @@ void PasswordListModel::updateFilter()
 	{
 		const ppk_entry &n = net_ent[i];
 
-		QString entry("%1@%2:%3");
+		QString entry=QString::fromAscii("%1@%2:%3");
 		entry=entry.arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port);
 
 		//Bug : protocol is ill initialised
@@ -152,9 +152,9 @@ void PasswordListModel::updateFilter()
 
 		if(ppk_get_key(&it, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
-			if(filterAccept(buf))
+			if(filterAccept(QString::fromAscii(buf)))
 			{
-				v_item.push_back(buf);
+				v_item.push_back(QString::fromAscii(buf));
 				e_item.push_back(it);
 			}
 		}

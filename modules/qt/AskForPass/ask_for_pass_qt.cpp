@@ -251,8 +251,8 @@ private:
 		QVBoxLayout *layout = new QVBoxLayout;
 
 		QString qlabel = QString::fromStdString(label);
-		qlabel.prepend("<b>");
-		qlabel.append("</b>");
+		qlabel.prepend(QString::fromAscii("<b>"));
+		qlabel.append(QString::fromAscii("</b>"));
 
 		QHBoxLayout *hlayout = new QHBoxLayout;
 		QLabel *iconLabel = new QLabel;

@@ -52,7 +52,7 @@ void MainWindow::fillModulesBox()
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; i < n; ++i)
-		modulesBox->addItem(m_moduleList[i].display_name, qVariantFromValue(&(m_moduleList[i])));
+		modulesBox->addItem(QString::fromUtf8(m_moduleList[i].display_name), qVariantFromValue(&(m_moduleList[i])));
 }
 
 void MainWindow::showInfoMessageUnderDevelopment()
@@ -146,7 +146,7 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 	{
 		char key[101];
 		ppk_get_key(entry, key, sizeof(key)-1);
-		QString error=tr("An error occured while updating the entry '%1'\n\nError: %2").arg(key).arg(ppk_error_get_string(res));
+		QString error=tr("An error occured while updating the entry '%1'\n\nError: %2").arg(QString::fromUtf8(key)).arg(QString::fromUtf8(ppk_error_get_string(res)));
 		QMessageBox::critical(this, tr("PPassKeeper: Error while updating the password"), error);
 	}
 
@@ -259,7 +259,7 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 		if(ppk_get_key(entry, key, sizeof(key)-1)==PPK_FALSE)
 			strncpy(key, "<invalid_entry>", sizeof(key)-1);
 
-		QString error=tr("An error occured while accessing the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+		QString error=tr("An error occured while accessing the entry '%1'\n\nError : %2").arg(QString::fromUtf8(key)).arg(QString::fromUtf8(ppk_error_get_string(res)));
 		QMessageBox::critical(this, tr("PPassKeeper : Error while accessing the entry"), error);
 	}
 
@@ -279,15 +279,15 @@ void MainWindow::onDelButtonClicked()
 
 	//Get the entry name
 	if (cur_type == ppk_application)
-		entry_name=cur_app.username+"@"+cur_app.app_name;
+		entry_name=cur_app.username+QString::fromUtf8("@")+cur_app.app_name;
 	else if (cur_type == ppk_network)
-		entry_name=cur_net.login+"@"+cur_net.host+":"+QString::number(cur_net.port);
+		entry_name=cur_net.login+QString::fromUtf8("@")+cur_net.host+QString::fromUtf8(":")+QString::number(cur_net.port);
 	else if (cur_type == ppk_item)
 		entry_name=cur_item.key;
 
 
 	QString title=tr("Are your sure ?");
-	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(m_module->id);
+	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(QString::fromUtf8(m_module->id));
 	if(QMessageBox::question(this, title, text, QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 	{
 		ppk_error res;
@@ -318,7 +318,7 @@ void MainWindow::onDelButtonClicked()
 		{
 			char key[101];
 			ppk_get_key(entry, key, sizeof(key)-1);
-			QString error=tr("An error occured while deleting the entry '%1'\n\nError : %2").arg(key).arg(ppk_error_get_string(res));
+			QString error=tr("An error occured while deleting the entry '%1'\n\nError : %2").arg(QString::fromUtf8(key)).arg(QString::fromUtf8(ppk_error_get_string(res)));
 			QMessageBox::critical(this, tr("PPassKeeper : Error while deleting ..."), error);
 		}
 		else
@@ -429,16 +429,16 @@ void MainWindow::onPasswordSelected()
 
 void MainWindow::onAppPasswordSelected(const char *app_name, const char *username)
 {
-	cur_app.app_name = app_name;
-	cur_app.username = username;
+	cur_app.app_name = QString::fromUtf8(app_name);
+	cur_app.username = QString::fromUtf8(username);
 
 	onPasswordSelected();
 }
 
 void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
 {
-	cur_net.host = host;
-	cur_net.login = login;
+	cur_net.host = QString::fromUtf8(host);
+	cur_net.login = QString::fromUtf8(login);
 	cur_net.port = port;
 
 	onPasswordSelected();
@@ -446,7 +446,7 @@ void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsi
 
 void MainWindow::onItemPasswordSelected(const char *key)
 {
-	cur_item.key = key;
+	cur_item.key = QString::fromUtf8(key);
 
 	onPasswordSelected();
 }

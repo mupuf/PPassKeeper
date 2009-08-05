@@ -141,7 +141,7 @@ ppk_error getPassword(const char* key, ppk_data** edata, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Get the password
-		if(wallet->readPassword(key,pwd)==0)
+		if(wallet->readPassword(QString::fromUtf8(key), pwd)==0)
 		{
 			*edata=ppk_string_data_new(qPrintable(pwd));
 			return PPK_OK;
@@ -160,7 +160,7 @@ ppk_error getBlob(const char *key, ppk_data** edata, unsigned int flags)
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
-		if(wallet->readEntry(key, blob)==0)
+		if(wallet->readEntry(QString::fromAscii(key), blob)==0)
 		{
 			*edata=ppk_blob_data_new(blob, blob.size());
 			return PPK_OK;
@@ -178,7 +178,7 @@ bool setPassword(const char* key, const char* pwd, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Set the password
-		if(wallet->writePassword(key,pwd)==0)
+		if(wallet->writePassword(QString::fromUtf8(key), QString::fromUtf8(pwd))==0)
 			return true;
 		else
 		{
@@ -197,7 +197,7 @@ bool setBlob(const char *key, const void *data, unsigned long size, unsigned int
 	{
 		//Set the password
 		QByteArray blobData((const char *) data, size);
-		if(wallet->writeEntry(key, blobData)==0)
+		if(wallet->writeEntry(QString::fromAscii(key), blobData)==0)
 			return true;
 		else
 		{
@@ -213,7 +213,7 @@ ppk_error removePassword(const char* key, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Set the password
-		if(wallet->removeEntry(key)==0)
+		if(wallet->removeEntry(QString::fromAscii(key))==0)
 			return PPK_OK;
 		else
 			return PPK_ENTRY_UNAVAILABLE;
@@ -230,7 +230,7 @@ bool passwordExists(const char* key, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Get the password
-		if(wallet->hasEntry(key)==0)
+		if(wallet->hasEntry(QString::fromAscii(key))==0)
 			return true;
 		else
 		{
@@ -353,7 +353,7 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 	if (wallet == NULL)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 	
-	KWallet::Wallet::EntryType entryType = wallet->entryType(generatedKey.c_str());
+	KWallet::Wallet::EntryType entryType = wallet->entryType(QString::fromStdString(generatedKey));
 
 	if (entryType == KWallet::Wallet::Password)
 		return getPassword(generatedKey.c_str(), edata, flags);

@@ -27,10 +27,10 @@ void InfoModule::changeEvent(QEvent *e)
 
 QString InfoModule::listFlags(unsigned int flags)
 {
-	QString list="none";
+	QString list=QString::fromUtf8("none");
 
 	if(flags|ppk_rf_silent)
-		list+=", silent";
+		list+=QString::fromUtf8(", silent");
 
 	return list;
 }
@@ -38,21 +38,21 @@ QString InfoModule::listFlags(unsigned int flags)
 void InfoModule::setModule(const char* m_id)
 {
 	//Module Name
-	m_ui->moduleNameLabel->setText(m_id);
+	m_ui->moduleNameLabel->setText(QString::fromUtf8(m_id));
 
 	//Security
 	ppk_security_level slevel=ppk_module_security_level(m_id);
-	QString txt_security="Security Level : ";
+	QString txt_security=QString::fromUtf8("Security Level : ");
 	if(slevel==ppk_sec_lowest)
-		txt_security+="Not secured at all !";
+		txt_security+=QString::fromUtf8("Not secured at all !");
 	else if(slevel==ppk_sec_scrambled)
-		txt_security+="Not secured";
+		txt_security+=QString::fromUtf8("Not secured");
 	else if(slevel==ppk_sec_safe)
-		txt_security+="Secured for most usage";
+		txt_security+=QString::fromUtf8("Secured for most usage");
 	else if(slevel==ppk_sec_perfect)
-		txt_security+="Perfect, is it stored ?";
+		txt_security+=QString::fromUtf8("Perfect, is it stored ?");
 	else
-		txt_security+="Unknown security level";
+		txt_security+=QString::fromUtf8("Unknown security level");
 	m_ui->securityLabel->setText(txt_security);
 	m_ui->securityProgress->setValue(slevel);
 

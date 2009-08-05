@@ -105,23 +105,23 @@ void AddPWD::onOK()
 	QString error_fill_field_text=tr("Error : You must fill every field of the form !");
 
 	ppk_entry* entry;
-	std::string key;
+	QString key;
 
-	std::string app=m_ui->appEdit->text().toStdString();
-	std::string user=m_ui->userEdit->text().toStdString();
-	std::string login=m_ui->loginEdit->text().toStdString();
-	std::string host=m_ui->hostEdit->text().toStdString();
-	std::string protocol=m_ui->protocolEdit->text().toStdString();
+	QString app=m_ui->appEdit->text();
+	QString user=m_ui->userEdit->text();
+	QString login=m_ui->loginEdit->text();
+	QString host=m_ui->hostEdit->text();
+	QString protocol=m_ui->protocolEdit->text();
 	int port=m_ui->portSpin->value();
-	std::string item=m_ui->itemEdit->text().toStdString();
+	QString item=m_ui->itemEdit->text();
 
 	int index=m_ui->entryTypeCombo->currentIndex();
 	if (index==0)
 	{
-		key=user+"@"+app;
-		entry=ppk_application_entry_new(app.c_str(), user.c_str());
+		key=user+QString::fromUtf8("@")+app;
+		entry=ppk_application_entry_new(qPrintable(app), qPrintable(user));
 
-		if(app=="" || user=="")
+		if(app==QString() || user==QString())
 		{
 			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
 			return;
@@ -129,10 +129,10 @@ void AddPWD::onOK()
 	}
 	else if (index==1)
 	{
-		entry=ppk_network_entry_new(host.c_str(), login.c_str(), port, protocol.empty() ? NULL : protocol.c_str());
-		key=login+"@"+host+":"+QString::number(port).toStdString();
+		entry=ppk_network_entry_new(qPrintable(host), qPrintable(login), port, protocol.size()==0 ? NULL : qPrintable(protocol));
+		key=login+QString::fromUtf8("@")+host+QString::fromUtf8(":")+QString::number(port);
 
-		if(login=="" || host=="")
+		if(login==QString() || host==QString())
 		{
 			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
 			return;
@@ -140,21 +140,26 @@ void AddPWD::onOK()
 	}
 	else if (index==2)
 	{
-		entry=ppk_item_entry_new(item.c_str());
+		entry=ppk_item_entry_new(qPrintable(item));
 		key=item;
 
-		if(item=="")
+		if(item==QString())
 		{
 			QMessageBox::critical(this, error_fill_field_caption, error_fill_field_text);
 			return;
 		}
 	}
+	else
+	{
+		QMessageBox::critical(this, tr("PPassKeeper Error: Unknown password type"), tr("PPassKeeper Error: Cannot add the password because it is of un unknown type"));
+		return;
+	}
 
-	ppk_data* data=ppk_string_data_new(default_string.toAscii().data());
+	ppk_data* data=ppk_string_data_new(qPrintable(default_string));
 	ppk_error res = ppk_module_set_entry(module->id, entry, data, 0);
 	if(res!=PPK_OK)
 	{
-		QString error=QString("An error occured while adding the entry '%1'\n\nError : %2").arg(key.c_str()).arg(ppk_error_get_string(res));
+		QString error=tr("An error occured while adding the entry '%1'\n\nError : %2").arg(key).arg(QString::fromUtf8(ppk_error_get_string(res)));
 		QMessageBox::critical(this, tr("PPassKeeper : Error while adding ..."), error);
 	}
 	else

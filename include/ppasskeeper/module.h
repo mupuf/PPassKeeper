@@ -65,7 +65,7 @@ extern "C"
 
 	/*! \brief Reloads the plugins from the plugin dir and updates the module count and list.
 	* WARNING: This function is NOT thread-safe. Make sure no other thread uses ppk while calling this function.
-	* \return  void*/
+	* \return  An error code is returned*/
 	ppk_error ppk_module_reload_list();
 
 	/*! \brief Get the default module. This parameter can be set/updated with ppk_setDefaultModule.

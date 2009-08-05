@@ -384,11 +384,11 @@ extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, uns
 extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 {
 	if(entry->type == ppk_network)
-		return removePassword(generateNetworkKey(entry->net.host, entry->net.port, entry->net.login).c_str(), flags)?PPK_OK:PPK_UNKNOWN_ERROR;
+		return removePassword(generateNetworkKey(entry->net.host, entry->net.port, entry->net.login).c_str(), flags);
 	else if(entry->type == ppk_application)
-		return removePassword(generateApplicationKey(entry->app.app_name, entry->app.username).c_str(), flags)?PPK_OK:PPK_UNKNOWN_ERROR;
+		return removePassword(generateApplicationKey(entry->app.app_name, entry->app.username).c_str(), flags);
 	else if(entry->type == ppk_item)
-		return removePassword(generateItemKey(entry->item).c_str(), flags)?PPK_OK:PPK_UNKNOWN_ERROR;
+		return removePassword(generateItemKey(entry->item).c_str(), flags);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 }

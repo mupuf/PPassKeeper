@@ -20,6 +20,8 @@ class PPK_Modules
 		const char* autoModule();
 		void sendParameters(_module m);
 
+		void debug(std::string msg);
+
 	public:
 		PPK_Modules();
 		~PPK_Modules();

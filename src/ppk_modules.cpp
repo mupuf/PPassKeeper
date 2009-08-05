@@ -13,6 +13,13 @@ void* openLibrary(std::string lib_path);
 void* loadSymbol(void* dlhandle, const char* symbolName);
 const char* libraryError();
 
+void PPK_Modules::debug(std::string msg)
+{
+	#ifdef DEBUG_MSG
+		std::cout << msg;
+	#endif
+}
+
 #if defined(WIN32) || defined(WIN64)
 	#include <windows.h>
 	void* openLibrary(std::string lib_path){return LoadLibraryA(lib_path.c_str());}
@@ -50,10 +57,9 @@ const char* libraryError();
 		char dir_path[512];
 		getRegistryValue("mods_path", tmpBuf, sizeof(tmpBuf));
 		std::string dirpath=dir_path;
-		
-#ifdef DEBUG_MSG
-		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
-#endif
+
+		debug("--------------- <PPassKeeper> ---------------\nIf you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'\n")
+
 		hSearch = FindFirstFile((dirpath+"\\*.dll").c_str(), &File);
 		if (hSearch != INVALID_HANDLE_VALUE)
 		{
@@ -64,14 +70,10 @@ const char* libraryError();
 
 			FindClose(hSearch);
 		}
-#ifdef DEBUG_MSG
 		else
-			std::cerr << "Could not open plugins directory : " << dirpath << std::endl;
-#endif
+			debug("Could not open plugins directory : "+dirpath);
 
-#ifdef DEBUG_MSG
-		std::cout << "--------------- </PPassKeeper> ---------------" << std::endl << std::endl;
-#endif
+		debug("--------------- </PPassKeeper> ---------------\n\n");
 	}
 #else
 	#include <dlfcn.h>
@@ -86,10 +88,8 @@ const char* libraryError();
 
 		modules.clear();
 		
-#ifdef DEBUG_MSG
-		std::cout << "--------------- <PPassKeeper> ---------------" << std::endl << "If you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'" << std::endl << std::endl;
-#endif
-		
+		debug("--------------- <PPassKeeper> ---------------\nIf you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'\n");
+
 		//Open Plugin's directory
 		plugindir = opendir(DIRECTORY_PATH);
 		if(plugindir!=NULL)
@@ -105,14 +105,10 @@ const char* libraryError();
 			
 			closedir(plugindir);
 		}
-#ifdef DEBUG_MSG
 		else
-			std::cerr << "Could not open plugins directory: " << DIRECTORY_PATH << std::endl;
-#endif
+			debug("Could not open plugins directory : "DIRECTORY_PATH);
 
-#ifdef DEBUG_MSG
-		std::cout << std::endl << "--------------- </PPassKeeper> ---------------" << std::endl << std::endl;
-#endif
+		debug("--------------- </PPassKeeper> ---------------\n\n");
 	}
 #endif
 
@@ -122,10 +118,8 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 	//if the filename doesn't have the right prefix then try to load it as a shared object
 	if(filename.size()>7 && filename.substr(0,7)=="libppk_")
 	{
-#ifdef DEBUG_MSG
 		//debug
-		std::cerr << "Load the plugin '" << dirpath+"/"+filename << "' : ";
-#endif
+		debug("Load the plugin '"+dirpath+"/"+filename+"': ");
 
 		//Load the shared object
 		void* dlhandle = openLibrary(dirpath+"/"+filename);
@@ -205,24 +199,16 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 				if(getModuleByID(tm.id)==NULL)
 				{
 					modules[tm.id]=tm;
-#ifdef DEBUG_MSG
-					std::cerr << "OK (ID=" << tm.id << ")" << std::endl;
-#endif
+					debug((std::string("OK (ID=")+tm.id)+")\n");
 				}
-#ifdef DEBUG_MSG
 				else
-					std::cerr << "FAILED (ID=" << tm.id << " already exist in modules list)" << std::endl;
-#endif
+					debug((std::string("FAILED (ID=") + tm.id) + " already exist in modules list)\n");
 			}
-#ifdef DEBUG_MSG
 			else
-				std::cerr << "FAILED (not all symbols are present, check version numbers)" << std::endl;
-#endif
+				debug("FAILED (not all symbols are present, check version numbers)\n");
 		}
-#ifdef DEBUG_MSG
 		else
-			std::cerr << "FAILED (" << libraryError() << ")" << std::endl;
-#endif
+			debug((std::string("FAILED (") + libraryError()) + ")\n");
 	}
 }
 

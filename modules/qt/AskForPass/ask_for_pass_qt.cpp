@@ -171,8 +171,8 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	return 0;
 }
 
-ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
-ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by ask_for_pass_qt" };
+const ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
+const ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by ask_for_pass_qt" };
 
 extern "C" const ppk_proto_param** availableParameters()
 {

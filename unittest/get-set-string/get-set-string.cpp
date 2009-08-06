@@ -7,7 +7,7 @@
 
 #include "../error.h"
 
-#define TEST_STRING "je suis mupuf"
+#define TEST_STRING "Ici mùpùf à l'élysée! Tchüss niña. العربية, and so on ;)"
 
 extern "C" void die(unsigned int error_num, const char* error)
 {
@@ -29,20 +29,36 @@ extern "C" void die(unsigned int error_num, const char* error)
 void usage(int argc, char** argv)
 {
 	if(argc>=1)
-		std::cout << "usage : '" << argv[0] << " module_name'" << std::endl;
+		std::cout << "usage : '" << argv[0] << " module_name <app|net|item>'" << std::endl;
 	else
-		std::cout << "usage : 'utstblob module_name'" << std::endl;
+		std::cout << "usage : 'utststring module_name'" << std::endl;
 }
 
 int main(int argc, char** argv)
 {
-	if(argc!=2)
+	ppk_entry* entry;
+	
+	if(argc!=3)
 	{
 		usage(argc, argv);
 		exit(-1);
 	}
-	const char* module=argv[1];
+	std::string type=argv[2];
 
+	if(type=="app")
+		entry=ppk_application_entry_new("test","utststring_write_string");
+	else if(type=="net")
+		entry=ppk_network_entry_new(NULL, "test", "utststring_write_string", 99);
+	else if(type=="item")
+		entry=ppk_item_entry_new("utststring_write_string");
+	else
+	{
+		usage(argc, argv);
+		exit(-1);
+	}
+	ppk_data* data=ppk_string_data_new(TEST_STRING);
+	
+	const char* module=argv[1];
 	
 	if(ppk_is_locked()==PPK_TRUE)
 		die(UTST_LIB_LOCKED);
@@ -53,9 +69,6 @@ int main(int argc, char** argv)
 	size_t max_size=ppk_module_max_data_size(module, ppk_string);
 	if(max_size==0)
 		die(UTST_NO_STRING_SUPPORT);
-
-	ppk_entry* entry=ppk_item_entry_new("utststring_write_string");
-	ppk_data* data=ppk_string_data_new(TEST_STRING);
 
 	printf("Write: ");
 	ppk_error res=ppk_module_set_entry(module, entry, data, ppk_wf_none);

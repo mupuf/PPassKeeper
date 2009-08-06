@@ -46,14 +46,28 @@ std::string readFile(std::string filepath)
 void usage(int argc, char** argv)
 {
 	if(argc>=1)
-		std::cout << "usage : '" << argv[0] << " module_name'" << std::endl;
+		std::cout << "usage : '" << argv[0] << " module_name <app|net|item>'" << std::endl;
 	else
-		std::cout << "usage : 'utstblob module_name'" << std::endl;
+		std::cout << "usage : 'utstblob module_name <app|net|item>'" << std::endl;
 }
 
 int main(int argc, char** argv)
 {
-	if(argc!=2)
+	ppk_entry* entry;
+	if(argc!=3)
+	{
+		usage(argc, argv);
+		exit(-1);
+	}
+
+	std::string type=argv[2];
+	if(type=="app")
+		entry=ppk_application_entry_new("test","utstblob_write_string");
+	else if(type=="net")
+		entry=ppk_network_entry_new(NULL, "test", "utstblob_write_string", 99);
+	else if(type=="item")
+		entry=ppk_item_entry_new("utstblob_write_string");
+	else
 	{
 		usage(argc, argv);
 		exit(-1);
@@ -76,7 +90,6 @@ int main(int argc, char** argv)
 		else if(max_size<file.size())
 			file=file.substr(0, max_size);
 
-		ppk_entry* entry=ppk_item_entry_new("utstblob_write_blob");
 		ppk_data* data=ppk_blob_data_new(file.data(), file.size());
 
 		printf("Write: ");

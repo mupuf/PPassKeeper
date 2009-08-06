@@ -31,7 +31,7 @@ void usage(int argc, char** argv)
 	if(argc>=1)
 		std::cout << "usage : '" << argv[0] << " module_name <app|net|item>'" << std::endl;
 	else
-		std::cout << "usage : 'utststring module_name'" << std::endl;
+		std::cout << "usage : 'utststring module_name <app|net|item>'" << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -43,8 +43,8 @@ int main(int argc, char** argv)
 		usage(argc, argv);
 		exit(-1);
 	}
+	
 	std::string type=argv[2];
-
 	if(type=="app")
 		entry=ppk_application_entry_new("test","utststring_write_string");
 	else if(type=="net")

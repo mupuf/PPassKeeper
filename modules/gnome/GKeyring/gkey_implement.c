@@ -157,7 +157,7 @@ ppk_error setNetworkPassword(const char* host, const char* login, unsigned short
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{
-		res=gnome_keyring_store_password_sync(&network_schm, keyring_name, displayName, edata->string, "username", login,"host", host, "port", port, NULL);
+		res=gnome_keyring_store_password_sync(&network_schm, keyring_name, displayName, edata->string, "username", login,"host", host, "port", port, "protocol", protocol, NULL, 0);
 		
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			g_setError(gnome_keyring_result_to_message(res));
@@ -194,9 +194,9 @@ ppk_error setApplicationPassword(const char* appName, const char* user, const pp
 	char displayName[101];
 	snprintf(displayName, sizeof(displayName), "app://%s@%s", user, appName);
 	
-	if(openKeyring(flags))
+	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_store_password_sync(&application_schm, keyring_name, displayName, edata->string, "username", user,"app_name", appName, NULL);
+		GnomeKeyringResult res=gnome_keyring_store_password_sync(&application_schm, keyring_name, displayName, edata->string, "username", user,"app_name", appName, NULL, 0);
 	
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			g_setError(gnome_keyring_result_to_message(res));
@@ -212,7 +212,7 @@ ppk_error getApplicationPassword(const char* appName, const char* user, ppk_data
 	if(openKeyring(flags)==PPK_TRUE)
 	{
 		gchar* ret_buf;
-		GnomeKeyringResult res=gnome_keyring_find_password_sync(&application_schm, &ret_buf, "username", user,"app_name", appName, NULL);
+		GnomeKeyringResult res=gnome_keyring_find_password_sync(&application_schm, &ret_buf, "username", user,"app_name", appName, NULL, 0);
 
 		if(res==GNOME_KEYRING_RESULT_OK)
 			*edata=ppk_string_data_new(ret_buf);
@@ -235,7 +235,7 @@ ppk_error setItem(const char* item, const ppk_data* edata, unsigned int flags)
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_store_password_sync(&item_schm, keyring_name, displayName, edata->string, "item", item, NULL);
+		GnomeKeyringResult res=gnome_keyring_store_password_sync(&item_schm, keyring_name, displayName, edata->string, "item", item, NULL, 0);
 
 		if(res!=GNOME_KEYRING_RESULT_OK)
 		{
@@ -255,7 +255,7 @@ ppk_error getItem(const char* item, ppk_data** edata, unsigned int flags)
 	{
 
 		gchar* ret_buf;
-		GnomeKeyringResult res=gnome_keyring_find_password_sync(&item_schm, &ret_buf, "item", item, NULL);
+		GnomeKeyringResult res=gnome_keyring_find_password_sync(&item_schm, &ret_buf, "item", item, NULL, 0);
 
 		if(res==GNOME_KEYRING_RESULT_OK)
 			*edata=ppk_string_data_new(ret_buf);
@@ -275,12 +275,12 @@ ppk_error removeNetworkPassword(const char* host, const char* login, unsigned sh
 {
 	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&network_schm, "username", login,"host", host, "port", port, NULL);
+		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&network_schm, "username", login,"host", host, "port", port, NULL, 0);
 	
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			g_setError(gnome_keyring_result_to_message(res));
 										 
-		return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
+		return res==GNOME_KEYRING_RESULT_OK?PPK_OK:PPK_UNKNOWN_ERROR;
 	}
 	else
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
@@ -290,12 +290,12 @@ ppk_error removeApplicationPassword(const char* appName, const char* user, unsig
 {
 	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&application_schm, "username", user,"app_name", appName, NULL);
+		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&application_schm, "username", user,"app_name", appName, NULL, 0);
 	
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			g_setError(gnome_keyring_result_to_message(res));
 										 
-		return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
+		return res==GNOME_KEYRING_RESULT_OK?PPK_OK:PPK_UNKNOWN_ERROR;
 	}
 	else
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
@@ -303,14 +303,14 @@ ppk_error removeApplicationPassword(const char* appName, const char* user, unsig
 
 ppk_error removeItem(const char* item, unsigned int flags)
 {
-	if(openKeyring(flags)==PPK_FALSE)
+	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&item_schm, "item", item, NULL);
+		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&item_schm, "item", item, NULL, 0);
 	
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			g_setError(gnome_keyring_result_to_message(res));
 										 
-		return res==GNOME_KEYRING_RESULT_OK?PPK_TRUE:PPK_FALSE;
+		return res==GNOME_KEYRING_RESULT_OK?PPK_OK:PPK_UNKNOWN_ERROR;
 	}
 	else
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;

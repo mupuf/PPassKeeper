@@ -213,7 +213,6 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 	return count;
 }
 
-#include <stdio.h>
 extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 {
 	ppk_error res;

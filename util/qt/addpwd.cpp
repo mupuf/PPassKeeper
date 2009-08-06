@@ -119,7 +119,7 @@ void AddPWD::onOK()
 	if (index==0)
 	{
 		key=user+QString::fromUtf8("@")+app;
-		entry=ppk_application_entry_new(qPrintable(app), qPrintable(user));
+		entry=ppk_application_entry_new(qPrintable(user), qPrintable(app));
 
 		if(app==QString() || user==QString())
 		{
@@ -129,7 +129,7 @@ void AddPWD::onOK()
 	}
 	else if (index==1)
 	{
-		entry=ppk_network_entry_new(qPrintable(host), qPrintable(login), port, protocol.size()==0 ? NULL : qPrintable(protocol));
+		entry=ppk_network_entry_new(protocol.size()==0 ? NULL : qPrintable(protocol), qPrintable(login), qPrintable(host), port);
 		key=login+QString::fromUtf8("@")+host+QString::fromUtf8(":")+QString::number(port);
 
 		if(login==QString() || host==QString())

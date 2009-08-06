@@ -69,13 +69,13 @@ extern "C"
 	* \param port in: The service's port (example : 21, 0 means the default port).
 	* \param port in: The protocol name (example : ftp, NULL means unspecified)
 	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry* ppk_network_entry_new(const char* host, const char* login, unsigned short port, const char* protocol);
+	ppk_entry* ppk_network_entry_new(const char* protocol, const char* login, const char* host, unsigned short port);
 	
 	/*! \brief Generate an application entry given a username and an application name.
 	* \param app_name in: The name of the application (example : PPassKeeper).
 	* \param username in: The user name (example : mupuf).
 	* \return  Return the ppk_Entry corresponding to the parameters*/
-	ppk_entry* ppk_application_entry_new(const char* app_name, const char* username);
+	ppk_entry* ppk_application_entry_new(const char* username, const char* app_name);
 	
 	/*! \brief Generate an item entry given an item name.
 	* \param item in: The item (example : MyWPAKey).

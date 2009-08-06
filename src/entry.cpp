@@ -10,7 +10,7 @@
 
 extern "C"
 {
-	ppk_entry* ppk_network_entry_new(const char* host, const char* login, unsigned short port, const char* protocol)
+	ppk_entry* ppk_network_entry_new(const char* protocol, const char* login, const char* host, unsigned short port)
 	{
 		ppk_entry *entry = new ppk_entry;
 		size_t len;
@@ -33,7 +33,7 @@ extern "C"
 		return entry;
 	}
 
-	ppk_entry* ppk_application_entry_new(const char* app_name, const char* username)
+	ppk_entry* ppk_application_entry_new(const char* username, const char* app_name)
 	{
 		ppk_entry *entry = new ppk_entry;
 		size_t len;

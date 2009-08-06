@@ -8,17 +8,17 @@
 
 //Parameters
 std::map<std::string, cvariant> parameters;
-#define PARAM_IMG_APP "App image"
-#define PARAM_IMG_NET "Net image"
-#define PARAM_IMG_ITEM "Item image"
-#define PARAM_WINDOW_CAPTION "Window's caption"
-#define PARAM_MAIN_TEXT "Main text"
+const char* PARAM_IMG_APP="App image";
+const char* PARAM_IMG_NET="Net image";
+const char* PARAM_IMG_ITEM="Item image";
+const char* PARAM_WINDOW_CAPTION="Window's caption";
+const char* PARAM_MAIN_TEXT="Main text";
 
-#define PARAM_IMG_APP_DEFAULT ""
-#define PARAM_IMG_NET_DEFAULT ""
-#define PARAM_IMG_ITEM_DEFAULT ""
-#define PARAM_WINDOW_CAPTION_DEFAULT "Please key in the item ..."
-#define PARAM_MAIN_TEXT_DEFAULT "Please key in the item corresponding to %1 :"
+const char* PARAM_IMG_APP_DEFAULT="";
+const char* PARAM_IMG_NET_DEFAULT="";
+const char* PARAM_IMG_ITEM_DEFAULT="";
+const char* PARAM_WINDOW_CAPTION_DEFAULT="Please key in the item ...";
+const char* PARAM_MAIN_TEXT_DEFAULT="Please key in the item corresponding to %1 :";
 
 //local functions
 std::string* last_error()
@@ -118,6 +118,8 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 		QString label=QString::fromUtf8(cvariant_get_string(parameters[PARAM_MAIN_TEXT])).arg(QString::fromUtf8(text.c_str()));
 
 		printf("text=%s\n", text.c_str());
+		printf("username=%s\n", entry->app.username);
+		printf("app=%s\n", entry->app.app_name);
 
 		if(entry->type==ppk_application)
 			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_APP]));

@@ -125,12 +125,12 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 	if (cur_type == ppk_application)
 	{
-		entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
 		res = ppk_module_set_entry(m_module->id, entry, data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
-		entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
 		res = ppk_module_set_entry(m_module->id, entry, data, 0);
 	}
 	else if (cur_type == ppk_item)
@@ -236,12 +236,12 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 	if (cur_type == ppk_application)
 	{
-		entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
 		res = ppk_module_get_entry(m_module->id, entry, &data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
-		entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
 		res = ppk_module_get_entry(m_module->id, entry, &data, 0);
 	}
 	else if (cur_type == ppk_item)
@@ -295,12 +295,12 @@ void MainWindow::onDelButtonClicked()
 
 		if (cur_type == ppk_application)
 		{
-			entry=ppk_application_entry_new(qPrintable(cur_app.app_name), qPrintable(cur_app.username));
+			entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
 			res = ppk_module_remove_entry(m_module->id, entry, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
-			entry=ppk_network_entry_new(qPrintable(cur_net.host), qPrintable(cur_net.login), cur_net.port, qPrintable(cur_net.protocol));
+			entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
 			res = ppk_module_remove_entry(m_module->id, entry, 0);
 		}
 		else if (cur_type == ppk_item)

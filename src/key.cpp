@@ -116,7 +116,7 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 					return NULL;
 				host = key_str.substr(hostpos, portpos - hostpos - 1);
 			}
-			return ppk_network_entry_new(host.c_str(), login.c_str(), port, (protocol == URL_PREFIX) ? NULL : protocol.c_str());
+			return ppk_network_entry_new((protocol == URL_PREFIX) ? NULL : protocol.c_str(), login.c_str(), host.c_str(), port);
 		}
 	}
 	else

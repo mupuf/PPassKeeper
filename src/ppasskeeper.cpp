@@ -449,7 +449,7 @@ extern "C"
 		}
 	}
 	
-	ppk_proto_param* ppk_module_available_parameters(const char* module_id)
+	const ppk_proto_param** ppk_module_available_parameters(const char* module_id)
 	{
 		if(!isLocked())
 		{

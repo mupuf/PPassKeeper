@@ -115,7 +115,7 @@ extern "C"
 	*/
 	typedef void (*_destructor)(void);
 	
-	typedef ppk_proto_param* (*_availableParameters)();
+	typedef const ppk_proto_param** (*_availableParameters)();
 	typedef void (*_setParam)(const char* paramName, const cvariant value);
 
 	struct _module

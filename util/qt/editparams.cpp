@@ -37,18 +37,18 @@ void EditParams::setModule(ppk_module* module)
 	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(QString::fromUtf8(module->display_name)));
 
 	//Show the available parameters
-	ppk_proto_param* list=ppk_module_available_parameters(module->id);
+	const ppk_proto_param** list=ppk_module_available_parameters(module->id);
 	if(list)
 	{
 		int i=0;
-		while(list[i].expected_type!=cvariant_none)
+		while(list[i]!=NULL)
 		{
-			if(!categories.contains(QString::fromUtf8(list->group->display_name)))
-				addCategory(catTab, list->group);
+			if(!categories.contains(QString::fromUtf8(list[i]->group->display_name)))
+				addCategory(catTab, list[i]->group);
 
-			addParam(catTab, categories[QString::fromUtf8(list->group->display_name)], list);
+			addParam(catTab, categories[QString::fromUtf8(list[i]->group->display_name)], list[i]);
 
-			list++;
+			i++;
 		}
 	}
 }
@@ -90,7 +90,7 @@ void EditParams::buttonBoxClicked(QAbstractButton* bbox)
   Parameter listing functions
   */
 
-QString EditParams::createNameString(ppk_proto_param* pparam)
+QString EditParams::createNameString(const ppk_proto_param* pparam)
 {
 	QVariant default_value;
 
@@ -123,7 +123,7 @@ QString EditParams::createNameString(ppk_proto_param* pparam)
 #include "form_fields/qspinfield.h"
 #include "form_fields/qdoublespinfield.h"
 
-QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, ppk_proto_param* pparam)
+QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
 	//Get Param's value
 	cvariant c_value=ppk_module_get_param("AskForPass_Qt", pparam->name);
@@ -185,7 +185,7 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 	return NULL;
 }
 
-void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param* pparam)
+void EditParams::addParam(QWidget* parent, QGridLayout* layout, const ppk_proto_param* pparam)
 {
 	if(!layout)
 	{
@@ -241,7 +241,7 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param*
 	}
 }
 
-QWidget* EditParams::addCategory(QTabWidget* catTab, ppk_settings_group* categ)
+QWidget* EditParams::addCategory(QTabWidget* catTab, const ppk_settings_group* categ)
 {
 	if(categ)
 	{

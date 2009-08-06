@@ -38,10 +38,10 @@ private:
 	QList<QAbstractFormField*> fields;
 	QMap<QString, QGridLayout*> categories;
 
-	QString createNameString(ppk_proto_param* pparam);
-	QAbstractFormField* abstractFormFieldFromParamProto(QWidget* parent, ppk_proto_param* pparam);
-	void addParam(QWidget* parent, QGridLayout* layout, ppk_proto_param* pparam);
-	QWidget* addCategory(QTabWidget* catTab, ppk_settings_group* categ);
+	QString createNameString(const ppk_proto_param* pparam);
+	QAbstractFormField* abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam);
+	void addParam(QWidget* parent, QGridLayout* layout, const ppk_proto_param* pparam);
+	QWidget* addCategory(QTabWidget* catTab, const ppk_settings_group* categ);
 
 	void saveParam();
 };

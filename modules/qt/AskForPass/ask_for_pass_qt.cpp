@@ -8,17 +8,17 @@
 
 //Parameters
 std::map<std::string, cvariant> parameters;
-const char* PARAM_IMG_APP="App image";
-const char* PARAM_IMG_NET="Net image";
-const char* PARAM_IMG_ITEM="Item image";
-const char* PARAM_WINDOW_CAPTION="Window's caption";
-const char* PARAM_MAIN_TEXT="Main text";
+#define PARAM_IMG_APP "App image"
+#define PARAM_IMG_NET "Net image"
+#define PARAM_IMG_ITEM "Item image"
+#define PARAM_WINDOW_CAPTION "Window's caption"
+#define PARAM_MAIN_TEXT "Main text"
 
-const char* PARAM_IMG_APP_DEFAULT="";
-const char* PARAM_IMG_NET_DEFAULT="";
-const char* PARAM_IMG_ITEM_DEFAULT="";
-const char* PARAM_WINDOW_CAPTION_DEFAULT="Please key in the item ...";
-const char* PARAM_MAIN_TEXT_DEFAULT="Please key in the item corresponding to %1 :";
+#define PARAM_IMG_APP_DEFAULT ""
+#define PARAM_IMG_NET_DEFAULT ""
+#define PARAM_IMG_ITEM_DEFAULT ""
+#define PARAM_WINDOW_CAPTION_DEFAULT "Please key in the item ..."
+#define PARAM_MAIN_TEXT_DEFAULT "Please key in the item corresponding to %1 :"
 
 //local functions
 std::string* last_error()
@@ -174,7 +174,7 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
 ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by ask_for_pass_qt" };
 
-extern "C" ppk_proto_param* availableParameters()
+extern "C" const ppk_proto_param** availableParameters()
 {
 	static ppk_proto_param img_app;
 	img_app.expected_type=cvariant_string;
@@ -211,11 +211,7 @@ extern "C" ppk_proto_param* availableParameters()
 	win_text.default_value=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
 	win_text.group=&ppk_settings_custom_texts;
 
-	static ppk_proto_param proto_null;
-	proto_null.expected_type=cvariant_none;
-	proto_null.group=&ppk_settings_custom_texts;
-
-	static ppk_proto_param params[]={img_app, img_net, img_item, win_cap, win_text, proto_null};
+	static const ppk_proto_param* params[]={&img_app, &img_net, &img_item, &win_cap, &win_text, NULL};
 
 	return params;
 }

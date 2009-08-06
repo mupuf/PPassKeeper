@@ -36,7 +36,7 @@ typedef struct
 	cvariant default_value;
 
 	///Group in which belongs this parameter
-	ppk_settings_group *group;
+	const ppk_settings_group *group;
 } ppk_proto_param;
 
 ///Definition of what a parameter is
@@ -210,8 +210,8 @@ extern "C"
 
 	/*! \brief Retrieve the list of supported parameters's prototype (type, default value, help text) for a given module
 	* \param module_id in: Module's ID.
-	* \return  Return a list of ppk_proto_param terminated by an parameter with cvariant_none as expected_type.*/
-	ppk_proto_param* ppk_module_available_parameters(const char* module_id);
+	* \return  Return a null-terminated list of ppk_proto_param**/
+	const ppk_proto_param** ppk_module_available_parameters(const char* module_id);
 
 #ifdef __cplusplus 
 }

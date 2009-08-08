@@ -81,12 +81,12 @@ extern "C" unsigned int readFlagsAvailable()
 
 extern "C" unsigned int writeFlagsAvailable()
 {
-	return ppk_wf_none|ppk_wf_none;
+	return ppk_wf_none;
 }
 
 extern "C" unsigned int listingFlagsAvailable()
 {
-	return ppk_lf_none|ppk_lf_none;
+	return ppk_lf_none;
 }
 
 
@@ -104,22 +104,14 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 {
 	if((int)(flags&ppk_rf_silent)==0)
 	{
-		std::string text="";
-		if(entry->type==ppk_network)
-			text=toString(entry->net.login)+toString("@")+toString(entry->net.host)+toString(":")+toString(entry->net.port);
-		else if(entry->type==ppk_application)
-			text=toString(entry->app.username)+"@"+toString(entry->app.app_name);
-		else if(entry->type==ppk_item)
-			text=+entry->item;
+		char key[101];
+		if(ppk_get_key(entry, key, sizeof(key))==PPK_FALSE)
+			return PPK_UNKNOWN_ENTRY_TYPE;
+		std::string text=key;
 
-		std::string pwd;
 		QString icon;
 		QString title=QString::fromUtf8(cvariant_get_string(parameters[PARAM_WINDOW_CAPTION]));
 		QString label=QString::fromUtf8(cvariant_get_string(parameters[PARAM_MAIN_TEXT])).arg(QString::fromUtf8(text.c_str()));
-
-		printf("text=%s\n", text.c_str());
-		printf("username=%s\n", entry->app.username);
-		printf("app=%s\n", entry->app.app_name);
 
 		if(entry->type==ppk_application)
 			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_APP]));
@@ -128,6 +120,7 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 		else if(entry->type==ppk_item)
 			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_ITEM]));
 
+		std::string pwd;
 		bool res=Qt_Get_Password(title, label, icon, pwd);
 
 		//if everything went fine

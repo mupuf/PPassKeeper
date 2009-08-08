@@ -42,15 +42,17 @@ extern "C"
 #endif
 
 	/*! \brief Generate a string ppk_data.
-	* \param string in: The string to be stored (in Utf8 format, as every string in PPK)(example : MySecretPassword).
+	* \param string The string to be stored (in Utf8 format, as every string in PPK)(example : MySecretPassword).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_string_data_new(const char* string);
 
 	/*! \brief Generate a blob ppk_data.
-	* \param data in: The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
+	* \param data The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_blob_data_new(const void* data, size_t size);
 
+	/*! \brief Frees a ppk_data.
+	* \param data The ppk_data to be freed.*/
 	void ppk_data_free(ppk_data* data);
 
 #ifdef __cplusplus

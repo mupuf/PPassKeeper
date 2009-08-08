@@ -64,24 +64,26 @@ extern "C"
 #endif
 
 	/*! \brief Generate a Network entry given a host, a login and a port.
-	* \param host in: The host (example : mupuf.org).
-	* \param login in: The login name (example : mupuf).
-	* \param port in: The service's port (example : 21, 0 means the default port).
-	* \param port in: The protocol name (example : ftp, NULL means unspecified)
+	* \param host The host (example : mupuf.org).
+	* \param login The login name (example : mupuf).
+	* \param port The service's port (example : 21, 0 means the default port).
+	* \param port The protocol name (example : ftp, NULL means unspecified)
 	* \return  Return the ppk_Entry corresponding to the parameters*/
 	ppk_entry* ppk_network_entry_new(const char* protocol, const char* login, const char* host, unsigned short port);
 	
 	/*! \brief Generate an application entry given a username and an application name.
-	* \param app_name in: The name of the application (example : PPassKeeper).
-	* \param username in: The user name (example : mupuf).
+	* \param app_name The name of the application (example : PPassKeeper).
+	* \param username The user name (example : mupuf).
 	* \return  Return the ppk_Entry corresponding to the parameters*/
 	ppk_entry* ppk_application_entry_new(const char* username, const char* app_name);
 	
 	/*! \brief Generate an item entry given an item name.
-	* \param item in: The item (example : MyWPAKey).
+	* \param item The item (example : MyWPAKey).
 	* \return  Return the ppk_Entry corresponding to the parameters*/
 	ppk_entry* ppk_item_entry_new(const char* item);
 
+	/*! \brief Frees a ppk_entry.
+	* \param data The ppk_entry to be freed.*/
 	void ppk_entry_free(ppk_entry* entry);
 
 #ifdef __cplusplus 

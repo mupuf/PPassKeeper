@@ -126,7 +126,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
 	//Get Param's value
-	cvariant c_value=ppk_module_get_param("AskForPass_Qt", pparam->name);
+	cvariant c_value=ppk_module_get_param(module->id, pparam->name);
 
 	//Create the widget
 	switch(pparam->expected_type)

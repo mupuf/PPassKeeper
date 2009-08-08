@@ -251,9 +251,9 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	switch(type)
 	{
 		case ppk_string:
-			return 1000000;
+			return (unsigned int)-1;
 		case ppk_blob:
-			return 1000000;
+			return (unsigned int)-1;
 	}
 	
 	return 0;

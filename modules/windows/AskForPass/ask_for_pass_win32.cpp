@@ -106,7 +106,7 @@ extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 	return PPK_UNSUPPORTED_METHOD;
 }
 
-extern "C" ppk_error entryExists(const ppk_entry* entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 {
 	return PPK_TRUE;
 }

@@ -16,6 +16,7 @@
 #include <ppasskeeper/utils.h>
 #include <ppasskeeper/ask_for_pass.h>
 #include <ppasskeeper/key.h>
+#include <ppasskeeper/settings.h>
 
 //
 #endif

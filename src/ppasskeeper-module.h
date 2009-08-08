@@ -1,7 +1,7 @@
 #ifndef PPASSWORDKEEPER_MODULE_H
 #define PPASSWORDKEEPER_MODULE_H
 
-#include "settings.h"
+#include "ppasskeeper/settings.h"
 #include "ppasskeeper.h"
 #include <string>
 

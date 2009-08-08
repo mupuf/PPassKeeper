@@ -45,7 +45,7 @@ void PPK_Modules::debug(std::string msg)
 			return 0;
 	}
 	
-	void PPK_Modules::reload(void)
+	void PPK_Modules::loadList(void)
 	{	
 		WIN32_FIND_DATA File;
 		HANDLE hSearch;
@@ -81,7 +81,7 @@ void PPK_Modules::debug(std::string msg)
 	void* loadSymbol(void* dlhandle, const char* symbolName){return dlsym(dlhandle, symbolName);}
 	const char* libraryError(){return dlerror();}
 	
-	void PPK_Modules::reload(void)
+	void PPK_Modules::loadList(void)
 	{	
 		DIR * plugindir;
 		struct dirent * mydirent;
@@ -212,6 +212,25 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 	}
 }
 
+void PPK_Modules::eraseList(void)
+{
+	//Call the destructor on every module
+	std::map<std::string, _module>::iterator iter;
+	for( iter = modules.begin(); iter != modules.end(); iter++ )
+	{
+		if(iter->second.destructor)
+			iter->second.destructor();
+
+		dlclose(iter->second.dlhandle);
+	}
+}
+
+void PPK_Modules::reload(void)
+{
+	eraseList();
+	loadList();
+}
+
 void PPK_Modules::sendParameters(_module m)
 {
 	VParam& param = VParam::instance();
@@ -230,19 +249,13 @@ void PPK_Modules::sendParameters(_module m)
 //Public functions
 PPK_Modules::PPK_Modules()
 {
-	reload();
+	loadList();
 	
 }
 
 PPK_Modules::~PPK_Modules()
 {
-	//Call the destructor on every module
-	std::map<std::string, _module>::iterator iter;   
-	for( iter = modules.begin(); iter != modules.end(); iter++ )
-	{
-		if(iter->second.destructor)
-			iter->second.destructor();
-	}
+	eraseList();
 }
 
 unsigned int PPK_Modules::size()

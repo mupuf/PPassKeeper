@@ -16,9 +16,12 @@ class PPK_Modules
 		std::map<std::string, _module> modules;
 		
 		void loadPlugin(std::string dirpath, std::string filepath);
+		void loadList(void);
+		void eraseList(void);
 		
 		const char* autoModule();
 		void sendParameters(_module m);
+
 
 		void debug(std::string msg);
 

@@ -23,7 +23,7 @@ void setError(std::string error)
 ppk_error getPassword(const char* key, ppk_data** edata)
 {
 	HKEY hk;
-	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
+	if(!RegOpenKeyEx(HKEY_CURRENT_USER, baseKey, 0, KEY_QUERY_VALUE, &hk))
 	{
 		DWORD size=0;
 		DWORD type;
@@ -65,7 +65,7 @@ ppk_error getPassword(const char* key, ppk_data** edata)
 ppk_error setPassword(const char* key, const ppk_data* edata)
 {
 	HKEY hk;
-	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
+	if(!RegCreateKeyEx(HKEY_CURRENT_USER, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
 		long res;
 		
@@ -87,7 +87,7 @@ ppk_error setPassword(const char* key, const ppk_data* edata)
 ppk_error removePassword(const char* key)
 {
 	HKEY hk;
-	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
+	if(!RegCreateKeyEx(HKEY_CURRENT_USER, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
 		long res=RegDeleteValue(hk, key);
 		RegCloseKey(hk);

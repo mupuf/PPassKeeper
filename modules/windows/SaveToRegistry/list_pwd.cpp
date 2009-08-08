@@ -127,7 +127,7 @@ unsigned int ListPwd::updateDataBase(const char* baseKey, unsigned int entry_typ
 	if((entry_types&ppk_item)>0)	
 		listItem.clear();
 	
-	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_ALL_ACCESS, &hk))
+	if(!RegOpenKeyEx(HKEY_CURRENT_USER, baseKey, 0, KEY_ALL_ACCESS, &hk))
 	{
 		int i=0, res;
 		do

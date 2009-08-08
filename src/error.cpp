@@ -1,7 +1,10 @@
 #include <ppasskeeper/definitions.h>
 
-#include <libintl.h>
 #include <cstdlib>
+
+#ifdef I18N
+#include <libintl.h>
+#endif
 
 /// Error messages matching ppk_error (see definitions.h)
 #ifdef __cplusplus
@@ -71,7 +74,11 @@ const char *ppk_error_get_string(ppk_error error_code)
 			break;
 	}
 
+	#ifdef I18N
 	return msg ? gettext(msg) : gettext("<Undefined error>");
+	#else
+	return msg?msg:"<Undefined error>";
+	#endif
 }
 
 #ifdef __cplusplus

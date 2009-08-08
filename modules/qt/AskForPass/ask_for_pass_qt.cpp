@@ -104,7 +104,7 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 {
 	if((int)(flags&ppk_rf_silent)==0)
 	{
-		std::string text;
+		std::string text="";
 		if(entry->type==ppk_network)
 			text=toString(entry->net.login)+toString("@")+toString(entry->net.host)+toString(":")+toString(entry->net.port);
 		else if(entry->type==ppk_application)

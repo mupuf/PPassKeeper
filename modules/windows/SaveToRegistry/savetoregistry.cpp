@@ -228,7 +228,7 @@ extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 	else if(entry->type==ppk_application)
 		text=generateApplicationKey(entry->app.app_name, entry->app.username);
 	else if(entry->type==ppk_item)
-		text=generateItemKey(entry->tem);
+		text=generateItemKey(entry->item);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 		

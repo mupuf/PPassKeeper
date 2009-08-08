@@ -172,25 +172,22 @@ ppk_error getBlob(const char *key, ppk_data** edata, unsigned int flags)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-bool setPassword(const char* key, const char* pwd, unsigned int flags)
+ppk_error setPassword(const char* key, const char* pwd, unsigned int flags)
 {
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		//Set the password
 		if(wallet->writePassword(QString::fromUtf8(key), QString::fromUtf8(pwd))==0)
-			return true;
+			return PPK_OK;
 		else
-		{
-			setError("Set Entry: wallet->writePassword failed, key="+toString(key));
-			return false;
-		}
+			return PPK_ENTRY_UNAVAILABLE;
 	}
-
-	return false;
+	else
+		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-bool setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
+ppk_error setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
 {
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
@@ -198,13 +195,12 @@ bool setBlob(const char *key, const void *data, unsigned long size, unsigned int
 		//Set the password
 		QByteArray blobData((const char *) data, size);
 		if(wallet->writeEntry(QString::fromAscii(key), blobData)==0)
-			return true;
+			return PPK_OK;
 		else
-		{
-			setError("Set Entry: wallet->writeEntry failed, key="+toString(key));
-			return false;
-		}
+			return PPK_ENTRY_UNAVAILABLE;
 	}
+	else
+		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
 ppk_error removePassword(const char* key, unsigned int flags)
@@ -370,13 +366,9 @@ extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, uns
 		return PPK_UNKNOWN_ENTRY_TYPE;
 	
 	if (edata->type == ppk_string)
-	{
-		return setPassword(generatedKey.c_str(), edata->string, flags)?PPK_OK:PPK_UNKNOWN_ERROR;
-	}
+		return setPassword(generatedKey.c_str(), edata->string, flags);
 	else if (edata->type == ppk_blob)
-	{
-		return setBlob(generatedKey.c_str(), edata->blob.data, edata->blob.size, flags)?PPK_OK:PPK_UNKNOWN_ERROR;
-	}
+		return setBlob(generatedKey.c_str(), edata->blob.data, edata->blob.size, flags);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 }

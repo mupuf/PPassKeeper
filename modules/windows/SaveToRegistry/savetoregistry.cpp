@@ -19,69 +19,71 @@ void setError(std::string error)
 	*(last_error())="PPK_SaveToRegistry : " + error;
 }
 
-bool getPassword(const char* key, ppk_data* edata)
+ppk_error getPassword(const char* key, ppk_data** edata)
 {
-	static char tmpBuf[1000000];
-
 	HKEY hk;
 	if(!RegOpenKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, KEY_QUERY_VALUE, &hk))
 	{
-		DWORD size=sizeof(tmpBuf);
+		DWORD size=0;
 		DWORD type;
+		
+		//Get the size of the entry
+		if(RegQueryValueEx(hk, key, 0, &type, NULL, &size)!=ERROR_SUCCESS)
+			return PPK_UNKNOWN_ERROR;
+
+		//Get the data
+		char tmpBuf=new char[size];
 		long res=RegQueryValueEx(hk, key, 0, &type, (BYTE*)tmpBuf, &size);
+		
 		RegCloseKey(hk);
 		
 		if(res==ERROR_SUCCESS)
 		{
 			if(type==REG_BINARY)
 			{
-				edata->type=ppk_blob;
-				edata->blob.data=tmpBuf;
-				edata->blob.size=size;
-				return true;
+				*edata=ppk_blob_data_new(tmpBuf, size);
+				delete[] tmpBuf;
+				return PPK_OK;
 			}
 			else if(type==REG_SZ)
 			{
-				edata->type=ppk_string;
-				edata->string=tmpBuf;
-				return true;
+				*edata=ppk_string_data_new(tmpBuf);
+				delete[] tmpBuf;
+				return PPK_OK;
 			}
 			else
-			{
-				setError("Unknown data type !");
-				return false;
-			}
+				return PPK_UNKNOWN_ENTRY_TYPE;
 		}
 		else
-			return false;
+			return PPK_UNKNOWN_ERROR;
 	}
 	else
-		return false;
+		return PPK_ENTRY_UNAVAILABLE;
 }
 
-bool setPassword(const char* key, const ppk_data edata)
+ppk_error setPassword(const char* key, const ppk_data* edata)
 {
 	HKEY hk;
 	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
 	{
 		long res;
 		
-		if(edata.type==ppk_string)
-			res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)edata.string, strlen(edata.string)+1);
-		else if(edata.type==ppk_blob)
-			res=RegSetValueEx(hk, key, 0, REG_BINARY, (const BYTE*)edata.blob.data, edata.blob.size);
+		if(edata->type==ppk_string)
+			res=RegSetValueEx(hk, key, 0, REG_SZ, (const BYTE*)edata->string, strlen(edata->string)+1);
+		else if(edata->type==ppk_blob)
+			res=RegSetValueEx(hk, key, 0, REG_BINARY, (const BYTE*)edata->blob.data, edata->blob.size);
 		else
-			setError("setPassword : Undefined data type !");
-			
+			return PPK_UNKNOWN_ENTRY_TYPE;
+		
 		RegCloseKey(hk);
 		
-		return res==ERROR_SUCCESS;
+		return res==ERROR_SUCCESS?PPK_OK:PPK_UNKNOWN_ERROR;
 	}
 	else
-		return false;
+		return PPK_ENTRY_UNAVAILABLE;
 }
 
-bool removePassword(const char* key)
+ppk_error removePassword(const char* key)
 {
 	HKEY hk;
 	if(!RegCreateKeyEx(HKEY_LOCAL_MACHINE, baseKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hk, 0))
@@ -89,10 +91,10 @@ bool removePassword(const char* key)
 		long res=RegDeleteValue(hk, key);
 		RegCloseKey(hk);
 		
-		return res==ERROR_SUCCESS;
+		return res==ERROR_SUCCESS?PPK_OK:PPK_UNKNOWN_ERROR;
 	}
 	else
-		return false;
+		return PPK_ENTRY_UNAVAILABLE;
 }
 
 std::string generateNetworkKey(std::string server, int port, std::string username)
@@ -184,61 +186,40 @@ extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryL
 }
 
 //Functions 
-extern "C" ppk_boolean getEntry(const ppk_entry entry, ppk_data *edata, unsigned int flags)
+extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 {
 	static std::string pwd;
 
 	std::string text;
-	if(entry.type==ppk_network)
-		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
-	else if(entry.type==ppk_application)
-		text=generateApplicationKey(entry.app.app_name, entry.app.username);
-	else if(entry.type==ppk_item)
-		text=generateItemKey(entry.item);
+	if(entry->type==ppk_network)
+		text=generateNetworkKey(entry->net.host, entry->net.port, entry->net.login);
+	else if(entry->type==ppk_application)
+		text=generateApplicationKey(entry->app.app_name, entry->app.username);
+	else if(entry->type==ppk_item)
+		text=generateItemKey(entry->item);
 	else
-	{
-		setError("getEntry : Invalid entry type.");
-		return PPK_FALSE;
-	}
+		return PPK_UNKNOWN_ENTRY_TYPE;
 	
-	//if everything went fine
-	if(getPassword(text.c_str(), edata))
-	{
-		setError("");
-		return PPK_TRUE;
-	}
-	else
-		return PPK_FALSE;
+	return getPassword(text.c_str(), edata);
 }
 
-extern "C" ppk_boolean setEntry(const ppk_entry entry, const ppk_data edata, unsigned int flags)
+extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 {
-	static std::string pwd;
-	
 	std::string text;
-	if(entry.type==ppk_network)
-		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
-	else if(entry.type==ppk_application)
-		text=generateApplicationKey(entry.app.app_name, entry.app.username);
-	else if(entry.type==ppk_item)
-		text=generateItemKey(entry.item);
+	if(entry->type==ppk_network)
+		text=generateNetworkKey(entry->net.host, entry->net.port, entry->net.login);
+	else if(entry->type==ppk_application)
+		text=generateApplicationKey(entry->app.app_name, entry->app.username);
+	else if(entry->type==ppk_item)
+		text=generateItemKey(entry->item);
 	else
-	{
-		setError("setEntry : Invalid entry type.");
-		return PPK_FALSE;
-	}
+		return PPK_UNKNOWN_ENTRY_TYPE;
 	
 	//if everything went fine
-	if(setPassword(text.c_str(), edata))
-	{
-		setError("");
-		return PPK_TRUE;
-	}
-	else
-		return PPK_FALSE;
+	return setPassword(text.c_str(), edata);
 }
 
-extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_error removeEntry(const ppk_entry entry, unsigned int flags)
 {
 	std::string text;
 	if(entry.type==ppk_network)
@@ -248,18 +229,20 @@ extern "C" ppk_boolean removeEntry(const ppk_entry entry, unsigned int flags)
 	else if(entry.type==ppk_item)
 		text=generateItemKey(entry.item);
 	else
-	{
-		setError("removeEntry : Invalid entry type.");
-		return PPK_FALSE;
-	}
+		return PPK_UNKNOWN_ENTRY_TYPE;
 		
-	return removePassword(text.c_str())?PPK_TRUE:PPK_FALSE;
+	return removePassword(text.c_str());
 }
 
 extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
 {
-	ppk_data edata;
-	return getEntry(entry, &edata, flags);
+	ppk_data* edata;
+	
+	ppk_boolean res=getEntry(entry, &edata, flags)==PPK_OK?PPK_TRUE:PPK_FALSE;
+	if(res==PPK_TRUE)
+		ppk_data_free(edata);
+	
+	return res;
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

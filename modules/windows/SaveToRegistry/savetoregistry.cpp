@@ -1,8 +1,9 @@
-#include "../../ppasskeeper-module.h"
-#include "../../tokenizer.h"
+#include "ppasskeeper.h"
+#include "tokenizer.h"
+#include "list_pwd.h"
+
 #include <string>
 #include <windows.h>
-#include "list_pwd.h"
 
 
 //Local definitions

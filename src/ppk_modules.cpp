@@ -25,7 +25,7 @@ void PPK_Modules::debug(std::string msg)
 	void* openLibrary(std::string lib_path){return LoadLibraryA(lib_path.c_str());}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return (void*)GetProcAddress((HINSTANCE__*)dlhandle, symbolName);}
 	const char* libraryError(){return "";}
-	int closeLibrary(void* dlhandle){ return (int)FreeLibrary(dlhandle);}
+	int closeLibrary(void* dlhandle){ return (int)FreeLibrary((HINSTANCE__*)dlhandle);}
 
 	static const char* baseKey="Software\\PPassKeeper\\";
 	size_t getRegistryValue(const char* key, char* ret, size_t max_size)

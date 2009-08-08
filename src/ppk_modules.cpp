@@ -80,8 +80,8 @@ void PPK_Modules::debug(std::string msg)
 	#include <dlfcn.h>
 	void* openLibrary(std::string lib_path){return dlopen(lib_path.c_str(), RTLD_LAZY);}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return dlsym(dlhandle, symbolName);}
-	const char* libraryError(){return dlerror();}
 	int closeLibrary(void* dlhandle){ return (int)dlclose(dlhandle);}
+	const char* libraryError(){return dlerror();}
 	
 	void PPK_Modules::loadList(void)
 	{	
@@ -153,9 +153,6 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			tm.getEntryListCount=(_getEntryListCount)loadSymbol(dlhandle, "getEntryListCount");
 			tm.getEntryList=(_getEntryList)loadSymbol(dlhandle, "getEntryList");
 
-			//errors
-			tm.getLastError=(_getLastError)loadSymbol(dlhandle, "getLastError");
-
 			//optionnal
 			tm.setCustomPromptMessage=(_setCustomPromptMessage)loadSymbol(dlhandle, "setCustomPromptMessage");
 			tm.constructor=(_constructor)loadSymbol(dlhandle, "constructor");
@@ -179,11 +176,10 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			if(tm.securityLevel==NULL)std::cerr << "missing : securityLevel();";
 			if(tm.getEntryListCount==NULL)std::cerr << "missing : getEntryListCount();";
 			if(tm.getEntryList==NULL)std::cerr << "missing : getEntryList();";
-			if(tm.getLastError==NULL)std::cerr << "missing : getLastError();";
 		#endif
 			
 			//if minimal functions are here, add the lib to available modules
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.maxDataSize!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.getLastError!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.maxDataSize!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
 			{
 				//Get the ID of the library
 				tm.id=tm.getModuleID();

@@ -3,8 +3,6 @@
 #include "string.h"
 #include "stdio.h"
 
-void setError(char* error);
-
 
 /* **************************************************
  *                                                  *

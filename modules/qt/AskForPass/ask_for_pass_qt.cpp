@@ -21,16 +21,7 @@ std::map<std::string, cvariant> parameters;
 #define PARAM_MAIN_TEXT_DEFAULT "Please key in the item corresponding to %1 :"
 
 //local functions
-std::string* last_error()
-{
-	static std::string last_err;
-	return &last_err;
-}
-bool Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd);
-void setError(std::string error)
-{
-	*(last_error())="PPK_AskForPass_Qt : " + error;
-}
+ppk_error Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd);
 
 //functions
 extern "C" void constructor()
@@ -121,16 +112,16 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_ITEM]));
 
 		std::string pwd;
-		bool res=Qt_Get_Password(title, label, icon, pwd);
+		ppk_error res=Qt_Get_Password(title, label, icon, pwd);
 
 		//if everything went fine
-		if(res)
+		if(res==PPK_OK)
 		{
 			*edata=ppk_string_data_new(pwd.c_str());
-			return PPK_OK;
+			return res;
 		}
 		else
-			return PPK_USER_CANCELLED;
+			return res;
 	}
 	else
 		return PPK_INCOMPATIBLE_FLAGS;
@@ -165,7 +156,7 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 }
 
 const ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
-const ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by ask_for_pass_qt" };
+const ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by AskForPass_Qt" };
 
 extern "C" const ppk_proto_param** availableParameters()
 {
@@ -218,43 +209,38 @@ extern "C" void setParam(const char* paramName, const cvariant value)
 		if(cvariant_get_type(value)==cvariant_string)
 			parameters[PARAM_IMG_APP]=value;
 		else
-			printf("Wrong data type for the parameter '%s' !\n", paramName);
+			printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 	}
 	else if(key == PARAM_IMG_NET)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
 			parameters[PARAM_IMG_NET]=value;
 		else
-			printf("Wrong data type for the parameter '%s' !\n", paramName);
+			printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 	}
 	else if(key == PARAM_IMG_ITEM)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
 			parameters[PARAM_IMG_ITEM]=value;
 		else
-			printf("Wrong data type for the parameter '%s' !\n", paramName);
+			printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 	}
 	else if(key == PARAM_WINDOW_CAPTION)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
 			parameters[PARAM_WINDOW_CAPTION]=value;
 		else
-			printf("Wrong data type for the parameter '%s' !\n", paramName);
+			printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 	}
 	else if(key == PARAM_MAIN_TEXT)
 	{
 		if(cvariant_get_type(value)==cvariant_string)
 			parameters[PARAM_MAIN_TEXT]=value;
 		else
-			printf("Wrong data type for the parameter '%s' !\n", paramName);
+			printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 	}
 	else
-		printf("	Unknown param(%s) !!\n", paramName);
-}
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
+		printf("%s: Unknown param(%s) !!\n", getModuleID(), paramName);
 }
 
 //Optionnal
@@ -352,7 +338,7 @@ private:
 	QLineEdit *pwdEdit;
 };
 
-bool Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd)
+ppk_error Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd)
 {
 	bool ok;
 
@@ -374,10 +360,9 @@ bool Qt_Get_Password(QString title, QString label, QString icon, std::string& pw
 		ok = PasswordDialog::getPassword(title, label, icon, pwd);
 
 	//if user pressed cancel
-	if(!ok)
-		setError("User pressed <Cancel>");
-
-	//Tell everything went fine
-	return ok;
+	if(ok)
+		return PPK_OK;
+	else
+		return PPK_USER_CANCELLED;
 }
 

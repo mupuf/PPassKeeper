@@ -14,13 +14,6 @@
 bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port);
 bool matchAppPassword(std::string name, std::string& user, std::string& app);
 bool matchItemPassword(const std::string name, std::string& item);
-extern "C" void setError(const char* error);
-
-std::string* last_error()
-{
-	static std::string last_err;
-	return &last_err;
-}
 
 std::string encrypt(const ppk_data* edata)
 {
@@ -96,17 +89,6 @@ extern "C" const char* getModuleName()
 extern "C" const int getABIVersion()
 {
 	return 1;
-}
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
-}
-
-extern "C" void setError(const char* error)
-{
-	*(last_error())= getModuleID() + toString(" : ") + error;
-	/*std::cerr << getLastError() << std::endl;*/
 }
 
 extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string.h>
 #include "list_pwd.h"
+#include "ppasskeeper-dir.h"
 
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
@@ -13,37 +14,6 @@
 std::string shortName();
 ppk_error readFile(std::string filename, std::string& filecontent, unsigned int flags);
 ppk_error writeFile(std::string filename, std::string secret, unsigned int flags);
-
-//Personal portable functions
-std::string setting_dir();
-
-//******************************************
-//*********        Windows         *********
-//******************************************
-#if defined(WIN32) || defined(WIN64)
-	#include <direct.h>
-	std::string setting_dir()
-	{
-		std::string userprofile=getenv("USERPROFILE");
-		std::string dir=userprofile+"/ppasskeeper/";
-		return dir;
-	}
-#else
-	#include "ppasskeeper-dir.h"
-	std::string setting_dir();
-#endif
-
-
-std::string* last_error()
-{
-	static std::string last_err;
-	return &last_err;
-}
-extern "C" const char* getModuleID();
-void setError(std::string error)
-{
-	*(last_error())="PPK_"+toString(getModuleID())+" : " + error;
-}
 
 std::string generateNetworkPath(std::string server, int port, std::string username)
 {
@@ -77,10 +47,7 @@ ppk_boolean fileExists(std::string filepath)
 		return PPK_TRUE;
 	}
 	else
-	{
-		setError("The file '" + filepath + "' cannot be oppened. Check your permissions !");
 		return PPK_FALSE;
-	}
 }
 
 //functions
@@ -213,10 +180,5 @@ extern "C"
 		}
 	
 		return 0;
-	}
-
-	const char* getLastError()
-	{
-		return last_error()->c_str();
 	}
 }

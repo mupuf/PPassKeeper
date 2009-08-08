@@ -81,11 +81,6 @@ extern "C"
 	*/
 	typedef unsigned int (*_getEntryList)(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
 
-	/*
-	This function should return a human-readable string describing what caused the last error
-	*/
-	typedef const char* (*_getLastError)();
-
 	/****************************************************************************************************/
 	/****************************************************************************************************/
 	/*                                                                                                  */
@@ -138,7 +133,6 @@ extern "C"
 		_securityLevel securityLevel;
 		_getEntryListCount getEntryListCount;
 		_getEntryList getEntryList;
-		_getLastError getLastError;
 		
 		//Optionnal
 		_setCustomPromptMessage setCustomPromptMessage;

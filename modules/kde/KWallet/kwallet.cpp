@@ -15,23 +15,6 @@ KWallet::Wallet* _wallet;
 KApplication *_app;
 
 //local functions
-std::string* last_error()
-{
-	static std::string last_err;
-	return &last_err;
-}
-
-extern "C" const char* getLastError()
-{
-	return last_error()->c_str();
-}
-
-void setError(std::string error)
-{
-	*(last_error())="PPK_KWallet : " + error;
-	std::cerr << getLastError() << std::endl;
-}
-
 bool init_kde_lazy()
 {
 	static bool initialized = false;
@@ -103,7 +86,6 @@ KWallet::Wallet* openWallet(unsigned int flags)
 	if (!initialised && (flags & ppk_lf_silent!=0 || flags & ppk_rf_silent!=0 || flags & ppk_wf_silent!=0))
 	{
 		//continue only if it won't annoy people who don't want to be prompted
-		setError("openWallet : openWallet was not performed because doing so would have conflicted with the silent flag.");
 		return NULL;
 	}
 
@@ -113,7 +95,6 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(), NULL);
 		if (_wallet == NULL)
 		{
-			setError("openWallet : openWallet failed");
 			return NULL;
 		}
 	}
@@ -125,7 +106,6 @@ KWallet::Wallet* openWallet(unsigned int flags)
 		_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),0);
 		if (_wallet == NULL)
 		{
-			std::cout << "openWallet : openWallet failed" << std::endl;
 			return NULL;
 		}
 	}
@@ -229,10 +209,7 @@ bool passwordExists(const char* key, unsigned int flags)
 		if(wallet->hasEntry(QString::fromAscii(key))==0)
 			return true;
 		else
-		{
-			setError("Entry Exists : wallet->hasEntry failed, key="+toString(key));
 			return false;
-		}
 	}
 	else
 		return false;
@@ -255,8 +232,6 @@ std::string prefix(ppk_entry_type type)
 		case ppk_item:
 			return ppk_item_string;
 			break;
-		default:
-			setError("prefix : Invalid entry type.");
 	}
 	return std::string();
 }

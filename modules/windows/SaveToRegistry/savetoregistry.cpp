@@ -33,7 +33,7 @@ ppk_error getPassword(const char* key, ppk_data** edata)
 			return PPK_UNKNOWN_ERROR;
 
 		//Get the data
-		char tmpBuf=new char[size];
+		char* tmpBuf=new char[size];
 		long res=RegQueryValueEx(hk, key, 0, &type, (BYTE*)tmpBuf, &size);
 		
 		RegCloseKey(hk);
@@ -156,10 +156,10 @@ extern "C" unsigned int listingFlagsAvailable()
 }
 
 //List passwords available
-std::string prefix(const ppk_entry entry)
+std::string prefix(const ppk_entry* entry)
 {
 	std::string prefix="ppasskeeper_";
-	switch(entry.type)
+	switch(entry->type)
 	{
 		case ppk_network:
 			prefix+="network";
@@ -220,22 +220,22 @@ extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, uns
 	return setPassword(text.c_str(), edata);
 }
 
-extern "C" ppk_error removeEntry(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 {
 	std::string text;
-	if(entry.type==ppk_network)
-		text=generateNetworkKey(entry.net.host, entry.net.port, entry.net.login);
-	else if(entry.type==ppk_application)
-		text=generateApplicationKey(entry.app.app_name, entry.app.username);
-	else if(entry.type==ppk_item)
-		text=generateItemKey(entry.item);
+	if(entry->type==ppk_network)
+		text=generateNetworkKey(entry->net.host, entry->net.port, entry->net.login);
+	else if(entry->type==ppk_application)
+		text=generateApplicationKey(entry->app.app_name, entry->app.username);
+	else if(entry->type==ppk_item)
+		text=generateItemKey(entry->tem);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 		
 	return removePassword(text.c_str());
 }
 
-extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 {
 	ppk_data* edata;
 	

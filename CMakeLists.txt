@@ -201,6 +201,12 @@ IF(PPK_STF)
 	"modules/portable/SaveToFile/encrypted/base64.c"
 	"modules/portable/SaveToFile/encrypted/base64.h"
 	"modules/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
+
+  IF(CMAKE_HOST_WIN32)
+    TARGET_LINK_LIBRARIES(ppk_savetofile_pt ppasskeeper)
+    TARGET_LINK_LIBRARIES(ppk_savetofile_enc ppasskeeper)
+  ENDIF(CMAKE_HOST_WIN32)
+
   INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STF)
 
@@ -220,7 +226,13 @@ IF(PPK_AFP_QT)
 	"modules/qt/AskForPass/*.[ch]"
 	"modules/qt/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_qt MODULE ${ppk_afp_qt_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
+
+  IF(CMAKE_HOST_WIN32)
+    TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES} ppasskeeper)
+  ELSE(CMAKE_HOST_WIN32)
+    TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
+  ENDIF(CMAKE_HOST_WIN32)
+
   INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_QT)
 
@@ -230,6 +242,7 @@ IF(PPK_AFP_WIN32)
 	"modules/windows/AskForPass/*.[ch]"
 	"modules/windows/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_win32 MODULE ${ppk_afp_win32_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_afp_win32 ppasskeeper)
   INSTALL(TARGETS ppk_afp_win32 DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_WIN32)
 
@@ -259,6 +272,7 @@ IF(PPK_STR)
 	"modules/windows/SaveToRegistry/*.[ch]"
 	"modules/windows/SaveToRegistry/*.cpp")
   ADD_LIBRARY(ppk_savetoregistry MODULE ${ppk_savetoregistry_SOURCES})
+  TARGET_LINK_LIBRARIES(ppk_savetoregistry ppasskeeper)
   INSTALL(TARGETS ppk_savetoregistry DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STR)
 

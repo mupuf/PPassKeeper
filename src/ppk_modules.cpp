@@ -25,6 +25,7 @@ void PPK_Modules::debug(std::string msg)
 	void* openLibrary(std::string lib_path){return LoadLibraryA(lib_path.c_str());}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return (void*)GetProcAddress((HINSTANCE__*)dlhandle, symbolName);}
 	const char* libraryError(){return "";}
+	int closeLibrary(void* dlhandle){ return (int)FreeLibrary(dlhandle);}
 
 	static const char* baseKey="Software\\PPassKeeper\\";
 	size_t getRegistryValue(const char* key, char* ret, size_t max_size)
@@ -80,6 +81,7 @@ void PPK_Modules::debug(std::string msg)
 	void* openLibrary(std::string lib_path){return dlopen(lib_path.c_str(), RTLD_LAZY);}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return dlsym(dlhandle, symbolName);}
 	const char* libraryError(){return dlerror();}
+	int closeLibrary(void* dlhandle){ return (int)dlclose(dlhandle);}
 	
 	void PPK_Modules::loadList(void)
 	{	
@@ -221,7 +223,7 @@ void PPK_Modules::eraseList(void)
 		if(iter->second.destructor)
 			iter->second.destructor();
 
-		dlclose(iter->second.dlhandle);
+		closeLibrary(iter->second.dlhandle);
 	}
 }
 

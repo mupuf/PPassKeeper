@@ -586,7 +586,7 @@ void MainWindow::focusChanged(QWidget* q_old, QWidget* /*q_new*/)
 							tr("You have modified the data stored.\n\nWould you like to save your modifications ?"),
 							QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 		{
-			ppk_data* data=ppk_string_data_new(qPrintable(passwordEdit->toPlainText()));
+			ppk_data* data=ppk_string_data_new(passwordEdit->toPlainText().toUtf8().data());
 			updateSelectedPassword(data);
 			ppk_data_free(data);
 		}

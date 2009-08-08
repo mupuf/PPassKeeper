@@ -55,10 +55,10 @@ void PPK_Modules::debug(std::string msg)
 		//char dir_path[2048];
 		//unsigned int len=GetEnvironmentVariableA("ppasskeeperMods", dir_path, (DWORD)sizeof(dir_path));
 		char dir_path[512];
-		getRegistryValue("mods_path", tmpBuf, sizeof(tmpBuf));
+		getRegistryValue("mods_path", dir_path, sizeof(dir_path));
 		std::string dirpath=dir_path;
 
-		debug("--------------- <PPassKeeper> ---------------\nIf you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'\n")
+		debug("--------------- <PPassKeeper> ---------------\nIf you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'\n");
 
 		hSearch = FindFirstFile((dirpath+"\\*.dll").c_str(), &File);
 		if (hSearch != INVALID_HANDLE_VALUE)

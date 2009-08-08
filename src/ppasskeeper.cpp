@@ -1,8 +1,6 @@
 #include "ppasskeeper.h"
 #include "ppasskeeper-module.h"
 #include "ppk_modules.h"
-#include "ppasskeeper-dir.h"
-#include "sha512.h"
 
 #include <iostream>
 #include <sstream>
@@ -17,78 +15,6 @@
 
 //global variables
 PPK_Modules modules;
-
-//local definitions
-enum State {undefined, unlocked, locked };
-
-/*********************************************************************
- *                                                                   *
- *                          Local Functions                          *
- *                                                                   *
- *********************************************************************/
-
-void sha512(char* hash, const void* data, unsigned int length)
-{
-	uint8_t	sha512[SHA512_HASH_SIZE];
-	SHA512Context s;
-	
-	SHA512Init(&s);
-	SHA512Update(&s, data, length);
-	SHA512Final(&s,sha512);
-	
-	for(int i = 0 ; i< SHA512_HASH_SIZE; i++)
-		snprintf(hash + i *2,SHA512_HASH_SIZE+7,"%02x",sha512[i]);
-}
-
-State& cState()
-{
-	static State state=undefined;
-	return state;
-}
-
-bool grantAccess(const char* pwd="")
-{
-	char hash_pwd[SHA512_HASH_SIZE*2+1];
-	char hash_file[SHA512_HASH_SIZE*2+1];
-	
-	FILE* f=fopen((setting_dir()+"/lock").c_str(), "r");
-	if(f!=NULL)
-	{
-		fread(hash_file, sizeof(char), sizeof(hash_file),f);
-		fclose(f);
-
-		sha512(hash_pwd, pwd, strlen(pwd));
-		
-		if(strcmp(hash_pwd, hash_file)==0)
-		{
-			cState()=unlocked;
-			return true;
-		}
-		else
-		{
-			cState()=locked;
-			return false;
-		}
-	}
-	else
-	{
-		cState()=unlocked;
-		
-		/*
-		 * Here is the problem for people who wants this "security", 
-		 * you just have to delete the file and all the security is gone ...
-		 */
-		return true;
-	}
-}
-
-bool isLocked()
-{
-	if(cState() == undefined)
-		cState()=grantAccess()?unlocked:locked;
-		
-	return cState()==locked;
-}
 
 std::string* last_error()
 {
@@ -108,42 +34,9 @@ void setError(std::string error)
  *********************************************************************/
 extern "C"
 {	
-	ppk_boolean ppk_set_password(const char* pwd)
-	{
-		if(!isLocked())
-		{
-			char hash_pwd[SHA512_HASH_SIZE*2+1];
-			
-			FILE* f=fopen((setting_dir()+"/lock").c_str(), "w");
-			if(f!=NULL)
-			{
-				sha512(hash_pwd, pwd, strlen(pwd));
-				fwrite(hash_pwd, sizeof(char), sizeof(hash_pwd),f);
-				fclose(f);
-				
-				return PPK_TRUE;
-			}
-			else
-				setError("ppk_setPassword : The lock cannot be openned. Check your file permission !");
-		}
-		
-		return PPK_FALSE;
-	}
-
-	ppk_boolean ppk_is_locked()
-	{
-		return isLocked()?PPK_TRUE:PPK_FALSE;
-	}
-	
-	ppk_boolean ppk_unlock(const char* password)
-	{
-		grantAccess(password);
-		return !isLocked()?PPK_TRUE:PPK_FALSE;
-	}
-
 	unsigned int ppk_module_count()
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 			return modules.size();
 		else
 		{
@@ -154,7 +47,7 @@ extern "C"
 
 	ppk_error ppk_module_reload_list()
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			modules.reload();
 			return PPK_OK;
@@ -165,7 +58,7 @@ extern "C"
 	
 	size_t ppk_module_list(ppk_module* pmodules, unsigned int nbModules)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			return modules.getModulesList(pmodules,nbModules);
 		}
@@ -178,7 +71,7 @@ extern "C"
 
 	ppk_boolean ppk_module_is_available(const char* module_id)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -195,7 +88,7 @@ extern "C"
 
 	ppk_error ppk_module_read_flags(const char* module_id, unsigned int* flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -214,7 +107,7 @@ extern "C"
 
 	ppk_error ppk_module_write_flags(const char* module_id, unsigned int* flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -233,7 +126,7 @@ extern "C"
 
 	ppk_error ppk_module_listing_flags(const char* module_id, unsigned int* flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -252,7 +145,7 @@ extern "C"
 
 	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -266,7 +159,7 @@ extern "C"
 	
 	size_t ppk_module_max_data_size(const char* module_id, ppk_data_type type)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -280,7 +173,7 @@ extern "C"
 	
 	size_t ppk_module_get_entry_count(const char* module_id, int entry_types, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -294,7 +187,7 @@ extern "C"
 
 	size_t ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry* entryList, size_t nbEntries, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -308,7 +201,7 @@ extern "C"
 	
 	ppk_error ppk_module_get_entry(const char* module_id, const ppk_entry* entry, ppk_data** edata, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -322,7 +215,7 @@ extern "C"
 
 	ppk_error ppk_module_set_entry(const char *module_id, const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -336,7 +229,7 @@ extern "C"
 	
 	ppk_error ppk_module_remove_entry(const char* module_id, const ppk_entry* entry, unsigned int flags)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -351,7 +244,7 @@ extern "C"
 	//Information about the module
 	ppk_boolean ppk_module_is_writable(const char* module_id)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -365,7 +258,7 @@ extern "C"
 
 	ppk_security_level ppk_module_security_level(const char* module_id)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -379,7 +272,7 @@ extern "C"
 	
 	ppk_boolean ppk_module_save_param(const char* module_id, const char* key, const cvariant value)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			VParam& param = VParam::instance();
 			if(param.saveParam(module_id, key, value))
@@ -402,7 +295,7 @@ extern "C"
 
 	cvariant ppk_module_get_param(const char* module_id, const char* key)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			VParam& param = VParam::instance();
 			return param.getParam(module_id, key);
@@ -416,7 +309,7 @@ extern "C"
 	
 	size_t ppk_module_list_params(const char* module_id, const char*** list, size_t maxEntries)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			VParam& param = VParam::instance();
 			static std::vector<std::string> vlist;
@@ -437,7 +330,7 @@ extern "C"
 	
 	ppk_boolean ppk_module_remove_param(const char* module_id, const char* key)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			VParam& param = VParam::instance();
 			return param.removeParam(module_id, key)?PPK_TRUE:PPK_FALSE;
@@ -451,7 +344,7 @@ extern "C"
 	
 	const ppk_proto_param** ppk_module_available_parameters(const char* module_id)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -471,7 +364,7 @@ extern "C"
 
 	ppk_error ppk_module_set_default(const char* module_id)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			if(std::string(module_id)==LIBPPK_AUTO_MODULE || ppk_module_is_available(module_id)==PPK_TRUE)
 			{
@@ -526,7 +419,7 @@ extern "C"
 	
 	ppk_boolean ppk_afp_set_custom_prompt_message(const char* module_id, const char* customMessage)
 	{
-		if(!isLocked())
+		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
@@ -542,18 +435,5 @@ extern "C"
 			setError("You cannot access any information. The library is locked !");
 			return PPK_FALSE;
 		}
-	}
-	
-
-/*********************************************************************
- *                                                                   *
- *                      Convenient functions                         *
- *                                                                   *
- *********************************************************************/
-	
-	const char* ppk_settings_directory()
-	{
-		static std::string settingDir=setting_dir();
-		return settingDir.c_str();	
 	}
 }

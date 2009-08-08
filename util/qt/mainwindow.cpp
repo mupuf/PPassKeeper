@@ -165,7 +165,8 @@ bool MainWindow::unlockPPK(bool force)
 
 		if(ok)
 		{
-			if(ppk_unlock(pwd.c_str())==PPK_TRUE)
+			ppk_unlock(pwd.c_str());
+			if(ppk_is_locked()==PPK_FALSE)
 				return true;
 			else
 			{
@@ -195,10 +196,11 @@ void MainWindow::setMasterPwd()
 		{
 			if(pwd==pwd2)
 			{
-				if(ppk_set_password(pwd.c_str())==PPK_TRUE)
+				ppk_error res=ppk_set_password(pwd.c_str());
+				if(res==PPK_OK)
 					QMessageBox::information(this, tr("The password has been set"), tr("The password you entered has been set as the new master password."));
 				else
-					QMessageBox::critical(this, tr("Error: An error occured"), tr("PPassKeeper was unable to set this password.\nError : TODO")/*ppk_getLastError(NULL)*/);
+					QMessageBox::critical(this, tr("Error: An error occured"), tr("PPassKeeper was unable to set this password.\nError : %1").arg(QString::fromUtf8(ppk_error_get_string(res))));
 			}
 			else
 				QMessageBox::critical(this, tr("Error: The password are not the same"), tr("The two passwords you entered are not matching.\nTry again ..."));

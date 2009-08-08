@@ -12,12 +12,12 @@ extern "C"
 	/*! \brief Lock the library with the given password.
 	 * \param in pwd The password that will lock the library
 	* \return PPK_TRUE is the library has been locked with the password, PPK_FALSE else */
-	ppk_boolean ppk_set_password(const char* password);
+	ppk_error ppk_set_password(const char* password);
 	
 	/*! \brief Try to unlock the library using the right password
 	 * \param in password The password to try to unlock the library
 	* \return PPK_TRUE is the library is unlocked, PPK_FALSE else */
-	ppk_boolean ppk_unlock(const char* password);
+	ppk_error ppk_unlock(const char* password);
 
 	/*! \brief Get a string from an error code explaining the error code
 	* \param error_code in: The error code you would like to be translated into human-readable text

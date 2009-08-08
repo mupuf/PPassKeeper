@@ -408,32 +408,4 @@ extern "C"
 		else
 			return last_error()->c_str();
 	}
-
-	/****************************************************************************************************/
-	/****************************************************************************************************/
-	/*                                                                                                  */
-	/*                                              OPTIONAL                                            */
-	/*                                                                                                  */
-	/****************************************************************************************************/
-	/****************************************************************************************************/
-	
-	ppk_boolean ppk_afp_set_custom_prompt_message(const char* module_id, const char* customMessage)
-	{
-		if(!ppk_is_locked())
-		{
-			const _module* mod=modules.getModuleByID(module_id);
-			if(mod!=NULL)
-				if(mod->setCustomPromptMessage!=NULL)
-					return mod->setCustomPromptMessage(customMessage);
-				else
-					return PPK_FALSE;
-			else
-				return PPK_FALSE;
-		}
-		else
-		{
-			setError("You cannot access any information. The library is locked !");
-			return PPK_FALSE;
-		}
-	}
 }

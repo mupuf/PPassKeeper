@@ -1,3 +1,8 @@
+#include "ppasskeeper.h"
+#include "sha512.h"
+#include "ppasskeeper-dir.h"
+#include "stdio.h"
+
 //local definitions
 enum State {undefined, unlocked, locked };
 
@@ -6,13 +11,6 @@ enum State {undefined, unlocked, locked };
  *                          Local Functions                          *
  *                                                                   *
  *********************************************************************/
-#include "ppasskeeper.h"
-
-#include "ppasskeeper-dir.h"
-#include "sha512.h"
-#include "stdio.h"
-
-//private functions
 void sha512(char* hash, const void* data, unsigned int length)
 {
 	uint8_t	sha512[SHA512_HASH_SIZE];

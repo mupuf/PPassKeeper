@@ -178,14 +178,12 @@ extern "C"
 	* \param key in: The name of the parameter.
 	* \param value in: The value to store.
 	* \return  Return PPK_TRUE if the parameter has been saved, PPK_FALSE else.*/
-	ppk_boolean ppk_module_save_param(const char* module_id, const char* key, const cvariant value);
+	ppk_error ppk_module_save_param(const char* module_id, const char* key, const cvariant value);
 
 	/*! \brief Retrieve a module parameter. This parameter can be set/updated with ppk_saveParam.
 	* \param module_id in: Module's ID.
 	* \param key in: The name of the parameter.
-	* \param value in: The variable that will hold the result of the request.
-	* \param maxSize in: The size the result value should not exceed.
-	* \return  Return PPK_TRUE if the parameter has been retrieved, PPK_FALSE else.*/
+	* \return  Return the parameter (as a cvariant) if found), a NULL cvariant otherwise (use cvariant_is_null() to test it)*/
 	cvariant ppk_module_get_param(const char* module_id, const char* key);
 	
 	/* \brief Retrieve the parameters list of a given module.
@@ -206,14 +204,20 @@ extern "C"
 	* \param module_id in: Module's ID.
 	* \param key in: The name of the parameter to delete.
 	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
-	ppk_boolean ppk_module_remove_param(const char* module_id, const char* key);
+	ppk_error ppk_module_remove_param(const char* module_id, const char* key);
 
 	/*! \brief Retrieve the list of supported parameters's prototype (type, default value, help text) for a given module
 	* \param module_id in: Module's ID.
 	* \return  Return a null-terminated list of ppk_proto_param**/
 	const ppk_proto_param** ppk_module_available_parameters(const char* module_id);
 
-#ifdef __cplusplus 
+	/*! \brief Allow to change the default password prompt message and replace it by your own.
+	* \param module_id in: Module's ID.
+	* \param customMessage in: Message to be used
+	* \return  Return PPK_TRUE if the module is compatible with changing the prompt message, PPK_FALSE else.*/
+	ppk_error ppk_afp_set_custom_prompt_message(const char* module_id, const char* customMessage);
+
+#ifdef __cplusplus
 }
 #endif
 

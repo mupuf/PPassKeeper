@@ -42,7 +42,7 @@ extern "C"
 #endif
 
 	/*! \brief Generate a string ppk_data.
-	* \param string in: The string to be stored (example : MySecretPassword).
+	* \param string in: The string to be stored (in Utf8 format, as every string in PPK)(example : MySecretPassword).
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_string_data_new(const char* string);
 

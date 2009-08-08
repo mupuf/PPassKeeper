@@ -290,7 +290,7 @@ void EditParams::saveParam()
 			}
 			case QVariant::String:
 			{
-				new_value=cvariant_from_string_copy(qPrintable(fieldValue.toString()), fieldValue.toString().size()+1);
+				new_value=cvariant_from_string_copy(fieldValue.toString().toUtf8().data(), fieldValue.toString().size()+1);
 				break;
 			}
 			default:

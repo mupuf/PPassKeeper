@@ -331,7 +331,18 @@ configure_file(ppasskeeper.pc.in ppasskeeper.pc @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ppasskeeper.pc" DESTINATION lib/pkgconfig)
 
 IF(PPK_TESTS)
-  INCLUDE("unittest/CMakeLists.txt")
+  INCLUDE_DIRECTORIES(BEFORE "${CMAKE_SOURCE_DIR}/include")
+  LINK_DIRECTORIES(BEFORE "${CMAKE_SOURCE_DIR}/src")
+
+  SET(UNITTESTS "get-set-blob" "get-set-string")
+
+  FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/unittest")
+
+  FOREACH(UNITTEST ${UNITTESTS})
+    FILE(GLOB UNITTEST_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}" "unittest/${UNITTEST}/*.[ch]" "unittest/${UNITTEST}/*.cpp")
+    ADD_EXECUTABLE("unittest/${UNITTEST}" "${UNITTEST_SOURCES}")
+    TARGET_LINK_LIBRARIES("unittest/${UNITTEST}" "-lppasskeeper")
+  ENDFOREACH()
 ENDIF(PPK_TESTS)
 
 #Final summary
@@ -378,6 +389,9 @@ MESSAGE("")
 
 MESSAGE("Options :")
 MESSAGE("	Debug Mode : ${PPK_DEBUG} (-DPPK_DEBUG=ON to activate)")
+MESSAGE("")
+
+MESSAGE("Unit Tests : ${PPK_TESTS} (-DPPK_TESTS=ON to activate)")
 MESSAGE("")
 
 MESSAGE("Install :")

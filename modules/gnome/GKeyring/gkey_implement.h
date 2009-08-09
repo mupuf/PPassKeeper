@@ -3,6 +3,8 @@
 
 #include <ppasskeeper.h>
 
+extern "C" const char* getModuleID();
+
 extern "C" ppk_error setNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, const ppk_data* edata, unsigned int flags);
 extern "C" ppk_error getNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, ppk_data** edata, unsigned int flags);
 

@@ -1,18 +1,18 @@
-#include <ppasskeeper.h>
+#include "ppasskeeper.h"
 
 #include <Python.h>
 #include <stdlib.h>
 
 PyObject *wrap_getAvailableModulesCount(PyObject *o, PyObject * args)
 {
-	int num = ppk_getAvailableModulesCount();
+	int num = ppk_get_available_modules_count();
 	PyObject *result = Py_BuildValue("I", num);
 	return result;
 }
 
 PyObject *wrap_isLocked(PyObject *o, PyObject * args)
 {
-	return ppk_isLocked()?Py_True:Py_False;
+	return ppk_is_locked()?Py_True:Py_False;
 }
 
 PyObject *wrap_setPassword(PyObject *o, PyObject * args)

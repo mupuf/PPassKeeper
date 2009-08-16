@@ -97,14 +97,7 @@ void PPK_Modules::debug(std::string msg)
 		if(plugindir!=NULL)
 		{
 			while ((mydirent = readdir(plugindir))!=NULL)
-			{
-				int i = strlen(mydirent->d_name) - 3;
-
-				//suffix check: don't load libtool (.la) files
-				if (i >= 0 && strcmp(mydirent->d_name + i, ".la")!=0)
-					loadPlugin(DIRECTORY_PATH, mydirent->d_name);
-			}
-			
+				loadPlugin(DIRECTORY_PATH, mydirent->d_name);
 			closedir(plugindir);
 		}
 		else
@@ -248,7 +241,6 @@ void PPK_Modules::sendParameters(_module m)
 PPK_Modules::PPK_Modules()
 {
 	loadList();
-	
 }
 
 PPK_Modules::~PPK_Modules()

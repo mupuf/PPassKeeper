@@ -202,10 +202,8 @@ IF(PPK_STF)
 	"modules/portable/SaveToFile/encrypted/base64.h"
 	"modules/portable/SaveToFile/encrypted/savetofile_encrypted.cpp")
 
-  IF(CMAKE_HOST_WIN32)
-    TARGET_LINK_LIBRARIES(ppk_savetofile_pt ppasskeeper)
-    TARGET_LINK_LIBRARIES(ppk_savetofile_enc ppasskeeper)
-  ENDIF(CMAKE_HOST_WIN32)
+  TARGET_LINK_LIBRARIES(ppk_savetofile_pt ppasskeeper)
+  TARGET_LINK_LIBRARIES(ppk_savetofile_enc ppasskeeper)
 
   INSTALL(TARGETS ppk_savetofile_pt ppk_savetofile_enc DESTINATION lib/ppasskeeper)
 ENDIF(PPK_STF)
@@ -216,7 +214,7 @@ IF(PPK_AFP_GTK)
 	"modules/gtk/AskForPass/*.[ch]"
 	"modules/gtk/AskForPass/*.cpp")
    ADD_LIBRARY(ppk_afp_gtk MODULE ${ppk_afp_gtk_SOURCES})
-   TARGET_LINK_LIBRARIES(ppk_afp_gtk ${gtk2_LIBRARIES})
+   TARGET_LINK_LIBRARIES(ppk_afp_gtk ${gtk2_LIBRARIES} ppasskeeper)
    INSTALL(TARGETS ppk_afp_gtk DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_GTK)
 
@@ -227,11 +225,7 @@ IF(PPK_AFP_QT)
 	"modules/qt/AskForPass/*.cpp")
   ADD_LIBRARY(ppk_afp_qt MODULE ${ppk_afp_qt_SOURCES})
 
-  IF(CMAKE_HOST_WIN32)
-    TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES} ppasskeeper)
-  ELSE(CMAKE_HOST_WIN32)
-    TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES})
-  ENDIF(CMAKE_HOST_WIN32)
+  TARGET_LINK_LIBRARIES(ppk_afp_qt ${QT_LIBRARIES} ppasskeeper)
 
   INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_QT)
@@ -252,7 +246,7 @@ IF(PPK_GNOMEKEYRING)
 	"modules/gnome/GKeyring/*.[ch]"
 	"modules/gnome/GKeyring/*.cpp")
   ADD_LIBRARY(ppk_gnomekeyring MODULE ${ppk_gnomekeyring_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_gnomekeyring ${gkeyring_LIBRARIES})
+  TARGET_LINK_LIBRARIES(ppk_gnomekeyring ${gkeyring_LIBRARIES} ppasskeeper)
   INSTALL(TARGETS ppk_gnomekeyring DESTINATION lib/ppasskeeper)
 ENDIF(PPK_GNOMEKEYRING)
 
@@ -262,7 +256,7 @@ IF(PPK_KWALLET4)
 	"modules/kde/KWallet/*.[ch]"
 	"modules/kde/KWallet/*.cpp")
   ADD_LIBRARY(ppk_kwallet MODULE ${ppk_kwallet4_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd")
+  TARGET_LINK_LIBRARIES(ppk_kwallet "kdeinit4_kwalletd" ppasskeeper)
   INSTALL(TARGETS ppk_kwallet DESTINATION lib/ppasskeeper)
 ENDIF(PPK_KWALLET4)
 

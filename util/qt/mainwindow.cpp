@@ -13,11 +13,10 @@
 
 #include <QMetaType>
 
-Q_DECLARE_METATYPE(ppk_module*); // to make it storable in QVariant
+Q_DECLARE_METATYPE(char*); // to make it storable in QVariant
 
 MainWindow::MainWindow()
 	: QMainWindow(),
-	  m_moduleList(NULL),
 	  m_module(NULL),
 	  cur_availability(false)
 {
@@ -37,22 +36,24 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-	delete[] m_moduleList;
+
 }
 
 void MainWindow::fillModulesBox()
 {
 	modulesBox->clear();
 
-	unsigned int n = ppk_module_count();
+	/*unsigned int n = ppk_module_count();
 	m_moduleList = new ppk_module[n];
-	ppk_module_list(m_moduleList, n);
+	ppk_module_list(m_moduleList, n);*/
+	
+	char** list=ppk_module_list();
 
-	modulesBox->addItem(tr("Select one:"), qVariantFromValue((ppk_module*) NULL));
+	modulesBox->addItem(tr("Select one:"), qVariantFromValue((char*)NULL));
 	modulesBox->insertSeparator(1);
 
-	for (unsigned int i = 0; i < n; ++i)
-		modulesBox->addItem(QString::fromUtf8(m_moduleList[i].display_name), qVariantFromValue(&(m_moduleList[i])));
+	for (unsigned int i = 0; list[i]!=NULL; ++i)
+		modulesBox->addItem(QString::fromUtf8(ppk_module_display_name(list[i])), qVariantFromValue(list[i]));
 }
 
 void MainWindow::showInfoMessageUnderDevelopment()
@@ -126,17 +127,17 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 	if (cur_type == ppk_application)
 	{
 		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-		res = ppk_module_set_entry(m_module->id, entry, data, 0);
+		res = ppk_module_set_entry(module(), entry, data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
 		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-		res = ppk_module_set_entry(m_module->id, entry, data, 0);
+		res = ppk_module_set_entry(module(), entry, data, 0);
 	}
 	else if (cur_type == ppk_item)
 	{
 		entry=ppk_item_entry_new(qPrintable(cur_item.key));
-		res = ppk_module_set_entry(m_module->id, entry, data, 0);
+		res = ppk_module_set_entry(module(), entry, data, 0);
 	}
 	else
 		return false;
@@ -210,7 +211,7 @@ void MainWindow::setMasterPwd()
 
 void MainWindow::onSetDefaultModule()
 {
-	ppk_module_set_default(m_module->id);
+	ppk_module_set_default(module());
 }
 
 void MainWindow::onAddButtonClicked()
@@ -239,17 +240,17 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 	if (cur_type == ppk_application)
 	{
 		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-		res = ppk_module_get_entry(m_module->id, entry, &data, 0);
+		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
 		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-		res = ppk_module_get_entry(m_module->id, entry, &data, 0);
+		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else if (cur_type == ppk_item)
 	{
 		entry=ppk_item_entry_new(qPrintable(cur_item.key));
-		res = ppk_module_get_entry(m_module->id, entry, &data, 0);
+		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else
 		return data;
@@ -289,7 +290,7 @@ void MainWindow::onDelButtonClicked()
 
 
 	QString title=tr("Are your sure ?");
-	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(QString::fromUtf8(m_module->id));
+	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(QString::fromUtf8(module()));
 	if(QMessageBox::question(this, title, text, QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 	{
 		ppk_error res;
@@ -298,17 +299,17 @@ void MainWindow::onDelButtonClicked()
 		if (cur_type == ppk_application)
 		{
 			entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-			res = ppk_module_remove_entry(m_module->id, entry, 0);
+			res = ppk_module_remove_entry(module(), entry, 0);
 		}
 		else if (cur_type == ppk_network)
 		{
 			entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-			res = ppk_module_remove_entry(m_module->id, entry, 0);
+			res = ppk_module_remove_entry(module(), entry, 0);
 		}
 		else if (cur_type == ppk_item)
 		{
 			entry=ppk_item_entry_new(qPrintable(cur_item.key));
-			res = ppk_module_remove_entry(m_module->id, entry, 0);
+			res = ppk_module_remove_entry(module(), entry, 0);
 		}
 		else
 		{
@@ -351,7 +352,7 @@ void MainWindow::onExportButtonClicked()
 void MainWindow::onInfoModuleButtonClicked()
 {
 	InfoModule infomod(this);
-	infomod.setModule(m_module->id);
+	infomod.setModule(module());
 	infomod.setModal(true);
 	infomod.show();
 	infomod.exec();
@@ -501,7 +502,7 @@ void MainWindow::setBlobFromFile()
 		return;
 
 	QFile file(filepath);
-	if((size_t)file.size()<=ppk_module_max_data_size(m_module->id, ppk_blob))
+	if((size_t)file.size()<=ppk_module_max_data_size(module(), ppk_blob))
 	{
 		file.open(QIODevice::ReadOnly);
 		if(file.isReadable())
@@ -556,17 +557,18 @@ void MainWindow::updateInfoLabel()
 
 void MainWindow::moduleChanged(int index)
 {
-	ppk_module* module = modulesBox->itemData(index).value<ppk_module*>();
+	char* module = modulesBox->itemData(index).value<char*>();
 	if (module != NULL)
 	{
-		m_module = module;
+		m_module=module;
+		
 		listCurrentModule();
 
 		/* the displayed password becomes unavailable
 		 * after a module change */
 		cur_availability = false;
 
-		bool is_default=(m_module->id==ppk_module_get_default());
+		bool is_default=(m_module==ppk_module_get_default());
 
 		toolBar->setEnabled(true);
 		actionSetModuleDefault->setEnabled(true);
@@ -576,7 +578,7 @@ void MainWindow::moduleChanged(int index)
 
 void MainWindow::listCurrentModule()
 {
-	pwdlistModel->setupModelData(m_module->id);
+	pwdlistModel->setupModelData(module());
 }
 
 void MainWindow::focusChanged(QWidget* q_old, QWidget* /*q_new*/)

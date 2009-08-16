@@ -8,9 +8,9 @@
 #include <QPushButton>
 
 EditParams::EditParams(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::EditParams),
-    catTab(NULL),
+	QDialog(parent),
+	m_ui(new Ui::EditParams),
+	catTab(NULL),
 	module(NULL)
 {
 	m_ui->setupUi(this);
@@ -23,7 +23,7 @@ EditParams::~EditParams()
     delete m_ui;
 }
 
-void EditParams::setModule(ppk_module* module)
+void EditParams::setModule(const char* module)
 {
 	//Set up the tab widget before rendering into it
 	if(catTab!=NULL)
@@ -33,11 +33,11 @@ void EditParams::setModule(ppk_module* module)
 
 	//Change the module name
 	this->module = module;
-	m_ui->lbl_modulename->setText(QString::fromUtf8(module->display_name));
-	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(QString::fromUtf8(module->display_name)));
+	m_ui->lbl_modulename->setText(QString::fromUtf8(ppk_module_display_name(module)));
+	m_ui->lbl_textintro->setText(tr("Edit settings of the \nmodule %0").arg(QString::fromUtf8(ppk_module_display_name(module))));
 
 	//Show the available parameters
-	const ppk_proto_param** list=ppk_module_available_parameters(module->id);
+	const ppk_proto_param** list=ppk_module_available_parameters(module);
 	if(list)
 	{
 		int i=0;
@@ -126,7 +126,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
 	//Get Param's value
-	cvariant c_value=ppk_module_get_param(module->id, pparam->name);
+	cvariant c_value=ppk_module_get_param(module, pparam->name);
 
 	//Create the widget
 	switch(pparam->expected_type)
@@ -298,10 +298,10 @@ void EditParams::saveParam()
 		}
 
 		//Compare the current value to the currently stored
-		cvariant cur_value=ppk_module_get_param(module->id, qPrintable(name));
+		cvariant cur_value=ppk_module_get_param(module, qPrintable(name));
 
 		//If there is an already existing key, replace it. or if we changed the default value
 		if(cvariant_not_null(cur_value) || fieldValue!=fieldDefaultValue)
-			ppk_module_save_param(module->id, qPrintable(name), new_value);
+			ppk_module_save_param(module, qPrintable(name), new_value);
 	}
 }

@@ -31,14 +31,14 @@ extern "C"
 			return PPK_LOCKED_NO_ACCESS;
 	}
 
-	size_t ppk_module_list(ppk_module* pmodules, unsigned int nbModules)
+	char** ppk_module_list()
 	{
 		if(!ppk_is_locked())
 		{
-			return modules.getModulesList(pmodules,nbModules);
+			return modules.getModulesList();
 		}
 		else
-			return 0;
+			return NULL;
 	}
 
 	ppk_boolean ppk_module_is_available(const char* module_id)
@@ -53,6 +53,14 @@ extern "C"
 		}
 		else
 			return PPK_FALSE;
+	}
+
+	const char* ppk_module_display_name(const char* module_id)
+	{
+		if(!ppk_is_locked())
+			return modules.getDisplayNameByID(module_id);
+		else
+			return NULL;
 	}
 
 	ppk_error ppk_module_read_flags(const char* module_id, unsigned int* flags)

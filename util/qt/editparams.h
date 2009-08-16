@@ -22,7 +22,7 @@ public:
 	explicit EditParams(QWidget *parent = 0);
 	virtual ~EditParams();
 
-	void setModule(ppk_module* module);
+	void setModule(const char* module);
 
 protected:
 	virtual void changeEvent(QEvent *e);
@@ -33,7 +33,7 @@ private slots:
 private:
 	Ui::EditParams *m_ui;
 	QTabWidget* catTab;
-	ppk_module* module;
+	const char* module;
 
 	QList<QAbstractFormField*> fields;
 	QMap<QString, QGridLayout*> categories;

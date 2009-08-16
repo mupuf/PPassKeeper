@@ -253,7 +253,7 @@ unsigned int PPK_Modules::size()
 	return modules.size()+1;
 }
 
-unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int ModulesCount)
+/*unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int ModulesCount)
 {
 	if(modules.size()>0)
 	{
@@ -273,6 +273,35 @@ unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int Modu
 	}
 	else
 		return false;
+}*/
+
+char** PPK_Modules::getModulesList()
+{
+	char** module_list=new char*[modules.size()+1];
+
+	unsigned int i;
+	std::map<std::string,_module>::iterator iter;
+	for(i=0,iter=modules.begin(); iter!=modules.end(); i++,iter++)
+	{
+		module_list[i]=new char[strlen(iter->second.id)+1];
+		strcpy(module_list[i], iter->second.id);
+	}
+
+	module_list[i]=NULL;
+
+	return module_list;
+}
+
+void PPK_Modules::freeModuleList(char** module_list)
+{
+	int i=0;
+	while(module_list[i]!=NULL)
+	{
+		delete[] module_list[i];
+		i++;
+	}
+
+	delete[] module_list;
 }
 
 const _module* PPK_Modules::getModuleByID(const char* module_id) //return the corresponding module or NULL if the module is not referenced
@@ -285,6 +314,20 @@ const _module* PPK_Modules::getModuleByID(const char* module_id) //return the co
 	std::map<std::string,_module>::iterator fter = modules.find(module_id);
 	if(fter!=modules.end())
 		return &(fter->second);
+	else
+		return NULL;
+}
+
+const char* PPK_Modules::getDisplayNameByID(const char* module_id)
+{
+	//Get the real module name
+	if(strcmp(module_id, LIBPPK_DEFAULT_MODULE)==0)
+		return LIBPPK_DEFAULT_MODULE_DESC;
+
+	//Does the module exist ?
+	std::map<std::string,_module>::iterator fter = modules.find(module_id);
+	if(fter!=modules.end())
+		return fter->second.display_name;
 	else
 		return NULL;
 }
@@ -311,12 +354,11 @@ const char* PPK_Modules::autoModule()
 		return "SaveToFile_PT";
 	else if(ppk_module_count()>1)
 	{
-		ppk_module mods[2];
-		ppk_module_list(mods, sizeof(mods));
-		return mods[1].id;
+		char** list=ppk_module_list();
+		return list[0];
 	}
 	else
-		return "";
+		return NULL;
 		
 }
 

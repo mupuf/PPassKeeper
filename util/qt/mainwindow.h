@@ -16,11 +16,10 @@ class MainWindow : public QMainWindow, Ui::MainWindow
 public:
 	MainWindow();
 	~MainWindow();
-	const ppk_module* module() const { return m_module; };
+	const char* module() const { return m_module; };
 
 private:
-	ppk_module* m_moduleList;
-	ppk_module* m_module; //current module
+	char* m_module; //current module
 	QString tmp_sensitive_data;
 	PasswordListModel *pwdlistModel;
 

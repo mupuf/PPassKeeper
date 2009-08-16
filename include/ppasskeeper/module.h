@@ -58,10 +58,8 @@ extern "C"
 	unsigned int ppk_module_count();
 
 	/*! \brief Get a list of available modules
-	* \param[in,out] modules Array of PPassKeeper_Module that will store the list of modules.
-	* \param nbModules Size of the array modules.
-	* \return  Return the count of available modules*/
-	size_t ppk_module_list(ppk_module* modules, unsigned int nbModules); //returns the number of modules
+	* \return  Returns a null-terminated list of module ID*/
+	char** ppk_module_list();
 
 	/*! \brief Reloads the plugins from the plugin dir and updates the module count and list.
 	* WARNING: This function is NOT thread-safe. Make sure no other thread uses ppk while calling this function.
@@ -81,6 +79,11 @@ extern "C"
 	* \param module_id Module's ID.
 	* \return  Return PPK_TRUE if the module is available, PPK_FALSE else.*/
 	ppk_boolean ppk_module_is_available(const char* module_id);
+
+	/*! \brief Get the display name of a module
+	* \param module_id Module's ID.
+	* \return  The display name of the module if it exists and if the library is not locked, NULL otherwise*/
+	const char* ppk_module_display_name(const char* module_id);
 
 	/*! \brief Returns supported reading flags for a given module
 	* \param module_id Module's ID.

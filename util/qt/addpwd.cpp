@@ -4,10 +4,10 @@
 #include <string>
 
 AddPWD::AddPWD(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::AddPWD),
-    cancel(false),
-    success(false),
+	QDialog(parent),
+	m_ui(new Ui::AddPWD),
+	cancel(false),
+	success(false),
 	module(NULL)
 {
 	m_ui->setupUi(this);
@@ -82,7 +82,7 @@ void AddPWD::entryTypeChanged(int index)
 	this->adjustSize();
 }
 
-void AddPWD::setModule(ppk_module* module)
+void AddPWD::setModule(const char* module)
 {
 	this->module = module;
 }
@@ -156,7 +156,7 @@ void AddPWD::onOK()
 	}
 
 	ppk_data* data=ppk_string_data_new(qPrintable(default_string));
-	ppk_error res = ppk_module_set_entry(module->id, entry, data, 0);
+	ppk_error res = ppk_module_set_entry(module, entry, data, 0);
 	if(res!=PPK_OK)
 	{
 		QString error=tr("An error occured while adding the entry '%1'\n\nError : %2").arg(key).arg(QString::fromUtf8(ppk_error_get_string(res)));

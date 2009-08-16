@@ -32,9 +32,11 @@ class PPK_Modules
 		void reload(void);
 	
 		unsigned int size();
-		unsigned int getModulesList(ppk_module* pmodules, unsigned int ModulesCount);
+		char** getModulesList();
+		void freeModuleList(char** list);
 		
 		const _module* getModuleByID(const char* module_id);
+		const char* getDisplayNameByID(const char* module_id);
 };
 
 #endif

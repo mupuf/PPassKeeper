@@ -320,6 +320,9 @@ const _module* PPK_Modules::getModuleByID(const char* module_id) //return the co
 
 const char* PPK_Modules::getDisplayNameByID(const char* module_id)
 {
+	if(module_id==NULL)
+		return NULL;
+	
 	//Get the real module name
 	if(strcmp(module_id, LIBPPK_DEFAULT_MODULE)==0)
 		return LIBPPK_DEFAULT_MODULE_DESC;
@@ -329,7 +332,7 @@ const char* PPK_Modules::getDisplayNameByID(const char* module_id)
 	if(fter!=modules.end())
 		return fter->second.display_name;
 	else
-		return NULL;
+		return module_id;
 }
 
 const char* PPK_Modules::autoModule()

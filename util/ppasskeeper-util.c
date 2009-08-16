@@ -157,13 +157,16 @@ int main(int argc, char **argv)
 	if (mode == 'L')
 	{
 		if (pwd_type || module_id || key || password) usage();
-		int c = ppk_module_count();
-		ppk_module modules[c];
-		ppk_module_list(modules, c);
-		int i;
-		for (i = 0; i < c; i++)
-			printf("%s: %s\n", modules[i].id, modules[i].display_name);
-	} else if (mode == 'G')
+		
+		char** list=ppk_module_list();
+		if(list)
+		{
+			unsigned int i;
+			for (i = 0; list[i]!=NULL; ++i)
+				printf("%s: %s\n", list[i], ppk_module_display_name(list[i]));
+		}
+	}
+	else if (mode == 'G')
 	{
 		if (pwd_type && module_id && key && !password)
 		{

@@ -5,8 +5,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include <stdio.h>
 #include <iostream>
-#include <cstring>
 
 //portability functions
 void* openLibrary(std::string lib_path);
@@ -16,7 +16,7 @@ const char* libraryError();
 void PPK_Modules::debug(std::string msg)
 {
 	#ifdef DEBUG_MSG
-		std::cout << msg;
+		printf(msg.c_str());
 	#endif
 }
 
@@ -78,7 +78,7 @@ void PPK_Modules::debug(std::string msg)
 	}
 #else
 	#include <dlfcn.h>
-	void* openLibrary(std::string lib_path){return dlopen(lib_path.c_str(), RTLD_LAZY);}
+	void* openLibrary(std::string lib_path){return dlopen(lib_path.c_str(), RTLD_NOW);}
 	void* loadSymbol(void* dlhandle, const char* symbolName){return dlsym(dlhandle, symbolName);}
 	int closeLibrary(void* dlhandle){ return (int)dlclose(dlhandle);}
 	const char* libraryError(){return dlerror();}
@@ -89,7 +89,7 @@ void PPK_Modules::debug(std::string msg)
 		struct dirent * mydirent;
 
 		modules.clear();
-		
+
 		debug("--------------- <PPassKeeper> ---------------\nIf you don't want to see theses messages, recompile ppasskeeper with the cmake switch '-DPPK_DEBUG=OFF'\n");
 
 		//Open Plugin's directory
@@ -113,11 +113,12 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 	//if the filename doesn't have the right prefix then try to load it as a shared object
 	if(filename.size()>7 && filename.substr(0,7)=="libppk_")
 	{
+		std::string path=dirpath+"/"+filename;
 		//debug
-		debug("Load the plugin '"+dirpath+"/"+filename+"': ");
+		debug("Load the plugin '"+path+"': ");
 
 		//Load the shared object
-		void* dlhandle = openLibrary(dirpath+"/"+filename);
+		void* dlhandle = openLibrary(path.c_str());
 		if (dlhandle!=NULL)
 		{
 			_module tm; //Temporary module
@@ -252,28 +253,6 @@ unsigned int PPK_Modules::size()
 {
 	return modules.size()+1;
 }
-
-/*unsigned int PPK_Modules::getModulesList(ppk_module* pmodules, unsigned int ModulesCount)
-{
-	if(modules.size()>0)
-	{
-		//Automatic module
-		pmodules[0].id=LIBPPK_DEFAULT_MODULE;
-		pmodules[0].display_name=LIBPPK_DEFAULT_MODULE_DESC;
-			
-		std::map<std::string,_module>::iterator iter;
-		unsigned int i;
-		for(i=1,iter=modules.begin(); i<ModulesCount && iter!=modules.end(); i++,iter++)
-		{
-			pmodules[i].id=iter->second.id;
-			pmodules[i].display_name=iter->second.display_name;
-		}
-
-		return i;
-	}
-	else
-		return false;
-}*/
 
 char** PPK_Modules::getModulesList()
 {

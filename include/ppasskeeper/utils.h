@@ -16,7 +16,7 @@ extern "C"
 	ppk_boolean ppk_is_locked();
 	
 	/*! \brief Lock the library with the given password.
-	 * \param pwd The password that will lock the library
+	 * \param password The password that will lock the library
 	* \return Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_set_password(const char* password);
 	

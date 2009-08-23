@@ -46,6 +46,9 @@ cvariant cvariant_from_string(const char* string)
 ///Create a CVariant from a given string (copy, dynamically allocated)
 cvariant cvariant_from_string_copy(const char* string, size_t n)
 {
+	if(n==0)
+		n=strlen(string);
+	
 	cvariant cv;
 	cv.type = cvariant_string;
 	char *copy = (char *) malloc(n + 1);

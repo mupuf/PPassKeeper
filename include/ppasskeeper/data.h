@@ -54,6 +54,7 @@ extern "C"
 
 	/*! \brief Generate a blob ppk_data.
 	* \param data The blob to be stored (example : 01110101011100101010101011010000101101111011010 (anything that's not human readable ;) ).
+	* \param size The blob size.
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_blob_data_new(const void* data, size_t size);
 

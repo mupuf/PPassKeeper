@@ -81,6 +81,7 @@ extern "C"
 	
 	/*! \brief Create a CVariant from a given string (copy, dynamically allocated)
 	* \param string The string to be copied and stored into the cvariant.
+	* \param n The number of characters you want to copy. If n==0, then it will copy the whole string.
 	* \return Returns the corresponding cvariant.*/
 	cvariant cvariant_from_string_copy(const char* string, size_t n);
 	

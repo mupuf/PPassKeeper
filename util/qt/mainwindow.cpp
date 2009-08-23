@@ -230,7 +230,7 @@ void MainWindow::onAddButtonClicked()
 
 ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 {
-	ppk_data* data;
+	ppk_data* data=NULL;
 	ppk_error res;;
 	ppk_entry* entry;
 
@@ -240,22 +240,19 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 	if (cur_type == ppk_application)
 	{
 		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else if (cur_type == ppk_network)
 	{
 		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else if (cur_type == ppk_item)
 	{
 		entry=ppk_item_entry_new(qPrintable(cur_item.key));
-		res = ppk_module_get_entry(module(), entry, &data, 0);
 	}
 	else
 		return data;
 
-	//Show errors
+	res = ppk_module_get_entry(module(), entry, &data, 0);
 	if(res!=PPK_OK)
 	{
 		char key[101];

@@ -1,1 +1,17 @@
+PPassKeeper
+
+PPassKeeper is a library that intends to create a portable way of storing sensitive information, such as passwords, into a safe place. In order to be portable and flexible, the library allows third-party developers to improve it by creating plugins that can be free (as in freedom) or proprietary
+
+Goals
+Here is the summary of the main goals
+
+    * Provide a common interface for desktops and operating systems
+    * Be modular
+    * Allow third-party developers to easily create new modules
+    * Be backward compatible 
+
+License
+The library and all its included modules are licenced under LGPL(v2 or later). 
+
+
 Please visit this URL to get more information : http://ppasskeeper.mupuf.org

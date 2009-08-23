@@ -1,6 +1,12 @@
 #ifndef PPK_MODULE_H
 #define PPK_MODULE_H
 
+/**
+ * \file module.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 ///Maximum size of saved parameters
 #define PPK_PARAM_MAX 4096
 

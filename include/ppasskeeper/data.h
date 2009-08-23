@@ -1,6 +1,12 @@
 #ifndef PPK_DATA_H
 #define PPK_DATA_H
 
+/**
+ * \file data.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 #include <string.h>
 
 ///Data type

@@ -1,6 +1,12 @@
 #ifndef PPASSKEEPER_KEY_H
 #define PPASSKEEPER_KEY_H
 
+/**
+ * \file key.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 #include <ppasskeeper.h>
 
 #define URL_PREFIX "ppasskeeper"

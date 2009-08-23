@@ -1,6 +1,12 @@
 #ifndef PPK_ENTRY_H
 #define PPK_ENTRY_H
 
+/**
+ * \file entry.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 ///Entry type
 typedef enum
 {

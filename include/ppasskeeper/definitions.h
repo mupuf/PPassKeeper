@@ -1,6 +1,12 @@
 #ifndef PPK_DEFINITIONS_H
 #define PPK_DEFINITIONS_H
 
+/**
+ * \file definitions.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 ///Boolean 
 typedef enum
 {

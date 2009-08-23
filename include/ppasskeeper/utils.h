@@ -1,6 +1,12 @@
 #ifndef PPK_UTILS_H
 #define PPK_UTILS_H
 
+/**
+ * \file utils.h
+ * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \date 27-07-2009
+ */
+
 #ifdef __cplusplus 
 extern "C"
 {

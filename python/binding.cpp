@@ -1,6 +1,7 @@
 #include "exception.h"
 #include "module.h"
 #include "entry.h"
+#include "data.h"
 #include "utils.h"
 
 BOOST_PYTHON_MODULE(ppasskeeper)
@@ -38,6 +39,13 @@ BOOST_PYTHON_MODULE(ppasskeeper)
 		.def("from_key", &Entry::from_key, return_value_policy<manage_new_object>())
 		.staticmethod("from_key")
 		.def("to_key", &Entry::to_key)
+		;
+
+	class_<Data>("Entry", no_init)
+		.def("create_string_data", &Data::create_string_data, return_value_policy<manage_new_object>())
+		.staticmethod("create_string_data")
+		.def("create_blob_data", &Data::create_blob_data, return_value_policy<manage_new_object>())
+		.staticmethod("create_blob_data")
 		;
 
 	enum_<ppk_security_level>("SecurityLevel")

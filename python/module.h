@@ -7,6 +7,8 @@ using namespace boost::python;
 #include "../include/ppasskeeper.h"
 
 #include "exception.h"
+#include "entry.h"
+#include "data.h"
 
 #include <iostream>
 
@@ -32,6 +34,37 @@ struct Module
 	bool is_writable() { return ppk_module_is_writable(id.c_str()); }
 	size_t max_data_size(ppk_data_type type) { return ppk_module_max_data_size(id.c_str(), type); }
 	size_t get_entry_count(int entry_types, unsigned int flags) { return ppk_module_get_entry_count(id.c_str(), entry_types, flags); }
+	bool has_entry(const Entry& e, unsigned int flags)
+	{
+		ppk_boolean result;
+		ppk_error err = ppk_module_has_entry(id.c_str(), e.m_entry, flags, &result);
+		if (err == PPK_OK) return result == PPK_TRUE;
+		throw PPassKeeperError(err);
+	}
+	void remove_entry(const Entry& e, unsigned int flags)
+	{
+		ppk_error err = ppk_module_remove_entry(id.c_str(), e.m_entry, flags);
+		if (err != PPK_OK)
+			throw PPassKeeperError(err);
+	}
+	Data* get_entry(const Entry& e, unsigned int flags)
+	{
+		Data* d = new Data;
+		ppk_error err = ppk_module_get_entry(id.c_str(), e.m_entry, &(d->m_data), flags);
+		if (err != PPK_OK)
+		{
+			delete d;
+			throw PPassKeeperError(err);
+		}
+		else
+			return d;
+	}
+	void set_entry(const Entry& e, const Data& d, unsigned int flags)
+	{
+		ppk_error err = ppk_module_set_entry(id.c_str(), e.m_entry, d.m_data, flags);
+		if (err != PPK_OK)
+			throw PPassKeeperError(err);
+	}
 	static Module* get_default()
 	{
 		const char* id = ppk_module_get_default();

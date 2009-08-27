@@ -27,6 +27,11 @@ struct Module
 	unsigned int read_flags() { return get_flags<ppk_module_read_flags>(); }
 	unsigned int write_flags() { return get_flags<ppk_module_write_flags>(); }
 	unsigned int listing_flags() { return get_flags<ppk_module_listing_flags>(); }
+	const char* display_name() { return ppk_module_display_name(id.c_str()); }
+	ppk_security_level security_level() { return ppk_module_security_level(id.c_str()); }
+	bool is_writable() { return ppk_module_is_writable(id.c_str()); }
+	size_t max_data_size(ppk_data_type type) { return ppk_module_max_data_size(id.c_str(), type); }
+	size_t get_entry_count(int entry_types, unsigned int flags) { return ppk_module_get_entry_count(id.c_str(), entry_types, flags); }
 };
 std::ostream& operator<<(std::ostream& s, const Module& m) { return s << m.id; }
 

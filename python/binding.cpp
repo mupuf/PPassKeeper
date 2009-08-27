@@ -1,5 +1,6 @@
 #include "exception.h"
 #include "module.h"
+#include "entry.h"
 #include "utils.h"
 
 BOOST_PYTHON_MODULE(ppasskeeper)
@@ -15,9 +16,60 @@ BOOST_PYTHON_MODULE(ppasskeeper)
 		.def("read_flags", &Module::read_flags)
 		.def("write_flags", &Module::write_flags)
 		.def("listing_flags", &Module::listing_flags)
+		.def("display_name", &Module::display_name)
+		.def("security_level", &Module::security_level)
+		.def("is_writable", &Module::is_writable)
+		.def("max_data_size", &Module::max_data_size)
+		.def("get_entry_count", &Module::get_entry_count)
 		;
 	def("is_locked", &is_locked);
 	def("set_password", &set_password);
 	def("unlock", &unlock);
 	def("settings_directory", ppk_settings_directory);
+
+	class_<Entry>("Entry", no_init)
+		.def(self_ns::str(self))
+		.def("create_network_entry", &Entry::create_network_entry, return_value_policy<manage_new_object>())
+		.staticmethod("create_network_entry")
+		.def("create_application_entry", &Entry::create_application_entry, return_value_policy<manage_new_object>())
+		.staticmethod("create_application_entry")
+		.def("create_item_entry", &Entry::create_item_entry, return_value_policy<manage_new_object>())
+		.staticmethod("create_item_entry")
+		.def("from_key", &Entry::from_key, return_value_policy<manage_new_object>())
+		.staticmethod("from_key")
+		.def("to_key", &Entry::to_key)
+		;
+
+	enum_<ppk_security_level>("SecurityLevel")
+		.value("Lowest", ppk_sec_lowest)
+		.value("Scrambled", ppk_sec_scrambled)
+		.value("Safe", ppk_sec_safe)
+		.value("Perfect", ppk_sec_perfect)
+		;
+
+	enum_<ppk_readFlag>("ReadFlag")
+		.value("None", ppk_rf_none)
+		.value("Silent", ppk_rf_silent)
+		;
+
+	enum_<ppk_writeFlag>("WriteFlag")
+		.value("None", ppk_wf_none)
+		.value("Silent", ppk_wf_silent)
+		;
+
+	enum_<ppk_listingFlag>("ListingFlag")
+		.value("None", ppk_lf_none)
+		.value("Silent", ppk_lf_silent)
+		;
+
+	enum_<ppk_data_type>("DataType")
+		.value("String", ppk_string)
+		.value("Blob", ppk_blob)
+		;
+
+	enum_<ppk_entry_type>("EntryType")
+		.value("Network", ppk_network)
+		.value("Application", ppk_application)
+		.value("Item", ppk_item)
+		;
 }

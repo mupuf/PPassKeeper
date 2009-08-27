@@ -31,7 +31,7 @@ extern "C"
 			return PPK_LOCKED_NO_ACCESS;
 	}
 
-	char** ppk_module_list()
+	char** ppk_module_list_new()
 	{
 		if(!ppk_is_locked())
 		{
@@ -39,6 +39,11 @@ extern "C"
 		}
 		else
 			return NULL;
+	}
+
+	void ppk_module_list_free(char** list)
+	{
+		modules.freeModuleList(list);
 	}
 
 	ppk_boolean ppk_module_is_available(const char* module_id)

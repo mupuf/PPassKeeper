@@ -286,11 +286,14 @@ void PPK_Modules::freeModuleList(char** module_list)
 const _module* PPK_Modules::getModuleByID(const char* module_id) //return the corresponding module or NULL if the module is not referenced
 {
 	//Get the real module name
+	std::string real_id;
 	if(strcmp(module_id, LIBPPK_DEFAULT_MODULE)==0)
-		module_id=autoModule();
+		real_id = autoModule();
+	else
+		real_id = module_id;
 		
 	//Does the module exist ?
-	std::map<std::string,_module>::iterator fter = modules.find(module_id);
+	std::map<std::string,_module>::iterator fter = modules.find(real_id);
 	if(fter!=modules.end())
 		return &(fter->second);
 	else
@@ -314,7 +317,7 @@ const char* PPK_Modules::getDisplayNameByID(const char* module_id)
 		return module_id;
 }
 
-const char* PPK_Modules::autoModule()
+std::string PPK_Modules::autoModule()
 {
 	if(getenv("GNOME_KEYRING_PID")!=NULL && \
 	   getenv("GNOME_DESKTOP_SESSION_ID")!=NULL && \
@@ -336,12 +339,13 @@ const char* PPK_Modules::autoModule()
 		return "SaveToFile_PT";
 	else if(ppk_module_count()>1)
 	{
-		char** list=ppk_module_list();
-		return list[0];
+		char** list=ppk_module_list_new();
+		std::string module(list[0]);
+		ppk_module_list_free(list);
+		return module;
 	}
 	else
 		return NULL;
-		
 }
 
 

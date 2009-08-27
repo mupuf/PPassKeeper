@@ -47,13 +47,14 @@ void MainWindow::fillModulesBox()
 	m_moduleList = new ppk_module[n];
 	ppk_module_list(m_moduleList, n);*/
 	
-	char** list=ppk_module_list();
+	char** list=ppk_module_list_new();
 
 	modulesBox->addItem(tr("Select one:"), qVariantFromValue((char*)NULL));
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; list[i]!=NULL; ++i)
 		modulesBox->addItem(QString::fromUtf8(ppk_module_display_name(list[i])), qVariantFromValue(list[i]));
+	ppk_module_list_free(list);
 }
 
 void MainWindow::showInfoMessageUnderDevelopment()

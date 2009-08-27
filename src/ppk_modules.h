@@ -19,7 +19,7 @@ class PPK_Modules
 		void loadList(void);
 		void eraseList(void);
 		
-		const char* autoModule();
+		std::string autoModule();
 		void sendParameters(_module m);
 
 

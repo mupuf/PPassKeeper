@@ -65,7 +65,9 @@ extern "C"
 
 	/*! \brief Get a list of available modules
 	* \return  Returns a null-terminated list of module ID*/
-	char** ppk_module_list();
+	char** ppk_module_list_new();
+
+	void ppk_module_list_free(char **list);
 
 	/*! \brief Reloads the plugins from the plugin dir and updates the module count and list.
 	* WARNING: This function is NOT thread-safe. Make sure no other thread uses ppk while calling this function.

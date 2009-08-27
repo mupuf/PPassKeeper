@@ -47,7 +47,7 @@ extern "C"
 	typedef ppk_error (*_setEntry)(const ppk_entry* entry, const ppk_data* pwd, unsigned int flags);
 	typedef ppk_error (*_removeEntry)(const ppk_entry* entry, unsigned int flags);
 
-	typedef ppk_error (*_entryExists)(const ppk_entry* entry, unsigned int flags);
+	typedef ppk_boolean (*_entryExists)(const ppk_entry* entry, unsigned int flags);
 	
 	typedef unsigned int (*_maxDataSize)(ppk_data_type type);
 

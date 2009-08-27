@@ -159,7 +159,7 @@ extern "C"
 	* \param entry The entry to be listed.
 	* \param flags You can specify flags which will change the way the entry will be tested as accessible or not. See readFlags.
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
-	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags);
+	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags, ppk_boolean* result);
 
 	/*! \brief Get an Entry from a module
 	* \param module_id Module's ID.

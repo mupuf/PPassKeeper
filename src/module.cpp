@@ -125,13 +125,16 @@ extern "C"
 			return PPK_LOCKED_NO_ACCESS;
 	}
 
-	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags)
+	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags, ppk_boolean* result)
 	{
 		if(!ppk_is_locked())
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->entryExists(entry, flags);
+			{
+				*result = mod->entryExists(entry, flags);
+				return PPK_OK;
+			}
 			else
 				return PPK_MODULE_UNAVAILABLE;
 		}

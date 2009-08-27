@@ -36,6 +36,11 @@ BOOST_PYTHON_MODULE(ppasskeeper)
 	def("unlock", &unlock);
 	def("settings_directory", ppk_settings_directory);
 
+	class_<EntryList>("EntryList", init<>())
+		.def("__len__", &EntryList::length)
+		.def("__getitem__", &EntryList::getitem, return_value_policy<manage_new_object>())
+		.def("__contains__", &EntryList::contains)
+		;
 	class_<Entry>("Entry", no_init)
 		.def(self_ns::str(self))
 		.def("create_network_entry", &Entry::create_network_entry, return_value_policy<manage_new_object>())

@@ -5,6 +5,7 @@
 using namespace boost::python;
 
 #include <iostream>
+#include <vector>
 
 #include "../include/ppasskeeper.h"
 
@@ -46,5 +47,32 @@ struct Entry
 };
 
 std::ostream& operator<<(std::ostream& s, const Entry& e) { return s << e.to_key(); }
+
+struct EntryList
+{
+	EntryList()	{}
+	~EntryList() {
+		for(std::vector<Entry*>::iterator it = entries.begin(); it != entries.end(); ++it)
+			delete *it;
+	}
+	int length() { return entries.size(); }
+	Entry* getitem(int index)
+	{
+		if (index < 0 || index >= length())
+		{
+			PyErr_SetObject(PyExc_IndexError, Py_None);
+			throw error_already_set();
+		}
+		return entries[index];
+	}
+	bool contains(Entry* e)
+	{
+		for(std::vector<Entry*>::iterator it = entries.begin(); it != entries.end(); ++it)
+			if (*it == e)
+				return true;
+		return false;
+	}
+	std::vector<Entry*> entries;
+};
 
 #endif

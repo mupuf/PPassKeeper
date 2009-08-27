@@ -32,6 +32,18 @@ struct Module
 	bool is_writable() { return ppk_module_is_writable(id.c_str()); }
 	size_t max_data_size(ppk_data_type type) { return ppk_module_max_data_size(id.c_str(), type); }
 	size_t get_entry_count(int entry_types, unsigned int flags) { return ppk_module_get_entry_count(id.c_str(), entry_types, flags); }
+	static Module* get_default()
+	{
+		const char* id = ppk_module_get_default();
+		if (id == NULL) return NULL;
+		else return new Module(id);
+	}
+	static void set_default(const Module& module)
+	{
+		ppk_error err = ppk_module_set_default(module.id.c_str());
+		if (err != PPK_OK)
+			throw PPassKeeperError(err);
+	}
 };
 std::ostream& operator<<(std::ostream& s, const Module& m) { return s << m.id; }
 

@@ -22,6 +22,10 @@ BOOST_PYTHON_MODULE(ppasskeeper)
 		.def("is_writable", &Module::is_writable)
 		.def("max_data_size", &Module::max_data_size)
 		.def("get_entry_count", &Module::get_entry_count)
+		.def("get_default", &Module::get_default, return_value_policy<manage_new_object>())
+		.staticmethod("get_default")
+		.def("set_default", &Module::set_default, return_value_policy<manage_new_object>())
+		.staticmethod("set_default")
 		;
 	def("is_locked", &is_locked);
 	def("set_password", &set_password);

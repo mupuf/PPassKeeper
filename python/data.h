@@ -25,4 +25,15 @@ struct Data
 	ppk_data* m_data;
 };
 
+std::ostream& operator<<(std::ostream& s, const Data& d)
+{
+	switch (d.m_data->type)
+	{
+	case ppk_string:
+		return s << d.m_data->string;
+	case ppk_blob:
+		return s.write(static_cast<const char*>(d.m_data->blob.data), d.m_data->blob.size);
+	}
+}
+
 #endif

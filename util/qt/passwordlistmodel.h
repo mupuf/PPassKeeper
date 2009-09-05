@@ -45,7 +45,7 @@ private:
 	ppk_entry **net_ent;
 	ppk_entry **app_ent;
 	ppk_entry **item_ent;
-	unsigned int net_count, app_count, item_count;
+	size_t net_count, app_count, item_count;
 	ppk_entry_type currentType;
 
 	//Filter

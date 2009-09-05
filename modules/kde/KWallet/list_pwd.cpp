@@ -99,13 +99,13 @@ ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entr
 unsigned int ListPwd::getEntryListCount(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags)
 {
 	//XXX: KWallet doesn't provide a way to recount the entries without relisting
-	unsigned int count;
+	size_t count;
 	ppk_entry** list = getEntryList(wallet, entry_types, flags, &count);
 	ppk_module_free_entry_list(list);
 	return count;
 }
 
-ppk_entry** ListPwd::getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, unsigned int* count)
+ppk_entry** ListPwd::getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, size_t* count)
 {
 	QList<ppk_entry*> entries;
 	QStringList list = wallet->entryList();

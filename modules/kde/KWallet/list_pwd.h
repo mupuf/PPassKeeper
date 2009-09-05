@@ -18,5 +18,5 @@ class ListPwd
 		static ppk_entry* parseFileName(const std::string& filename, unsigned int entry_types, unsigned int flags);
 	public:
 		static unsigned int getEntryListCount(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags);
-		static ppk_entry** getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, unsigned int* count);
+		static ppk_entry** getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, size_t* count);
 };

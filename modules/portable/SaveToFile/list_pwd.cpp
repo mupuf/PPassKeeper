@@ -164,13 +164,13 @@ ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entr
 
 unsigned int ListPwd::getEntryListCount(const char* dir, unsigned int entry_types, unsigned int flags)
 {
-	unsigned int count;
+	size_t count;
 	ppk_entry** entries = getEntryList(dir, entry_types, &count, flags);
 	ppk_module_free_entry_list(entries);
 	return count;
 }
 
-ppk_entry** ListPwd::getEntryList(const char* dir, unsigned int entry_types, unsigned int* count, unsigned int flags)
+ppk_entry** ListPwd::getEntryList(const char* dir, unsigned int entry_types, size_t* count, unsigned int flags)
 {
 	std::vector<ppk_entry*> entries;
 	

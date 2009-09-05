@@ -54,7 +54,7 @@ BOOST_PYTHON_MODULE(ppasskeeper)
 		.def("to_key", &Entry::to_key)
 		;
 
-	class_<Data>("Entry", no_init)
+	class_<Data>("Data", no_init)
 		.def("create_string_data", &Data::create_string_data, return_value_policy<manage_new_object>())
 		.staticmethod("create_string_data")
 		.def("create_blob_data", &Data::create_blob_data, return_value_policy<manage_new_object>())

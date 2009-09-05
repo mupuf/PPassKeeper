@@ -84,8 +84,6 @@ void PasswordListModel::setupModelData(const char* moduleId)
 {
 	freeEntries();
 	
-	qDebug("setupModelData to '%s'\n", moduleId);
-	
 	ppk_error net_list_error=ppk_module_get_entry_list(moduleId, ppk_network, &net_ent, &net_count, ppk_lf_none);
 	if(net_list_error!=PPK_OK && net_list_error!=PPK_UNSUPPORTED_METHOD)
 	{

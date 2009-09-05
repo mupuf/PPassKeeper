@@ -561,8 +561,6 @@ void MainWindow::moduleChanged(int index)
 		m_module=new char[module.size()+2];
 		strncpy(m_module, qPrintable(module), module.size()+1);
 		
-		qDebug("Module changed to '%s'\n", qPrintable(module));
-		
 		listCurrentModule();
 
 		/* the displayed password becomes unavailable

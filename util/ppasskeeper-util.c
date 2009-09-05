@@ -205,35 +205,38 @@ int main(int argc, char **argv)
 		}
 		else if ( module_id && listing_type > 0)
 		{
-			int len = ppk_module_get_entry_count(module_id, listing_type, ppk_lf_none);
-			ppk_entry* list=calloc(len, sizeof(ppk_entry));
+			size_t len, i;
+			ppk_entry** list;
 			if (list)
 			{
-				int i, nb=ppk_module_get_entry_list(module_id, listing_type, list, len, ppk_lf_none);
-				printf("Listing %s gave %i results :\n", module_id, nb);
-				for(i=0; i< nb; i++)
+				ppk_error err = ppk_module_get_entry_list(module_id, listing_type, &list, &len, ppk_lf_none);
+				if (err != PPK_OK)
+					die(ppk_error_get_string(err));
+				printf("Listing %s gave %i results :\n", module_id, len);
+				for (i = 0; i < len; i++)
 				{
 					char* type, entry[201];
-					if(list[i].type==ppk_application)
+					if(list[i]->type==ppk_application)
 					{
 						type="Application";
-						snprintf(entry, 200, "%s@%s", list[i].app.username, list[i].app.app_name);
+						snprintf(entry, 200, "%s@%s", list[i]->app.username, list[i]->app.app_name);
 					}
-					else if(list[i].type==ppk_network)
+					else if(list[i]->type==ppk_network)
 					{
 						type="Network";
-						snprintf(entry, 200, "%s@%s:%i", list[i].net.login, list[i].net.host, list[i].net.port);
+						snprintf(entry, 200, "%s@%s:%i", list[i]->net.login, list[i]->net.host, list[i]->net.port);
 					}
-					else if(list[i].type==ppk_item)
+					else if(list[i]->type==ppk_item)
 					{
 						type="Item";
-						snprintf(entry, 200, "%s", list[i].item);
+						snprintf(entry, 200, "%s", list[i]->item);
 					}
 					else
 						return 2;
 
 					printf("	%s : %s\n", type, entry);
 				}
+				ppk_module_free_entry_list(list);
 			}
 			else
 				return 2;

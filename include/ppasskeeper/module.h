@@ -152,7 +152,8 @@ extern "C"
 	* \param nbEntries Maximum number of entries to be retrieved.
 	* \param flags You can specify flags which will change the way the entry list will be got. See listingFlag.
 	* \return  Returns the number of entries stored into entryList.*/
-	size_t ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry *entryList, size_t nbEntries, unsigned int flags);
+	ppk_error ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry ***entryList, size_t* nbEntries, unsigned int flags);
+	void ppk_module_free_entry_list(ppk_entry** entry_list);
 
 	/*! \brief Tells whether a module contains a specific entry or not.
 	* \param module_id Module's ID.

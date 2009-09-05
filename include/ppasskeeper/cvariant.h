@@ -106,7 +106,6 @@ extern "C"
 	* \return Returns a the type*/
 	cvariant_type cvariant_get_type(cvariant cv);
 	
-
 	/*! \brief Get a string from a cvariant
 	* \param cv The cvariant you want to get the string from.
 	* \return Returns a null-terminated string or CVARIANT_EMPTY_STRING if it is not a string.*/

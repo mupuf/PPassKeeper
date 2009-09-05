@@ -73,7 +73,7 @@ struct Module
 		if (err != PPK_OK)
 			throw PPassKeeperError(err);
 		EntryList* elist = new EntryList;
-		for (size_t i = 0; i > count; ++i)
+		for (size_t i = 0; i < count; ++i)
 		{
 			Entry* entry = new Entry;
 			entry->m_entry = list[i];

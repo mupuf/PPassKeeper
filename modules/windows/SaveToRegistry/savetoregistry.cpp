@@ -176,14 +176,14 @@ std::string prefix(const ppk_entry* entry)
 
 extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
-	ListPwd pwdl;		
-	return pwdl.getEntryListCount(baseKey, entry_types, flags);
+	return ListPwd::getEntryListCount(baseKey, entry_types, flags);
 }
 
 extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry ***entryList, size_t* nbEntries, unsigned int flags)
 {	
-	static ListPwd pwdl;	
-	return pwdl.getEntryList(baseKey, entry_types, entryList, nbEntries, flags);
+	*entryList = ListPwd::getEntryList(baseKey, entry_types, nbEntries, flags);
+	return PPK_OK;
+	
 }
 
 //Functions 

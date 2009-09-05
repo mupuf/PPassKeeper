@@ -125,7 +125,7 @@ ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entr
 				}
 			}
 		}
-		
+		else
 #ifdef DEBUG_MSG
 		std::cerr << "Could not open pwd directory" << std::endl;
 #endif

@@ -1,4 +1,5 @@
-#include "ppasskeeper.h"
+#include <ppasskeeper.h>
+#include <ppasskeeper/entry_p.h>
 #include "gkey_implement.h"
 #include "tokenizer.h"
 #include "base64.h"
@@ -6,14 +7,15 @@
 
 #include <string>
 #include <iostream>
+#include <list>
 
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
 
 //private functions prototypes
-bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port);
-bool matchAppPassword(std::string name, std::string& user, std::string& app);
-bool matchItemPassword(const std::string name, std::string& item);
+bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port, ppk_entry** entry);
+bool matchAppPassword(std::string name, std::string& user, std::string& app, ppk_entry** entry);
+bool matchItemPassword(const std::string name, std::string& item, ppk_entry** entry);
 
 std::string encrypt(const ppk_data* edata)
 {
@@ -91,108 +93,70 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
+extern "C" size_t getEntryListCount(unsigned int entry_types, unsigned int flags)
 {
-	unsigned int count=0;
-	
 	//Get the list
 	char** list=getItemList(flags);
-	
+
+	size_t count = 0;
 	if(list!=NULL)
 	{
 		//tmp
 		std::string host, user, app, itm;
 		unsigned short port;
-		
+
 		int i=0;
 		while(list[i]!=NULL)
 		{
-			if(entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port))
+			if ((entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port, NULL)) ||
+				(entry_types&ppk_application && matchAppPassword(list[i], user, app, NULL)) ||
+				(entry_types&ppk_item && matchItemPassword(list[i], itm, NULL)))
 				count++;
-			else if(entry_types&ppk_application && matchAppPassword(list[i], user, app))
-				count++;
-			else if(entry_types&ppk_item && matchItemPassword(list[i], itm))
-				count++;
-			
+
 			free(list[i]);
 			i++;
 		}
-		
+
 		free(list);
 	}
-	
+
 	return count;
 }
 
-//declarations
-struct networkList{std::string host; std::string user; unsigned short int port;};
-struct appList{std::string app; std::string user;};
-struct itemList{std::string key;};
-
-extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryList, size_t* p_count, unsigned int flags)
 {
-	int count=0;
-	static std::vector<networkList> listNet;
-	static std::vector<appList> listApp;
-	static std::vector<itemList> listItem;
-	
 	//Get the list
-	char** list=getItemList(flags);
-	
-	if(list!=NULL)
-	{
-		//Clear needed buffers
-		if((entry_types&ppk_network)>0)
-			listNet.clear();
-		if((entry_types&ppk_application)>0)
-			listApp.clear();
-		if((entry_types&ppk_item)>0)	
-			listItem.clear();
-		
-		//Parse the whole list
-		int i=0;
-		while(list[i]!=NULL && count < nbEntries)
-		{
-			networkList net;
-			appList app;
-			itemList itm;
-			
-			if(entry_types&ppk_network && matchNetworkPassword(list[i], net.user, net.host, net.port))
-			{
-				listNet.push_back(net);
-				
-				entryList[count].type=ppk_network;
-				entryList[count].net.host=listNet.back().host.c_str();
-				entryList[count].net.login=listNet.back().user.c_str();
-				entryList[count].net.port=listNet.back().port;
+	char** list = getItemList(flags);
 
-				count++;
-			}
-			else if(entry_types&ppk_application && matchAppPassword(list[i], app.user, app.app))
-			{
-				listApp.push_back(app);
-				
-				entryList[count].type=ppk_application;
-				entryList[count].app.app_name=listApp.back().app.c_str();
-				entryList[count].app.username=listApp.back().user.c_str();
-				count++;
-			}
-			else if(entry_types&ppk_item && matchItemPassword(list[i], itm.key))
-			{
-				listItem.push_back(itm);
-				
-				entryList[count].type=ppk_item;
-				entryList[count].item=listItem.back().key.c_str();
-				count++;
-			}
+	ppk_entry* entry;
+	std::vector<ppk_entry*> entries;
+	size_t count = 0;
+	if(list != NULL)
+	{
+		//Parse the whole list
+		for (char** _list = list; *_list != NULL; ++_list)
+		{
+			std::string user, login, host, app, item;
+			unsigned short port;
 			
-			free(list[i]);
-			i++;
+			if ((entry_types&ppk_network && matchNetworkPassword(*_list, user, host, port, &entry)) ||
+				(entry_types&ppk_application && matchAppPassword(*_list, user, app, &entry)) ||
+				(entry_types&ppk_item && matchItemPassword(*_list, item, &entry)))
+			{
+				entries.push_back(entry);
+				count++;
+			}
+			free(*_list);
 		}
-		free(list);	
+		free(list);
 	}
-	
-	return count;
+
+	*p_count = count;
+	*entryList = new ppk_entry*[count+1];
+	(*entryList)[count]=NULL;
+	for (int i = 0; i < entries.size(); ++i)
+		(*entryList)[i] = entries[i];
+	return PPK_OK;
 }
 
 extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
@@ -302,12 +266,12 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 }
 
 //Private functions
-bool matchNetworkPassword(const std::string name, std::string& user, std::string& host, unsigned short& port)
+bool matchNetworkPassword(const std::string name, std::string& user, std::string& host, unsigned short& port, ppk_entry** entry)
 {
 	if(name.substr(0, 6) == "net://")
 	{
 		std::string s_name = name.substr(6);
-		
+
 		//Parse the file's name
 		unsigned int pos_at=s_name.find_first_of("@");
 		unsigned int pos_sc=s_name.find(":",pos_at+1);
@@ -324,14 +288,16 @@ bool matchNetworkPassword(const std::string name, std::string& user, std::string
 			if (!(i >> port))
 				return false;
 
+			if (entry)
+				ppk_network_entry_fill(*entry, NULL, user.c_str(), host.c_str(), port);
 			return true;
 		}
 	}
-		
+
 	return false;
 }
 
-bool matchAppPassword(const std::string name, std::string& user, std::string& app)
+bool matchAppPassword(const std::string name, std::string& user, std::string& app, ppk_entry** entry)
 {
 	if(name.substr(0, 6) == "app://")
 	{
@@ -348,6 +314,8 @@ bool matchAppPassword(const std::string name, std::string& user, std::string& ap
 			if(pos_at<name.size()-1)
 			{
 				app=s_name.substr(pos_at+1);
+				if (entry)
+					ppk_application_entry_fill(*entry, user.c_str(), app.c_str());
 				return true;
 			}
 		}
@@ -355,13 +323,15 @@ bool matchAppPassword(const std::string name, std::string& user, std::string& ap
 	return false;
 }
 
-bool matchItemPassword(const std::string name, std::string& item )
+bool matchItemPassword(const std::string name, std::string& item, ppk_entry** entry)
 {
 	if(name.substr(0, 6) == "itm://")
 	{
 		if(name.size()>6)
 		{
 			item=name.substr(6);
+			if (entry)
+				ppk_item_entry_fill(*entry, item.c_str());
 			return true;
 		}
 	}

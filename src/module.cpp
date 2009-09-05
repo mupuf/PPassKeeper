@@ -1,4 +1,5 @@
 #include "ppasskeeper.h"
+#include "ppasskeeper/entry_p.h"
 
 #include "ppk_modules.h"
 #include "vparam.h"
@@ -170,7 +171,7 @@ extern "C"
 			return 0;
 	}
 
-	size_t ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry* entryList, size_t nbEntries, unsigned int flags)
+	ppk_error ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags)
 	{
 		if(!ppk_is_locked())
 		{
@@ -178,10 +179,24 @@ extern "C"
 			if(mod!=NULL)
 				return mod->getEntryList(entry_types, entryList, nbEntries, flags);
 			else
-				return 0;
+				return PPK_MODULE_UNAVAILABLE;
 		}
 		else
-			return 0;
+			return PPK_LOCKED_NO_ACCESS;
+	}
+
+	void ppk_module_free_entry_list(ppk_entry** entry_list)
+	{
+		if(entry_list==NULL)
+			return;
+		
+		int i=0;
+		while(entry_list[i]!=NULL)
+		{
+			ppk_entry_free_contents(entry_list[i]);
+			i++;
+		}
+		delete[] entry_list;
 	}
 
 	ppk_error ppk_module_get_entry(const char* module_id, const ppk_entry* entry, ppk_data** edata, unsigned int flags)

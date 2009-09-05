@@ -274,24 +274,23 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
-		static ListPwd pwdl;		
-		return pwdl.getEntryListCount(wallet, entry_types, flags);
+		return ListPwd::getEntryListCount(wallet, entry_types, flags);
 	}
 	else
 		return 0;
 }
 
-extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags)
 {
 	//Open the wallet
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
-		static ListPwd pwdl;
-		return pwdl.getEntryList(wallet, entry_types, entryList, nbEntries, flags);
+		*entryList = ListPwd::getEntryList(wallet, entry_types, flags, nbEntries);
+		return PPK_OK;
 	}
 	else
-		return 0;
+		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
 static bool generateKey(const ppk_entry* entry, std::string &generatedKey)

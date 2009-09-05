@@ -25,19 +25,19 @@ void PasswordListModel::rowSelected(const QModelIndex &current, const QModelInde
 {
 	if (current.internalId() == appChildId)
 	{
-		ppk_entry &a = e_app[current.row()];
+		const ppk_entry* a = e_app[current.row()];
 		currentType = ppk_application;
-		emit appPasswordSelected(a.app.app_name, a.app.username);
+		emit appPasswordSelected(a->app.app_name, a->app.username);
 	} else if (current.internalId() == netChildId)
 	{
-		ppk_entry &n = e_net[current.row()];
+		const ppk_entry* n = e_net[current.row()];
 		currentType = ppk_network;
-		emit netPasswordSelected(n.net.host, n.net.login, n.net.port);
+		emit netPasswordSelected(n->net.host, n->net.login, n->net.port);
 	} else if (current.internalId() == itemChildId)
 	{
-		ppk_entry &i = e_item[current.row()];
+		const ppk_entry* i = e_item[current.row()];
 		currentType = ppk_item;
-		emit itemPasswordSelected(i.item);
+		emit itemPasswordSelected(i->item);
 	}
 	else if (current.internalId() == netId)
 	{
@@ -63,35 +63,48 @@ ppk_entry_type PasswordListModel::currentSelectedType()
 
 inline void PasswordListModel::freeEntries()
 {
-	delete[] net_ent;
-	delete[] app_ent;
-	delete[] item_ent;
+	if(net_ent)
+		ppk_module_free_entry_list(net_ent);
+	if(app_ent)
+		ppk_module_free_entry_list(app_ent);
+	if(item_ent)
+		ppk_module_free_entry_list(item_ent);
+
 	net_ent = NULL;
 	app_ent = NULL;
 	item_ent = NULL;
+	app_count = 0;
+	net_count = 0;
+	item_count = 0;
 }
 
-void PasswordListModel::setupModelData(const char *moduleId)
+#include <stdio.h>
+#include <QMessageBox>
+void PasswordListModel::setupModelData(const char* moduleId)
 {
 	freeEntries();
-
-	net_count = ppk_module_get_entry_count(moduleId, ppk_network, ppk_lf_none);
-	app_count = ppk_module_get_entry_count(moduleId, ppk_application, ppk_lf_none);
-	item_count = ppk_module_get_entry_count(moduleId, ppk_item, ppk_lf_none);
-	if (net_count > 0)
+	
+	qDebug("setupModelData to '%s'\n", moduleId);
+	
+	ppk_error net_list_error=ppk_module_get_entry_list(moduleId, ppk_network, &net_ent, &net_count, ppk_lf_none);
+	if(net_list_error!=PPK_OK && net_list_error!=PPK_UNSUPPORTED_METHOD)
 	{
-		net_ent = new ppk_entry[net_count];
-		net_count=ppk_module_get_entry_list(moduleId, ppk_network, net_ent, net_count, ppk_lf_none);
+		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing network entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
+		return;
 	}
-	if (app_count > 0)
+	
+	ppk_error app_list_error=ppk_module_get_entry_list(moduleId, ppk_application, &app_ent, &app_count, ppk_lf_none);
+	if(app_list_error!=PPK_OK && app_list_error!=PPK_UNSUPPORTED_METHOD)
 	{
-		app_ent = new ppk_entry[app_count];
-		app_count=ppk_module_get_entry_list(moduleId, ppk_application, app_ent, app_count, ppk_lf_none);
+		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing application entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
+		return;
 	}
-	if (item_count > 0)
+	
+	ppk_error itm_list_error=ppk_module_get_entry_list(moduleId, ppk_item, &item_ent, &item_count, ppk_lf_none);
+	if(itm_list_error!=PPK_OK && itm_list_error!=PPK_UNSUPPORTED_METHOD)
 	{
-		item_ent = new ppk_entry[item_count];
-		item_count=ppk_module_get_entry_list(moduleId, ppk_item, item_ent, item_count, ppk_lf_none);
+		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing item entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
+		return;
 	}
 
 	updateFilter();
@@ -116,9 +129,9 @@ void PasswordListModel::updateFilter()
 
 	for(unsigned int i=0;i<app_count;i++)
 	{
-		const ppk_entry &a = app_ent[i];
+		const ppk_entry* a = app_ent[i];
 
-		if(ppk_get_key(&a, buf,sizeof(buf)-1)==PPK_TRUE)
+		if(ppk_get_key(a, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
 			if(filterAccept(QString::fromAscii(buf)))
 			{
@@ -130,27 +143,23 @@ void PasswordListModel::updateFilter()
 
 	for(unsigned int i=0;i<net_count;i++)
 	{
-		const ppk_entry &n = net_ent[i];
-
-		QString entry=QString::fromAscii("%1@%2:%3");
-		entry=entry.arg(QString::fromUtf8(n.net.login)).arg(QString::fromUtf8(n.net.host)).arg(n.net.port);
-
-		//Bug : protocol is ill initialised
-		/*if(ppk_getKey(&n, buf,sizeof(buf)-1)==PPK_TRUE)
-		{*/
-			if(filterAccept(entry))
+		const ppk_entry* n = net_ent[i];
+		
+		if(ppk_get_key(n, buf,sizeof(buf)-1)==PPK_TRUE)
+		{
+			if(filterAccept(QString::fromAscii(buf)))
 			{
-				v_net.push_back(entry);
-				e_net.push_back(n);
+				v_app.push_back(QString::fromAscii(buf));
+				e_app.push_back(n);
 			}
-		//}
+		}
 	}
-
+	
 	for(unsigned int i=0;i<item_count;i++)
 	{
-		const ppk_entry &it = item_ent[i];
+		const ppk_entry* it = item_ent[i];
 
-		if(ppk_get_key(&it, buf,sizeof(buf)-1)==PPK_TRUE)
+		if(ppk_get_key(it, buf,sizeof(buf)-1)==PPK_TRUE)
 		{
 			if(filterAccept(QString::fromAscii(buf)))
 			{

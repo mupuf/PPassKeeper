@@ -75,9 +75,9 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	return 0;
 }
 
-extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
-{	
-	return 0;
+extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags)
+{
+	return PPK_UNSUPPORTED_METHOD;
 }
 
 std::string str_replace(std::string pattern, std::string toReplace, std::string newText)

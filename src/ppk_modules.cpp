@@ -292,6 +292,8 @@ const _module* PPK_Modules::getModuleByID(const char* module_id) //return the co
 	else
 		real_id = module_id;
 		
+	printf("Module '%s' exists ?\n");
+		
 	//Does the module exist ?
 	std::map<std::string,_module>::iterator fter = modules.find(real_id);
 	if(fter!=modules.end())

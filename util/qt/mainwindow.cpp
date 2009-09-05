@@ -42,18 +42,16 @@ MainWindow::~MainWindow()
 void MainWindow::fillModulesBox()
 {
 	modulesBox->clear();
-
-	/*unsigned int n = ppk_module_count();
-	m_moduleList = new ppk_module[n];
-	ppk_module_list(m_moduleList, n);*/
 	
 	char** list=ppk_module_list_new();
 
-	modulesBox->addItem(tr("Select one:"), qVariantFromValue((char*)NULL));
+	modulesBox->addItem(tr("Select one:"), qVariantFromValue(QString()));
 	modulesBox->insertSeparator(1);
 
 	for (unsigned int i = 0; list[i]!=NULL; ++i)
-		modulesBox->addItem(QString::fromUtf8(ppk_module_display_name(list[i])), qVariantFromValue(list[i]));
+	{
+		modulesBox->addItem(QString::fromUtf8(ppk_module_display_name(list[i])), qVariantFromValue(QString::fromUtf8(list[i])));
+	}
 	ppk_module_list_free(list);
 }
 
@@ -220,7 +218,7 @@ void MainWindow::onAddButtonClicked()
 	AddPWD addpwd;
 
 	addpwd.setType(pwdlistModel->currentSelectedType());
-	addpwd.setModule(m_module);
+	addpwd.setModule(module());
 	addpwd.setModal(true);
 	addpwd.show();
 	addpwd.exec();
@@ -232,7 +230,7 @@ void MainWindow::onAddButtonClicked()
 ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 {
 	ppk_data* data=NULL;
-	ppk_error res;;
+	ppk_error res;
 	ppk_entry* entry;
 
 	ok=false;
@@ -330,7 +328,7 @@ void MainWindow::onDelButtonClicked()
 void MainWindow::onParamsTriggered()
 {
 	EditParams params;
-	params.setModule(m_module);
+	params.setModule(module());
 
 	params.exec();
 
@@ -555,10 +553,15 @@ void MainWindow::updateInfoLabel()
 
 void MainWindow::moduleChanged(int index)
 {
-	char* module = modulesBox->itemData(index).value<char*>();
-	if (module != NULL)
+	QString module = modulesBox->itemData(index).toString();
+	if (module != QString())
 	{
-		m_module=module;
+		if(m_module!=NULL)
+			delete[] m_module;
+		m_module=new char[module.size()+2];
+		strncpy(m_module, qPrintable(module), module.size()+1);
+		
+		qDebug("Module changed to '%s'\n", qPrintable(module));
 		
 		listCurrentModule();
 
@@ -566,7 +569,7 @@ void MainWindow::moduleChanged(int index)
 		 * after a module change */
 		cur_availability = false;
 
-		bool is_default=(m_module==ppk_module_get_default());
+		bool is_default=(module == QString::fromUtf8(ppk_module_get_default()));
 
 		toolBar->setEnabled(true);
 		actionSetModuleDefault->setEnabled(true);

@@ -180,7 +180,7 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	return pwdl.getEntryListCount(baseKey, entry_types, flags);
 }
 
-extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry ***entryList, size_t* nbEntries, unsigned int flags)
 {	
 	static ListPwd pwdl;	
 	return pwdl.getEntryList(baseKey, entry_types, entryList, nbEntries, flags);

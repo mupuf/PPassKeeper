@@ -10,7 +10,7 @@
 #include <kaboutdata.h>
 #include <klocale.h>
 
-std::string ListPwd::prefix(ppk_entry_type type)
+const char* ListPwd::prefix(ppk_entry_type type)
 {
 	static const char* ppk_network_string = "ppasskeeper_network://";
 	static const char* ppk_app_string = "ppasskeeper_app://";
@@ -28,10 +28,10 @@ std::string ListPwd::prefix(ppk_entry_type type)
 			return ppk_item_string;
 			break;
 	}
-	return std::string();
+	return NULL;
 }
 
-bool ListPwd::addNetworkPassword(std::string stripped_name)
+ppk_entry* ListPwd::parseNetworkPassword(const std::string& stripped_name)
 {
 	//Parse the file's name
 	unsigned int pos_at=stripped_name.find_first_of("@");
@@ -48,21 +48,14 @@ bool ListPwd::addNetworkPassword(std::string stripped_name)
 		unsigned int port;
 		std::istringstream i(s_port);
 		if (!(i >> port))
-			return false;
+			return NULL;
 
-		//Add the content to pwdList
-		networkList tmp;
-		tmp.host=host;
-		tmp.user=user;
-		tmp.port=port;
-		listNet.push_back(tmp);
-
-		return true;
+		return ppk_network_entry_new(NULL, user.c_str(), host.c_str(), port);
 	}
 	else
-		return false;
+		return NULL;
 }
-bool ListPwd::addAppPassword(std::string stripped_name)
+ppk_entry* ListPwd::parseAppPassword(const std::string& stripped_name)
 {
 	//Parse the file's name
 	unsigned int pos_at=stripped_name.find_first_of("@");
@@ -73,139 +66,65 @@ bool ListPwd::addAppPassword(std::string stripped_name)
 		std::string user=stripped_name.substr(0,pos_at);
 		std::string app=stripped_name.substr(pos_at+1);
 
-		//Add the content to pwdList
-		appList tmp;
-		tmp.app=app;
-		tmp.user=user;
-		listApp.push_back(tmp);
-
-		return true;
+		return ppk_application_entry_new(user.c_str(), app.c_str());
 	}
 	else
-		return false;
+		return NULL;
 }
 
-bool ListPwd::addItemPassword(std::string stripped_name)
+ppk_entry* ListPwd::parseItemPassword(const std::string& stripped_name)
 {
-	if(	stripped_name.size()>0)
-	{
-		//Add the content to pwdList
-		itemList tmp;
-		tmp.key=stripped_name;
-		listItem.push_back(tmp);
-
-		return true;
-	}
+	if (stripped_name.size() > 0)
+		return ppk_item_entry_new(stripped_name.c_str());
 	else
-		return false;
+		return NULL;
 }
 
-bool ListPwd::parseFileName(std::string filename, unsigned int entry_types, unsigned int flags)
+ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entry_types, unsigned int flags)
 {
 	std::string prefix_net=prefix(ppk_network);
 	std::string prefix_app=prefix(ppk_application);
 	std::string prefix_item=prefix(ppk_item);
 
-	if(filename.size() > prefix_net.size() && strncmp(filename.c_str(), prefix_net.c_str(), prefix_net.size())==0)
-		return (entry_types|ppk_network)>0 && addNetworkPassword(filename.substr(prefix_net.size()));
-	else if(filename.size() > prefix_app.size() && strncmp(filename.c_str(), prefix_app.c_str(), prefix_app.size())==0)
-		return (entry_types|ppk_application)>0 && addAppPassword(filename.substr(prefix_app.size()));
-	else if(filename.size() > prefix_item.size() && strncmp(filename.c_str(), prefix_item.c_str(), prefix_item.size())==0)
-		return (entry_types|ppk_item)>0 && addItemPassword(filename.substr(prefix_item.size()));
+	if((entry_types&ppk_network)>0 && filename.size() > prefix_net.size() && strncmp(filename.c_str(), prefix_net.c_str(), prefix_net.size())==0)
+		return parseNetworkPassword(filename.substr(prefix_net.size()));
+	else if((entry_types&ppk_application)>0 && filename.size() > prefix_app.size() && strncmp(filename.c_str(), prefix_app.c_str(), prefix_app.size())==0)
+		return parseAppPassword(filename.substr(prefix_app.size()));
+	else if((entry_types&ppk_item)>0 && filename.size() > prefix_item.size() && strncmp(filename.c_str(), prefix_item.c_str(), prefix_item.size())==0)
+		return parseItemPassword(filename.substr(prefix_item.size()));
 	else
-		return false;
-}
-
-	
-unsigned int ListPwd::updateDataBase(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags)
-{	
-	QStringList res;
-	unsigned int pwdCount=0;
-
-	//List all the items
-	QStringList list = wallet->entryList();
-	
-	//Clear needed buffers
-	if((entry_types&ppk_network)>0)
-		listNet.clear();
-	if((entry_types&ppk_application)>0)
-		listApp.clear();
-	if((entry_types&ppk_item)>0)	
-		listItem.clear();
-
-	//for each item, check if it's the choosen one
-	for(int i=0;i<list.size();i++)
-	{
-		//if(list[i].left(strlen(prefix))==prefix)
-			if(parseFileName(list[i].toStdString().c_str(), entry_types, flags))
-				pwdCount++;
-	}
-
-	return pwdCount;
-}
-
-unsigned int ListPwd::copyDBToPwdList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries)
-{
-	unsigned int len=0;
-	
-	if((entry_types&ppk_network)>0)
-		len+=copyNetworkToPwdList(entryList+len, nbEntries-len);
-	if((entry_types&ppk_application)>0)
-		len+=copyApplicationToPwdList(entryList+len, nbEntries-len);
-	if((entry_types&ppk_item)>0)
-		len+=copyItemToPwdList(entryList+len, nbEntries-len);
-
-	return len;
-}
-unsigned int ListPwd::copyNetworkToPwdList(ppk_entry *entryList, unsigned int nbEntries)
-{
-	unsigned int i;
-	for(i=0;i<listNet.size() && i<nbEntries;i++)
-	{
-		entryList[i].type=ppk_network;
-		entryList[i].net.host=listNet[i].host.c_str();
-		entryList[i].net.login=listNet[i].user.c_str();
-		entryList[i].net.port=listNet[i].port;
-	}
-
-	return i;
-}
-unsigned int ListPwd::copyApplicationToPwdList(ppk_entry *entryList, unsigned int nbEntries)
-{
-	unsigned int i;
-	for(i=0;i<listApp.size() && i<nbEntries;i++)
-	{
-		entryList[i].type=ppk_application;
-		entryList[i].app.app_name=listApp[i].app.c_str();
-		entryList[i].app.username=listApp[i].user.c_str();
-	}
-
-	return i;
-}
-
-unsigned int ListPwd::copyItemToPwdList(ppk_entry *entryList, unsigned int nbEntries)
-{
-	unsigned int i;
-	for(i=0;i<listItem.size() && i<nbEntries;i++)
-	{
-		entryList[i].type=ppk_item;
-		entryList[i].item=listItem[i].key.c_str();
-	}
-	
-	return i;
+		return NULL;
 }
 
 unsigned int ListPwd::getEntryListCount(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags)
 {
-	//Update the database and return how many password were found
-	return updateDataBase(wallet, entry_types, flags);
+	//XXX: KWallet doesn't provide a way to recount the entries without relisting
+	unsigned int count;
+	ppk_entry** list = getEntryList(wallet, entry_types, flags, &count);
+	ppk_module_free_entry_list(list);
+	return count;
 }
 
-unsigned int ListPwd::getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+ppk_entry** ListPwd::getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, unsigned int* count)
 {
-	//Update the database before putting data into pwdList
-	updateDataBase(wallet, entry_types, flags);
+	QList<ppk_entry*> entries;
+	QStringList list = wallet->entryList();
+	//put the data in entries
+	//build a new list in ppk_entry format, only the entry types we want
+	for(int i=0;i<list.size();i++)
+	{
+		ppk_entry* entry = parseFileName(list[i].toStdString().c_str(), entry_types, flags);
+		if(entry != NULL)
+			entries.append(entry);
+	}
 
-	//Put data into pwdList
-	return copyDBToPwdList(entry_types, entryList, nbEntries);
+	*count = entries.size();
+
+	//allocate the array
+	ppk_entry** res = new ppk_entry*[(*count) + 1];
+	res[*count] = NULL;
+	for (int i = 0; i < entries.size(); ++i)
+		res[i] = entries[i];
+	
+	return res;
 }

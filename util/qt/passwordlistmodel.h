@@ -19,7 +19,7 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-	void setupModelData(const char *moduleId);
+	void setupModelData(const char* moduleId);
 
 	ppk_entry_type currentSelectedType();
 
@@ -42,9 +42,9 @@ private:
 	bool filterAccept(QString entry);
 
 	//PPassKeeper data
-	ppk_entry *net_ent;
-	ppk_entry *app_ent;
-	ppk_entry *item_ent;
+	ppk_entry **net_ent;
+	ppk_entry **app_ent;
+	ppk_entry **item_ent;
 	unsigned int net_count, app_count, item_count;
 	ppk_entry_type currentType;
 
@@ -52,7 +52,7 @@ private:
 	bool usefilter;
 	QString filter;
 	QVector<QString> v_app, v_net, v_item;
-	QVector<ppk_entry> e_app, e_net, e_item;
+	QVector<const ppk_entry*> e_app, e_net, e_item;
 };
 
 #endif

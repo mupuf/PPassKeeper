@@ -1,4 +1,4 @@
-#include "ppasskeeper/entry.h"
+#include "ppasskeeper/entry_p.h"
 #include "ppasskeeper/key.h"
 #include "ppasskeeper/definitions.h"
 
@@ -13,6 +13,35 @@ extern "C"
 	ppk_entry* ppk_network_entry_new(const char* protocol, const char* login, const char* host, unsigned short port)
 	{
 		ppk_entry *entry = new ppk_entry;
+		ppk_network_entry_fill(entry, protocol, login, host, port);
+		return entry;
+	}
+
+	ppk_entry* ppk_application_entry_new(const char* username, const char* app_name)
+	{
+		ppk_entry *entry = new ppk_entry;
+		ppk_application_entry_fill(entry, username, app_name);
+		return entry;
+	}
+
+	ppk_entry* ppk_item_entry_new(const char* item)
+	{
+		ppk_entry *entry = new ppk_entry;
+		ppk_item_entry_fill(entry, item);
+		return entry;
+	}
+
+	void ppk_entry_free(ppk_entry* entry)
+	{
+		if(entry!=NULL)
+		{
+			ppk_entry_free_contents(entry);
+			delete entry;
+		}
+	}
+
+	void ppk_network_entry_fill(ppk_entry* entry, const char* protocol, const char* login, const char* host, unsigned short port)
+	{
 		size_t len;
 		entry->type=ppk_network;
 		len = strlen(host);
@@ -30,12 +59,10 @@ extern "C"
 		}
 		else
 			entry->net.protocol = NULL;
-		return entry;
 	}
 
-	ppk_entry* ppk_application_entry_new(const char* username, const char* app_name)
+	void ppk_application_entry_fill(ppk_entry* entry, const char* username, const char* app_name)
 	{
-		ppk_entry *entry = new ppk_entry;
 		size_t len;
 		entry->type=ppk_application;
 		len = strlen(app_name);
@@ -44,21 +71,18 @@ extern "C"
 		len = strlen(username);
 		entry->app.username = new char[len + 1];
 		strcpy((char*)entry->app.username, username);
-		return entry;
 	}
 
-	ppk_entry* ppk_item_entry_new(const char* item)
+	void ppk_item_entry_fill(ppk_entry* entry, const char* item)
 	{
-		ppk_entry *entry = new ppk_entry;
 		size_t len;
 		entry->type=ppk_item;
 		len = strlen(item);
 		entry->item = new char[len + 1];
 		strcpy((char*)entry->item, item);
-		return entry;
 	}
 
-	void ppk_entry_free(ppk_entry* entry)
+	void ppk_entry_free_contents(ppk_entry* entry)
 	{
 		if (entry == NULL)
 			return;
@@ -79,6 +103,5 @@ extern "C"
 		default:
 			assert(false);
 		};
-		delete entry;
 	}
 }

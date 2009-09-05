@@ -86,9 +86,9 @@ extern "C" unsigned int getEntryListCount(unsigned int entry_types, unsigned int
 	return 0;
 }
 
-extern "C" unsigned int getEntryList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags)
+extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags)
 {
-	return 0;
+	return PPK_UNSUPPORTED_METHOD;
 }
 
 extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)

@@ -73,13 +73,13 @@ extern "C"
 	/*
 	Flags can be passed to the module
 	*/
-	typedef unsigned int (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
+	typedef size_t (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
 
 	/*
 	
 	Flags can be passed to the module
 	*/
-	typedef unsigned int (*_getEntryList)(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
+	typedef ppk_error (*_getEntryList)(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags);
 
 	/****************************************************************************************************/
 	/****************************************************************************************************/

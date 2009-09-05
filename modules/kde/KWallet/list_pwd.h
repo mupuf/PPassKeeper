@@ -10,27 +10,13 @@ namespace KWallet
 class ListPwd
 {
 	private:
-		struct networkList{std::string host; std::string user; unsigned short int port;};
-		struct appList{std::string app; std::string user;};
-		struct itemList{std::string key;};
+		static const char* prefix(ppk_entry_type type);
 
-		std::vector<networkList> listNet;
-		std::vector<appList> listApp;
-		std::vector<itemList> listItem;
-
-		std::string prefix(ppk_entry_type type);		
-
-		bool addNetworkPassword(std::string stripped_name);
-		bool addAppPassword(std::string stripped_name);
-		bool addItemPassword(std::string stripped_name);
-		bool parseFileName(std::string filename, unsigned int entry_types, unsigned int flags);
-		unsigned int updateDataBase(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags);
-
-		unsigned int copyDBToPwdList(unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries);
-		unsigned int copyNetworkToPwdList(ppk_entry *entryList, unsigned int nbEntries);
-		unsigned int copyApplicationToPwdList(ppk_entry *entryList, unsigned int nbEntries);
-		unsigned int copyItemToPwdList(ppk_entry *entryList, unsigned int nbEntries);
+		static ppk_entry* parseNetworkPassword(const std::string& stripped_name);
+		static ppk_entry* parseAppPassword(const std::string& stripped_name);
+		static ppk_entry* parseItemPassword(const std::string& stripped_name);
+		static ppk_entry* parseFileName(const std::string& filename, unsigned int entry_types, unsigned int flags);
 	public:
-		unsigned int getEntryListCount(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags);
-		unsigned int getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, ppk_entry *entryList, unsigned int nbEntries, unsigned int flags);
+		static unsigned int getEntryListCount(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags);
+		static ppk_entry** getEntryList(KWallet::Wallet* wallet, unsigned int entry_types, unsigned int flags, unsigned int* count);
 };

@@ -16,7 +16,7 @@ struct Data
 		data->m_data = ppk_string_data_new(string);
 		return data;
 	}
-	static Data* create_blob_data(const void* data_, size_t size)
+	static Data* create_blob_data(const char* data_, size_t size)
 	{
 		Data* data = new Data;
 		data->m_data = ppk_blob_data_new(data_, size);

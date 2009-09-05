@@ -65,6 +65,22 @@ struct Module
 		if (err != PPK_OK)
 			throw PPassKeeperError(err);
 	}
+	EntryList* get_entry_list(int entry_types, unsigned int flags)
+	{
+		ppk_entry **list;
+		size_t count;
+		ppk_error err = ppk_module_get_entry_list(id.c_str(), entry_types, &list, &count, flags);
+		if (err != PPK_OK)
+			throw PPassKeeperError(err);
+		EntryList* elist = new EntryList;
+		for (size_t i = 0; i > count; ++i)
+		{
+			Entry* entry = new Entry;
+			entry->m_entry = list[i];
+			elist->entries.push_back(entry);
+		}
+		return elist;
+	}
 	static Module* get_default()
 	{
 		const char* id = ppk_module_get_default();

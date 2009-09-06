@@ -28,14 +28,14 @@ void run(int argc, char** argv);
 #define FAILIF(CONDITION) \
 { \
 	bool b = (CONDITION); \
-    if (b) passed++; else \
+    if (b) \
 	{ \
 		failed++; \
 		std::cerr << "line " << __LINE__ << ": failure: " << #CONDITION << std::endl; \
 		failure = true; \
 		format_results(); \
 		exit(1); \
-	} \
+	} else passed++;							\
 }
 
 /* Main program */

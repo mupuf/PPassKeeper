@@ -78,18 +78,18 @@ void run(int argc, char** argv)
 	{
 		ppk_entry* entry = entries[i];
 
-		std::cerr << "Write: ";
+		/* Write */
 		ppk_error res=ppk_module_set_entry(module_id, entry, data, ppk_wf_none);
 		ASSERT(res == PPK_OK);
 
-		std::cerr << "Read: ";
+		/* Read */
 		ppk_data* edata;
 		res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
 		ASSERT(res == PPK_OK);
 		if (res != PPK_OK)
 			continue;
 
-		std::cerr << "Delete: ";
+		/* Delete */
 		res=ppk_module_remove_entry(module_id, entry, ppk_rf_none);
 		ASSERT(res == PPK_OK);
 

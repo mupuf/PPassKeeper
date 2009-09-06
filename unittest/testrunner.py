@@ -20,9 +20,9 @@ class CppRunner:
         self.name = name
         if not name in self.cpp_names:
             raise TestException('No such C++ test: %s' % name)
-        if not self.clean:
+        if not CppRunner.clean:
             self.make('clean')
-            self.clean = True
+            CppRunner.clean = True
 
     def make(self, rule=None):
         if rule == None:

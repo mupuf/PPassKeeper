@@ -125,9 +125,9 @@ ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entr
 				}
 			}
 		}
-		else
 #ifdef DEBUG_MSG
-		std::cerr << "Could not open pwd directory" << std::endl;
+		else
+			std::cerr << "Could not open pwd directory" << std::endl;
 #endif
 	}
 #else
@@ -154,7 +154,6 @@ ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entr
 
 			closedir(pwddir);
 		}
-
 #ifdef DEBUG_MSG
 		else
 			std::cerr << "Could not open password directory: " << dir << std::endl;

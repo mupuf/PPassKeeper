@@ -187,7 +187,7 @@ void printModuleDetails(const char* module)
 	printf("\n	Limits:\n");
 	printf("		Supports writing: %s\n", supports_writing==PPK_TRUE?"yes":"no");
 	printf("		Max string size (in byte): %u\n", max_string_size);
-	printf("		Max Blob size (in byte): %u\n", max_blob_size);
+	printf("		Max blob size (in byte): %u\n", max_blob_size);
 	printf("\n	Supported Flags:\n");
 	printf("		Read: "); listFlags(flags_read);
 	printf("		Write: "); listFlags(flags_write);

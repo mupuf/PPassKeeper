@@ -13,16 +13,16 @@ char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL, *fi
 void usage()
 {
 	printf("Usage:\n"
-			"ppasskeeper -L [-u <ppk_password>]	#Lists all the available modules\n"
-			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]	#Get a definite entry from a module\n"
-			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]	#Lists the entries stored in a module\n"
-			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]	#Set an entry in a definite module\n\n"
-			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]\n	#Read a module parameter"
-			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]\n	#Write a module parameter"
-			"ppasskeeper -D [-m <module> -u <ppk_password>]	#Get/set the default module\n"
+			"ppasskeeper -L [-u <ppk_password>]                                                               #Lists all the available modules\n"
+			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>                #Get a definite entry from a module\n"
+			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]                                            #Lists the entries stored in a module\n"
+			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>] #Set an entry in a definite module\n"
+			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]                                         #Read a module parameter\n"
+			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]                              #Write a module parameter\n"
+			"ppasskeeper -I -m <module> [-u <ppk_password>]                                                   #Get information concerning a module\n"
+			"ppasskeeper -D [-m <module> -u <ppk_password>]                                                   #Get/set the default module\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
-}
 }
 
 #if defined(WIN32) || defined(WIN64)
@@ -61,6 +61,7 @@ void parse_cmdline(int argc, char **argv)
 			case 'S':
 			case 'R':
 			case 'W':
+			case 'I':
 			case 'D':
 				if (mode) usage();
 				mode = *flag;
@@ -133,6 +134,64 @@ void die(const char* msg)
 {
 	printf("Fatal Error : %s\n", msg);
 	exit(-1);
+}
+
+void listFlags(unsigned int flags)
+{
+	printf("none");
+
+	if(flags|ppk_rf_silent)
+		printf(", silent");
+
+	printf("\n");
+}
+
+void printModuleDetails(const char* module)
+{
+	//Get security level
+	int security_level=ppk_module_security_level(module);
+	const char* security_string=NULL;
+	switch(security_level)
+	{
+		case ppk_sec_lowest:
+			security_string="Lowest security, probably a plain-text storage.";
+			break;
+
+		case ppk_sec_scrambled:
+			security_string="Poor security, probably a scrambled-text storage.";
+			break;
+
+		case ppk_sec_safe:
+			security_string="Good security, probably your system's secure password storage.";
+			break;
+
+		case ppk_sec_perfect:
+			security_string="Perfect security, is it stored ? :D";
+			break;
+	}
+
+	//Get limits
+	ppk_boolean supports_writing=ppk_module_is_writable(module);
+	size_t max_string_size=ppk_module_max_data_size(module, ppk_string);
+	size_t max_blob_size=ppk_module_max_data_size(module, ppk_blob);
+
+	//Get flags
+	unsigned int flags_read, flags_write, flags_list;
+	ppk_module_read_flags(module, &flags_read);
+	ppk_module_write_flags(module, &flags_write);
+	ppk_module_listing_flags(module, &flags_list);
+
+	//Print everything out !
+	printf("----- %s -----\n", module);
+	printf("	Security: %i/3 --> %s\n", security_level, security_string);
+	printf("\n	Limits:\n");
+	printf("		Supports writing: %s\n", supports_writing==PPK_TRUE?"yes":"no");
+	printf("		Max string size (in byte): %u\n", max_string_size);
+	printf("		Max Blob size (in byte): %u\n", max_blob_size);
+	printf("\n	Supported Flags:\n");
+	printf("		Read: "); listFlags(flags_read);
+	printf("		Write: "); listFlags(flags_write);
+	printf("		List: "); listFlags(flags_list);
 }
 
 int main(int argc, char **argv)
@@ -323,6 +382,18 @@ int main(int argc, char **argv)
 			return 0;
 		else
 			return 1;
+	}
+	else if (mode == 'I')
+	{
+		if (!module_id) usage();
+
+		if(ppk_module_is_available(module_id)==PPK_TRUE)
+		{
+			printModuleDetails(module_id);
+			return 0;
+		}
+		else
+			printf("The module '%s' doesn't exists\n", module_id);
 	}
 	else if (mode == 'D')
 	{

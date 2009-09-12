@@ -13,15 +13,16 @@ char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL, *fi
 void usage()
 {
 	printf("Usage:\n"
-			"ppasskeeper -L [-u <ppk_password>]\n"
-			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]\n"
-			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]\n"
-			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]\n\n"
-			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]\n"
-			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]\n"
-			"ppasskeeper -D [-m <module> -u <ppk_password>]\n"
+			"ppasskeeper -L [-u <ppk_password>]	#Lists all the available modules\n"
+			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>]	#Get a definite entry from a module\n"
+			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]	#Lists the entries stored in a module\n"
+			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>]	#Set an entry in a definite module\n\n"
+			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]\n	#Read a module parameter"
+			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]\n	#Write a module parameter"
+			"ppasskeeper -D [-m <module> -u <ppk_password>]	#Get/set the default module\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
+}
 }
 
 #if defined(WIN32) || defined(WIN64)

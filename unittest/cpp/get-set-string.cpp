@@ -14,7 +14,7 @@
 
 #define TEST_STRING "Ici mùpùf à l'élysée! Tchüss niña. العربية, and so on ;)"
 
-ppk_entry* app_entry, * net_entry, * item_entry;
+ppk_entry* app_entry, * net_entry, * net_entry2, * item_entry;
 ppk_data* data;
 std::vector<ppk_entry*> entries;
 
@@ -22,6 +22,7 @@ void delete_all()
 {
 	delete app_entry;
 	delete net_entry;
+	delete net_entry2;
 	delete item_entry;
 	delete data;
 }
@@ -32,9 +33,11 @@ void run(int argc, char** argv)
 
 	app_entry=ppk_application_entry_new("test","utstblob_write_string");
 	net_entry=ppk_network_entry_new(NULL, "test", "utstblob_write_string", 99);
+	net_entry2=ppk_network_entry_new("protocol", "test", "utstblob_write_string", 99);
 	item_entry=ppk_item_entry_new("utstblob_write_string");
 	entries.push_back(app_entry);
 	entries.push_back(net_entry);
+	entries.push_back(net_entry2);
 	entries.push_back(item_entry);
 
 	FAILIF(ppk_is_locked()==PPK_TRUE);

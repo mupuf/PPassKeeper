@@ -30,6 +30,11 @@ extern "C"
 		ppk_item_entry_fill(entry, item);
 		return entry;
 	}
+	
+	ppk_entry_type ppk_get_entry_type(const ppk_entry* entry)
+	{
+		return entry->type;
+	}
 
 	void ppk_entry_free(ppk_entry* entry)
 	{

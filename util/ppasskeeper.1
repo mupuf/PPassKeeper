@@ -13,11 +13,13 @@ ppasskeeper - password management utility
 .P
 \fBppasskeeper\fR -L [-u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -G -m MODULE -t app|net|item -k KEY [-f file -u PPK_PASSWORD]
+\fBppasskeeper\fR -G -m MODULE -k KEY [-f file -u PPK_PASSWORD]
 .br
 \fBppasskeeper\fR -G -m MODULE -l ani [-f file -u PPK_PASSWORD]
 .br
-\fBppasskeeper\fR -S -m MODULE -t app|net|item -k KEY [-f file -p PASSWORD -u PPK_PASSWORD]
+\fBppasskeeper\fR -S -m MODULE -k KEY [-f file -p ENTRY_VALUE -u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -E -m MODULE -k KEY [-u PPK_PASSWORD]
 .br
 \fBppasskeeper\fR -R -m MODULE -k KEY [-u PPK_PASSWORD]
 .br
@@ -41,7 +43,10 @@ Access the library in Read or Write mode.
 Get an entry and display it or list the entries of a particular module.
 .TP
 \fB-S\fR
-Set a password.
+Set a entry.
+.TP
+\fB-E\fR
+Erase an entry.
 .TP
 \fB-R\fR
 Read a parameter.
@@ -55,11 +60,11 @@ Get information about a module.
 \fB-D\fR
 Get/set the default module.
 .P
-One of the actions \fB-L\fR, \fB-G\fR, \fB-S\fR, \fB-R\fR, \fB-W\fR, \fB-I\fR, or \fB-D\fR must be specified on the command-line.
+One of the actions \fB-L\fR, \fB-G\fR, \fB-S\fR, \fB-E\fR, \fB-R\fR, \fB-W\fR, \fB-I\fR, or \fB-D\fR must be specified on the command-line.
 
 .SS MODULES
 .P
-A module is an interface that manages passwords either by using a particular keyring (system-dependent), or a portable interface.
+A module is an interface that manages entries either by using a particular keyring (system-dependent), or a portable interface.
 .br
 A list of common modules is available below.
 .TP
@@ -67,13 +72,13 @@ A list of common modules is available below.
 Specifies which module to use.
 .TP
 \fBAskForPass_Qt\fR
-Prompt the password through a Qt Dialog.
+Prompt the entry through a Qt Dialog.
 .TP
 \fBAskForPass_GTK\fR
-Prompt the password through a GTK Dialog.
+Prompt the entry through a GTK Dialog.
 .TP
 \fBAskForPass_WIN32\fR
-Prompt the password through a Windows Dialog.
+Prompt the entry through a Windows Dialog.
 .TP
 \fBKWallet4\fR
 Use the KDE4 Wallet.
@@ -82,13 +87,13 @@ Use the KDE4 Wallet.
 Use the Gnome Keyring.
 .TP
 \fBSaveToFile_Enc\fR
-Store passwords with a simple encryption scheme (to make passwords unreadable at first glance).
+Store entries with a simple encryption scheme (to make passwords unreadable at first glance).
 .TP
 \fBSaveToFile_PT\fR
-Store passwords as plain text.
+Store entries as plain text.
 .TP
 \fBSaveToRegistry\fR
-Store passwords in the Windows registry.
+Store entries in the Windows registry.
 
 .SS INFORMATION ABOUT A MODULE
 .P
@@ -135,6 +140,18 @@ List the item entries.
 .P
 The types can be combined.
 
+.SS ERASING
+.P
+If a module allow to store entries, you can erase them from it.
+.P
+You should use the -E mode with :
+.TP
+\fB-m \fIMODULE\fR
+Specifies from which module you would like the entry to be erased from.
+.TP
+\fB-k \fIKEY\fR
+The key you would like to erase.
+
 .SS PARAMETERS
 .P
 Some modules may need some parameters to run. You can set them using this interface.
@@ -151,12 +168,9 @@ ppasskeeper -R -m "module_id" -k "key_name"
 
 .SS RESOURCES
 .P
-Some modules make it possible to store passwords in a particular fashion, depending on the type of resource.
+Some modules make it possible to store entries in a particular fashion, depending on the type of resource.
 .P
 If the module does not have this possibility, ppasskeeper will fall back on a way that is more conventional.
-.TP
-\fB-t\fR
-\fIapp\fR|\fInet\fR|\fIitem\fR
 .P
 Resource types:
 .TP
@@ -171,7 +185,7 @@ A resource with just an identifier which name is chosen by the user.
 
 .SS KEYS
 .P
-A key identifies a password entry, using a string format that depends on the resource type.
+A key identifies an entry, using a string format that depends on the resource type.
 .TP
 \fB-k \fIKEY\fR
 .P
@@ -188,14 +202,14 @@ Key formats:
 
 .SS PASSWORD
 .P
-When setting a password, it can be specified either on the command-line, or interactively on the terminal.
+When setting an entry, it can be specified either on the command-line, or interactively on the terminal.
 .TP
-\fB-p \fIPASSWORD\fR
-Specify the password as an argument. You can also store a file, see the -f option.
+\fB-p \fIENTRY_VALUE\fR
+Specify the entry value as an argument. You can also store a file, see the -f option.
 
 .SS FILE
 .P
-When setting or getting a password, you can choose to save/read to/from a file.
+When setting or getting an entry, you can choose to save/read to/from a file.
 .TP
 \fB-f \fIFILEPATH\fR
 Specify the file path as an argument. You can also store a string, see the -p option.

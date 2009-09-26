@@ -11,8 +11,8 @@ static const quint32 itemChildId = 5;
 
 PasswordListModel::PasswordListModel(QObject *parent)
 	: QAbstractItemModel(parent),
-	net_ent(NULL), app_ent(NULL), item_ent(NULL),
-	net_count(0), app_count(0), item_count(0)
+	entries(NULL),
+	entry_count(0)
 {
 }
 
@@ -63,19 +63,11 @@ ppk_entry_type PasswordListModel::currentSelectedType()
 
 inline void PasswordListModel::freeEntries()
 {
-	if(net_ent)
-		ppk_module_free_entry_list(net_ent);
-	if(app_ent)
-		ppk_module_free_entry_list(app_ent);
-	if(item_ent)
-		ppk_module_free_entry_list(item_ent);
+	if(entries)
+		ppk_module_free_entry_list(entries);
 
-	net_ent = NULL;
-	app_ent = NULL;
-	item_ent = NULL;
-	app_count = 0;
-	net_count = 0;
-	item_count = 0;
+	entries = NULL;
+	entry_count = 0;
 }
 
 #include <stdio.h>
@@ -84,24 +76,10 @@ void PasswordListModel::setupModelData(const char* moduleId)
 {
 	freeEntries();
 	
-	ppk_error net_list_error=ppk_module_get_entry_list(moduleId, ppk_network, &net_ent, &net_count, ppk_lf_none);
-	if(net_list_error!=PPK_OK && net_list_error!=PPK_UNSUPPORTED_METHOD)
+	ppk_error list_error=ppk_module_get_entry_list(moduleId, ppk_network|ppk_application|ppk_item, &entries, &entry_count, ppk_lf_none);
+	if(list_error!=PPK_OK && list_error!=PPK_UNSUPPORTED_METHOD)
 	{
-		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing network entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
-		return;
-	}
-	
-	ppk_error app_list_error=ppk_module_get_entry_list(moduleId, ppk_application, &app_ent, &app_count, ppk_lf_none);
-	if(app_list_error!=PPK_OK && app_list_error!=PPK_UNSUPPORTED_METHOD)
-	{
-		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing application entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
-		return;
-	}
-	
-	ppk_error itm_list_error=ppk_module_get_entry_list(moduleId, ppk_item, &item_ent, &item_count, ppk_lf_none);
-	if(itm_list_error!=PPK_OK && itm_list_error!=PPK_UNSUPPORTED_METHOD)
-	{
-		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing item entries")).arg(QString::fromUtf8(ppk_error_get_string(net_list_error))));
+		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing entries")).arg(QString::fromUtf8(ppk_error_get_string(list_error))));
 		return;
 	}
 
@@ -125,44 +103,53 @@ void PasswordListModel::updateFilter()
 
 	char buf[401];
 
-	for(unsigned int i=0;i<app_count;i++)
+	for(unsigned int i=0;i<entry_count;i++)
 	{
-		const ppk_entry* a = app_ent[i];
-
-		if(ppk_get_key(a, buf,sizeof(buf)-1)==PPK_TRUE)
-		{
-			if(filterAccept(QString::fromAscii(buf)))
-			{
-				v_app.push_back(QString::fromAscii(buf));
-				e_app.push_back(a);
-			}
-		}
-	}
-
-	for(unsigned int i=0;i<net_count;i++)
-	{
-		const ppk_entry* n = net_ent[i];
+		const ppk_entry* entry = entries[i];
 		
-		if(ppk_get_key(n, buf,sizeof(buf)-1)==PPK_TRUE)
+		if(ppk_get_entry_type(entry)==ppk_application)
 		{
-			if(filterAccept(QString::fromAscii(buf)))
+			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
 			{
-				v_app.push_back(QString::fromAscii(buf));
-				e_app.push_back(n);
+				if(filterAccept(QString::fromUtf8(buf)))
+				{
+					v_app.push_back(QString::fromUtf8(buf));
+					e_app.push_back(entry);
+				}
 			}
 		}
 	}
 	
-	for(unsigned int i=0;i<item_count;i++)
+	for(unsigned int i=0;i<entry_count;i++)
 	{
-		const ppk_entry* it = item_ent[i];
-
-		if(ppk_get_key(it, buf,sizeof(buf)-1)==PPK_TRUE)
+		const ppk_entry* entry = entries[i];
+		
+		if(ppk_get_entry_type(entry)==ppk_network)
 		{
-			if(filterAccept(QString::fromAscii(buf)))
+			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
 			{
-				v_item.push_back(QString::fromAscii(buf));
-				e_item.push_back(it);
+				if(filterAccept(QString::fromUtf8(buf)))
+				{
+					v_net.push_back(QString::fromUtf8(buf));
+					e_net.push_back(entry);
+				}
+			}
+		}
+	}
+	
+	for(unsigned int i=0;i<entry_count;i++)
+	{
+		const ppk_entry* entry = entries[i];
+		
+		if(ppk_get_entry_type(entry)==ppk_item)
+		{
+			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
+			{
+				if(filterAccept(QString::fromUtf8(buf)))
+				{
+					v_item.push_back(QString::fromUtf8(buf));
+					e_item.push_back(entry);
+				}
 			}
 		}
 	}

@@ -97,6 +97,30 @@ void AddPWD::setType(ppk_entry_type type)
 		m_ui->entryTypeCombo->setCurrentIndex(2);
 }
 
+QString generateKey(const ppk_entry* entry)
+{
+	QString generatedKey;
+	
+	size_t size=ppk_key_length(entry);
+	if(size>0)
+	{
+		char* buf=new char[size+1];
+		
+		ppk_boolean ret=ppk_get_key(entry, buf, size);
+		if(ret==PPK_TRUE)
+		{
+			generatedKey=QString::fromUtf8(buf);
+			delete[] buf;
+			return generatedKey;
+		}
+		else
+			delete[] buf;
+	}
+	
+	return QString();
+}
+
+#include <stdio.h>
 void AddPWD::onOK()
 {
 	QString default_string=tr("Replace me");
@@ -105,7 +129,6 @@ void AddPWD::onOK()
 	QString error_fill_field_text=tr("Error : You must fill every field of the form !");
 
 	ppk_entry* entry;
-	QString key;
 
 	QString app=m_ui->appEdit->text();
 	QString user=m_ui->userEdit->text();
@@ -118,7 +141,6 @@ void AddPWD::onOK()
 	int index=m_ui->entryTypeCombo->currentIndex();
 	if (index==0)
 	{
-		key=user+QString::fromUtf8("@")+app;
 		entry=ppk_application_entry_new(qPrintable(user), qPrintable(app));
 
 		if(app==QString() || user==QString())
@@ -130,7 +152,6 @@ void AddPWD::onOK()
 	else if (index==1)
 	{
 		entry=ppk_network_entry_new(protocol.size()==0 ? NULL : qPrintable(protocol), qPrintable(login), qPrintable(host), port);
-		key=login+QString::fromUtf8("@")+host+QString::fromUtf8(":")+QString::number(port);
 
 		if(login==QString() || host==QString())
 		{
@@ -141,7 +162,6 @@ void AddPWD::onOK()
 	else if (index==2)
 	{
 		entry=ppk_item_entry_new(qPrintable(item));
-		key=item;
 
 		if(item==QString())
 		{
@@ -154,12 +174,18 @@ void AddPWD::onOK()
 		QMessageBox::critical(this, tr("PPassKeeper Error: Unknown password type"), tr("PPassKeeper Error: Cannot add the password because it is of un unknown type"));
 		return;
 	}
+	
+	printf("entry = %i and ppk_key_length=%i\n", entry, ppk_key_length(entry));
+	char ret[101];
+	printf("avant ppk_get_key !\n");
+	ppk_get_key(entry, ret, 100);
+	printf("Entry was : '%s'\n", ret);
 
 	ppk_data* data=ppk_string_data_new(qPrintable(default_string));
 	ppk_error res = ppk_module_set_entry(module, entry, data, 0);
 	if(res!=PPK_OK)
 	{
-		QString error=tr("An error occured while adding the entry '%1'\n\nError : %2").arg(key).arg(QString::fromUtf8(ppk_error_get_string(res)));
+		QString error=tr("An error occured while adding the entry '%1'\n\nError : %2").arg(generateKey(entry)).arg(QString::fromUtf8(ppk_error_get_string(res)));
 		QMessageBox::critical(this, tr("PPassKeeper : Error while adding ..."), error);
 	}
 	else

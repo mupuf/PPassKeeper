@@ -80,18 +80,13 @@ ppk_entry* ListPwd::parseItemPassword(const std::string& stripped_name)
 		return NULL;
 }
 
+#include <stdio.h>
 ppk_entry* ListPwd::parseFileName(const std::string& filename, unsigned int entry_types, unsigned int flags)
 {
-	std::string prefix_net=prefix(ppk_network);
-	std::string prefix_app=prefix(ppk_application);
-	std::string prefix_item=prefix(ppk_item);
-
-	if((entry_types&ppk_network)>0 && filename.size() > prefix_net.size() && strncmp(filename.c_str(), prefix_net.c_str(), prefix_net.size())==0)
-		return parseNetworkPassword(filename.substr(prefix_net.size()));
-	else if((entry_types&ppk_application)>0 && filename.size() > prefix_app.size() && strncmp(filename.c_str(), prefix_app.c_str(), prefix_app.size())==0)
-		return parseAppPassword(filename.substr(prefix_app.size()));
-	else if((entry_types&ppk_item)>0 && filename.size() > prefix_item.size() && strncmp(filename.c_str(), prefix_item.c_str(), prefix_item.size())==0)
-		return parseItemPassword(filename.substr(prefix_item.size()));
+	ppk_entry* entry=ppk_entry_new_from_key(filename.c_str());
+	
+	if((entry_types&ppk_get_entry_type(entry))>0)
+		return entry;
 	else
 		return NULL;
 }

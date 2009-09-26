@@ -14,7 +14,7 @@
 
 #define TEST_STRING "Ici mùpùf à l'élysée! Tchüss niña. العربية, and so on ;)"
 
-ppk_entry* app_entry, * net_entry, * item_entry;
+ppk_entry* app_entry, * net_entry, * net_entry2, * item_entry;
 ppk_data* data;
 std::vector<ppk_entry*> entries;
 
@@ -27,6 +27,7 @@ void delete_all()
 {
 	delete app_entry;
 	delete net_entry;
+	delete net_entry2;
 	delete item_entry;
 	delete data;
 }
@@ -86,10 +87,12 @@ void run(int argc, char** argv)
 	module_id = argv[1];
 
 	app_entry=ppk_application_entry_new("test","utstlisting");
-	net_entry=ppk_network_entry_new(NULL, "test", "utstlisting", 99);
+	net_entry=ppk_network_entry_new("", "test", "utstlisting", 99);
+	net_entry2=ppk_network_entry_new("mupuf", "test", "utstlisting", 99);
 	item_entry=ppk_item_entry_new("utstlisting");
 	entries.push_back(app_entry);
 	entries.push_back(net_entry);
+	entries.push_back(net_entry2);
 	entries.push_back(item_entry);
 
 	FAILIF(ppk_is_locked()==PPK_TRUE);
@@ -117,6 +120,9 @@ void run(int argc, char** argv)
 		ASSERT(ok_listing);
 		ASSERT(ok_listing && prev_count + 1 == count);
 		ASSERT(ok_listing && prev_count_same_type + 1 == count_same_type);
+		
+		if(ok_listing && prev_count_same_type + 1 != count_same_type)
+			printf("prev_count_same_type=%i, count_same_type=%i and i=%i\n", prev_count_same_type, count_same_type, i);
 
 		// remove
 		ASSERT(ppk_module_remove_entry(module_id, entry, 0) == PPK_OK);

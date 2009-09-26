@@ -33,7 +33,7 @@ void run(int argc, char** argv)
 
 	app_entry=ppk_application_entry_new("test","utstblob_write_string");
 	net_entry=ppk_network_entry_new(NULL, "test", "utstblob_write_string", 99);
-	net_entry2=ppk_network_entry_new("protocol", "test", "utstblob_write_string", 99);
+	net_entry2=ppk_network_entry_new("protocol", "test", "utstblob_write_string", 12345);
 	item_entry=ppk_item_entry_new("utstblob_write_string");
 	entries.push_back(app_entry);
 	entries.push_back(net_entry);

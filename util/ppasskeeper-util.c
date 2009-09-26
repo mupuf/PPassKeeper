@@ -7,20 +7,21 @@
 
 #include <errno.h>
 
-char mode = 0, pwd_type = 0, listing_type=0;
+char mode = 0, listing_type = 0;
 char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL, *file = NULL;
 
 void usage()
 {
 	printf("Usage:\n"
-			"ppasskeeper -L [-u <ppk_password>]                                                               #Lists all the available modules\n"
-			"ppasskeeper -G -m <module> -t <app|net|item> -k <name> [-f file -u <ppk_password>                #Get a definite entry from a module\n"
-			"ppasskeeper -G -m <module> -l ani [-u <ppk_password>]                                            #Lists the entries stored in a module\n"
-			"ppasskeeper -S -m <module> -t <app|net|item> -k <name> [-f file -p <password> -u <ppk_password>] #Set an entry in a definite module\n"
-			"ppasskeeper -R -m <module> -k <name> [-u <ppk_password>]                                         #Read a module parameter\n"
-			"ppasskeeper -W -m <module> -k <name> -p <value> [-u <ppk_password>]                              #Write a module parameter\n"
-			"ppasskeeper -I -m <module> [-u <ppk_password>]                                                   #Get information concerning a module\n"
-			"ppasskeeper -D [-m <module> -u <ppk_password>]                                                   #Get/set the default module\n"
+			"ppasskeeper -L [-u <ppk_pwd>]                                       #List modules\n"
+			"ppasskeeper -G -m <module> -k <key> [-f file -u <ppk_pwd>]          #Get an entry\n"
+			"ppasskeeper -G -m <module> -l ani [-u <ppk_pwd>]                    #Lists entries\n"
+			"ppasskeeper -S -m <module> -k <key> [-f file -p <pwd> -u <ppk_pwd>] #Set an entry\n"
+			"ppasskeeper -E -m <module> -k <key> [-u <ppk_pwd>]                  #Erase an entry\n"
+			"ppasskeeper -R -m <module> -k <key> [-u <ppk_password>]             #Read a parameter\n"
+			"ppasskeeper -W -m <module> -k <key> -p <value> [-u <ppk_pwd>]       #Write a parameter\n"
+			"ppasskeeper -I -m <module> [-u <ppk_pwd>]                           #Module information\n"
+			"ppasskeeper -D [-m <module> -u <ppk_pwd>]                           #G/S default module\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
 }
@@ -63,6 +64,7 @@ void parse_cmdline(int argc, char **argv)
 			case 'W':
 			case 'I':
 			case 'D':
+			case 'E':
 				if (mode) usage();
 				mode = *flag;
 				break;
@@ -71,21 +73,9 @@ void parse_cmdline(int argc, char **argv)
 				if (module_id || *(flag + 1) || n >= argc) usage();
 				module_id = argv[n];
 				break;
-			case 't':
-				n++;
-				if (pwd_type || *(flag + 1) || n >= argc) usage();
-				if (! strcasecmp(argv[n], "app"))
-					pwd_type = ppk_application;
-				else if (! strcasecmp(argv[n], "net"))
-					pwd_type = ppk_network;
-				else if (! strcasecmp(argv[n], "item"))
-					pwd_type = ppk_item;
-				else
-					usage();
-				break;
 			case 'l':
 				n++;
-				if (pwd_type || *(flag + 1) || n >= argc) usage();
+				if (*(flag + 1) || n >= argc) usage();
 				int i, arglen=strlen(argv[n]);
 				if(arglen>3) usage();
 				for(i=0;i<arglen;i++)
@@ -197,6 +187,7 @@ void printModuleDetails(const char* module)
 int main(int argc, char **argv)
 {
 	ppk_entry* entry;
+	
 	parse_cmdline(argc, argv);
 
 	//Unlock ppk if needed
@@ -216,7 +207,7 @@ int main(int argc, char **argv)
 
 	if (mode == 'L')
 	{
-		if (pwd_type || module_id || key || password) usage();
+		if (module_id || key || password) usage();
 		
 		char** list=ppk_module_list_new();
 		if(list)
@@ -226,10 +217,15 @@ int main(int argc, char **argv)
 				printf("%s: %s\n", list[i], ppk_module_display_name(list[i]));
 			ppk_module_list_free(list);
 		}
+		else
+		{
+			fprintf(stderr, "Listing failed for an unknown reason.\n");
+			return 1;
+		}
 	}
 	else if (mode == 'G')
 	{
-		if (pwd_type && module_id && key && !password)
+		if (module_id && key && !password)
 		{
 			entry = ppk_entry_new_from_key(key);
 			if (entry == NULL)
@@ -261,7 +257,7 @@ int main(int argc, char **argv)
 				ppk_data_free(edata);
 			}
 			else
-				die("Password cannot be retrieved. Does the entry really exist ?");
+				fprintf(stderr, "The entry cannot be retrieved:\n%s\n", ppk_error_get_string(res));
 		}
 		else if ( module_id && listing_type > 0)
 		{
@@ -307,12 +303,14 @@ int main(int argc, char **argv)
 	else if (mode == 'S')
 	{
 		printf("password = %s\n", password);
-		if (! pwd_type || ! module_id || ! key) usage();
+		if (! module_id || ! key) usage();
 
 		entry = ppk_entry_new_from_key(key);
 		if (entry == NULL)
-			// invalid key
-			return 1;
+		{
+			fprintf(stderr, "The key '%s' is invalid.\n", key);
+			return 1; // invalid key
+		}
 
 		ppk_data* edata;
 		if (password)
@@ -406,6 +404,25 @@ int main(int argc, char **argv)
 			else
 				return 1;
 		}
+	}
+	else if (mode == 'E')
+	{
+		if (!module_id || !key) usage();
+
+		entry = ppk_entry_new_from_key(key);
+		if (entry == NULL)
+		{
+			fprintf(stderr, "The key '%s' is invalid.\n", key);
+			return 1; // invalid key
+		}
+
+		ppk_error ret=ppk_module_remove_entry(module_id, entry, ppk_wf_none);
+		if(ret==PPK_OK)
+			return 0;
+		else
+			fprintf(stderr, "An error occured while deleting the entry :\n%s\n", ppk_error_get_string(ret));
+		
+		ppk_entry_free(entry);
 	}
 	else
 	{

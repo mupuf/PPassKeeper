@@ -87,6 +87,11 @@ extern "C"
 	* \param item The item (example : MyWPAKey).
 	* \return  Return the ppk_Entry corresponding to the parameters*/
 	ppk_entry* ppk_item_entry_new(const char* item);
+	
+	/*! \brief Get the type of an entry
+	* \param entry The entry you want to get the type from
+	* \return  Return the type of the entry (Application/network/item)*/
+	ppk_entry_type ppk_get_entry_type(const ppk_entry* entry);
 
 	/*! \brief Frees a ppk_entry.
 	* \param data The ppk_entry to be freed.*/

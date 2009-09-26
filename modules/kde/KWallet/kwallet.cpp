@@ -47,8 +47,9 @@ extern "C" void constructor()
 
 extern "C" void destructor()
 {
-	delete _wallet;
-	delete _app;
+	//It crashes the application to uncomment the following :s
+	/*delete _wallet;
+	delete _app;*/
 }
 
 extern "C" ppk_boolean isWritable()
@@ -109,11 +110,18 @@ KWallet::Wallet* openWallet(unsigned int flags)
 			return NULL;
 		}
 	}
+	
+	if(! _wallet->setFolder(QString::fromAscii("PPassKeeper")))
+	{
+			_wallet->createFolder(QString::fromAscii("PPassKeeper"));
+			if(! _wallet->setFolder(QString::fromAscii("PPassKeeper")))
+				return NULL;
+	}
 
 	return _wallet;
 }
 
-ppk_error getPassword(const char* key, ppk_data** edata, unsigned int flags)
+ppk_error getPassword(const QString key, ppk_data** edata, unsigned int flags)
 {
 	QString pwd;
 
@@ -121,7 +129,7 @@ ppk_error getPassword(const char* key, ppk_data** edata, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Get the password
-		if(wallet->readPassword(QString::fromUtf8(key), pwd)==0)
+		if(wallet->readPassword(key, pwd)==0)
 		{
 			*edata=ppk_string_data_new(qPrintable(pwd));
 			return PPK_OK;
@@ -133,14 +141,14 @@ ppk_error getPassword(const char* key, ppk_data** edata, unsigned int flags)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-ppk_error getBlob(const char *key, ppk_data** edata, unsigned int flags)
+ppk_error getBlob(const QString key, ppk_data** edata, unsigned int flags)
 {
 	static QByteArray blob;
 
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
-		if(wallet->readEntry(QString::fromAscii(key), blob)==0)
+		if(wallet->readEntry(key, blob)==0)
 		{
 			*edata=ppk_blob_data_new(blob, blob.size());
 			return PPK_OK;
@@ -152,13 +160,13 @@ ppk_error getBlob(const char *key, ppk_data** edata, unsigned int flags)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-ppk_error setPassword(const char* key, const char* pwd, unsigned int flags)
+ppk_error setPassword(const QString key, const char* pwd, unsigned int flags)
 {
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		//Set the password
-		if(wallet->writePassword(QString::fromUtf8(key), QString::fromUtf8(pwd))==0)
+		if(wallet->writePassword(key, QString::fromUtf8(pwd))==0)
 			return PPK_OK;
 		else
 			return PPK_ENTRY_UNAVAILABLE;
@@ -167,14 +175,14 @@ ppk_error setPassword(const char* key, const char* pwd, unsigned int flags)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-ppk_error setBlob(const char *key, const void *data, unsigned long size, unsigned int flags)
+ppk_error setBlob(const QString key, const void *data, unsigned long size, unsigned int flags)
 {
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		//Set the password
 		QByteArray blobData((const char *) data, size);
-		if(wallet->writeEntry(QString::fromAscii(key), blobData)==0)
+		if(wallet->writeEntry(key, blobData)==0)
 			return PPK_OK;
 		else
 			return PPK_ENTRY_UNAVAILABLE;
@@ -183,13 +191,13 @@ ppk_error setBlob(const char *key, const void *data, unsigned long size, unsigne
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-ppk_error removePassword(const char* key, unsigned int flags)
+ppk_error removePassword(const QString key, unsigned int flags)
 {
 	KWallet::Wallet* wallet=openWallet(flags);
 	if(wallet!=NULL)
 	{
 		//Set the password
-		if(wallet->removeEntry(QString::fromAscii(key))==0)
+		if(wallet->removeEntry(key)==0)
 			return PPK_OK;
 		else
 			return PPK_ENTRY_UNAVAILABLE;
@@ -198,7 +206,7 @@ ppk_error removePassword(const char* key, unsigned int flags)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-bool passwordExists(const char* key, unsigned int flags)
+bool passwordExists(const QString key, unsigned int flags)
 {
 	static QString pwd;
 
@@ -206,7 +214,7 @@ bool passwordExists(const char* key, unsigned int flags)
 	if(wallet!=NULL)
 	{
 		//Get the password
-		if(wallet->hasEntry(QString::fromAscii(key))==0)
+		if(wallet->hasEntry(key)==0)
 			return true;
 		else
 			return false;
@@ -214,43 +222,6 @@ bool passwordExists(const char* key, unsigned int flags)
 	else
 		return false;
 }
-
-std::string prefix(ppk_entry_type type)
-{
-	static const char* ppk_network_string = "ppasskeeper_network://";
-	static const char* ppk_app_string = "ppasskeeper_app://";
-	static const char* ppk_item_string = "ppasskeeper_item://";
-
-	switch(type)
-	{
-		case ppk_network:
-			return ppk_network_string;
-			break;
-		case ppk_application:
-			return ppk_app_string;
-			break;
-		case ppk_item:
-			return ppk_item_string;
-			break;
-	}
-	return std::string();
-}
-
-std::string generateNetworkKey(std::string server, int port, std::string username)
-{
-	return prefix(ppk_network)+username+"@"+server+":"+toString(port);
-}
-
-std::string generateApplicationKey(std::string application_name, std::string username)
-{
-	return prefix(ppk_application)+username+"@"+application_name;
-}
-
-std::string generateItemKey(std::string key)
-{
-	return prefix(ppk_item)+key;
-}
-
 
 //functions
 extern "C" const char* getModuleID()
@@ -293,29 +264,34 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-static bool generateKey(const ppk_entry* entry, std::string &generatedKey)
+#include <stdio.h>
+static bool generateKey(const ppk_entry* entry, QString &generatedKey)
 {
-	switch (entry->type)
+	size_t size=ppk_key_length(entry);
+	if(size>0)
 	{
-	case ppk_network:
-		generatedKey = generateNetworkKey(entry->net.host, entry->net.port, entry->net.login);
-		break;
-	case ppk_application:
-		generatedKey = generateApplicationKey(entry->app.app_name, entry->app.username);
-		break;
-	case ppk_item:
-		generatedKey = generateItemKey(entry->item);
-		break;
-	default:
+		char* buf=new char[size+1];
+		
+		ppk_boolean ret=ppk_get_key(entry, buf, size);
+		if(ret==PPK_TRUE)
+			generatedKey=QString::fromUtf8(buf);
+		else
+			printf("generateKey: invalid ppk_get_key\n");
+		
+		delete[] buf;
+		
+		return ret;
+	}
+	else
+	{
+		printf("generateKey: invalid ppk_key_length\n");
 		return PPK_FALSE;
 	}
-
-	return PPK_TRUE;
 }
 
 extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 {
-	std::string generatedKey;
+	QString generatedKey;
 	if (generateKey(entry, generatedKey) == PPK_FALSE)
 		return PPK_UNKNOWN_ENTRY_TYPE;
 
@@ -323,52 +299,46 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 	if (wallet == NULL)
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 	
-	KWallet::Wallet::EntryType entryType = wallet->entryType(QString::fromStdString(generatedKey));
+	KWallet::Wallet::EntryType entryType = wallet->entryType(generatedKey);
 
 	if (entryType == KWallet::Wallet::Password)
-		return getPassword(generatedKey.c_str(), edata, flags);
+		return getPassword(generatedKey, edata, flags);
 	else if (entryType == KWallet::Wallet::Stream)
-		return getBlob(generatedKey.c_str(), edata, flags);
+		return getBlob(generatedKey, edata, flags);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 }
 
 extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 {
-	std::string generatedKey;
+	QString generatedKey;
 	if (generateKey(entry, generatedKey) == PPK_FALSE)
 		return PPK_UNKNOWN_ENTRY_TYPE;
 	
 	if (edata->type == ppk_string)
-		return setPassword(generatedKey.c_str(), edata->string, flags);
+		return setPassword(generatedKey, edata->string, flags);
 	else if (edata->type == ppk_blob)
-		return setBlob(generatedKey.c_str(), edata->blob.data, edata->blob.size, flags);
+		return setBlob(generatedKey, edata->blob.data, edata->blob.size, flags);
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 }
 
 extern "C" ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 {
-	if(entry->type == ppk_network)
-		return removePassword(generateNetworkKey(entry->net.host, entry->net.port, entry->net.login).c_str(), flags);
-	else if(entry->type == ppk_application)
-		return removePassword(generateApplicationKey(entry->app.app_name, entry->app.username).c_str(), flags);
-	else if(entry->type == ppk_item)
-		return removePassword(generateItemKey(entry->item).c_str(), flags);
-	else
+	QString generatedKey;
+	if (generateKey(entry, generatedKey) == PPK_FALSE)
 		return PPK_UNKNOWN_ENTRY_TYPE;
+	
+	return removePassword(generatedKey, flags);
 }
 
-extern "C" ppk_boolean entryExists(const ppk_entry entry, unsigned int flags)
+extern "C" ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 {
-	if(entry.type == ppk_network)
-		return passwordExists(generateNetworkKey(entry.net.host, entry.net.port, entry.net.login).c_str(), flags)?PPK_TRUE:PPK_FALSE;
-	else if(entry.type == ppk_application)
-		return passwordExists(generateApplicationKey(entry.app.app_name, entry.app.username).c_str(), flags)?PPK_TRUE:PPK_FALSE;
-	else if(entry.type == ppk_item)
-		return passwordExists(generateItemKey(entry.item).c_str(), flags)?PPK_TRUE:PPK_FALSE;
-	else
+	QString generatedKey;
+	if (generateKey(entry, generatedKey) == PPK_FALSE)
 		return PPK_FALSE;
+	
+	return passwordExists(generatedKey, flags)==PPK_OK?PPK_TRUE:PPK_FALSE;
 }
 
 extern "C" unsigned int maxDataSize(ppk_data_type type)

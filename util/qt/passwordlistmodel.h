@@ -42,10 +42,8 @@ private:
 	bool filterAccept(QString entry);
 
 	//PPassKeeper data
-	ppk_entry **net_ent;
-	ppk_entry **app_ent;
-	ppk_entry **item_ent;
-	size_t net_count, app_count, item_count;
+	ppk_entry **entries;
+	size_t entry_count;
 	ppk_entry_type currentType;
 
 	//Filter

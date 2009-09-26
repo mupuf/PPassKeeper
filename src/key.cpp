@@ -25,19 +25,20 @@ size_t ppk_key_length(const ppk_entry* entry)
 	{
 	case ppk_network:
 		if (entry->net.protocol && entry->net.protocol[0] != '\0')
-			len = strlen(entry->net.protocol) + sizeof("://");
-		else
-			len = sizeof(URL_PREFIX "://");
-		len += strlen(entry->net.login) + sizeof("@")
-		     + strlen(entry->net.host);
-		if (entry->net.port != 0)
-			len += sizeof(":") + digits(entry->net.port);
+			len = strlen(entry->net.protocol);
+
+		len	+= strlen("://")
+			+ strlen(entry->net.login) + strlen("@")
+			+ strlen(entry->net.host) + strlen(":")
+			+ digits(entry->net.port);
+			
 		break;
 	case ppk_application:
-		len = strlen(entry->app.username) + sizeof("@") + strlen(entry->app.app_name);
+		len = strlen(entry->app.username) + strlen("@") + strlen(entry->app.app_name);
 		break;
 	case ppk_item:
 		len = strlen(entry->item);
+		break;
 	default:
 		return 0;
 	}
@@ -48,6 +49,8 @@ size_t ppk_key_length(const ppk_entry* entry)
 #include <stdio.h>
 ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_key_length)
 {
+	std::string protocol="";
+	
 	if (max_key_length == 0)
 		return PPK_FALSE;
 
@@ -55,22 +58,28 @@ ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_k
 	switch(entry->type)
 	{
 	case ppk_network:
-		if (entry->net.protocol!=NULL && entry->net.protocol[0] != '\0')
-			key << entry->net.protocol << "://";
-		key << entry->net.login << '@' << entry->net.host << ':' << entry->net.port;
+		if(entry->net.protocol!=NULL)
+			protocol=entry->net.protocol;
+		key << protocol << "://" << entry->net.login << '@' << entry->net.host << ':' << entry->net.port;
 		break;
 	case ppk_application:
 		key << entry->app.username << '@' << entry->app.app_name;
 		break;
 	case ppk_item:
 		key << entry->item;
+		break;
+	default:
+		fprintf(stderr, "ppk_get_key: Unknown entry type %i!\n", entry->type);
+		return PPK_FALSE;
 	}
 
 	std::string key_str = key.str();
 	std::size_t key_len = key_str.size();
 	if (key_len >= max_key_length)
+	{
 		//not enough room in returned_key for returning
 		return PPK_FALSE;
+	}
 	else
 	{
 		key_str.copy(returned_key, key_len);
@@ -86,7 +95,7 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 	std::size_t pos = key_str.find("://");
 	if (pos != std::string::npos)
 	{
-		if (pos == 0 || pos + 6 > key_len)
+		if (pos + 6 > key_len)
 			return NULL;
 		std::string protocol = key_str.substr(0, pos);
 		std::size_t loginpos = pos + 3;
@@ -116,6 +125,7 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 					return NULL;
 				host = key_str.substr(hostpos, portpos - hostpos - 1);
 			}
+			//printf("It is a network !!\n");
 			return ppk_network_entry_new((protocol == URL_PREFIX) ? NULL : protocol.c_str(), login.c_str(), host.c_str(), port);
 		}
 	}
@@ -123,9 +133,13 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 	{
 		pos = key_str.find('@');
 		if (pos == std::string::npos)
+		{
+			//printf("It is an item !!\n");
 			return ppk_item_entry_new(key_str.c_str());
+		}
 		else
 		{
+			//printf("It is an application !!\n");
 			//it's an application key
 			if (pos == key_len - 1)
 				return NULL;

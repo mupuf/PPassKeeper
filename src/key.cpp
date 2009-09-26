@@ -3,6 +3,7 @@
 #include <cstring>
 #include <sstream>
 #include <cstdlib>
+#include <iostream>
 
 static size_t digits(unsigned int number)
 {
@@ -45,8 +46,6 @@ size_t ppk_key_length(const ppk_entry* entry)
 	return len + 1; // +1 for '\0'
 }
 
-#include <iostream>
-#include <stdio.h>
 ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_key_length)
 {
 	std::string protocol="";
@@ -69,7 +68,7 @@ ppk_boolean ppk_get_key(const ppk_entry* entry, char* returned_key, size_t max_k
 		key << entry->item;
 		break;
 	default:
-		fprintf(stderr, "ppk_get_key: Unknown entry type %i!\n", entry->type);
+		std::cerr << "ppk_get_key: Unknown entry type" << entry->type << " !" << std::endl;
 		return PPK_FALSE;
 	}
 
@@ -125,7 +124,6 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 					return NULL;
 				host = key_str.substr(hostpos, portpos - hostpos - 1);
 			}
-			//printf("It is a network !!\n");
 			return ppk_network_entry_new((protocol == URL_PREFIX) ? NULL : protocol.c_str(), login.c_str(), host.c_str(), port);
 		}
 	}
@@ -134,12 +132,10 @@ ppk_entry* ppk_entry_new_from_key(const char* key)
 		pos = key_str.find('@');
 		if (pos == std::string::npos)
 		{
-			//printf("It is an item !!\n");
 			return ppk_item_entry_new(key_str.c_str());
 		}
 		else
 		{
-			//printf("It is an application !!\n");
 			//it's an application key
 			if (pos == key_len - 1)
 				return NULL;

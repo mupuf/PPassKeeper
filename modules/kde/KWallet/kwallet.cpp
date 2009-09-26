@@ -264,7 +264,6 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 }
 
-#include <stdio.h>
 static bool generateKey(const ppk_entry* entry, QString &generatedKey)
 {
 	size_t size=ppk_key_length(entry);
@@ -276,7 +275,7 @@ static bool generateKey(const ppk_entry* entry, QString &generatedKey)
 		if(ret==PPK_TRUE)
 			generatedKey=QString::fromUtf8(buf);
 		else
-			printf("generateKey: invalid ppk_get_key\n");
+			std::cerr << "generateKey: invalid ppk_get_key" << std::endl;
 		
 		delete[] buf;
 		
@@ -284,7 +283,7 @@ static bool generateKey(const ppk_entry* entry, QString &generatedKey)
 	}
 	else
 	{
-		printf("generateKey: invalid ppk_key_length\n");
+		std::cerr << "generateKey: invalid ppk_key_length" << std::endl;
 		return PPK_FALSE;
 	}
 }

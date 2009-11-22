@@ -233,9 +233,9 @@ int main(int argc, char **argv)
 				return 1;
 
 			ppk_data *edata;
-			ppk_boolean res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
+			ppk_error res=ppk_module_get_entry(module_id, entry , &edata, ppk_rf_none);
 			ppk_entry_free(entry);
-			if(res==PPK_TRUE)
+			if(res==PPK_OK)
 			{
 				if(file)
 				{
@@ -302,7 +302,6 @@ int main(int argc, char **argv)
 	}
 	else if (mode == 'S')
 	{
-		printf("password = %s\n", password);
 		if (! module_id || ! key) usage();
 
 		entry = ppk_entry_new_from_key(key);
@@ -350,12 +349,15 @@ int main(int argc, char **argv)
 		else
 			die("Shouldn't happen ! Sky is falling on our heads !");
 
-		ppk_boolean res=ppk_module_set_entry(module_id, entry, edata, ppk_wf_none);
+		ppk_error res=ppk_module_set_entry(module_id, entry, edata, ppk_wf_none);
 		ppk_entry_free(entry);
 		ppk_data_free(edata);
 
-		if(res!=PPK_TRUE)
+		if(res!=PPK_OK)
+		{
+			fprintf(stderr, "An error occured while setting the entry :\n	--> %s\n", ppk_error_get_string(res));
 			return 1;
+		}
 
 	}
 	else if (mode == 'R')
@@ -420,7 +422,7 @@ int main(int argc, char **argv)
 		if(ret==PPK_OK)
 			return 0;
 		else
-			fprintf(stderr, "An error occured while deleting the entry :\n%s\n", ppk_error_get_string(ret));
+			fprintf(stderr, "An error occured while deleting the entry :\n	--> %s\n", ppk_error_get_string(ret));
 		
 		ppk_entry_free(entry);
 	}
@@ -429,5 +431,6 @@ int main(int argc, char **argv)
 		//shouldn't happen
 		return 1;
 	}
+	
 	return 0;
 }

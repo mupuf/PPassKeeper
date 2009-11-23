@@ -106,7 +106,7 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 		if(label_pattern)
 			label=str_replace(label_pattern, "%1", key);
 		else
-			label=str_replace(PARAM_MAIN_TEXT_DEFAULT, "%1", key);;
+			label=str_replace(PARAM_MAIN_TEXT_DEFAULT, "%1", key);
 
 		std::string pwd;
 		bool res=GTK_Get_Password(title, label.c_str(), pwd);

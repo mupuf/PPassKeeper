@@ -61,7 +61,6 @@ void run(int argc, char** argv)
 		ppk_data* edata;
 		ppk_entry* entry=ppk_item_entry_new("answer_\"ppasskeeper\"_without_the_quotes");
 		ppk_error res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
-		printf("ppk_module_get_entry passé !\n");
 		ppk_entry_free(entry);
 		ASSERT(res == PPK_OK);
 		if (res != PPK_OK)
@@ -72,7 +71,6 @@ void run(int argc, char** argv)
 		if (valid_type)
 		{
 			ASSERT(edata->string != NULL);
-			printf("res=%s\n", edata->string);
 			
 			std::string res;
 			res = edata->string;
@@ -81,6 +79,8 @@ void run(int argc, char** argv)
 			bool same_data = res == "ppasskeeper";
 			ASSERT(same_data);
 		}
+		
+		return;
 	}
 
 	data=ppk_string_data_new(TEST_STRING);

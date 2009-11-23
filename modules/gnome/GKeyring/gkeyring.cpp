@@ -3,8 +3,9 @@
 #include "gkey_implement.h"
 #include "tokenizer.h"
 #include "base64.h"
-#include "string.h"
 
+#include <string.h>
+#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <list>
@@ -131,6 +132,8 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 	ppk_entry* entry;
 	std::vector<ppk_entry*> entries;
 	size_t count = 0;
+	
+	//List the entries and put it into the entries's vector
 	if(list != NULL)
 	{
 		//Parse the whole list
@@ -146,16 +149,22 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 				entries.push_back(entry);
 				count++;
 			}
+			
+			//Free the element
 			free(*_list);
 		}
+		
+		//Free the list
 		free(list);
 	}
 
+	//Copy entries to entryList
 	*p_count = count;
 	*entryList = new ppk_entry*[count+1];
 	(*entryList)[count]=NULL;
 	for (int i = 0; i < entries.size(); ++i)
 		(*entryList)[i] = entries[i];
+	
 	return PPK_OK;
 }
 
@@ -289,7 +298,7 @@ bool matchNetworkPassword(const std::string name, std::string& user, std::string
 				return false;
 
 			if (entry)
-				ppk_network_entry_fill(*entry, NULL, user.c_str(), host.c_str(), port);
+				*entry=ppk_network_entry_new(NULL, user.c_str(), host.c_str(), port);
 			return true;
 		}
 	}
@@ -314,8 +323,8 @@ bool matchAppPassword(const std::string name, std::string& user, std::string& ap
 			if(pos_at<name.size()-1)
 			{
 				app=s_name.substr(pos_at+1);
-				if (entry)
-					ppk_application_entry_fill(*entry, user.c_str(), app.c_str());
+				if(entry)
+					*entry=ppk_application_entry_new(user.c_str(), app.c_str());
 				return true;
 			}
 		}
@@ -331,7 +340,7 @@ bool matchItemPassword(const std::string name, std::string& item, ppk_entry** en
 		{
 			item=name.substr(6);
 			if (entry)
-				ppk_item_entry_fill(*entry, item.c_str());
+				*entry=ppk_item_entry_new(item.c_str());
 			return true;
 		}
 	}

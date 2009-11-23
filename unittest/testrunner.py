@@ -17,7 +17,7 @@ class CppRunner:
     cpp_names = map(lambda x: os.path.basename(x)[:-4], cpp_files)
     clean = False
     def __init__(self, module_id, name):
-        self.module_id=module_id
+        self.module_id = module_id
         self.name = name
         if not name in self.cpp_names:
             raise TestException('No such C++ test: %s' % name)
@@ -67,9 +67,9 @@ def main():
         module_id = sys.argv[1]
     except IndexError:
         module_id = None
-    if module_id=='All':
+    if module_id == 'All':
         for module in module_list:
-            test_module(module)
+            test_module(unicode(module))
     elif not module_id is None and module_id in module_list:
         test_module(module_id)
     else:

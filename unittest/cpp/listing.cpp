@@ -85,6 +85,13 @@ void list_all()
 void run(int argc, char** argv)
 {
 	module_id = argv[1];
+	
+	//If the module doesn't support writing/listing
+	if(ppk_module_is_writable(module_id)==PPK_FALSE)
+	{
+		std::cerr << "* The module " << module_id << " is read-only" << std::endl;
+		return;
+	}
 
 	app_entry=ppk_application_entry_new("test","utstlisting");
 	net_entry=ppk_network_entry_new("", "test", "utstlisting", 99);

@@ -81,32 +81,34 @@ void run(int argc, char** argv)
 		/* Write */
 		ppk_error res=ppk_module_set_entry(module_id, entry, data, ppk_wf_none);
 		ASSERT(res == PPK_OK);
-
-		/* Read */
-		ppk_data* edata;
-		res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
-		ASSERT(res == PPK_OK);
-		if (res != PPK_OK)
-			continue;
-
-		/* Delete */
-		res=ppk_module_remove_entry(module_id, entry, ppk_rf_none);
-		ASSERT(res == PPK_OK);
-
-		bool valid_type = edata->type == ppk_blob;
-		ASSERT(valid_type);
-		if (valid_type)
+		if(res == PPK_OK)
 		{
-			std::string res;
-			res.assign((const char*)edata->blob.data, edata->blob.size);
-			ppk_data_free(edata);
+			/* Read */
+			ppk_data* edata;
+			res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
+			ASSERT(res == PPK_OK);
+			if (res != PPK_OK)
+				continue;
 
-			bool same_data = res == file;
-			ASSERT(same_data);
-			if(! same_data)
+			/* Delete */
+			res=ppk_module_remove_entry(module_id, entry, ppk_rf_none);
+			ASSERT(res == PPK_OK);
+
+			bool valid_type = edata->type == ppk_blob;
+			ASSERT(valid_type);
+			if (valid_type)
 			{
-				std::cerr << "* Before : size = " << file.size() << " and data = " << (const char*)file.data() << std::endl;
-				std::cerr << "* After  : size = " << edata->blob.size << " and data = " << (const char*)edata->blob.data << std::endl;
+				std::string res;
+				res.assign((const char*)edata->blob.data, edata->blob.size);
+				ppk_data_free(edata);
+
+				bool same_data = res == file;
+				ASSERT(same_data);
+				if(! same_data)
+				{
+					std::cerr << "* Before : size = " << file.size() << " and data = " << (const char*)file.data() << std::endl;
+					std::cerr << "* After  : size = " << edata->blob.size << " and data = " << (const char*)edata->blob.data << std::endl;
+				}
 			}
 		}
 	}

@@ -101,7 +101,12 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 
 		const char* title=cvariant_get_string(parameters[PARAM_WINDOW_CAPTION]);
 		const char* label_pattern=cvariant_get_string(parameters[PARAM_MAIN_TEXT]);
-		std::string label=str_replace(label_pattern, "%1", key);
+
+		std::string label;
+		if(label_pattern)
+			label=str_replace(label_pattern, "%1", key);
+		else
+			label=str_replace(PARAM_MAIN_TEXT_DEFAULT, "%1", key);;
 
 		std::string pwd;
 		bool res=GTK_Get_Password(title, label.c_str(), pwd);

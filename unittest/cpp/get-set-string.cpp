@@ -44,11 +44,43 @@ void run(int argc, char** argv)
 	FAILIF(ppk_module_is_available(module_id)==PPK_FALSE);
 
 	size_t max_size=ppk_module_max_data_size(module_id, ppk_string);
-	if(max_size==0)
+	if(max_size<=0)
 	{
 		std::cerr << "* No string support in " << module_id << std::endl;
 		delete_all();
 		return;
+	}
+	
+	//If the module doesn't support writing/listing
+	ppk_boolean writable=ppk_module_is_writable(module_id);
+	if(writable==PPK_FALSE)
+	{
+		std::cerr << "* The module " << module_id << " is read-only" << std::endl;
+		
+		/* Read */
+		ppk_data* edata;
+		ppk_entry* entry=ppk_item_entry_new("answer_\"ppasskeeper\"_without_the_quotes");
+		ppk_error res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
+		printf("ppk_module_get_entry passé !\n");
+		ppk_entry_free(entry);
+		ASSERT(res == PPK_OK);
+		if (res != PPK_OK)
+			return;
+
+		bool valid_type = edata->type == ppk_string;
+		ASSERT(valid_type);
+		if (valid_type)
+		{
+			ASSERT(edata->string != NULL);
+			printf("res=%s\n", edata->string);
+			
+			std::string res;
+			res = edata->string;
+			ppk_data_free(edata);
+
+			bool same_data = res == "ppasskeeper";
+			ASSERT(same_data);
+		}
 	}
 
 	data=ppk_string_data_new(TEST_STRING);

@@ -64,6 +64,13 @@ void run(int argc, char** argv)
 		delete_all();
 		return;
 	}
+	
+	//If the module doesn't support writing/listing
+	ppk_boolean writable=ppk_module_is_writable(module_id);
+	if(writable==PPK_FALSE)
+	{
+		std::cerr << "* The module " << module_id << " is read-only" << std::endl;
+	}
 
 	std::string file=readFile(argv[0]);
 	bool read_file_ok = file != std::string();
@@ -80,7 +87,7 @@ void run(int argc, char** argv)
 
 		/* Write */
 		ppk_error res=ppk_module_set_entry(module_id, entry, data, ppk_wf_none);
-		ASSERT(res == PPK_OK);
+		ASSERT(writable == PPK_TRUE && res == PPK_OK);
 		if(res == PPK_OK)
 		{
 			/* Read */
@@ -92,7 +99,7 @@ void run(int argc, char** argv)
 
 			/* Delete */
 			res=ppk_module_remove_entry(module_id, entry, ppk_rf_none);
-			ASSERT(res == PPK_OK);
+			ASSERT(writable == PPK_TRUE && res == PPK_OK);
 
 			bool valid_type = edata->type == ppk_blob;
 			ASSERT(valid_type);

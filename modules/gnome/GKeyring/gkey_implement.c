@@ -69,8 +69,6 @@ ppk_boolean openKeyring(unsigned int flags)
 		//Unlock
 		GnomeKeyringResult unlocked=gnome_keyring_unlock_sync (keyring_name, NULL);
 		
-		printf("Try to unlock the GK, result is %i (OK = %i)\n", unlocked, GNOME_KEYRING_RESULT_OK);
-		
 		if(unlocked==GNOME_KEYRING_RESULT_OK)
 			res=PPK_TRUE;
 	}

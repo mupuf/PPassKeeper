@@ -175,11 +175,8 @@ void AddPWD::onOK()
 		return;
 	}
 	
-	printf("entry = %i and ppk_key_length=%i\n", entry, ppk_key_length(entry));
 	char ret[101];
-	printf("avant ppk_get_key !\n");
 	ppk_get_key(entry, ret, 100);
-	printf("Entry was : '%s'\n", ret);
 
 	ppk_data* data=ppk_string_data_new(qPrintable(default_string));
 	ppk_error res = ppk_module_set_entry(module, entry, data, 0);

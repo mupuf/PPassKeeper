@@ -451,26 +451,29 @@ void MainWindow::updateInfoLabel()
 	QString str;
 
 	ppk_entry* entry=ppk_entry_new_from_key(qPrintable(pwdlistModel->selectedEntry()));
-
-	if (!cur_availability || entry==NULL)
+	if (entry==NULL || !cur_availability)
 	{
 		str = tr("(none selected)");
 	}
 	else if (entry->type == ppk_application)
 	{
 		str = tr("Application name: %1\n"
-				"User name: %2").arg(entry->app.app_name).arg(entry->app.username);
+				"User name: %2").arg(QString::fromUtf8(entry->app.app_name)).arg(QString::fromUtf8(entry->app.username));
 	}
 	else if (entry->type == ppk_network)
 	{
+		QString host=QString::fromUtf8(entry->net.host);
+		QString login=QString::fromUtf8(entry->net.login);
+		QString protocol=QString::fromUtf8(entry->net.protocol);
+
 		str = tr("Host name: %1\n"
 				"Login: %2\n"
 				"Port: %3\n"
-				"Protocol: %4").arg(entry->net.host).arg(entry->net.login).arg(entry->net.port).arg(entry->net.protocol);
+				"Protocol: %4").arg(host).arg(login).arg(entry->net.port).arg(protocol);
 	}
 	else if (entry->type == ppk_item)
 	{
-		str = tr("Key: %1").arg(entry->item);
+		str = tr("Key: %1").arg(QString::fromUtf8(entry->item));
 	}
 
 	infoLabel->setText(str);

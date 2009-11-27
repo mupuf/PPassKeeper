@@ -13,11 +13,6 @@
 class MainWindow : public QMainWindow, Ui::MainWindow
 {
 	Q_OBJECT
-public:
-	MainWindow();
-	~MainWindow();
-	const char* module() const { return m_module; };
-
 private:
 	char* m_module; //current module
 	QString tmp_sensitive_data;
@@ -48,6 +43,7 @@ private:
 		QString key;
 	} cur_item;
 
+	uint timerValue;
 	QBasicTimer passwordTimer;
 
 	void setupActions();
@@ -64,33 +60,44 @@ private:
 	ppk_data* getSelectedEntryData(bool& ok);
 	bool updateSelectedPassword(ppk_data* data);
 
-protected:
 	void timerEvent(QTimerEvent *event);
-	uint timerValue;
+
+public:
+	MainWindow();
+	~MainWindow();
+	const char* module() const { return m_module; };
 
 public slots:
 	void setMasterPwd();
-	void onAppPasswordSelected(const char *app_name, const char *username);
-	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
-	void onItemPasswordSelected(const char *key);
-	void onNoItemSelected();
+
+private slots:
+	//Tool bar
 	void onAddButtonClicked();
 	void onDelButtonClicked();
 	void onImportButtonClicked();
 	void onExportButtonClicked();
 	void onInfoModuleButtonClicked();
-	void setPasswordVisible(bool b);
-	void focusChanged(QWidget* q_old, QWidget* q_new);
+	void onParamsTriggered();
 
-private slots:
+	//Module
 	void moduleChanged(int index);
-	void updateInfoLabel();
-	void onShowButtonToggled(bool b);
+	void onSetDefaultModule();
+
+	//Password management
+	void onAppPasswordSelected(const char *app_name, const char *username);
+	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
+	void onItemPasswordSelected(const char *key);
+	void onNoItemSelected();
+	void onPwdViewClick(const QModelIndex& item);
+
+	//Entry column
 	void onPasswordSelected();
+	void updateInfoLabel();
+	void setPasswordVisible(bool b);
+	void onShowButtonToggled(bool b);
 	void saveValueToFile();
 	void setBlobFromFile();
-	void onSetDefaultModule();
-	void onParamsTriggered();
+	void focusChanged(QWidget* q_old, QWidget* q_new);
 };
 
 #endif

@@ -20,7 +20,7 @@ extern "C" void constructor()
 {
 	//Set parameters's default value
 	parameters[PARAM_WINDOW_CAPTION]=cvariant_from_string(PARAM_WINDOW_CAPTION_DEFAULT);
-	parameters[PARAM_MAIN_TEXT_DEFAULT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
+	parameters[PARAM_MAIN_TEXT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
 }
 
 extern "C" void destructor()
@@ -256,6 +256,9 @@ bool GTK_Get_Password(std::string title, std::string default_label, std::string&
 
 	//Show the widgets
 	gtk_widget_show_all(GTK_DIALOG(pBoite)->vbox);
+	
+	//set the focus on the OK button
+	//gtk_widget_grab_focus();
 
 	//Launch the dialog box and wait for events
 	switch (gtk_dialog_run(GTK_DIALOG(pBoite)))

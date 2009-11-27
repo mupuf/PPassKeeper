@@ -31,7 +31,7 @@ extern "C" void constructor()
 	parameters[PARAM_IMG_NET]=cvariant_from_string(PARAM_IMG_NET_DEFAULT);
 	parameters[PARAM_IMG_ITEM]=cvariant_from_string(PARAM_IMG_ITEM_DEFAULT);
 	parameters[PARAM_WINDOW_CAPTION]=cvariant_from_string(PARAM_WINDOW_CAPTION_DEFAULT);
-	parameters[PARAM_MAIN_TEXT_DEFAULT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
+	parameters[PARAM_MAIN_TEXT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
 }
 
 extern "C" void destructor()
@@ -102,7 +102,12 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 
 		QString icon;
 		QString title=QString::fromUtf8(cvariant_get_string(parameters[PARAM_WINDOW_CAPTION]));
-		QString label=QString::fromUtf8(cvariant_get_string(parameters[PARAM_MAIN_TEXT])).arg(QString::fromUtf8(text.c_str()));
+		QString label=QString::fromUtf8(cvariant_get_string(parameters[PARAM_MAIN_TEXT]));
+		
+		if(!label.contains(QString::fromUtf8("%1")))
+			label=QString::fromUtf8(PARAM_MAIN_TEXT_DEFAULT);
+		
+		label=label.arg(QString::fromUtf8(text.c_str()));
 
 		if(entry->type==ppk_application)
 			icon=QString::fromUtf8(cvariant_get_string(parameters[PARAM_IMG_APP]));

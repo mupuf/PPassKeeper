@@ -50,7 +50,7 @@ void MainWindow::setupActions()
 			this,
 			SLOT(onNoItemSelected()));
 	connect(pwdlistModel, SIGNAL(modelReset()), pwdlistView, SLOT(expandAll())); //always expand the tree
-	connect(pwdlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(onPwdViewClick(QModelIndex)));
+	connect(pwdlistView, SIGNAL(pressed(QModelIndex)), this, SLOT(onPwdViewClick(QModelIndex)));
 
 	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
@@ -225,7 +225,7 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 			strncpy(key, "<invalid_entry>", sizeof(key)-1);
 
 		QString error=tr("An error occured while accessing the entry '%1'\n\nError : %2").arg(QString::fromUtf8(key)).arg(QString::fromUtf8(ppk_error_get_string(res)));
-		QMessageBox::critical(this, tr("PPassKeeper : Error while accessing the entry"), error);
+		QMessageBox::critical(this, tr("PPK: Access error"), error);
 	}
 
 	//Free the entry
@@ -266,7 +266,7 @@ bool MainWindow::updateSelectedPassword(ppk_data* data)
 		char key[101];
 		ppk_get_key(entry, key, sizeof(key)-1);
 		QString error=tr("An error occured while updating the entry '%1'\n\nError: %2").arg(QString::fromUtf8(key)).arg(QString::fromUtf8(ppk_error_get_string(res)));
-		QMessageBox::critical(this, tr("PPassKeeper: Error while updating the password"), error);
+		QMessageBox::critical(this, tr("PPK: Update Error"), error);
 	}
 
 	//Free the entry
@@ -464,13 +464,19 @@ void MainWindow::moduleChanged(int index)
 		/* the displayed password becomes unavailable
 		 * after a module change */
 		cur_availability = false;
-
-		bool is_default=(module == QString::fromUtf8(ppk_module_get_default()));
-
-		toolBar->setEnabled(true);
-		actionSetModuleDefault->setEnabled(true);
-		actionSetModuleDefault->setChecked(is_default);
 	}
+
+	bool isValid=index>0;
+
+	bool is_default=(module == QString::fromUtf8(ppk_module_get_default()));
+	actionSetModuleDefault->setEnabled(isValid);
+	actionSetModuleDefault->setChecked(is_default);
+
+	action_Add->setEnabled(isValid);
+	actionInfos->setEnabled(isValid);
+	actionParams->setEnabled(isValid);
+	action_Import->setEnabled(isValid);
+	action_Export->setEnabled(isValid);
 }
 
 void MainWindow::onSetDefaultModule()
@@ -517,7 +523,15 @@ void MainWindow::onNoItemSelected()
 
 void MainWindow::onPwdViewClick(const QModelIndex& item)
 {
+	if(item.isValid() && QApplication::mouseButtons()==Qt::RightButton)
+	{
+		QMenu menu(this);
 
+		menu.addAction(this->action_Add);
+		menu.addAction(this->action_Del);
+
+		menu.exec(QCursor::pos());
+	}
 }
 
 

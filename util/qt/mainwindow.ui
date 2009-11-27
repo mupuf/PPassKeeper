@@ -64,7 +64,11 @@
      </layout>
     </item>
     <item>
-     <widget class="QTreeView" name="pwdlistView"/>
+     <widget class="QTreeView" name="pwdlistView">
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -103,11 +107,11 @@
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -293,13 +297,30 @@
    </property>
   </action>
   <action name="action_Add">
+   <property name="icon">
+    <iconset resource="ressources.qrc">
+     <normaloff>:/images/icons/list-add.png</normaloff>:/images/icons/list-add.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Add</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
   </action>
   <action name="action_Del">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ressources.qrc">
+     <normaloff>:/images/icons/list-remove.png</normaloff>:/images/icons/list-remove.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Del</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="action_Import">
@@ -339,6 +360,9 @@
    </property>
   </action>
   <action name="actionInfos">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Infos</string>
    </property>
@@ -358,6 +382,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="ressources.qrc"/>
+ </resources>
  <connections/>
 </ui>

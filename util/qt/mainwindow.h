@@ -26,22 +26,6 @@ private:
 	 *    describes what data structure contains the corresponding data
 	 */
 	bool cur_availability;
-	struct
-	{
-		QString app_name;
-		QString username;
-	} cur_app;
-	struct
-	{
-		QString host;
-		QString login;
-		unsigned short int port;
-		QString protocol;
-	} cur_net;
-	struct
-	{
-		QString key;
-	} cur_item;
 
 	uint timerValue;
 	QBasicTimer passwordTimer;
@@ -57,7 +41,7 @@ private:
 	void showInfoMessageUnderDevelopment();
 	bool unlockPPK(bool force=false);
 
-	ppk_data* getSelectedEntryData(bool& ok);
+	ppk_data* getSelectedEntryData();
 	bool updateSelectedPassword(ppk_data* data);
 
 	void timerEvent(QTimerEvent *event);
@@ -84,9 +68,9 @@ private slots:
 	void onSetDefaultModule();
 
 	//Password management
-	void onAppPasswordSelected(const char *app_name, const char *username);
+	/*void onAppPasswordSelected(const char *app_name, const char *username);
 	void onNetPasswordSelected(const char *host, const char *login, unsigned short int port);
-	void onItemPasswordSelected(const char *key);
+	void onItemPasswordSelected(const char *key);*/
 	void onNoItemSelected();
 	void onPwdViewClick(const QModelIndex& item);
 

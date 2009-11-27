@@ -27,14 +27,16 @@ std::string ListPwd::prefix(ppk_entry_type type)
 ppk_entry* ListPwd::parseNetworkPassword(const std::string& stripped_name)
 {
 	//Parse the file's name
-	unsigned int pos_at=stripped_name.find_first_of("@");
+	unsigned int pos_proto=stripped_name.find_first_of("||");
+	unsigned int pos_at=stripped_name.find_first_of("@", pos_proto+2);
 	unsigned int pos_sc=stripped_name.find("%",pos_at+1);
 
 	//if it has found the separators
-	if(pos_at!=std::string::npos && pos_sc!=std::string::npos)
+	if(pos_proto!=std::string::npos && pos_at!=std::string::npos && pos_sc!=std::string::npos)
 	{
-		std::string user=stripped_name.substr(0,pos_at);
-		std::string host=stripped_name.substr(pos_at+1,pos_sc-(pos_at+1));
+		std::string protocol=stripped_name.substr(0, pos_proto);
+		std::string user=stripped_name.substr(pos_proto+2, pos_at-(pos_proto+2));
+		std::string host=stripped_name.substr(pos_at+1, pos_sc-(pos_at+1));
 		std::string s_port=stripped_name.substr(pos_sc+1);
 
 		//Get the port into a number
@@ -43,7 +45,7 @@ ppk_entry* ListPwd::parseNetworkPassword(const std::string& stripped_name)
 		if (!(i >> port))
 			return NULL;
 
-		return ppk_network_entry_new(NULL, user.c_str(), host.c_str(), port);
+		return ppk_network_entry_new(protocol.c_str(), user.c_str(), host.c_str(), port);
 	}
 	else
 		return NULL;

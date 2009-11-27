@@ -15,9 +15,9 @@ std::string shortName();
 ppk_error readFile(std::string filename, std::string& filecontent, unsigned int flags);
 ppk_error writeFile(std::string filename, std::string secret, unsigned int flags);
 
-std::string generateNetworkPath(std::string server, int port, std::string username)
+std::string generateNetworkPath(std::string protocol, std::string server, int port, std::string username)
 {
-	return setting_dir()+toString("/")+shortName()+"_NET_"+username+toString("@")+server+toString("%")+toString(port);
+	return setting_dir()+toString("/")+shortName()+"_NET_"+protocol+toString("||")+username+toString("@")+server+toString("%")+toString(port);
 }
 
 std::string generateApplicationPath(std::string application_name, std::string username)
@@ -89,7 +89,7 @@ extern "C"
 		{
 			case ppk_network:
 			{
-				key=generateNetworkPath(entry->net.host, entry->net.port, entry->net.login);
+				key=generateNetworkPath(entry->net.protocol, entry->net.host, entry->net.port, entry->net.login);
 				break;
 			}
 			case ppk_application:

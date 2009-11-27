@@ -9,58 +9,6 @@ static const quint32 appChildId = 3;
 static const quint32 netChildId = 4;
 static const quint32 itemChildId = 5;
 
-PasswordListModel::PasswordListModel(QObject *parent)
-	: QAbstractItemModel(parent),
-	entries(NULL),
-	entry_count(0)
-{
-}
-
-PasswordListModel::~PasswordListModel()
-{
-	freeEntries();
-}
-
-void PasswordListModel::rowSelected(const QModelIndex &current, const QModelIndex &/*previous*/)
-{
-	if (current.internalId() == appChildId)
-	{
-		const ppk_entry* a = e_app[current.row()];
-		currentType = ppk_application;
-		emit appPasswordSelected(a->app.app_name, a->app.username);
-	} else if (current.internalId() == netChildId)
-	{
-		const ppk_entry* n = e_net[current.row()];
-		currentType = ppk_network;
-		emit netPasswordSelected(n->net.host, n->net.login, n->net.port);
-	} else if (current.internalId() == itemChildId)
-	{
-		const ppk_entry* i = e_item[current.row()];
-		currentType = ppk_item;
-		emit itemPasswordSelected(i->item);
-	}
-	else if (current.internalId() == netId)
-	{
-		currentType = ppk_network;
-		emit noItemSelected();
-	}
-	else if (current.internalId() == appId)
-	{
-		currentType = ppk_application;
-		emit noItemSelected();
-	}
-	else if (current.internalId() == itemId)
-	{
-		currentType = ppk_item;
-		emit noItemSelected();
-	}
-}
-
-ppk_entry_type PasswordListModel::currentSelectedType()
-{
-	return currentType;
-}
-
 inline void PasswordListModel::freeEntries()
 {
 	if(entries)
@@ -68,27 +16,6 @@ inline void PasswordListModel::freeEntries()
 
 	entries = NULL;
 	entry_count = 0;
-}
-
-#include <stdio.h>
-#include <QMessageBox>
-void PasswordListModel::setupModelData(const char* moduleId)
-{
-	freeEntries();
-	
-	ppk_error list_error=ppk_module_get_entry_list(moduleId, ppk_network|ppk_application|ppk_item, &entries, &entry_count, ppk_lf_none);
-	if(list_error!=PPK_OK && list_error!=PPK_UNSUPPORTED_METHOD)
-	{
-		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing entries")).arg(QString::fromUtf8(ppk_error_get_string(list_error))));
-		return;
-	}
-
-	updateFilter();
-}
-
-bool PasswordListModel::filterAccept(QString entry)
-{
-	return !usefilter || (usefilter && (filter==QString() || entry.contains(filter, Qt::CaseInsensitive)));
 }
 
 #include <stdio.h>
@@ -106,7 +33,7 @@ void PasswordListModel::updateFilter()
 	for(unsigned int i=0;i<entry_count;i++)
 	{
 		const ppk_entry* entry = entries[i];
-		
+
 		if(ppk_get_entry_type(entry)==ppk_application)
 		{
 			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
@@ -119,11 +46,11 @@ void PasswordListModel::updateFilter()
 			}
 		}
 	}
-	
+
 	for(unsigned int i=0;i<entry_count;i++)
 	{
 		const ppk_entry* entry = entries[i];
-		
+
 		if(ppk_get_entry_type(entry)==ppk_network)
 		{
 			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
@@ -136,11 +63,11 @@ void PasswordListModel::updateFilter()
 			}
 		}
 	}
-	
+
 	for(unsigned int i=0;i<entry_count;i++)
 	{
 		const ppk_entry* entry = entries[i];
-		
+
 		if(ppk_get_entry_type(entry)==ppk_item)
 		{
 			if(ppk_get_key(entry, buf,sizeof(buf)-1)==PPK_TRUE)
@@ -155,6 +82,26 @@ void PasswordListModel::updateFilter()
 	}
 
 	reset();
+}
+
+bool PasswordListModel::filterAccept(QString entry)
+{
+	return !usefilter || (usefilter && (filter==QString() || entry.contains(filter, Qt::CaseInsensitive)));
+}
+
+
+
+//Public
+PasswordListModel::PasswordListModel(QObject *parent)
+	: QAbstractItemModel(parent),
+	entries(NULL),
+	entry_count(0)
+{
+}
+
+PasswordListModel::~PasswordListModel()
+{
+	freeEntries();
 }
 
 QModelIndex PasswordListModel::index(int row, int column, const QModelIndex &parent) const
@@ -278,6 +225,78 @@ QVariant PasswordListModel::headerData(int section, Qt::Orientation orientation,
 	return QVariant();
 }
 
+#include <QMessageBox>
+void PasswordListModel::setupModelData(const char* moduleId)
+{
+	freeEntries();
+
+	ppk_error list_error=ppk_module_get_entry_list(moduleId, ppk_network|ppk_application|ppk_item, &entries, &entry_count, ppk_lf_none);
+	if(list_error!=PPK_OK && list_error!=PPK_UNSUPPORTED_METHOD)
+	{
+		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing entries")).arg(QString::fromUtf8(ppk_error_get_string(list_error))));
+		return;
+	}
+
+	updateFilter();
+}
+
+ppk_entry_type PasswordListModel::selectedType()
+{
+	return currentType;
+}
+
+QString PasswordListModel::selectedEntry()
+{
+	return currentEntry;
+}
+
+void PasswordListModel::rowSelected(const QModelIndex &current, const QModelIndex &/*previous*/)
+{
+	//Update the current selected entry
+	if(current.internalId() != netId &&
+	   current.internalId() != appId &&
+	   current.internalId() != itemId)
+		currentEntry=current.data().toString();
+	else
+		currentEntry=QString();
+
+	//send the update
+	emit onPasswordSelected(qPrintable(selectedEntry()));
+
+	//Send the specialised events
+	if (current.internalId() == appChildId)
+	{
+		const ppk_entry* a = e_app[current.row()];
+		currentType = ppk_application;
+		emit appPasswordSelected(a->app.app_name, a->app.username);
+	} else if (current.internalId() == netChildId)
+	{
+		const ppk_entry* n = e_net[current.row()];
+		currentType = ppk_network;
+		emit netPasswordSelected(n->net.host, n->net.login, n->net.port);
+	} else if (current.internalId() == itemChildId)
+	{
+		const ppk_entry* i = e_item[current.row()];
+		currentType = ppk_item;
+		emit itemPasswordSelected(i->item);
+	}
+	else if (current.internalId() == netId)
+	{
+		currentType = ppk_network;
+		emit noItemSelected();
+	}
+	else if (current.internalId() == appId)
+	{
+		currentType = ppk_application;
+		emit noItemSelected();
+	}
+	else if (current.internalId() == itemId)
+	{
+		currentType = ppk_item;
+		emit noItemSelected();
+	}
+}
+
 void PasswordListModel::useFilter(bool usefilter)
 {
 	this->usefilter=usefilter;
@@ -287,5 +306,6 @@ void PasswordListModel::useFilter(bool usefilter)
 void PasswordListModel::setFilter(QString filter)
 {
 	this->filter=filter;
-	updateFilter();
+	if(usefilter)
+		updateFilter();
 }

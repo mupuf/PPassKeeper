@@ -33,22 +33,8 @@ void MainWindow::setupActions()
 	connect(action_Export, SIGNAL(triggered()), this, SLOT(onExportButtonClicked()));
 	connect(pwdlistView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
 			pwdlistModel, SLOT(rowSelected(const QModelIndex &, const QModelIndex &)));
-	connect(pwdlistModel,
-			SIGNAL(appPasswordSelected(const char *, const char *)),
-			this,
-			SLOT(onAppPasswordSelected(const char *, const char *)));
-	connect(pwdlistModel,
-			SIGNAL(netPasswordSelected(const char *, const char *, unsigned short int)),
-			this,
-			SLOT(onNetPasswordSelected(const char *, const char *, unsigned short int)));
-	connect(pwdlistModel,
-			SIGNAL(itemPasswordSelected(const char *)),
-			this,
-			SLOT(onItemPasswordSelected(const char *)));
-	connect(pwdlistModel,
-			SIGNAL(noItemSelected()),
-			this,
-			SLOT(onNoItemSelected()));
+	connect(pwdlistModel, SIGNAL(onPasswordSelected(const char *)), this, SLOT(onPasswordSelected()));
+	connect(pwdlistModel, SIGNAL(noItemSelected()), this, SLOT(onNoItemSelected()));
 	connect(pwdlistModel, SIGNAL(modelReset()), pwdlistView, SLOT(expandAll())); //always expand the tree
 	connect(pwdlistView, SIGNAL(pressed(QModelIndex)), this, SLOT(onPwdViewClick(QModelIndex)));
 
@@ -193,31 +179,15 @@ bool MainWindow::unlockPPK(bool force)
 		return true;
 }
 
-ppk_data* MainWindow::getSelectedEntryData(bool& ok)
+ppk_data* MainWindow::getSelectedEntryData()
 {
 	ppk_data* data=NULL;
-	ppk_error res;
-	ppk_entry* entry;
 
-	ok=false;
+	ppk_entry* entry=ppk_entry_new_from_key(qPrintable(pwdlistModel->selectedEntry()));
+	if(!entry)
+		return NULL;
 
-	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
-	if (cur_type == ppk_application)
-	{
-		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-	}
-	else if (cur_type == ppk_network)
-	{
-		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-	}
-	else if (cur_type == ppk_item)
-	{
-		entry=ppk_item_entry_new(qPrintable(cur_item.key));
-	}
-	else
-		return data;
-
-	res = ppk_module_get_entry(module(), entry, &data, 0);
+	ppk_error res = ppk_module_get_entry(module(), entry, &data, 0);
 	if(res!=PPK_OK)
 	{
 		char key[101];
@@ -231,36 +201,16 @@ ppk_data* MainWindow::getSelectedEntryData(bool& ok)
 	//Free the entry
 	ppk_entry_free(entry);
 
-	ok=(res==PPK_OK);
-
 	return data;
 }
 
 bool MainWindow::updateSelectedPassword(ppk_data* data)
 {
-	ppk_error res;
-	ppk_entry* entry;
-
-	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
-	if (cur_type == ppk_application)
-	{
-		entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-		res = ppk_module_set_entry(module(), entry, data, 0);
-	}
-	else if (cur_type == ppk_network)
-	{
-		entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-		res = ppk_module_set_entry(module(), entry, data, 0);
-	}
-	else if (cur_type == ppk_item)
-	{
-		entry=ppk_item_entry_new(qPrintable(cur_item.key));
-		res = ppk_module_set_entry(module(), entry, data, 0);
-	}
-	else
+	ppk_entry* entry=ppk_entry_new_from_key(qPrintable(pwdlistModel->selectedEntry()));
+	if(!entry)
 		return false;
 
-	//Show errors
+	ppk_error res = ppk_module_set_entry(module(), entry, data, 0);
 	if(res!=PPK_OK)
 	{
 		char key[101];
@@ -354,7 +304,7 @@ void MainWindow::onAddButtonClicked()
 {
 	AddPWD addpwd;
 
-	addpwd.setType(pwdlistModel->currentSelectedType());
+	addpwd.setType(pwdlistModel->selectedType());
 	addpwd.setModule(module());
 	addpwd.setModal(true);
 	addpwd.show();
@@ -366,47 +316,21 @@ void MainWindow::onAddButtonClicked()
 
 void MainWindow::onDelButtonClicked()
 {
-	QString error, entry_name;
-
-	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
-
-	//Get the entry name
-	if (cur_type == ppk_application)
-		entry_name=cur_app.username+QString::fromUtf8("@")+cur_app.app_name;
-	else if (cur_type == ppk_network)
-		entry_name=cur_net.login+QString::fromUtf8("@")+cur_net.host+QString::fromUtf8(":")+QString::number(cur_net.port);
-	else if (cur_type == ppk_item)
-		entry_name=cur_item.key;
+	QString error;
 
 
 	QString title=tr("Are your sure ?");
-	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(entry_name).arg(QString::fromUtf8(module()));
+	QString text= tr("Are you sure you want to delete the entry '%1' from the module '%2' ?").arg(pwdlistModel->selectedEntry()).arg(QString::fromUtf8(module()));
 	if(QMessageBox::question(this, title, text, QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes)
 	{
-		ppk_error res;
-		ppk_entry* entry;
-
-		if (cur_type == ppk_application)
-		{
-			entry=ppk_application_entry_new(qPrintable(cur_app.username), qPrintable(cur_app.app_name));
-			res = ppk_module_remove_entry(module(), entry, 0);
-		}
-		else if (cur_type == ppk_network)
-		{
-			entry=ppk_network_entry_new(qPrintable(cur_net.protocol), qPrintable(cur_net.login), qPrintable(cur_net.host), cur_net.port);
-			res = ppk_module_remove_entry(module(), entry, 0);
-		}
-		else if (cur_type == ppk_item)
-		{
-			entry=ppk_item_entry_new(qPrintable(cur_item.key));
-			res = ppk_module_remove_entry(module(), entry, 0);
-		}
-		else
+		ppk_entry* entry=ppk_entry_new_from_key(qPrintable(pwdlistModel->selectedEntry()));
+		if(!entry)
 		{
 			QMessageBox::critical(this, tr("PPassKeeper : Error while deleting ..."), tr("The current type of the selected password is unknown."));
 			return;
 		}
 
+		ppk_error res = ppk_module_remove_entry(module(), entry, 0);
 		if(res!=PPK_OK)
 		{
 			char key[101];
@@ -486,30 +410,6 @@ void MainWindow::onSetDefaultModule()
 
 
 //Password management
-void MainWindow::onAppPasswordSelected(const char *app_name, const char *username)
-{
-	cur_app.app_name = QString::fromUtf8(app_name);
-	cur_app.username = QString::fromUtf8(username);
-
-	onPasswordSelected();
-}
-
-void MainWindow::onNetPasswordSelected(const char *host, const char *login, unsigned short int port)
-{
-	cur_net.host = QString::fromUtf8(host);
-	cur_net.login = QString::fromUtf8(login);
-	cur_net.port = port;
-
-	onPasswordSelected();
-}
-
-void MainWindow::onItemPasswordSelected(const char *key)
-{
-	cur_item.key = QString::fromUtf8(key);
-
-	onPasswordSelected();
-}
-
 void MainWindow::onNoItemSelected()
 {
 	showButton->setEnabled(false);
@@ -549,27 +449,30 @@ void MainWindow::onPasswordSelected()
 void MainWindow::updateInfoLabel()
 {
 	QString str;
-	ppk_entry_type cur_type=pwdlistModel->currentSelectedType();
 
-	if (! cur_availability)
+	ppk_entry* entry=ppk_entry_new_from_key(qPrintable(pwdlistModel->selectedEntry()));
+
+	if (!cur_availability || entry==NULL)
 	{
 		str = tr("(none selected)");
 	}
-	else if (cur_type == ppk_application)
+	else if (entry->type == ppk_application)
 	{
 		str = tr("Application name: %1\n"
-				"User name: %2").arg(cur_app.app_name).arg(cur_app.username);
+				"User name: %2").arg(entry->app.app_name).arg(entry->app.username);
 	}
-	else if (cur_type == ppk_network)
+	else if (entry->type == ppk_network)
 	{
 		str = tr("Host name: %1\n"
 				"Login: %2\n"
-				"Port: %3").arg(cur_net.host).arg(cur_net.login).arg(cur_net.port);
+				"Port: %3\n"
+				"Protocol: %4").arg(entry->net.host).arg(entry->net.login).arg(entry->net.port).arg(entry->net.protocol);
 	}
-	else if (cur_type == ppk_item)
+	else if (entry->type == ppk_item)
 	{
-		str = tr("Key: %1").arg(cur_item.key);
+		str = tr("Key: %1").arg(entry->item);
 	}
+
 	infoLabel->setText(str);
 }
 
@@ -583,9 +486,8 @@ void MainWindow::setPasswordVisible(bool b)
 			return;
 		}
 
-		bool ok=false;
-		ppk_data* data=getSelectedEntryData(ok);
-		if (ok)
+		ppk_data* data=getSelectedEntryData();
+		if (data)
 		{
 			if(data->type==ppk_string)
 			{
@@ -607,10 +509,7 @@ void MainWindow::setPasswordVisible(bool b)
 			ppk_data_free(data);
 		}
 		else
-		{
-			QMessageBox::critical(this, tr("An error occured while reading the password"), tr("An error occured while reading the password !\n\nThe error is : TODO\n"));
 			setPasswordVisible(false);
-		}
 	} else {
 		passwordTimer.stop();
 		progressBar->setValue(0);
@@ -629,9 +528,8 @@ void MainWindow::onShowButtonToggled(bool b)
 
 void MainWindow::saveValueToFile()
 {
-	bool ok=false;
-	ppk_data* data=getSelectedEntryData(ok);
-	if (ok)
+	ppk_data* data=getSelectedEntryData();
+	if (data)
 	{
 		QString filepath=QFileDialog::getSaveFileName(this, tr("Save Value"), QString(), tr("All (*.*)"));
 		if (filepath.isEmpty())
@@ -653,8 +551,6 @@ void MainWindow::saveValueToFile()
 
 		ppk_data_free(data);
 	}
-	else
-		QMessageBox::critical(this, tr("An error occured while reading the password"), tr("An error occured while reading the password !\n\nThe error is : TODO\n"));
 }
 
 void MainWindow::setBlobFromFile()
@@ -676,7 +572,7 @@ void MainWindow::setBlobFromFile()
 				if(updateSelectedPassword(data))
 					QMessageBox::information(this, tr("Success : The blob has been set correctly"), tr("The blob has been set correctly."));
 				else
-					QMessageBox::critical(this, tr("PPassKeeper Error : The entry cannot be set"), tr("PPassKeeper Error : The entry cannot be set.\n\nThe error is : TODO\n"));
+					QMessageBox::critical(this, tr("PPassKeeper Error : The entry cannot be set"), tr("PPassKeeper Error : The entry cannot be set."));
 
 				ppk_data_free(data);
 			}

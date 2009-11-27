@@ -10,6 +10,24 @@
 class PasswordListModel : public QAbstractItemModel
 {
 	Q_OBJECT
+
+private:
+	//PPassKeeper data
+	ppk_entry **entries;
+	size_t entry_count;
+	ppk_entry_type currentType;
+	QString currentEntry;
+
+	//Filter
+	bool usefilter;
+	QString filter;
+	QVector<QString> v_app, v_net, v_item;
+	QVector<const ppk_entry*> e_app, e_net, e_item;
+
+	void freeEntries();
+	void updateFilter();
+	bool filterAccept(QString entry);
+
 public:
 	PasswordListModel(QObject *parent = 0);
 	virtual ~PasswordListModel();
@@ -21,36 +39,22 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 	void setupModelData(const char* moduleId);
 
-	ppk_entry_type currentSelectedType();
+	ppk_entry_type selectedType();
+	QString selectedEntry();
 
-signals:
-	void appPasswordSelected(const char *app_name, const char *username);
-	void netPasswordSelected(const char *host, const char *login, unsigned short int post);
-	void itemPasswordSelected(const char *key);
-	void noItemSelected();
+private slots:
+	void rowSelected(const QModelIndex &current, const QModelIndex &previous);
 
 public slots:
 	void useFilter(bool usefilter);
 	void setFilter(QString filter);
 
-private slots:
-	void rowSelected(const QModelIndex &current, const QModelIndex &previous);
-
-private:
-	void freeEntries();
-	void updateFilter();
-	bool filterAccept(QString entry);
-
-	//PPassKeeper data
-	ppk_entry **entries;
-	size_t entry_count;
-	ppk_entry_type currentType;
-
-	//Filter
-	bool usefilter;
-	QString filter;
-	QVector<QString> v_app, v_net, v_item;
-	QVector<const ppk_entry*> e_app, e_net, e_item;
+signals:
+	void onPasswordSelected(const char* key);
+	void appPasswordSelected(const char *app_name, const char *username);
+	void netPasswordSelected(const char *host, const char *login, unsigned short int post);
+	void itemPasswordSelected(const char *key);
+	void noItemSelected();
 };
 
 #endif

@@ -95,6 +95,9 @@ void MainWindow::setupActions()
 			this,
 			SLOT(onNoItemSelected()));
 
+	//always expand the tree
+	connect(pwdlistModel, SIGNAL(modelReset()), pwdlistView, SLOT(expandAll()));
+
 	connect(showButton, SIGNAL(toggled(bool)), this, SLOT(onShowButtonToggled(bool)));
 	connect(showButton, SIGNAL(clicked(bool)), this, SLOT(setPasswordVisible(bool)));
 
@@ -102,9 +105,7 @@ void MainWindow::setupActions()
 	connect(setBlobButton, SIGNAL(clicked()), this, SLOT(setBlobFromFile()));
 
 	connect(filterNameCheckbox, SIGNAL(toggled(bool)), pwdlistModel, SLOT(useFilter(bool)));
-	connect(filterNameCheckbox, SIGNAL(toggled(bool)), pwdlistView, SLOT(expandAll()));
 	connect(filterNameText, SIGNAL(textEdited(QString)), pwdlistModel, SLOT(setFilter(QString)));
-	connect(filterNameText, SIGNAL(textEdited(QString)), pwdlistView, SLOT(expandAll()));
 
 	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 

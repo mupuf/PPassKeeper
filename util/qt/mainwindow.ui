@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>731</width>
+    <width>816</width>
     <height>621</height>
    </rect>
   </property>
@@ -38,14 +38,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="filterNameCheckbox">
-        <property name="text">
-         <string>Filter by name:</string>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="filterNameText"/>
+       <widget class="QCheckBox" name="filterNameCheckbox">
+        <property name="text">
+         <string>Filter</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="filterNameText">
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -60,8 +74,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>731</width>
-     <height>24</height>
+     <width>816</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

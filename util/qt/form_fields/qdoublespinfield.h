@@ -11,7 +11,7 @@ private:
 	QDoubleSpinBox* spin;
 
 public:
-	QDoubleSpinField(QWidget* parent=NULL, double min=-2147483648, double max=2147483647);
+	QDoubleSpinField(QWidget* parent=NULL, double min=-0.0, double max=100.0);
 
 	void setValue(QVariant value);
 

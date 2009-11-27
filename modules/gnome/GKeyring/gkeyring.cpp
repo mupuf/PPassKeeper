@@ -14,7 +14,7 @@
 #define BLOB_STRING "blob:"
 
 //private functions prototypes
-bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port, ppk_entry** entry);
+bool matchNetworkPassword(std::string name, std::string& user, std::string& host, unsigned short& port, std::string& protocol, ppk_entry** entry);
 bool matchAppPassword(std::string name, std::string& user, std::string& app, ppk_entry** entry);
 bool matchItemPassword(const std::string name, std::string& item, ppk_entry** entry);
 
@@ -103,13 +103,13 @@ extern "C" size_t getEntryListCount(unsigned int entry_types, unsigned int flags
 	if(list!=NULL)
 	{
 		//tmp
-		std::string host, user, app, itm;
+		std::string host, user, protocol, app, itm;
 		unsigned short port;
 
 		int i=0;
 		while(list[i]!=NULL)
 		{
-			if ((entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port, NULL)) ||
+			if ((entry_types&ppk_network && matchNetworkPassword(list[i], user, host, port, protocol, NULL)) ||
 				(entry_types&ppk_application && matchAppPassword(list[i], user, app, NULL)) ||
 				(entry_types&ppk_item && matchItemPassword(list[i], itm, NULL)))
 				count++;
@@ -139,10 +139,10 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 		//Parse the whole list
 		for (char** _list = list; *_list != NULL; ++_list)
 		{
-			std::string user, login, host, app, item;
+			std::string user, login, host, protocol, app, item;
 			unsigned short port;
 			
-			if ((entry_types&ppk_network && matchNetworkPassword(*_list, user, host, port, &entry)) ||
+			if ((entry_types&ppk_network && matchNetworkPassword(*_list, user, host, port, protocol, &entry)) ||
 				(entry_types&ppk_application && matchAppPassword(*_list, user, app, &entry)) ||
 				(entry_types&ppk_item && matchItemPassword(*_list, item, &entry)))
 			{
@@ -275,21 +275,23 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 }
 
 //Private functions
-bool matchNetworkPassword(const std::string name, std::string& user, std::string& host, unsigned short& port, ppk_entry** entry)
+bool matchNetworkPassword(const std::string name, std::string& user, std::string& host, unsigned short& port, std::string& protocol, ppk_entry** entry)
 {
 	if(name.substr(0, 6) == "net://")
 	{
 		std::string s_name = name.substr(6);
 
 		//Parse the file's name
-		unsigned int pos_at=s_name.find_first_of("@");
+		unsigned int pos_proto=s_name.find_first_of("://", 0);
+		unsigned int pos_at=s_name.find_first_of("@", pos_proto+3);
 		unsigned int pos_sc=s_name.find(":",pos_at+1);
 
-		//if it has found the separators
-		if(pos_at!=std::string::npos && pos_sc!=std::string::npos)
+		//if the separators are all present
+		if(pos_proto!=std::string::npos && pos_at!=std::string::npos && pos_sc!=std::string::npos)
 		{
-			user=s_name.substr(0,pos_at);
-			host=s_name.substr(pos_at+1,pos_sc-(pos_at+1));
+			protocol=s_name.substr(0, pos_proto);
+			user=s_name.substr(pos_proto+3, pos_at-(pos_proto+3));
+			host=s_name.substr(pos_at+1, pos_sc-(pos_at+1));
 			std::string s_port=s_name.substr(pos_sc+1);
 
 			//Get the port into a number
@@ -298,7 +300,7 @@ bool matchNetworkPassword(const std::string name, std::string& user, std::string
 				return false;
 
 			if (entry)
-				*entry=ppk_network_entry_new(NULL, user.c_str(), host.c_str(), port);
+				*entry=ppk_network_entry_new(protocol.c_str(), user.c_str(), host.c_str(), port);
 			return true;
 		}
 	}

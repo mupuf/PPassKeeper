@@ -139,7 +139,7 @@ ppk_error setNetworkPassword(const char* host, const char* login, unsigned short
 {
 	GnomeKeyringResult res=-100;
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName)-1, "net://%s@%s:%i", login, host, port);
+	snprintf(displayName, sizeof(displayName)-1, "net://%s://%s@%s:%i", protocol, login, host, port);
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{
@@ -150,7 +150,7 @@ ppk_error setNetworkPassword(const char* host, const char* login, unsigned short
 	}
 	else
 		return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
-									 
+
 	return res==GNOME_KEYRING_RESULT_OK?PPK_OK:PPK_UNKNOWN_ERROR;
 }
 
@@ -258,7 +258,7 @@ ppk_error removeNetworkPassword(const char* host, const char* login, unsigned sh
 {
 	if(openKeyring(flags)==PPK_TRUE)
 	{
-		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&network_schm, "username", login,"host", host, "port", port, NULL, 0);
+		GnomeKeyringResult res=gnome_keyring_delete_password_sync(&network_schm, "username", login,"host", host, "port", port, "protocol", protocol, NULL, 0);
 		
 		if(res!=GNOME_KEYRING_RESULT_OK)
 			fprintf(stderr, "Gnome Keyring Error: %s\n", gnome_keyring_result_to_message(res));

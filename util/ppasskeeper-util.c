@@ -263,11 +263,12 @@ int main(int argc, char **argv)
 		{
 			size_t len, i;
 			ppk_entry** list;
-			if (list)
+			
+			ppk_error err = ppk_module_get_entry_list(module_id, listing_type, &list, &len, ppk_lf_none);
+			if (err != PPK_OK)
+				die(ppk_error_get_string(err));
+			else
 			{
-				ppk_error err = ppk_module_get_entry_list(module_id, listing_type, &list, &len, ppk_lf_none);
-				if (err != PPK_OK)
-					die(ppk_error_get_string(err));
 				printf("Listing %s gave %i results :\n", module_id, len);
 				for (i = 0; i < len; i++)
 				{

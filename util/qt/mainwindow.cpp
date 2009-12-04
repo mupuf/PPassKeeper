@@ -327,7 +327,9 @@ void MainWindow::onAddButtonClicked()
 			pwdlistView->setCurrentIndex(index);
 
 			//Edit the current entry
-			onShowButtonToggled(true);
+			showButton->click();
+			//onShowButtonToggled(true);
+
 			passwordEdit->setFocus();
 			passwordEdit->selectAll();
 		}

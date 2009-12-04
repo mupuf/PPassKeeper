@@ -314,9 +314,6 @@ void MainWindow::onAddButtonClicked()
 	{
 		listCurrentModule();
 
-
-		//TODO: This should select the added entry and start editing the content
-
 		//Reset the filter
 		filterNameCheckbox->setChecked(false);
 
@@ -328,7 +325,6 @@ void MainWindow::onAddButtonClicked()
 
 			//Edit the current entry
 			showButton->click();
-			//onShowButtonToggled(true);
 
 			passwordEdit->setFocus();
 			passwordEdit->selectAll();
@@ -399,8 +395,8 @@ void MainWindow::onParamsTriggered()
 void MainWindow::moduleChanged(int index)
 {
 	QString module = modulesBox->itemData(index).toString();
-	if (module != QString())
-	{
+	/*if (module != QString())
+	{*/
 		if(m_module!=NULL)
 			delete[] m_module;
 		m_module=new char[module.size()+2];
@@ -411,7 +407,7 @@ void MainWindow::moduleChanged(int index)
 		/* the displayed password becomes unavailable
 		 * after a module change */
 		cur_availability = false;
-	}
+	//}
 
 	bool isValid=index>0;
 
@@ -435,6 +431,10 @@ void MainWindow::onSetDefaultModule()
 //Password management
 void MainWindow::onNoItemSelected()
 {
+	//If we are editing a password, reset
+	if(passwordTimer.isActive())
+		showButton->click();
+
 	showButton->setEnabled(false);
 	action_Del->setEnabled(false);
 	setBlobButton->setEnabled(false);

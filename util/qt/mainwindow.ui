@@ -86,6 +86,9 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Import"/>
+    <addaction name="action_Export"/>
+    <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -99,8 +102,12 @@
     <property name="title">
      <string>Actions</string>
     </property>
-    <addaction name="actionLock_ppasskeeper"/>
+    <addaction name="action_Add"/>
+    <addaction name="action_Del"/>
+    <addaction name="separator"/>
     <addaction name="actionSetModuleDefault"/>
+    <addaction name="separator"/>
+    <addaction name="actionLock_ppasskeeper"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuActions"/>
@@ -317,20 +324,26 @@
      <normaloff>:/images/icons/list-remove.png</normaloff>:/images/icons/list-remove.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Del</string>
+    <string>Del</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="action_Import">
    <property name="text">
-    <string>&amp;Import</string>
+    <string>I&amp;mport</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="action_Export">
    <property name="text">
-    <string>&amp;Export</string>
+    <string>E&amp;xport</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionLock_ppasskeeper">
@@ -353,10 +366,13 @@
   </action>
   <action name="actionParams">
    <property name="text">
-    <string>Params</string>
+    <string>&amp;Params</string>
    </property>
    <property name="toolTip">
     <string>Edit the parameters of the module</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionInfos">
@@ -364,10 +380,13 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Infos</string>
+    <string>&amp;Infos</string>
    </property>
    <property name="toolTip">
     <string>Information about the module</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionSetModuleDefault">

@@ -82,6 +82,7 @@ void PasswordListModel::updateFilter()
 	}
 
 	reset();
+	emit noItemSelected();
 }
 
 bool PasswordListModel::filterAccept(QString entry)
@@ -253,8 +254,8 @@ void PasswordListModel::setupModelData(const char* moduleId)
 	ppk_error list_error=ppk_module_get_entry_list(moduleId, ppk_network|ppk_application|ppk_item, &entries, &entry_count, ppk_lf_none);
 	if(list_error!=PPK_OK && list_error!=PPK_UNSUPPORTED_METHOD)
 	{
-		QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing entries")).arg(QString::fromUtf8(ppk_error_get_string(list_error))));
-		return;
+		if(moduleId!=NULL && strcmp(moduleId, "")!=0)
+			QMessageBox::critical(NULL, tr("PPassKeeper: Listing Error"), QString::fromUtf8("%1:\n\n%2").arg(tr("Error while listing entries")).arg(QString::fromUtf8(ppk_error_get_string(list_error))));
 	}
 
 	updateFilter();

@@ -442,6 +442,7 @@ MESSAGE("")
 
 MESSAGE("Options :")
 MESSAGE("	Debug Mode : ${PPK_DEBUG} (-DPPK_DEBUG=ON to activate)")
+MESSAGE("	Compilation Mode : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE=Debug to debug)")
 MESSAGE("")
 
 MESSAGE("Unit Tests : ${PPK_TESTS} (-DPPK_TESTS=ON to activate)")

@@ -311,7 +311,28 @@ void MainWindow::onAddButtonClicked()
 	addpwd.exec();
 
 	if(addpwd.succeeded())
+	{
 		listCurrentModule();
+
+
+		//TODO: This should select the added entry and start editing the content
+
+		//Reset the filter
+		filterNameCheckbox->setChecked(false);
+
+		//set the new entry as the current entry
+		QModelIndex index=pwdlistModel->find(addpwd.addedEntry());
+		if(index.isValid())
+		{
+			pwdlistView->setCurrentIndex(index);
+
+			//Edit the current entry
+			onShowButtonToggled(true);
+			passwordEdit->setFocus();
+			passwordEdit->selectAll();
+		}
+
+	}
 }
 
 void MainWindow::onDelButtonClicked()

@@ -22,8 +22,6 @@ private:
 	 * availability: whether the password can be read/written
 	 *    false when the program was just started (no pass selected),
 	 *    or a module change..
-	 * type: type of the current password
-	 *    describes what data structure contains the corresponding data
 	 */
 	bool cur_availability;
 

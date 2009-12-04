@@ -3,38 +3,8 @@
 #include <QMessageBox>
 #include <string>
 
-AddPWD::AddPWD(QWidget *parent) :
-	QDialog(parent),
-	m_ui(new Ui::AddPWD),
-	cancel(false),
-	success(false),
-	module(NULL)
-{
-	m_ui->setupUi(this);
-
-	connect(m_ui->entryTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(entryTypeChanged(int)));
-	connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(onOK()));
-
-	entryTypeChanged(0);
-}
-
-AddPWD::~AddPWD()
-{
-	delete m_ui;
-}
-
-void AddPWD::changeEvent(QEvent *e)
-{
-	switch (e->type()) {
-	case QEvent::LanguageChange:
-	   m_ui->retranslateUi(this);
-	   break;
-	default:
-	   break;
-	}
-}
-
-void AddPWD::hideAll()
+//private
+void AddPWD::hideAllEntryTypes()
 {
 	showApp(false);
 	showNet(false);
@@ -67,9 +37,111 @@ void AddPWD::showItem(bool show)
 	m_ui->itemEdit->setVisible(show);
 }
 
+QString AddPWD::generateKey(const ppk_entry* entry)
+{
+	QString generatedKey;
+
+	size_t size=ppk_key_length(entry);
+	if(size>0)
+	{
+		char* buf=new char[size+1];
+
+		ppk_boolean ret=ppk_get_key(entry, buf, size);
+		if(ret==PPK_TRUE)
+		{
+			generatedKey=QString::fromUtf8(buf);
+			delete[] buf;
+			return generatedKey;
+		}
+		else
+			delete[] buf;
+	}
+
+	return QString();
+}
+
+
+//protected
+void AddPWD::changeEvent(QEvent *e)
+{
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+	   m_ui->retranslateUi(this);
+	   break;
+	default:
+	   break;
+	}
+}
+
+
+//public
+AddPWD::AddPWD(QWidget *parent) :
+	QDialog(parent),
+	m_ui(new Ui::AddPWD),
+	cancel(false),
+	success(false),
+	module(NULL),
+	_addedEntry()
+{
+	m_ui->setupUi(this);
+
+	connect(m_ui->entryTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(entryTypeChanged(int)));
+
+	//Check updates
+	connect(m_ui->userEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+	connect(m_ui->appEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+	connect(m_ui->hostEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+	connect(m_ui->loginEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+	connect(m_ui->itemEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+
+	connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(onOK()));
+
+	checkConsistancy();
+}
+
+AddPWD::~AddPWD()
+{
+	delete m_ui;
+}
+
+bool AddPWD::succeeded()
+{
+	return success;
+}
+
+bool AddPWD::cancelled()
+{
+	return cancel;
+}
+
+QString AddPWD::addedEntry()
+{
+	return _addedEntry;
+}
+
+void AddPWD::setModule(const char* module)
+{
+	this->module = module;
+}
+
+void AddPWD::setType(ppk_entry_type type)
+{
+	int index=0;
+
+	if(type==ppk_application)
+		index=0;
+	else if(type==ppk_network)
+		index=1;
+	else if(type==ppk_item)
+		index=2;
+
+	m_ui->entryTypeCombo->setCurrentIndex(index);
+	entryTypeChanged(index);
+}
+
 void AddPWD::entryTypeChanged(int index)
 {
-	hideAll();
+	hideAllEntryTypes();
 
 	if(index==0)
 		showApp(true);
@@ -82,47 +154,46 @@ void AddPWD::entryTypeChanged(int index)
 	this->adjustSize();
 }
 
-void AddPWD::setModule(const char* module)
+#include <QPushButton>
+void AddPWD::checkConsistancy()
 {
-	this->module = module;
-}
+	bool consistent=false;
 
-void AddPWD::setType(ppk_entry_type type)
-{
-	if(type==ppk_application)
-		m_ui->entryTypeCombo->setCurrentIndex(0);
-	else if(type==ppk_network)
-		m_ui->entryTypeCombo->setCurrentIndex(1);
-	else if(type==ppk_item)
-		m_ui->entryTypeCombo->setCurrentIndex(2);
-}
-
-QString generateKey(const ppk_entry* entry)
-{
-	QString generatedKey;
-	
-	size_t size=ppk_key_length(entry);
-	if(size>0)
+	//get the current type
+	int index=m_ui->entryTypeCombo->currentIndex();
+	if(index==0)
 	{
-		char* buf=new char[size+1];
-		
-		ppk_boolean ret=ppk_get_key(entry, buf, size);
-		if(ret==PPK_TRUE)
-		{
-			generatedKey=QString::fromUtf8(buf);
-			delete[] buf;
-			return generatedKey;
-		}
-		else
-			delete[] buf;
+		//Application
+		QString user=m_ui->userEdit->text();
+		QString app=m_ui->appEdit->text();
+
+		consistent = (user!=QString() && app!=QString());
 	}
-	
-	return QString();
+	else if(index==1)
+	{
+		//Network
+		QString login=m_ui->loginEdit->text();
+		QString host=m_ui->hostEdit->text();
+		QString protocol=m_ui->protocolEdit->text();
+
+		consistent = (login!=QString() && host!=QString() && protocol!=QString());
+	}
+	else if(index==2)
+	{
+		//Item
+		QString item=m_ui->itemEdit->text();
+
+		consistent = item!=QString();
+	}
+
+	//Enable/Disable the OK button
+	m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(consistent);
 }
 
-#include <stdio.h>
 void AddPWD::onOK()
 {
+	cancel=false;
+
 	QString default_string=tr("Replace me");
 
 	QString error_fill_field_caption=tr("PPassKeeper : Error");
@@ -186,7 +257,10 @@ void AddPWD::onOK()
 		QMessageBox::critical(this, tr("PPassKeeper : Error while adding ..."), error);
 	}
 	else
+	{
 		success=true;
+		_addedEntry=generateKey(entry);
+	}
 
 	ppk_data_free(data);
 	ppk_entry_free(entry);
@@ -194,15 +268,5 @@ void AddPWD::onOK()
 
 void AddPWD::onCancel()
 {
-
-}
-
-bool AddPWD::succeeded()
-{
-	return success;
-}
-
-bool AddPWD::cancelled()
-{
-	return cancel;
+	cancel=true;
 }

@@ -161,6 +161,27 @@ QModelIndex PasswordListModel::parent(const QModelIndex &index) const
 	return QModelIndex();
 }
 
+//TODO: Test this function !!
+QModelIndex PasswordListModel::find(const QString& name) const
+{
+	//is it an application entry ?
+	for(int i=0;i<v_app.size();i++)
+		if(v_app[i]==name)
+			return createIndex(i, 0, appId);
+
+	//is it a network entry ?
+	for(int i=0;i<v_net.size();i++)
+		if(v_net[i]==name)
+			return createIndex(i, 0, netId);
+
+	//is it an item entry ?
+	for(int i=0;i<v_item.size();i++)
+		if(v_item[i]==name)
+			return createIndex(i, 0, itemId);
+
+	return QModelIndex();
+}
+
 int PasswordListModel::rowCount(const QModelIndex &parent) const
 {
 	if (! parent.isValid())

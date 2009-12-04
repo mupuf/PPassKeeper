@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>260</height>
+    <height>285</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,7 +35,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Please select the password type you want to add :</string>
+      <string>Please select the entry type you want to add :</string>
      </property>
     </widget>
    </item>
@@ -148,7 +148,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="protocolLabel">
        <property name="text">
-        <string>Protocol (optional)</string>
+        <string>Protocol</string>
        </property>
       </widget>
      </item>

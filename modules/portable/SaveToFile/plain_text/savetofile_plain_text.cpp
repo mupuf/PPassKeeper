@@ -76,10 +76,15 @@ ppk_error writeFile(std::string filepath, std::string secret, unsigned int flags
 			if (rc == -1)
 				fprintf(stderr, "Chmod on '%s' failed, errno = %d\n", filepath.c_str(), errno);
 		#endif
+		
+		printf(" OK\n");
 
 		return PPK_OK;
 	}
 	else
+	{
+		printf(" NOK\n");
 		return PPK_ENTRY_UNAVAILABLE;
+	}
 }
 

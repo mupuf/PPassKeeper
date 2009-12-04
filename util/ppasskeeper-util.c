@@ -295,8 +295,6 @@ int main(int argc, char **argv)
 				}
 				ppk_module_free_entry_list(list);
 			}
-			else
-				return 2;
 		}
 		else
 			usage();

@@ -141,6 +141,8 @@ extern "C"
 
 	ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 	{
+		printf("Set: ");
+		
 		std::string data;
 		if (edata->type==ppk_blob)
 		{

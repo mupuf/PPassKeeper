@@ -374,7 +374,7 @@ ENDIF(PPK_TESTS)
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12)")
 	SET(DEBIAN_PACKAGE_RECOMMENDS "libqtgui4 (>=4.0.0-1)")
 	SET(DEBIAN_PACKAGE_SUGGESTS "gnome-keyring, kdebase-runtime (>=4:4.0.0-1), python")
-	SET(DEBIAN_PACKAGE_BUILDS_DEPENDS "cmake (>=2.6), gnome-keyring, kdebase-runtime (>=4:4.0.0-1), libqtgui4 (>=4.0.0-1), libboost1.40-dev")
+	SET(DEBIAN_PACKAGE_BUILDS_DEPENDS "cmake (>=2.6), gnome-keyring, kdebase-runtime (>=4:4.0.0-1), libqtgui4 (>=4.0.0-1)")
 
 	#RPM
 	SET(CPACK_RPM_PACKAGE_RELEASE "1")
@@ -431,7 +431,7 @@ MESSAGE("")
 MESSAGE("Bindings :")
 MESSAGE("	Python : ${PPK_PYTHON} (-DPPK_PYTHON=OFF to deactivate)")
 IF(PPK_PYTHON)
-  MESSAGE("    Destination directory: ${PYTHON_LIB_PATH}")
+    MESSAGE("	Destination directory: ${PYTHON_LIB_PATH}")
 ENDIF(PPK_PYTHON)
 MESSAGE("")
 

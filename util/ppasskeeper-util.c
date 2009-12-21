@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 
 		cvariant cv=ppk_module_get_param(module_id, key);
 		if(cvariant_get_type(cv)==cvariant_string)
-			printf(cvariant_get_string(cv));
+			printf("%s", cvariant_get_string(cv));
 		else if(cvariant_get_type(cv)==cvariant_int)
 			printf("%i",cvariant_get_int(cv));
 		else if(cvariant_get_type(cv)==cvariant_float)
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
 	else if (mode == 'D')
 	{
 		if (!module_id)
-			printf(ppk_module_get_default());
+			printf("%s", ppk_module_get_default());
 		else
 		{
 			if(ppk_module_set_default(module_id)==PPK_OK)

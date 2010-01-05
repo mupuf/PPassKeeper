@@ -147,6 +147,7 @@ IF(PPK_DEBUG)
   ADD_DEFINITIONS(-DDEBUG_MSG)
 ENDIF(PPK_DEBUG)
 
+#Tell PPK where to find the plugins
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
 SET(PPK_DIRECTORY_PATH ${CMAKE_INSTALL_PREFIX}/lib/ppasskeeper)
 ADD_DEFINITIONS(-DDIRECTORY_PATH="${PPK_DIRECTORY_PATH}")
@@ -388,7 +389,7 @@ ENDIF(PPK_TESTS)
 	SET(CPACK_NSIS_CONTACT "martin.peres@free.fr")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http://ppasskeeper.mupuf.org")
 
-	#Source
+	#Binary TGZ
 	SET(CPACK_PACKAGE_CONTACT "http://ppasskeeper.mupuf.org")
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Martin Peres<martin.peres at ensi-bourges.fr>")
 	#SET(CPACK_RESOURCE_FILE_WELCOME "")

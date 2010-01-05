@@ -16,7 +16,7 @@ const char* libraryError();
 void PPK_Modules::debug(std::string msg)
 {
 	#ifdef DEBUG_MSG
-		printf(msg.c_str());
+		printf("%s\n", msg.c_str());
 	#endif
 }
 

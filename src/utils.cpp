@@ -38,8 +38,14 @@ ppk_error grantAccess(const char* pwd="")
 	FILE* f=fopen((setting_dir()+"/lock").c_str(), "r");
 	if(f!=NULL)
 	{
-		fread(hash_file, sizeof(char), sizeof(hash_file),f);
+		int ret=fread(hash_file, sizeof(char), sizeof(hash_file),f);
 		fclose(f);
+
+		if(ret<=0)
+		{
+			cState()=unlocked;
+			return PPK_OK;
+		}
 
 		sha512(hash_pwd, pwd, strlen(pwd));
 

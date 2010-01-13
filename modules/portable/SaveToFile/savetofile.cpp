@@ -141,17 +141,21 @@ extern "C"
 
 	ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 	{
-		printf("Set: ");
-		
 		std::string data;
 		if (edata->type==ppk_blob)
 		{
-			data.assign((const char *) edata->blob.data, edata->blob.size);
+			if(edata->blob.data!=NULL)
+				data.assign((const char *) edata->blob.data, edata->blob.size);
+			else
+				data="";
 			data=BLOB_STRING+data;
 		}
 		else if(edata->type==ppk_string)
 		{
-			data.assign(edata->string);
+			if(edata->string!=NULL)
+				data.assign(edata->string);
+			else
+				data = "";
 			data=STR_STRING+data;
 		}
 		else

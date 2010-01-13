@@ -296,6 +296,10 @@ IF(PPK_UTIL_QT)
 	"util/qt/form_fields/*.h"
 	"util/qt/form_fields/*.cpp"
       )
+  FILE(GLOB ppasskeeper-qt_ICONS RELATIVE ${CMAKE_SOURCE_DIR}
+	"icons/ppk_logo_mini*"
+      )
+
   SET(ppasskeeper-qt_MOCS addpwd.h mainwindow.h passwordlistmodel.h infomodule.h editparams.h form_fields/qabstractformfield.h form_fields/qdoublespinfield.h form_fields/qspinfield.h form_fields/qtextfield.h)
   SET(ppasskeeper-qt_UIS addpwd.ui mainwindow.ui infomodule.ui editparams.ui)
   SET(ppasskeeper-qt_RCC "util/qt/ressources.qrc")
@@ -311,6 +315,7 @@ IF(PPK_UTIL_QT)
   TARGET_LINK_LIBRARIES(ppasskeeper-qt ${QT_LIBRARIES} ppasskeeper)
   INSTALL(TARGETS ppasskeeper-qt DESTINATION bin)
   INSTALL(FILES "${CMAKE_SOURCE_DIR}/util/qt/ppasskeeper-qt.desktop" DESTINATION share/applications)
+  INSTALL(FILES ${ppasskeeper-qt_ICONS} DESTINATION share/pixmaps)
 ENDIF(PPK_UTIL_QT)
 
 # Python binding

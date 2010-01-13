@@ -86,13 +86,11 @@ void run(int argc, char** argv)
 		ppk_entry* entry = entries[i];
 
 		/* Write */
-		printf("Set entry !\n");
 		ppk_error res=ppk_module_set_entry(module_id, entry, data, ppk_wf_none);
 		ASSERT(writable == PPK_TRUE && res == PPK_OK);
 		if(res == PPK_OK)
 		{
 			/* Read */
-			printf("read\n");
 			ppk_data* edata;
 			res=ppk_module_get_entry(module_id, entry, &edata, ppk_rf_none);
 			ASSERT(res == PPK_OK);
@@ -100,11 +98,9 @@ void run(int argc, char** argv)
 				continue;
 
 			/* Delete */
-			printf("delete\n");
 			res=ppk_module_remove_entry(module_id, entry, ppk_rf_none);
 			ASSERT(writable == PPK_TRUE && res == PPK_OK);
 
-			printf("Test la correspondance\n");
 			bool valid_type = edata->type == ppk_blob;
 			ASSERT(valid_type);
 			if (valid_type)

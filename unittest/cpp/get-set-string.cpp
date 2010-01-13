@@ -29,6 +29,12 @@ void delete_all()
 
 void run(int argc, char** argv)
 {
+	if(argc!=2)
+	{
+		printf("Usage:\n	%s module\n", argv[0]);
+		return;
+	}
+	
 	char *module_id = argv[1];
 
 	app_entry=ppk_application_entry_new("test","utstblob_write_string");

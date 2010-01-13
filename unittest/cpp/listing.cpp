@@ -84,6 +84,12 @@ void list_all()
 
 void run(int argc, char** argv)
 {
+	if(argc!=2)
+	{
+		printf("Usage:\n	%s module\n", argv[0]);
+		return;
+	}
+	
 	module_id = argv[1];
 	
 	//If the module doesn't support writing/listing

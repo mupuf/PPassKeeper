@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="ressources.qrc">
-    <normaloff>:/images/icons/logo_ppk_mini_48.png</normaloff>:/images/icons/logo_ppk_mini_48.png</iconset>
+    <normaloff>:/images/icons/ppk_logo_mini_48.png</normaloff>:/images/icons/ppk_logo_mini_48.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">

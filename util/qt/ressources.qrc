@@ -6,6 +6,6 @@
         <file>icons/list-remove.png</file>
         <file>icons/preferences-system.png</file>
         <file>icons/list-add.png</file>
-        <file>icons/logo_ppk_mini_48.png</file>
+        <file>icons/ppk_logo_mini_48.png</file>
     </qresource>
 </RCC>

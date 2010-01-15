@@ -393,13 +393,6 @@ ENDIF(PPK_TESTS)
 	SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v2+")
 	SET(CPACK_RPM_PACKAGE_REQUIRES "qt >= 4.0")
 
-
-	#BUNDLE (Mac OS X)
-	SET(CPACK_BUNDLE_NAME "PPassKeeper")
-	SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/icons/ppk_logo_mini_48.png")
-	SET(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/icons/ppk_logo_mini_48.png")
-	SET(CPACK_BUNDLE_PLIST "Info.plist")
-
 	#Binary TGZ
 	SET(CPACK_PACKAGE_CONTACT "http://ppasskeeper.mupuf.org")
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Martin Peres<martin.peres at ensi-bourges.fr>")

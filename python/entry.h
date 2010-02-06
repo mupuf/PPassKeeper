@@ -40,8 +40,12 @@ struct Entry
 	std::string to_key() const
 	{
 		size_t len = ppk_key_length(m_entry);
-		char buf[len];
-		return (ppk_get_key(m_entry, buf, len) == PPK_TRUE) ? buf : std::string();
+		
+		char* buf=new char[len];
+		std::string ret=(ppk_get_key(m_entry, buf, len) == PPK_TRUE) ? buf : std::string();
+		delete[] buf;
+		
+		return ret;
 	}
 	ppk_entry* m_entry;
 };

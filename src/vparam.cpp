@@ -146,7 +146,7 @@ class VParamImpl
 			cursor_t cursor = ckdb::ksGetCursor (myConfig);
 			ckdb::ksRewind (myConfig);
 			while ((current = ckdb::ksNext (myConfig)) != 0)
-				list.push_back((const char*)keyBaseName(current));
+				list.push_back((const char*)ckdb::keyBaseName(current));
 			ckdb::ksSetCursor(myConfig, cursor);
 		}
 

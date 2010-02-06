@@ -301,22 +301,48 @@ extern "C"
 			return cvariant_null();
 	}
 
-	size_t ppk_module_list_params(const char* module_id, const char*** list, size_t maxEntries)
+	size_t ppk_module_list_params(const char* module_id, char*** list)
 	{
 		if(!ppk_is_locked())
 		{
 			VParam& param = VParam::instance();
 			static std::vector<std::string> vlist;
 			vlist = param.listParams(module_id);
+			
+			char** l=*list;
 
+			l=new char*[vlist.size()+1];
+			
 			int i;
-			for(i=0;i<maxEntries && i<vlist.size();i++)
-				(*list)[i]=vlist[i].c_str();
+			for(i=0;i<vlist.size();i++)
+			{
+				l[i]=new char[vlist[i].size()];
+				strcpy(l[i], vlist[i].c_str());
+			}
+			
+			l[vlist.size()+1]=NULL;
 
 			return i;
 		}
 		else
 			return 0;
+	}
+
+	void ppk_module_free_params_list(char** list)
+	{
+		if(list==NULL)
+			return;
+		
+		int i=0;
+		char* l;
+		do
+		{
+			l=list[i];
+			if(l!=NULL)
+				delete l;
+		}while(l!=NULL);
+		
+		delete list;
 	}
 
 	ppk_error ppk_module_remove_param(const char* module_id, const char* key)
@@ -396,5 +422,40 @@ extern "C"
 		}
 		else
 			return PPK_LOCKED_NO_ACCESS;
+	}
+	
+	ppk_error ppk_module_empty(const char* module)
+	{
+		ppk_error globalRes=PPK_OK;
+
+		//Free all the entries
+		ppk_entry **entryList;
+        size_t nbEntries;
+    
+		ppk_error res=ppk_module_get_entry_list(module, ppk_network|ppk_application|ppk_item, &entryList, &nbEntries, ppk_rf_none);
+        if(res!=PPK_OK)
+			return res;
+		
+        for(int i=0; i<nbEntries; i++)
+		{
+			res=ppk_module_remove_entry(module, entryList[i], ppk_rf_none);
+			if(res!=PPK_OK && globalRes==PPK_OK)
+				globalRes=res;
+		}
+            
+		ppk_module_free_entry_list(entryList);
+		
+		//Remove all the parameters
+		char** list;
+		size_t nbParameters=ppk_module_list_params(module, &list);
+		
+		for(int i=0;i<nbParameters; i++)
+		{
+			res=ppk_module_remove_param(module, list[i]);
+			if(res!=PPK_OK && globalRes==PPK_OK)
+				globalRes=res;
+		}
+		
+		return globalRes;
 	}
 }

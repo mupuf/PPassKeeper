@@ -3,6 +3,7 @@
 
 #include "ppk_modules.h"
 #include "vparam.h"
+#include "import-export.h"
 
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"
@@ -203,6 +204,9 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
+			if(entry==NULL || edata==NULL)
+				return PPK_INVALID_ARGUMENTS;
+				
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
 				return mod->getEntry(entry, edata, flags);
@@ -217,6 +221,9 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
+			if(entry==NULL || edata==NULL)
+				return PPK_INVALID_ARGUMENTS;
+				
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
 				return mod->setEntry(entry, edata, flags);
@@ -424,7 +431,25 @@ extern "C"
 			return PPK_LOCKED_NO_ACCESS;
 	}
 	
-	ppk_error ppk_module_empty(const char* module)
+	ppk_error ppk_module_reset_params(const char* module_id)
+	{
+		ppk_error globalRes=PPK_OK;
+		
+		//Remove all the parameters
+		char** list;
+		size_t nbParameters=ppk_module_list_params(module_id, &list);
+		
+		for(int i=0;i<nbParameters; i++)
+		{
+			ppk_error res=ppk_module_remove_param(module_id, list[i]);
+			if(res!=PPK_OK && globalRes==PPK_OK)
+				globalRes=res;
+		}
+		
+		return globalRes;
+	} 
+	
+	ppk_error ppk_module_empty(const char* module_id)
 	{
 		ppk_error globalRes=PPK_OK;
 
@@ -432,30 +457,31 @@ extern "C"
 		ppk_entry **entryList;
         size_t nbEntries;
     
-		ppk_error res=ppk_module_get_entry_list(module, ppk_network|ppk_application|ppk_item, &entryList, &nbEntries, ppk_rf_none);
+		ppk_error res=ppk_module_get_entry_list(module_id, ppk_network|ppk_application|ppk_item, &entryList, &nbEntries, ppk_rf_none);
         if(res!=PPK_OK)
 			return res;
 		
         for(int i=0; i<nbEntries; i++)
 		{
-			res=ppk_module_remove_entry(module, entryList[i], ppk_rf_none);
+			res=ppk_module_remove_entry(module_id, entryList[i], ppk_rf_none);
 			if(res!=PPK_OK && globalRes==PPK_OK)
 				globalRes=res;
 		}
             
 		ppk_module_free_entry_list(entryList);
-		
-		//Remove all the parameters
-		char** list;
-		size_t nbParameters=ppk_module_list_params(module, &list);
-		
-		for(int i=0;i<nbParameters; i++)
-		{
-			res=ppk_module_remove_param(module, list[i]);
-			if(res!=PPK_OK && globalRes==PPK_OK)
-				globalRes=res;
-		}
-		
+
 		return globalRes;
+	}
+	
+	ppk_error ppk_module_import(const char* module_id, const char* importFile)
+	{
+		ImportExport impExp;
+		
+		return impExp.importFromFileToModule(module_id, importFile);
+	}
+
+	ppk_error ppk_module_export(const char* module_id, const char* exportFile)
+	{
+		return ImportExport::dumpModuleToFile(module_id, exportFile);
 	}
 }

@@ -22,6 +22,7 @@ typedef enum
 	//General
 	PPK_OK = 0,
 	PPK_UNKNOWN_ERROR=1,
+	PPK_INVALID_ARGUMENTS=2,
 
 	//PPK
 	PPK_LOCKED_NO_ACCESS=100,

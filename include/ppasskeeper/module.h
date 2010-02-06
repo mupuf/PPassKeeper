@@ -211,12 +211,26 @@ extern "C"
 	* \param customMessage Message to be used
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_afp_set_custom_prompt_message(const char* module_id, const char* customMessage);
-
-	ppk_error ppk_module_empty(const char* module);
+	
+	/*! \brief Reset all the parameters concerning a module
+	* \param module_id Module's ID.
+	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
+	ppk_error ppk_module_reset_params(const char* module_id);
+	
+	/*! \brief Clear every entry in a module
+	* \param module_id Module's ID.
+	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
+	ppk_error ppk_module_empty(const char* module_id);
     
-	ppk_error ppk_module_import(const char* module, const char* importFile);
+    /*! \brief Import entries from a dump file to a particular module
+	* \param module_id Module's ID.
+	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
+	ppk_error ppk_module_import(const char* module_id, const char* importFile);
 
-	ppk_error ppk_module_export(const char* module, const char* exportFile);
+	/*! \brief Export entries of a module to a dump file
+	* \param module_id Module's ID.
+	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
+	ppk_error ppk_module_export(const char* module_id, const char* exportFile);
 #ifdef __cplusplus
 }
 #endif

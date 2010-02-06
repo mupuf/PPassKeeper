@@ -38,7 +38,7 @@ typedef struct
 		///Basic text (UTF8)
 		const char *string;
 		///Binary value
-		ppk_data_blob blob;
+		const ppk_data_blob blob;
 	};
 } ppk_data;
 
@@ -57,6 +57,21 @@ extern "C"
 	* \param size The blob size.
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_blob_data_new(const void* data, size_t size);
+	
+	/*! \brief Get the type of a data entry
+	* \param data The ppk_data to get the type from.
+	* \return  Return the ppk_data_type of data*/
+	ppk_data_type ppk_get_data_type(const ppk_data* data);
+	
+	/*! \brief Get a string from the a data entry
+	* \param data The ppk_data to get the string from.
+	* \return  Return a string if data is a string, NULL otherwise*/
+	const char* ppk_get_data_string(const ppk_data* data);
+	
+	/*! \brief Get a blob from the a data entry
+	* \param data The ppk_data to get the blob from.
+	* \return  Return a blob if data is a blob, NULL otherwise*/
+	const ppk_data_blob* ppk_get_data_blob(const ppk_data* data);
 
 	/*! \brief Frees a ppk_data.
 	* \param data The ppk_data to be freed.*/

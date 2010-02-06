@@ -1,11 +1,13 @@
 #include "mainwindow.h"
-#include <QMessageBox>
 #include <iostream>
-#include <QInputDialog>
 #include <sstream>
-#include <ppasskeeper.h>
 #include <stdio.h>
+#include <ppasskeeper.h>
+
+#include <QMessageBox>
+#include <QInputDialog>
 #include <QFileDialog>
+#include <QDate>
 
 #include "addpwd.h"
 #include "infomodule.h"
@@ -364,12 +366,49 @@ void MainWindow::onDelButtonClicked()
 
 void MainWindow::onImportButtonClicked()
 {
-	showInfoMessageUnderDevelopment();
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                 QString::fromUtf8(""),
+                                                 tr("PPassKeeper dump file (*.xml)"));
+       
+    if(fileName!=QString())
+    {                                          
+		ppk_error res=ppk_module_import(m_module, qPrintable(fileName));
+		if(res==PPK_OK)
+		{
+			int before=pwdlistModel->rowCount();
+			listCurrentModule();
+			int count=pwdlistModel->rowCount()-before;
+			
+			QString msg=tr("%1 entries have been imported in the module %2").arg(count).arg(QString::fromUtf8(m_module));
+			QMessageBox::information(this, tr("PPassKeeper: Importation success"), msg);
+		}
+		else
+		{
+			QString error_msg=tr("Import error: An error occured while importing the entries.\n\n%1");
+			error_msg=error_msg.arg(QString::fromUtf8(ppk_error_get_string(res)));
+			
+			QMessageBox::critical(this, tr("PPassKeeper: Import error"), error_msg);
+		}
+	}
 }
 
 void MainWindow::onExportButtonClicked()
 {
-	showInfoMessageUnderDevelopment();
+	QString fileName=tr("dump_%1_%2.xml").arg(QString::fromUtf8(m_module), QDate::currentDate().toString(Qt::ISODate));
+	QString filePath = QFileDialog::getSaveFileName(this, tr("Save File"),
+                       fileName,
+                       tr("PPassKeeper dump file (*.xml)"));
+    if(filePath!=QString())
+	{
+		ppk_error res=ppk_module_export(m_module, qPrintable(filePath));
+		if(res!=PPK_OK)
+		{
+			QString error_msg=tr("Export error: An error occured while exporting the entries.\n\n%1");
+			error_msg=error_msg.arg(QString::fromUtf8(ppk_error_get_string(res)));
+			
+			QMessageBox::critical(this, tr("PPassKeeper: Export error"), error_msg);
+		}
+	}
 }
 
 void MainWindow::onInfoModuleButtonClicked()

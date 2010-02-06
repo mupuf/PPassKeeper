@@ -141,6 +141,9 @@ extern "C"
 			case PPK_UNSUPPORTED_METHOD:
 				msg="Unsupported method";
 				break;
+			case PPK_INVALID_ARGUMENTS:
+				msg="Invalid arguments";
+				break;
 			case PPK_LOCKED_NO_ACCESS:
 				msg="PPassKeeper is locked, access denied";
 				break;

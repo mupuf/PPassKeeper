@@ -13,15 +13,17 @@ char *module_id = NULL, *key = NULL, *password = NULL, *ppk_password = NULL, *fi
 void usage()
 {
 	printf("Usage:\n"
-			"ppasskeeper -L [-u <ppk_pwd>]                                       #List modules\n"
-			"ppasskeeper -G -m <module> -k <key> [-f file -u <ppk_pwd>]          #Get an entry\n"
-			"ppasskeeper -G -m <module> -l ani [-u <ppk_pwd>]                    #Lists entries\n"
-			"ppasskeeper -S -m <module> -k <key> [-f file -p <pwd> -u <ppk_pwd>] #Set an entry\n"
-			"ppasskeeper -E -m <module> -k <key> [-u <ppk_pwd>]                  #Erase an entry\n"
-			"ppasskeeper -R -m <module> -k <key> [-u <ppk_password>]             #Read a parameter\n"
-			"ppasskeeper -W -m <module> -k <key> -p <value> [-u <ppk_pwd>]       #Write a parameter\n"
-			"ppasskeeper -I -m <module> [-u <ppk_pwd>]                           #Module information\n"
-			"ppasskeeper -D [-m <module> -u <ppk_pwd>]                           #G/S default module\n"
+			"ppasskeeper -L [-u <ppk_pwd>]                                         #List modules\n"
+			"ppasskeeper -G -m <module> -k <key> [-f <file> -u <ppk_pwd>]          #Get an entry\n"
+			"ppasskeeper -G -m <module> -l ani [-u <ppk_pwd>]                      #Lists entries\n"
+			"ppasskeeper -S -m <module> -k <key> [-f <file> -p <pwd> -u <ppk_pwd>] #Set an entry\n"
+			"ppasskeeper -E -m <module> -k <key> [-u <ppk_pwd>]                    #Erase an entry\n"
+			"ppasskeeper -R -m <module> -k <key> [-u <ppk_password>]               #Read a parameter\n"
+			"ppasskeeper -W -m <module> -k <key> -p <value> [-u <ppk_pwd>]         #Write a parameter\n"
+			"ppasskeeper -I -m <module> [-u <ppk_pwd>]                             #Module information\n"
+			"ppasskeeper -D [-m <module> -u <ppk_pwd>]                             #G/S default module\n"
+			"ppasskeeper -X -m <module> -f <file> [-u <ppk_pwd>]                   #Export entries\n"
+			"ppasskeeper -M -m <module> -f <file> [-u <ppk_pwd>]                   #Import entries\n"
 			"See ppasskeeper(1) for details.\n");
 	exit(1);
 }
@@ -65,6 +67,8 @@ void parse_cmdline(int argc, char **argv)
 			case 'I':
 			case 'D':
 			case 'E':
+			case 'X':
+			case 'M':
 				if (mode) usage();
 				mode = *flag;
 				break;
@@ -424,6 +428,41 @@ int main(int argc, char **argv)
 			fprintf(stderr, "An error occured while deleting the entry :\n	--> %s\n", ppk_error_get_string(ret));
 		
 		ppk_entry_free(entry);
+	}
+	else if (mode == 'X')
+	{
+		if (!module_id || !file) usage();
+
+		ppk_error res=ppk_module_export(module_id, file);
+		if(res==PPK_OK)
+		{
+			int count=ppk_module_get_entry_count(module_id, ppk_application|ppk_network|ppk_item, ppk_lf_none);
+			
+			printf("%i %s have been exported from the module %s\n", count, count==1?"entry":"entries", module_id);
+		}
+		else
+		{
+			fprintf(stderr, "An error occured while exporting the entries :\n	--> %s\n", ppk_error_get_string(res));
+			return 1;
+		}
+	}
+	else if (mode == 'M')
+	{
+		if (!module_id || !file) usage();
+
+		int before=ppk_module_get_entry_count(module_id, ppk_application|ppk_network|ppk_item, ppk_lf_none);
+		ppk_error res=ppk_module_import(module_id, file);
+		if(res==PPK_OK)
+		{
+			int count=ppk_module_get_entry_count(module_id, ppk_application|ppk_network|ppk_item, ppk_lf_none)-before;
+			
+			printf("%i %s have been imported in the module %s\n", count, count==1?"entry":"entries", module_id);
+		}
+		else
+		{
+			fprintf(stderr, "An error occured while importing the entries :\n	--> %s\n", ppk_error_get_string(res));
+			return 1;
+		}
 	}
 	else
 	{

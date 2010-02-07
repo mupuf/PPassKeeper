@@ -371,11 +371,11 @@ void MainWindow::onImportButtonClicked()
                                                  tr("PPassKeeper dump file (*.xml)"));
        
     if(fileName!=QString())
-    {                                          
+    {    
+		int before=pwdlistModel->rowCount();
 		ppk_error res=ppk_module_import(m_module, qPrintable(fileName));
 		if(res==PPK_OK)
 		{
-			int before=pwdlistModel->rowCount();
 			listCurrentModule();
 			int count=pwdlistModel->rowCount()-before;
 			

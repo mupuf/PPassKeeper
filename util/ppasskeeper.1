@@ -3,7 +3,7 @@
 .\" Denis Martinez: initial version (20080911)
 .\" Martin PERES: update to beta2 version (20090911)
 
-.TH ppasskeeper 1 "September 2009" "Portable Password Keeper" "A modular password manager"
+.TH ppasskeeper 1 "February 2010" "Portable Password Keeper" "A modular password manager"
 
 .SH NAME
 .P
@@ -28,6 +28,10 @@ ppasskeeper - password management utility
 \fBppasskeeper\fR -I -m MODULE [-u PPK_PASSWORD]
 .br
 \fBppasskeeper\fR -D [-m MODULE -u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -X -m MODULE -f FILE [-u PPK_PASSWORD]
+.br
+\fBppasskeeper\fR -M -m MODULE -f FILE [-u PPK_PASSWORD]
 .br
 
 .SH DESCRIPTION
@@ -59,8 +63,14 @@ Get information about a module.
 .TP
 \fB-D\fR
 Get/set the default module.
+.TP
+\fB-X\fR
+Export entries from a particular module to a file.
+.TP
+\fB-M\fR
+Import entries from a file to a particular module.
 .P
-One of the actions \fB-L\fR, \fB-G\fR, \fB-S\fR, \fB-E\fR, \fB-R\fR, \fB-W\fR, \fB-I\fR, or \fB-D\fR must be specified on the command-line.
+One of the actions \fB-L\fR, \fB-G\fR, \fB-S\fR, \fB-E\fR, \fB-R\fR, \fB-W\fR, \fB-I\fR, \fB-D\fR, \fB-X\fR or \fB-M\fR must be specified on the command-line.
 
 .SS MODULES
 .P
@@ -151,6 +161,34 @@ Specifies from which module you would like the entry to be erased from.
 .TP
 \fB-k \fIKEY\fR
 The key you would like to erase.
+
+.SS IMPORT
+.P
+You can import entries from a file to a module by using the 'M' mode combined with the 'm' and the 'f' options.
+.P
+Parameters :
+.TP
+\fB-m \fIMODULE\fR
+Which module you want to get the entries to.
+.TP
+\fB-f \fFILE\fR
+The file you get the entries from.
+.TP
+That's all folk.
+
+.SS EXPORT
+.P
+You can export entries to a file from a module by using the 'X' mode combined with the 'm' and the 'f' options.
+.P
+Parameters :
+.TP
+\fB-m \fIMODULE\fR
+Which module you want to get the entries from.
+.TP
+\fB-f \fFILE\fR
+The file you set the entries to.
+.TP
+That's all folk.
 
 .SS PARAMETERS
 .P

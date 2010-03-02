@@ -1,5 +1,7 @@
 #include "passwordlistmodel.h"
 
+#include <QMessageBox>
+
 #include <ppasskeeper/key.h>
 
 static const quint32 appId = 0;
@@ -18,7 +20,6 @@ inline void PasswordListModel::freeEntries()
 	entry_count = 0;
 }
 
-#include <stdio.h>
 void PasswordListModel::updateFilter()
 {
 	v_app.clear();
@@ -246,7 +247,6 @@ QVariant PasswordListModel::headerData(int section, Qt::Orientation orientation,
 	return QVariant();
 }
 
-#include <QMessageBox>
 void PasswordListModel::setupModelData(const char* moduleId)
 {
 	freeEntries();

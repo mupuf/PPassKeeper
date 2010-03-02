@@ -5,6 +5,9 @@
 #include "vparam.h"
 #include "import-export.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #define LIBPPK_MODULE_NAME "libppasskeeper"
 #define LIBPPK_KEY_DEFAULT_MODULE "default_module"
 #define LIBPPK_AUTO_MODULE LIBPPK_DEFAULT_MODULE
@@ -159,8 +162,6 @@ extern "C"
 	}
 	
 	//Private
-	#include <stdlib.h>
-	#include <stdio.h>
 	static size_t returnEntryListCount(char** list, unsigned int entry_types)
 	{
 		size_t count = 0;
@@ -173,8 +174,6 @@ extern "C"
 				if(entry!=NULL)
 				{
 					ppk_entry_type type=entry->type;
-
-					printf("List count: item[%i]=%i\n", i, type);
 
 					if ((entry_types&ppk_network && type==ppk_network) ||
 						(entry_types&ppk_application && type==ppk_application) ||

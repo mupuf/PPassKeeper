@@ -1,4 +1,0 @@
-#define IDC_CANCEL 1000
-#define IDC_STATIC 1001
-#define IDE_PASS 1002
-

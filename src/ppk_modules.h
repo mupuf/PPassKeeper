@@ -22,7 +22,6 @@ class PPK_Modules
 		std::string autoModule();
 		void sendParameters(_module m);
 
-
 		void debug(std::string msg);
 
 	public:

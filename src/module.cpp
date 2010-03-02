@@ -157,6 +157,78 @@ extern "C"
 		else
 			return 0;
 	}
+	
+	//Private
+	#include <stdlib.h>
+	static size_t returnEntryListCount(char** list, unsigned int entry_types)
+	{
+		size_t count = 0;
+		if(list!=NULL)
+		{
+			int i=0;
+			while(list[i]!=NULL)
+			{
+				ppk_entry* entry=ppk_entry_new_from_key(list[i]);
+				ppk_entry_type type=entry->type;
+				ppk_entry_free(entry);
+				
+				if ((entry_types&ppk_network && type==ppk_network) ||
+					(entry_types&ppk_application && type==ppk_application) ||
+					(entry_types&ppk_item && type==ppk_item))
+					count++;
+
+				free(list[i]);
+				i++;
+			}
+
+			free(list);
+		}
+
+		return count;
+	}
+
+	static ppk_error returnEntryList(char** list, unsigned int entry_types, ppk_entry*** entryList, size_t* p_count)
+	{
+		ppk_entry* entry;
+		std::vector<ppk_entry*> entries;
+		size_t count = 0;
+		
+		//List the entries and put it into the entries's vector
+		if(list != NULL)
+		{
+			//Parse the whole list
+			for (char** _list = list; *_list != NULL; ++_list)
+			{
+				ppk_entry* entry=ppk_entry_new_from_key(*_list);
+				ppk_entry_type type=entry->type;
+				ppk_entry_free(entry);
+				
+				if ((entry_types&ppk_network && type==ppk_network) ||
+					(entry_types&ppk_application && type==ppk_application) ||
+					(entry_types&ppk_item && type==ppk_item))
+				{
+					entries.push_back(entry);
+					count++;
+				}
+				
+				//Free the element
+				free(*_list);
+			}
+			
+			//Free the list
+			free(list);
+		}
+
+		//Copy entries to entryList
+		*p_count = count;
+		*entryList = new ppk_entry*[count+1];
+		(*entryList)[count]=NULL;
+		for (int i = 0; i < entries.size(); ++i)
+			(*entryList)[i] = entries[i];
+		
+		return PPK_OK;
+	}
+	// End Private
 
 	size_t ppk_module_get_entry_count(const char* module_id, int entry_types, unsigned int flags)
 	{
@@ -164,7 +236,14 @@ extern "C"
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->getEntryListCount(entry_types, flags);
+			{
+				if(mod->getEntryListCount!=NULL)
+					return mod->getEntryListCount(entry_types, flags);
+				else if(mod->getSimpleEntryList!=NULL)
+					return returnEntryListCount(mod->getSimpleEntryList(flags), entry_types);
+				else
+					return 0;
+			}
 			else
 				return 0;
 		}
@@ -178,7 +257,14 @@ extern "C"
 		{
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod!=NULL)
-				return mod->getEntryList(entry_types, entryList, nbEntries, flags);
+			{
+				if(mod->getEntryList!=NULL)
+					return mod->getEntryList(entry_types, entryList, nbEntries, flags);
+				else if(mod->getSimpleEntryList!=NULL)
+					return returnEntryList(mod->getSimpleEntryList(flags), entry_types, entryList, nbEntries);
+				else
+					return PPK_UNSUPPORTED_METHOD;
+			}
 			else
 				return PPK_MODULE_UNAVAILABLE;
 		}

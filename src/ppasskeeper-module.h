@@ -69,17 +69,19 @@ extern "C"
 	*/
 	typedef ppk_security_level (*_securityLevel)();
 
-	
-	/*
-	Flags can be passed to the module
-	*/
-	typedef size_t (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
+	//LISTING
+		/*
+		Flags can be passed to the module
+		*/
+		typedef size_t (*_getEntryListCount)(unsigned int entry_types, unsigned int flags);
 
-	/*
-	
-	Flags can be passed to the module
-	*/
-	typedef ppk_error (*_getEntryList)(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags);
+		/*
+		
+		Flags can be passed to the module
+		*/
+		typedef ppk_error (*_getEntryList)(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags);
+	//OR
+		typedef char** (*_getSimpleEntryList)(unsigned int flags);
 
 	/****************************************************************************************************/
 	/****************************************************************************************************/
@@ -133,6 +135,7 @@ extern "C"
 		_securityLevel securityLevel;
 		_getEntryListCount getEntryListCount;
 		_getEntryList getEntryList;
+		_getSimpleEntryList getSimpleEntryList;
 		
 		//Optionnal
 		_setCustomPromptMessage setCustomPromptMessage;

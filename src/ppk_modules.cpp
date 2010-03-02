@@ -134,7 +134,6 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			tm.listingFlagsAvailable=(_listingFlagsAvailable)loadSymbol(dlhandle, "listingFlagsAvailable");
 
 			//
-			
 			tm.entryExists=(_entryExists)loadSymbol(dlhandle, "entryExists");
 			tm.maxDataSize=(_maxDataSize)loadSymbol(dlhandle, "maxDataSize");
 			tm.getEntry=(_getEntry)loadSymbol(dlhandle, "getEntry");
@@ -151,6 +150,7 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			tm.setCustomPromptMessage=(_setCustomPromptMessage)loadSymbol(dlhandle, "setCustomPromptMessage");
 			tm.constructor=(_constructor)loadSymbol(dlhandle, "constructor");
 			tm.destructor=(_destructor)loadSymbol(dlhandle, "destructor");
+			tm.getSimpleEntryList=(_getSimpleEntryList)loadSymbol(dlhandle, "getSimpleEntryList");
 			tm.availableParameters=(_availableParameters)loadSymbol(dlhandle, "availableParameters");
 			tm.setParam=(_setParam)loadSymbol(dlhandle, "setParam");
 
@@ -173,7 +173,14 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 		#endif
 			
 			//if minimal functions are here, add the lib to available modules
-			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL && tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL && tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL && tm.entryExists!=NULL && tm.maxDataSize!=NULL && tm.getEntry!=NULL && tm.setEntry!=NULL && tm.removeEntry!=NULL && tm.isWritable!=NULL && tm.securityLevel!=NULL && tm.getEntryListCount!=NULL && tm.getEntryList!=NULL)
+			if(tm.getModuleID!=NULL && tm.getModuleName!=NULL 
+				&& tm.getABIVersion!=NULL && tm.readFlagsAvailable!=NULL 
+				&& tm.writeFlagsAvailable!=NULL && tm.listingFlagsAvailable!=NULL 
+				&& tm.entryExists!=NULL && tm.maxDataSize!=NULL 
+				&& tm.getEntry!=NULL && tm.setEntry!=NULL 
+				&& tm.removeEntry!=NULL && tm.isWritable!=NULL 
+				&& tm.securityLevel!=NULL 
+				&& ((tm.getEntryListCount!=NULL && tm.getEntryList!=NULL) || tm.getSimpleEntryList!=NULL))
 			{
 				//Get the ID of the library
 				tm.id=tm.getModuleID();

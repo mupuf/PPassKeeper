@@ -139,7 +139,7 @@ ppk_error setNetworkPassword(const char* host, const char* login, unsigned short
 {
 	GnomeKeyringResult res=-100;
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName)-1, "net://%s://%s@%s:%i", protocol, login, host, port);
+	snprintf(displayName, sizeof(displayName)-1, "%s://%s@%s:%i", protocol, login, host, port);
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{
@@ -180,7 +180,7 @@ ppk_error getNetworkPassword(const char* host, const char* login, unsigned short
 ppk_error setApplicationPassword(const char* appName, const char* user, const ppk_data* edata, unsigned int flags)
 {
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName), "app://%s@%s", user, appName);
+	snprintf(displayName, sizeof(displayName), "%s@%s", user, appName);
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{
@@ -217,7 +217,7 @@ ppk_error getApplicationPassword(const char* appName, const char* user, ppk_data
 ppk_error setItem(const char* item, const ppk_data* edata, unsigned int flags)
 {
 	char displayName[101];
-	snprintf(displayName, sizeof(displayName), "itm://%s", item);
+	snprintf(displayName, sizeof(displayName), "%s", item);
 	
 	if(openKeyring(flags)==PPK_TRUE)
 	{

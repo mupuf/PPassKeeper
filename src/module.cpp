@@ -160,6 +160,7 @@ extern "C"
 	
 	//Private
 	#include <stdlib.h>
+	#include <stdio.h>
 	static size_t returnEntryListCount(char** list, unsigned int entry_types)
 	{
 		size_t count = 0;
@@ -169,13 +170,17 @@ extern "C"
 			while(list[i]!=NULL)
 			{
 				ppk_entry* entry=ppk_entry_new_from_key(list[i]);
-				ppk_entry_type type=entry->type;
-				ppk_entry_free(entry);
-				
-				if ((entry_types&ppk_network && type==ppk_network) ||
-					(entry_types&ppk_application && type==ppk_application) ||
-					(entry_types&ppk_item && type==ppk_item))
-					count++;
+				if(entry!=NULL)
+				{
+					ppk_entry_type type=entry->type;
+
+					printf("List count: item[%i]=%i\n", i, type);
+
+					if ((entry_types&ppk_network && type==ppk_network) ||
+						(entry_types&ppk_application && type==ppk_application) ||
+						(entry_types&ppk_item && type==ppk_item))
+						count++;
+				}
 
 				free(list[i]);
 				i++;
@@ -200,15 +205,17 @@ extern "C"
 			for (char** _list = list; *_list != NULL; ++_list)
 			{
 				ppk_entry* entry=ppk_entry_new_from_key(*_list);
-				ppk_entry_type type=entry->type;
-				ppk_entry_free(entry);
-				
-				if ((entry_types&ppk_network && type==ppk_network) ||
-					(entry_types&ppk_application && type==ppk_application) ||
-					(entry_types&ppk_item && type==ppk_item))
+				if(entry!=NULL)
 				{
-					entries.push_back(entry);
-					count++;
+					ppk_entry_type type=entry->type;
+
+					if ((entry_types&ppk_network && type==ppk_network) ||
+						(entry_types&ppk_application && type==ppk_application) ||
+						(entry_types&ppk_item && type==ppk_item))
+					{
+						entries.push_back(entry);
+						count++;
+					}
 				}
 				
 				//Free the element

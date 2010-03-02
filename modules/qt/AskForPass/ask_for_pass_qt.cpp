@@ -168,12 +168,14 @@ extern "C" const ppk_proto_param** availableParameters()
 	static ppk_proto_param img_app;
 	img_app.expected_type=cvariant_string;
 	img_app.name=PARAM_IMG_APP;
+	img_app.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
 	img_app.help_text="The image you would like to be displayed when you're ask to enter a application password";
 	img_app.default_value=cvariant_from_string("");
 	img_app.group=&ppk_settings_display;
 
 	static ppk_proto_param img_net;
 	img_net.expected_type=cvariant_string;
+	img_net.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
 	img_net.name=PARAM_IMG_NET;
 	img_net.help_text="The image you would like to be displayed when you're ask to enter a network password";
 	img_net.default_value=cvariant_from_string("");
@@ -181,6 +183,7 @@ extern "C" const ppk_proto_param** availableParameters()
 
 	static ppk_proto_param img_item;
 	img_item.expected_type=cvariant_string;
+	img_item.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
 	img_item.name=PARAM_IMG_ITEM;
 	img_item.help_text="The image you would like to be displayed when you're ask to enter an item's value";
 	img_item.default_value=cvariant_from_string("");

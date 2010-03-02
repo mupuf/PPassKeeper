@@ -32,6 +32,7 @@ public:
 	virtual QString helpText();
 	void* userData();
 
+	virtual QLayout* layout();
 	virtual QWidget* widget()=0;
 	virtual bool setWidget(QWidget* widget);
 

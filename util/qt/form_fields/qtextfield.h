@@ -7,17 +7,18 @@
 class QTextField : public QAbstractFormField
 {
 	Q_OBJECT
-private:
+
+protected:
 	QLineEdit* edit;
 
 public:
 	QTextField(QWidget* parent=NULL, int maxLength=1000);
 
-	void setValue(QVariant value);
+	virtual void setValue(QVariant value);
 
-	QVariant value();
+	virtual QVariant value();
 
-	QWidget* widget();
+	virtual QWidget* widget();
 
 private slots:
 	void onValueUpdated(QString newInput);

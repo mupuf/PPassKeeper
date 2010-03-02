@@ -41,7 +41,7 @@ void EditParams::setModule(const char* module)
 	if(list)
 	{
 		int i=0;
-		while(list[i]!=NULL)
+		while(list[i]!=NULL && list[i]->group!=NULL)
 		{
 			if(!categories.contains(QString::fromUtf8(list[i]->group->display_name)))
 				addCategory(catTab, list[i]->group);
@@ -120,6 +120,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 }
 
 #include "form_fields/qtextfield.h"
+#include "form_fields/qfilefield.h"
 #include "form_fields/qspinfield.h"
 #include "form_fields/qdoublespinfield.h"
 
@@ -145,7 +146,11 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 			else
 				value=default_value;
 
-			QTextField* lineEdit = new QTextField(parent);
+			QTextField* lineEdit;
+			if(pparam->file_filter!=NULL)
+				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_filter));
+			else
+				lineEdit = new QTextField(parent);
 			lineEdit->setDefaultValue(default_value);
 			lineEdit->setValue(value);
 			return (QAbstractFormField*)lineEdit;
@@ -204,10 +209,17 @@ void EditParams::addParam(QWidget* parent, QGridLayout* layout, const ppk_proto_
 		QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 		sizePolicy.setHorizontalStretch(0);
 		sizePolicy.setVerticalStretch(0);
-		sizePolicy.setHeightForWidth(field->widget()->sizePolicy().hasHeightForWidth());
 		field->widget()->setSizePolicy(sizePolicy);
 		field->widget()->setToolTip(QString::fromUtf8(pparam->help_text));
-		layout->addWidget(field->widget(), line, 1, 1, 1);
+		if(field->layout()!=NULL)
+		{
+			layout->addLayout(field->layout(), line, 1, 1, 1);
+		}
+		else
+		{
+			sizePolicy.setHeightForWidth(field->widget()->sizePolicy().hasHeightForWidth());
+			layout->addWidget(field->widget(), line, 1, 1, 1);
+		}
 
 		QLabel* nameParamLbl = new QLabel(createNameString(pparam), parent);
 		nameParamLbl->setToolTip(QString::fromUtf8(pparam->help_text));

@@ -34,6 +34,13 @@ typedef struct
 {
 	///The expected type of the final parameter
 	cvariant_type expected_type;
+	/*!File filter: 
+		if expected_type==string and file_filter!=NULL, then the param will
+		be treated as a file request.
+		set file_filter to "directory" if you want to get a directory
+		Syntax: "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml);;All files (*.*)"
+	*/
+	const char* file_filter;
 	///Name of the parameter
 	const char* name;
 	///Contextual help of the parameter

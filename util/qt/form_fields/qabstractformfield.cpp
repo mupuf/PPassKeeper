@@ -60,6 +60,11 @@ void QAbstractFormField::showHelpText()
 }
 
 //Virtual functions, do nothing
+QLayout* QAbstractFormField::layout()
+{
+	return NULL;
+}
+
 bool QAbstractFormField::setWidget(QWidget* /*widget*/)
 {
 	return true;

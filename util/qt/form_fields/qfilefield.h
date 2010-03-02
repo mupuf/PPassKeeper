@@ -20,7 +20,7 @@ public:
 	virtual QLayout* layout();
 
 private slots:
-	void onPushButtonPressed();
+	virtual void onPushButtonPressed();
 };
 
 #endif // QFILEFIELD_H

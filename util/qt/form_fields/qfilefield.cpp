@@ -28,7 +28,7 @@ QLayout* QFileField::layout()
 void QFileField::onPushButtonPressed()
 {
 	QString dir;
-	QString res=QFileDialog::getOpenFileName(widget(), QString::fromUtf8("Open a file"), dir, filter);
+	QString res=QFileDialog::getOpenFileName(widget(), QString::fromUtf8("Please select a file ..."), dir, filter);
 	if(res!=QString())
 		setValue(res);
 }

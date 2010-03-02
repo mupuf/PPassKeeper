@@ -121,6 +121,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 
 #include "form_fields/qtextfield.h"
 #include "form_fields/qfilefield.h"
+#include "form_fields/qdirfield.h"
 #include "form_fields/qspinfield.h"
 #include "form_fields/qdoublespinfield.h"
 
@@ -148,7 +149,10 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 
 			QTextField* lineEdit;
 			if(pparam->file_filter!=NULL)
-				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_filter));
+				if(QString::fromUtf8(pparam->file_filter)==QString::fromUtf8("directory"))
+					lineEdit = new QDirField(parent, 1000);
+				else
+					lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_filter));
 			else
 				lineEdit = new QTextField(parent);
 			lineEdit->setDefaultValue(default_value);

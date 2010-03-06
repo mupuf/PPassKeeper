@@ -309,9 +309,7 @@ private:
 		qlabel.append(QString::fromAscii("</b>"));
 
 		QPixmap pixmap;
-		if(icon!=QString() && pixmap.load(icon))
-		{}
-		else
+		if(icon==QString() || !pixmap.load(icon))
 			pixmap=qApp->style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(32, 32);
 
 		QHBoxLayout *hlayout = new QHBoxLayout;

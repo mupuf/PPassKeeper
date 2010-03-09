@@ -215,6 +215,8 @@ extern "C"
 						entries.push_back(entry);
 						count++;
 					}
+
+					ppk_entry_free(entry);
 				}
 				
 				//Free the element

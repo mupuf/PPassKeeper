@@ -201,9 +201,9 @@ extern "C"
 		if(list != NULL)
 		{
 			//Parse the whole list
-			for (char** _list = list; *_list != NULL; ++_list)
+			for (int i=0; list[i]!=NULL; i++)
 			{
-				ppk_entry* entry=ppk_entry_new_from_key(*_list);
+				ppk_entry* entry=ppk_entry_new_from_key(list[i]);
 				if(entry!=NULL)
 				{
 					ppk_entry_type type=entry->type;
@@ -217,10 +217,12 @@ extern "C"
 					}
 
 					ppk_entry_free(entry);
+
+					//Free the element
+					printf("returnEntryList: free %i\n", list[i]);
+					printf("                 free %s\n", list[i]);
+					free(list[i]);
 				}
-				
-				//Free the element
-				free(*_list);
 			}
 			
 			//Free the list

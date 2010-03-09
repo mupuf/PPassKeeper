@@ -106,6 +106,105 @@ extern "C"
 
 		return key;
 	}
+	
+	#if defined(WIN32) || defined(WIN64)
+		#include <windows.h>
+		
+		static std::vector<std::string>& listEntries(const char* dir, unsigned int flags)
+		{
+			WIN32_FIND_DATA File;
+			HANDLE hSearch;
+			unsigned int pwdCount=0;
+			std::vector<std::string> entries;
+
+			std::string path;
+			char* tmp=getenv("HOMEDRIVE");
+			if(tmp!=NULL)
+			{
+				path=tmp;
+				tmp=getenv("HOMEPATH");
+				
+				if(tmp!=NULL)
+				{
+					path+=tmp;
+					
+					hSearch = FindFirstFile((path+"\\ppasskeeper\\*").c_str(), &File);
+					if (hSearch != INVALID_HANDLE_VALUE)
+					{
+						do {
+							entries.push_back(File.cFileName);
+						} while (FindNextFile(hSearch, &File));
+						
+						FindClose(hSearch);
+					}
+				}
+			}
+	#ifdef DEBUG_MSG
+			else
+				std::cerr << "Could not open pwd directory" << std::endl;
+	#endif
+	
+			return entries;
+		}
+	#else
+		#include <dlfcn.h>
+		#include <sys/types.h>
+		#include <dirent.h>
+		
+		static std::vector<std::string> listEntries(const char* dir, unsigned int flags)
+		{
+			std::vector<std::string> entries;
+			DIR * pwddir;
+			struct dirent* mydirent;
+
+			//Open Plugin's directory
+			pwddir = opendir(dir);
+			if(pwddir!=NULL)
+			{
+				while ((mydirent = readdir(pwddir))!=NULL)
+				{
+					entries.push_back(mydirent->d_name);
+					printf("Push %i=%s\n", entries.size(), entries[entries.size()-1].c_str());
+				}
+
+				closedir(pwddir);
+			}
+	#ifdef DEBUG_MSG
+			else
+				std::cerr << "Could not open password directory: " << dir << std::endl;
+	#endif
+			return entries;
+		}
+	#endif
+	
+	/*char** getSimpleEntryList(unsigned int flags)
+	{
+		std::vector<std::string> entries=listEntries(setting_dir().c_str(), flags);
+		printf("Il y a %i values !\n", entries.size());
+		
+		if(entries.size()==0)
+			return NULL;
+		else
+		{
+			//Copy to a list
+			char** ret=new char*[entries.size()+1];
+			if(ret!=NULL)
+			{
+				printf("ret=%i\n", ret);
+				for(int i=0; i<entries.size(); i++)
+				{
+					std::string val=entries.at(i);
+					printf("%i: var=%s\n", i, val.c_str());
+					ret[i]=new char[val.size()];
+					strcpy(ret[i], val.c_str());
+					printf("	ret[%i]=%s\n", i, ret[i]);
+				}
+				ret[entries.size()]=NULL;
+			}
+
+			return ret;
+		}
+	}*/
 
 	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
 	{

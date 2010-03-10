@@ -216,11 +216,7 @@ extern "C"
 						count++;
 					}
 
-					ppk_entry_free(entry);
-
 					//Free the element
-					//printf("returnEntryList: free %i\n", list[i]);
-					//printf("                 free %s\n", list[i]);
 					free(list[i]);
 				}
 			}

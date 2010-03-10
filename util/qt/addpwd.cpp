@@ -93,6 +93,7 @@ AddPWD::AddPWD(QWidget *parent) :
 	connect(m_ui->hostEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
 	connect(m_ui->loginEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
 	connect(m_ui->itemEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
+	connect(m_ui->protocolEdit, SIGNAL(textChanged(QString)), this, SLOT(checkConsistancy()));
 
 	connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(onOK()));
 

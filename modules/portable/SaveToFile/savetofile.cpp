@@ -15,21 +15,7 @@ std::string shortName();
 ppk_error readFile(std::string filename, std::string& filecontent, unsigned int flags);
 ppk_error writeFile(std::string filename, std::string secret, unsigned int flags);
 
-std::string generateNetworkPath(std::string protocol, std::string server, int port, std::string username)
-{
-	return setting_dir()+toString("/")+shortName()+"_NET_"+protocol+toString("||")+username+toString("@")+server+toString("%")+toString(port);
-}
-
-std::string generateApplicationPath(std::string application_name, std::string username)
-{
-	return setting_dir()+toString("/")+shortName()+"_APP_"+username+toString("@")+application_name;
-}
-
-std::string generateItemPath(std::string key)
-{
-	return setting_dir()+toString("/")+shortName()+"_ITM_"+key;
-}
-
+//private functions
 ppk_error deletePassword(std::string path, unsigned int flags)
 {
 	if(remove(path.c_str())==0)
@@ -48,6 +34,18 @@ ppk_boolean fileExists(std::string filepath)
 	}
 	else
 		return PPK_FALSE;
+}
+
+bool string_replace_first(std::string& str, const std::string to_replace, const std::string replaced_by)
+{
+	size_t found=str.find(to_replace);
+	if (found!=std::string::npos)
+	{
+		str=str.replace(found, to_replace.size(), replaced_by);
+		return true;
+	}
+	else
+		return false;
 }
 
 //functions
@@ -83,28 +81,31 @@ extern "C"
 
 	std::string getKey(const ppk_entry* entry)
 	{
-		std::string key;
-		
-		switch(entry->type)
-		{
-			case ppk_network:
-			{
-				key=generateNetworkPath(entry->net.protocol, entry->net.host, entry->net.port, entry->net.login);
-				break;
-			}
-			case ppk_application:
-			{
-				key=generateApplicationPath(entry->app.app_name, entry->app.username);
-				break;
-			}
-			case ppk_item:
-			{
-				key=generateItemPath(entry->item);
-				break;
-			}
-		}
+		size_t len=ppk_key_length(entry);
+		char* entry_cstr=new char[len+1];
 
-		return key;
+		if(ppk_get_key(entry, entry_cstr, len)==PPK_TRUE)
+		{
+			std::string entry_std=entry_cstr;
+			std::string type_s;
+			switch(ppk_get_entry_type(entry))
+			{
+			case ppk_application:
+				type_s="APP";
+				break;
+			case ppk_network:
+				type_s="NET";
+				string_replace_first(entry_std, "://", "¤");
+				break;
+			case ppk_item:
+				type_s="ITM";
+				break;
+			}
+
+			return setting_dir()+toString("/")+shortName()+"_"+type_s+"_"+entry_std;
+		}
+		else
+			return std::string();
 	}
 	
 	#if defined(WIN32) || defined(WIN64)
@@ -162,10 +163,7 @@ extern "C"
 			if(pwddir!=NULL)
 			{
 				while ((mydirent = readdir(pwddir))!=NULL)
-				{
 					entries.push_back(mydirent->d_name);
-					printf("Push %i=%s\n", entries.size(), entries[entries.size()-1].c_str());
-				}
 
 				closedir(pwddir);
 			}
@@ -177,44 +175,60 @@ extern "C"
 		}
 	#endif
 	
-	/*char** getSimpleEntryList(unsigned int flags)
+	char** getSimpleEntryList(unsigned int flags)
 	{
 		std::vector<std::string> entries=listEntries(setting_dir().c_str(), flags);
-		printf("Il y a %i values !\n", entries.size());
 		
 		if(entries.size()==0)
 			return NULL;
 		else
 		{
-			//Copy to a list
-			char** ret=new char*[entries.size()+1];
+			//Get the length of the prefix in order to compare it later to 
+			//the begining of the entry name
+			int lenPrefix=shortName().size();
+			
+			//Only keep entries of our own module (PT or ENC)
+			std::vector<std::string> filtered;
+			for(int i=0; i<entries.size(); i++)
+			{
+				std::string val=entries.at(i); //Pattern: PT_NET_http¤mupuf@mupuf.org:80
+				if(val.substr(0, lenPrefix)==shortName())
+				{
+					val=val.substr(lenPrefix+1); //Pattern: NET_http¤mupuf@mupuf.org:80
+					
+					size_t us_pos=val.find('_');
+					if(us_pos!=std::string::npos)
+					{
+						std::string type=val.substr(0, us_pos);	//Pattern: NET
+						val=val.substr(us_pos+1);	//Pattern: http¤mupuf@mupuf.org:80
+						
+						if(type=="APP" || type=="ITM" || type=="NET")
+						{
+							if(type=="NET")
+								string_replace_first(val, "¤", "://");	//Pattern: http://mupuf@mupuf.org:80
+							
+							filtered.push_back(val);
+						}
+					}
+				}
+			}
+
+			//Copy to a char** list
+			char** ret=new char*[filtered.size()+1];
 			if(ret!=NULL)
 			{
-				printf("ret=%i\n", ret);
-				for(int i=0; i<entries.size(); i++)
+				for(int i=0; i<filtered.size(); i++)
 				{
-					std::string val=entries.at(i);
-					printf("%i: var=%s\n", i, val.c_str());
+					std::string val=filtered.at(i);
+
 					ret[i]=new char[val.size()];
 					strcpy(ret[i], val.c_str());
-					printf("	ret[%i]=%s\n", i, ret[i]);
 				}
-				ret[entries.size()]=NULL;
+				ret[filtered.size()]=NULL;
 			}
 
 			return ret;
 		}
-	}*/
-
-	unsigned int getEntryListCount(unsigned int entry_types, unsigned int flags)
-	{
-		return ListPwd::getEntryListCount(setting_dir().c_str(), entry_types, flags);
-	}
-
-	ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags)
-	{
-		*entryList = ListPwd::getEntryList(setting_dir().c_str(), entry_types, nbEntries, flags);
-		return PPK_OK;
 	}
 
 	//Get and Set passwords

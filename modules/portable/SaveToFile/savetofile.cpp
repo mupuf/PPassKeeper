@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
-#include "list_pwd.h"
 #include "ppasskeeper-dir.h"
 
 #define STR_STRING "str :"

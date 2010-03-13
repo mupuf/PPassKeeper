@@ -277,9 +277,10 @@ class VParamImpl : public XMLSP::Parser
 				case cvariant_float:
 					type=FLOAT_TYPE;
 					break;
-				}
+					
 				case cvariant_none:
 					break;
+				}
 
 				os << " <entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" type=\"" <<  type << "\" value=\"" <<  iter->second.second << "\" />" << std::endl;
 			}

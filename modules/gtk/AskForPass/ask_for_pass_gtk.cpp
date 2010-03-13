@@ -91,7 +91,8 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 
 std::string str_replace(std::string pattern, std::string toReplace, std::string newText)
 {
-	int len = toReplace.size(),pos;
+	int len = toReplace.size();
+	unsigned int pos;
 	while((pos=pattern.find(toReplace)) != std::string::npos)
 	{
 		pattern.replace(pos, len, newText);

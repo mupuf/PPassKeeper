@@ -109,7 +109,7 @@ class VParamImpl
 			return result;
 		}
 
-		int size = ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, sizeof(returnedString)-1);
+		/*int size = */ckdb::kdbGetString(handle, elektraKeyName(module_id, key).c_str(), returnedString, sizeof(returnedString)-1);
 
 		if (ckdb::kdbClose(handle) != 0)
 			perror("kdbClose");
@@ -138,9 +138,6 @@ class VParamImpl
 
 		ckdb::KeySet *myConfig=ckdb::ksNew(0);
 		ckdb::KDB * handle=ckdb::kdbOpen();
-
-		int rc = 0;
-		int size = 0;
 
 		/* Get all value keys for this application */
 		if (ckdb::kdbGetByName(handle, myConfig, elektraKeyName(module_id,"").c_str(),  0) == -1)

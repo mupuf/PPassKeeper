@@ -34,6 +34,8 @@ std::ostream& operator<<(std::ostream& s, const Data& d)
 	case ppk_blob:
 		return s.write(static_cast<const char*>(d.m_data->blob.data), d.m_data->blob.size);
 	}
+	
+	return s;
 }
 
 #endif

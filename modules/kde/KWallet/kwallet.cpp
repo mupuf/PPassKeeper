@@ -36,6 +36,8 @@ bool init_kde_lazy()
 
 		initialized = true;
 	}
+	
+	return initialized;
 }
 
 extern "C" void constructor()

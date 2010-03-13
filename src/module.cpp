@@ -193,7 +193,6 @@ extern "C"
 
 	static ppk_error returnEntryList(char** list, unsigned int entry_types, ppk_entry*** entryList, size_t* p_count)
 	{
-		ppk_entry* entry;
 		std::vector<ppk_entry*> entries;
 		size_t count = 0;
 		

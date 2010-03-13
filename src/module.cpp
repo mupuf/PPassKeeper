@@ -228,7 +228,7 @@ extern "C"
 		*p_count = count;
 		*entryList = new ppk_entry*[count+1];
 		(*entryList)[count]=NULL;
-		for (int i = 0; i < entries.size(); ++i)
+		for (size_t i = 0; i < entries.size(); ++i)
 			(*entryList)[i] = entries[i];
 		
 		return PPK_OK;
@@ -411,7 +411,7 @@ extern "C"
 
 			l=new char*[vlist.size()+1];
 			
-			int i;
+			size_t i;
 			for(i=0;i<vlist.size();i++)
 			{
 				l[i]=new char[vlist[i].size()];
@@ -530,7 +530,7 @@ extern "C"
 		char** list;
 		size_t nbParameters=ppk_module_list_params(module_id, &list);
 		
-		for(int i=0;i<nbParameters; i++)
+		for(size_t i=0;i<nbParameters; i++)
 		{
 			ppk_error res=ppk_module_remove_param(module_id, list[i]);
 			if(res!=PPK_OK && globalRes==PPK_OK)
@@ -552,7 +552,7 @@ extern "C"
         if(res!=PPK_OK)
 			return res;
 		
-        for(int i=0; i<nbEntries; i++)
+        for(size_t i=0; i<nbEntries; i++)
 		{
 			res=ppk_module_remove_entry(module_id, entryList[i], ppk_rf_none);
 			if(res!=PPK_OK && globalRes==PPK_OK)

@@ -18,9 +18,9 @@ extern "C" ppk_data* ppk_blob_data_new(const void* data, size_t size)
 	ppk_data* edata = new ppk_data;
 	size_t len;
 	edata->type=ppk_blob;
-	((ppk_data_blob)edata->blob).data = new char[size];
+	const_cast<ppk_data_blob*>(&(edata->blob))->data = new char[size];
 	memcpy((char*)edata->blob.data, data, size);
-	((ppk_data_blob)edata->blob).size=size;
+	const_cast<ppk_data_blob*>(&(edata->blob))->size=size;
 	return edata;
 }
 

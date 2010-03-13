@@ -145,10 +145,13 @@ int cvariant_compare(cvariant a, cvariant b)
 		else if(a.type==cvariant_string)
 			return strcmp(a.string, b.string);
 	}
-	else
-		return 0;
+	
+	return 0;
 }
 
+/*!
+* Free the cvariant
+*/
 void cvariant_free(cvariant cv)
 {
 	if (cv.type == cvariant_string && cv.to_free)

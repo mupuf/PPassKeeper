@@ -33,13 +33,6 @@ class VParamImpl
 
 	bool saveParam(const char* module_id, const char* key, const cvariant value)
 	{
-		ckdb::KDB* handle;
-		if ((handle = ckdb::kdbOpen()) == NULL)
-		{
-			perror("kdbOpen");
-			return false;
-		}
-
 		//Get the type of the value to store
 		std::string type, s_value, final_value;
 		switch(cvariant_get_type(value))
@@ -58,10 +51,22 @@ class VParamImpl
 			type=FLOAT_TYPE;
 			s_value=cvariant_get_float(value);
 			break;
+		case cvariant_none:
+			break;
 		}
 
+		//Create the value name
 		final_value=type+TYPE_SEPARATOR+s_value;
 
+		//Open libElektra
+		ckdb::KDB* handle;
+		if ((handle = ckdb::kdbOpen()) == NULL)
+		{
+			perror("kdbOpen");
+			return false;
+		}
+
+		//Create the key
 		ckdb::Key *k = ckdb::keyNew(elektraKeyName(module_id, key).c_str(), KEY_VALUE, final_value.c_str(), KEY_END);
 
 		bool r;
@@ -72,6 +77,7 @@ class VParamImpl
 		}
 		else
 		{
+			//Set the key
 			int err = ckdb::kdbSetKey(handle, k);
 			ckdb::keyDel(k);
 
@@ -84,6 +90,7 @@ class VParamImpl
 			}
 		}
 
+		//Close libelektra
 		if (ckdb::kdbClose(handle) != 0)
 			perror("kdbClose");
 		return r;

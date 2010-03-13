@@ -237,7 +237,7 @@ void PPK_Modules::sendParameters(_module m)
 	if(m.setParam!=NULL)
 	{
 		std::vector<std::string> listParams = param.listParams(m.id);
-		for(int i=0;i<listParams.size();i++)
+		for(size_t i=0;i<listParams.size();i++)
 		{
 			cvariant cv = param.getParam(m.id, listParams[i].c_str());
 			m.setParam(listParams[i].c_str(), cv);

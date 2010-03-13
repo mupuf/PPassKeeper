@@ -188,7 +188,7 @@ extern "C"
 			
 			//Only keep entries of our own module (PT or ENC)
 			std::vector<std::string> filtered;
-			for(int i=0; i<entries.size(); i++)
+			for(size_t i=0; i<entries.size(); i++)
 			{
 				std::string val=entries.at(i); //Pattern: PT_NET_http¤mupuf@mupuf.org:80
 				if(val.substr(0, lenPrefix)==shortName())
@@ -216,7 +216,7 @@ extern "C"
 			char** ret=new char*[filtered.size()+1];
 			if(ret!=NULL)
 			{
-				for(int i=0; i<filtered.size(); i++)
+				for(size_t i=0; i<filtered.size(); i++)
 				{
 					std::string val=filtered.at(i);
 

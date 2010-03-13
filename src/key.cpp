@@ -7,7 +7,8 @@
 
 static size_t digits(unsigned int number)
 {
-	int digits = 0, step = 1;
+	int digits = 0;
+	unsigned int step = 1;
 	while (step <= number)
 	{
 		digits++;

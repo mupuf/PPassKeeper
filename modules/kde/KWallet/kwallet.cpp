@@ -84,7 +84,7 @@ KWallet::Wallet* openWallet(unsigned int flags)
 	
 	bool initialised=KWallet::Wallet::isOpen(KWallet::Wallet::NetworkWallet());
 	
-	if (!initialised && (flags & ppk_lf_silent!=0 || flags & ppk_rf_silent!=0 || flags & ppk_wf_silent!=0))
+	if (!initialised && ((flags & ppk_lf_silent)!=0 || (flags & ppk_rf_silent)!=0 || (flags & ppk_wf_silent)!=0))
 	{
 		//continue only if it won't annoy people who don't want to be prompted
 		return NULL;

@@ -278,6 +278,8 @@ class VParamImpl : public XMLSP::Parser
 					type=FLOAT_TYPE;
 					break;
 				}
+				case cvariant_none:
+					break;
 
 				os << " <entry module=\"" << iter->first.first << "\" key=\"" << iter->first.second << "\" type=\"" <<  type << "\" value=\"" <<  iter->second.second << "\" />" << std::endl;
 			}
@@ -308,6 +310,10 @@ class VParamImpl : public XMLSP::Parser
 		case cvariant_float:
 			s_value=toString(cvariant_get_float(value));
 			break;
+
+		case cvariant_none:
+			return false;
+			break;
 		}
 
 		params[std::make_pair(module_id, key)]=std::make_pair(cvariant_get_type(value), s_value);
@@ -333,6 +339,10 @@ class VParamImpl : public XMLSP::Parser
 
 		case cvariant_float:
 			cv=cvariant_from_float(stringTo<double>(value.second.c_str()));
+			break;
+
+		case cvariant_none:
+			//Will return cvariant_null()
 			break;
 		}
 

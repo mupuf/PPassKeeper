@@ -29,6 +29,16 @@ typedef struct
 	const char* file_filter;
 } ppk_proto_param_file;
 
+///Parameters of the 'ppk_module_param' parameter type
+typedef struct
+{
+	ppk_boolean allow_self;
+	ppk_boolean writable_only;
+	ppk_security_level min_sec_level;
+	unsigned int needed_flags;
+	
+} ppk_proto_param_module;
+
 ///Parameters of the 'ppk_ranged_int_param' parameter type
 typedef struct
 {
@@ -57,17 +67,6 @@ typedef struct
 	///The final use of the parameter (file, directory, module, ranged_int, ranged_float, ...)
 	ppk_param_type user_type;
 	
-	///parameters type
-	union
-	{
-		///Parameters of the 'ppk_file_param' parameter type
-		ppk_proto_param_file file_params;
-		///Parameters of the 'ppk_ranged_int_param' parameter type
-		ppk_proto_param_range_int ranged_int_params;
-		///Parameters of the 'ppk_ranged_float_param' parameter type
-		ppk_proto_param_range_float ranged_float_params;
-	};
-	
 	///Name of the parameter
 	const char* name;
 	///Contextual help of the parameter
@@ -77,6 +76,20 @@ typedef struct
 
 	///Group in which belongs this parameter
 	const ppk_settings_group* group;
+	
+	///parameters type
+	union
+	{
+		///Parameters of the 'ppk_file_param' parameter type
+		ppk_proto_param_file file_params;
+		///Parameters of the 'ppk_module_param' parameter type
+		ppk_proto_param_module module_params;
+		///Parameters of the 'ppk_ranged_int_param' parameter type
+		ppk_proto_param_range_int ranged_int_params;
+		///Parameters of the 'ppk_ranged_float_param' parameter type
+		ppk_proto_param_range_float ranged_float_params;
+	};
+	
 } ppk_proto_param;
 
 #ifdef __cplusplus 
@@ -94,7 +107,7 @@ ppk_proto_param* ppk_param_proto_create_int(const char* name, const char* help_t
 ppk_proto_param* ppk_param_proto_create_float(const char* name, const char* help_text, float default_value, const ppk_settings_group *group);
 ppk_proto_param* ppk_param_proto_create_file(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* file_filter);
 ppk_proto_param* ppk_param_proto_create_directory(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group);
-ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group);
+ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_flags);
 ppk_proto_param* ppk_param_proto_create_ranged_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group, int lowest, int greatest);
 ppk_proto_param* ppk_param_proto_create_ranged_float(const char* name, const char* help_text, double default_value, const ppk_settings_group *group, double lowest, double greatest);
 void ppk_param_proto_free(ppk_proto_param* proto_param);

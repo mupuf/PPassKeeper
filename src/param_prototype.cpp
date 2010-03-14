@@ -28,6 +28,16 @@ static void ppk_param_proto_free_file_parameters(ppk_proto_param_file param_file
 	free(const_cast<char*>(param_file.file_filter));
 }
 
+static ppk_proto_param_module ppk_param_proto_create_ranged_int_parameters(ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_flags)
+{
+	ppk_proto_param_module param_module;
+	param_module.allow_self=allow_self;
+	param_module.writable_only=writable_only;
+	param_module.min_sec_level=min_sec_level;
+	param_module.needed_flags=needed_flags;
+	return param_module;
+}
+
 static ppk_proto_param_range_int ppk_param_proto_create_ranged_int_parameters(int lowest, int greatest)
 {
 	ppk_proto_param_range_int param_ranged_int;
@@ -131,7 +141,7 @@ extern "C"
 		return proto;
 	}
 
-	ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group)
+	ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_flags)
 	{
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
@@ -140,6 +150,7 @@ extern "C"
 															group);
 		
 		proto->user_type=ppk_proto_module_param;
+		proto->module_params=ppk_param_proto_create_ranged_int_parameters(allow_self, writable_only, min_sec_level, needed_flags);
 		
 		return proto;
 	}

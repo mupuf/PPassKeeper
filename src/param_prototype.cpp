@@ -19,7 +19,7 @@ static ppk_proto_param* ppk_param_proto_create_empty(cvariant_type type, const c
 static ppk_proto_param_file ppk_param_proto_create_file_parameters(const char* file_filter)
 {
 	ppk_proto_param_file param_file;
-	param_file.file_filter=file_filter;
+	param_file.file_filter=strdup(file_filter);
 	return param_file;
 }
 
@@ -187,7 +187,6 @@ extern "C"
 	{
 		free(const_cast<char*>(proto_param->name));
 		free(const_cast<char*>(proto_param->help_text));
-		free(const_cast<char*>(proto_param->name));
 		cvariant_free(proto_param->default_value);
 		
 		//type specific

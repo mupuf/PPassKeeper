@@ -38,20 +38,54 @@ static ppk_proto_param_module ppk_param_proto_create_ranged_int_parameters(ppk_b
 	return param_module;
 }
 
-static ppk_proto_param_range_int ppk_param_proto_create_ranged_int_parameters(int lowest, int greatest)
+static ppk_proto_param_ranged_int ppk_param_proto_create_ranged_int_parameters(int lowest, int greatest)
 {
-	ppk_proto_param_range_int param_ranged_int;
+	ppk_proto_param_ranged_int param_ranged_int;
 	param_ranged_int.lowest=lowest;
 	param_ranged_int.greatest=greatest;
 	return param_ranged_int;
 }
 
-static ppk_proto_param_range_float ppk_param_proto_create_ranged_float_parameters(int lowest, int greatest)
+static ppk_proto_param_ranged_float ppk_param_proto_create_ranged_float_parameters(int lowest, int greatest)
 {
-	ppk_proto_param_range_float param_ranged_float;
+	ppk_proto_param_ranged_float param_ranged_float;
 	param_ranged_float.lowest=lowest;
 	param_ranged_float.greatest=greatest;
 	return param_ranged_float;
+}
+
+static ppk_proto_param_list ppk_param_proto_create_list_parameters(const char** list)
+{
+	ppk_proto_param_list param_list;
+	
+	//Get the size of the list
+	int len=0;
+	while(list!=NULL && list[len]!=NULL)
+		len++;
+	
+	//Copy the list
+	char** n_list=(char**)malloc((len+1)*sizeof(char*));
+	for(int i=0; i<len; i++)
+		n_list[i]=strdup(list[i]);
+	n_list[len]=NULL;
+	
+	//Set the list to param_file.list
+	param_list.list=const_cast<const char**>(n_list);
+	
+	return param_list;
+}
+
+static void ppk_param_proto_free_list_parameters(ppk_proto_param_list param_list)
+{
+	const char** list=param_list.list;
+	
+	//Get the size of the list
+	int i=0;
+	while(list!=NULL && list[i]!=NULL)
+	{
+		free(const_cast<char*>(param_list.list[i]));
+		i++;
+	}
 }
 
 #ifdef __cplusplus 
@@ -182,6 +216,20 @@ extern "C"
 		
 		return proto;
 	}
+	
+	ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char** list)
+	{
+		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
+															name, 
+															help_text, 
+															cvariant_from_string(default_value), 
+															group);
+		
+		proto->user_type=ppk_proto_list_param;
+		proto->list_params=ppk_param_proto_create_list_parameters(list);
+		
+		return proto;
+	}
 
 	void ppk_param_proto_free(ppk_proto_param* proto_param)
 	{
@@ -192,6 +240,8 @@ extern "C"
 		//type specific
 		if(proto_param->user_type==ppk_proto_file_param)
 			ppk_param_proto_free_file_parameters(proto_param->file_params);
+		else if(proto_param->user_type==ppk_proto_list_param)
+			ppk_param_proto_free_list_parameters(proto_param->list_params);
 		
 		free(proto_param);
 	}

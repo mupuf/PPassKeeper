@@ -18,6 +18,15 @@ QVariant QDoubleSpinField::value()
 	return spin->value();
 }
 
+double QDoubleSpinField::min()
+{
+	return spin->minimum();
+}
+
+double QDoubleSpinField::max()
+{
+	return spin->maximum();
+}
 
 QWidget* QDoubleSpinField::widget()
 {

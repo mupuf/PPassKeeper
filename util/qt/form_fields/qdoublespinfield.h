@@ -16,6 +16,8 @@ public:
 	void setValue(QVariant value);
 
 	QVariant value();
+	double min();
+	double max();
 
 	QWidget* widget();
 

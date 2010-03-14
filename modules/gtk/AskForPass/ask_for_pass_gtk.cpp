@@ -5,6 +5,9 @@
 
 //Parameters
 std::map<std::string, cvariant> parameters;
+std::map<std::string, ppk_settings_group*> params_group;
+std::map<std::string, ppk_proto_param*> proto_params;
+ppk_proto_param** availParams;
 #define PARAM_IMG_APP "App image"
 #define PARAM_IMG_NET "Net image"
 #define PARAM_IMG_ITEM "Item image"
@@ -24,6 +27,61 @@ bool GTK_Get_Password(std::string title, std::string label, std::string& pwd, co
 //functions
 extern "C" void constructor()
 {
+	availParams=NULL;
+	
+	//Create the group categories
+	ppk_settings_group *ppk_settings_display, *ppk_settings_custom_texts;
+	
+	ppk_settings_display=ppk_settings_group_create("Display", "Display-related parameters");
+	ppk_settings_custom_texts=ppk_settings_group_create("Custom Texts", "Customize the texts shown by AskForPass_GTK");
+	
+	params_group["Display"]=ppk_settings_display;
+	params_group["Custom Texts"]=ppk_settings_custom_texts;
+	
+	
+	//Create the parameters' prototypes
+	ppk_proto_param *img_app, *img_item, *win_cap, *win_text;
+	img_app=ppk_param_proto_create_file(PARAM_IMG_APP,
+										"The image you would like to be displayed when you're ask to enter a application password",
+										"", //Default value
+										ppk_settings_display,
+										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
+	proto_params[PARAM_IMG_APP]=img_app;
+	
+	img_item=ppk_param_proto_create_file(PARAM_IMG_NET,
+										"The image you would like to be displayed when you're ask to enter a network password",
+										"", //Default value
+										ppk_settings_display,
+										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
+	proto_params[PARAM_IMG_NET]=img_item;
+	
+	img_item=ppk_param_proto_create_file(PARAM_IMG_ITEM,
+										"The image you would like to be displayed when you're ask to enter an item's value",
+										"", //Default value
+										ppk_settings_display,
+										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
+	proto_params[PARAM_IMG_ITEM]=img_item;
+	
+	win_cap=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
+										"The caption you would like to see",
+										PARAM_MAIN_TEXT_DEFAULT,
+										ppk_settings_custom_texts);
+	proto_params[PARAM_WINDOW_CAPTION]=win_cap;
+	
+	win_text=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
+										"The main text you would like to shown.\nUse %1 were you actually want the key to be shown.",
+										PARAM_MAIN_TEXT_DEFAULT,
+										ppk_settings_custom_texts);
+	proto_params[PARAM_MAIN_TEXT]=win_text;
+	
+	//Get a list of available parameters
+	availParams=new ppk_proto_param*[proto_params.size()+1];
+	int i=0;
+	std::map<std::string, ppk_proto_param*>::const_iterator itr;
+	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr, ++i)
+		availParams[i]=itr->second;
+	availParams[proto_params.size()]=NULL;
+	
 	//Set parameters's default value
 	parameters[PARAM_IMG_APP]=cvariant_from_string(PARAM_IMG_APP_DEFAULT);
 	parameters[PARAM_IMG_NET]=cvariant_from_string(PARAM_IMG_NET_DEFAULT);
@@ -34,7 +92,18 @@ extern "C" void constructor()
 
 extern "C" void destructor()
 {
-	//Nothing to free
+	//Free the list of parameter
+	delete[] availParams;
+	
+	//Free the param prototypes
+	std::map<std::string, ppk_proto_param*>::const_iterator itr;
+	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
+		ppk_param_proto_free(itr->second);
+	
+	//Free the setting groups
+	std::map<std::string, ppk_settings_group*>::const_iterator itr2;
+	for(itr2 = params_group.begin(); itr2 != params_group.end(); ++itr2)
+		ppk_settings_group_free(itr2->second);
 }
 
 extern "C" const char* getModuleID()
@@ -178,51 +247,9 @@ extern "C" unsigned int maxDataSize(ppk_data_type type)
 	return 0;
 }
 
-const ppk_settings_group ppk_settings_display = { "Display", "Display-related parameters" };
-const ppk_settings_group ppk_settings_custom_texts = { "Custom Texts", "Customize the texts shown by AskForPass_GTK" };
 extern "C" const ppk_proto_param** availableParameters()
 {
-	static ppk_proto_param img_app;
-	img_app.expected_type=cvariant_string;
-	img_app.name=PARAM_IMG_APP;
-	img_app.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
-	img_app.help_text="The image you would like to be displayed when you're ask to enter a application password";
-	img_app.default_value=cvariant_from_string("");
-	img_app.group=&ppk_settings_display;
-
-	static ppk_proto_param img_net;
-	img_net.expected_type=cvariant_string;
-	img_net.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
-	img_net.name=PARAM_IMG_NET;
-	img_net.help_text="The image you would like to be displayed when you're ask to enter a network password";
-	img_net.default_value=cvariant_from_string("");
-	img_net.group=&ppk_settings_display;
-
-	static ppk_proto_param img_item;
-	img_item.expected_type=cvariant_string;
-	img_item.file_filter="Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)";
-	img_item.name=PARAM_IMG_ITEM;
-	img_item.help_text="The image you would like to be displayed when you're ask to enter an item's value";
-	img_item.default_value=cvariant_from_string("");
-	img_item.group=&ppk_settings_display;
-	
-	static ppk_proto_param win_cap;
-	win_cap.expected_type=cvariant_string;
-	win_cap.name=PARAM_WINDOW_CAPTION;
-	win_cap.help_text="The caption you would like to see";
-	win_cap.default_value=cvariant_from_string(PARAM_WINDOW_CAPTION_DEFAULT);
-	win_cap.group=&ppk_settings_custom_texts;
-
-	static ppk_proto_param win_text;
-	win_text.expected_type=cvariant_string;
-	win_text.name=PARAM_MAIN_TEXT;
-	win_text.help_text="The main text you would like to shown.\nUse %1 were you actually want the key to be shown.";
-	win_text.default_value=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
-	win_text.group=&ppk_settings_custom_texts;
-
-	static const ppk_proto_param* params[]={&img_app, &img_net, &img_item, &win_cap, &win_text, NULL};
-
-	return params;
+	return const_cast<const ppk_proto_param**>(availParams);
 }
 
 #include <stdio.h>

@@ -7,6 +7,8 @@
  * \date 27-07-2009
  */
 
+#include <ppasskeeper.h>
+
 ///Maximum size of saved parameters
 #define PPK_PARAM_MAX 4096
 
@@ -29,29 +31,6 @@ typedef struct
 	const char *description;
 } ppk_settings_group;
 
-///Definition of the prototype of a parameter
-typedef struct
-{
-	///The expected type of the final parameter
-	cvariant_type expected_type;
-	/*!File filter: 
-		if expected_type==string and file_filter!=NULL, then the param will
-		be treated as a file request.
-		set file_filter to "directory" if you want to get a directory
-		Syntax: "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml);;All files (*.*)"
-	*/
-	const char* file_filter;
-	///Name of the parameter
-	const char* name;
-	///Contextual help of the parameter
-	const char* help_text;
-	///Default value of the parameter
-	cvariant default_value;
-
-	///Group in which belongs this parameter
-	const ppk_settings_group *group;
-} ppk_proto_param;
-
 ///Definition of what a parameter is
 typedef struct
 {
@@ -60,6 +39,8 @@ typedef struct
 	///The value of the parameter
 	cvariant value;
 } ppk_param;
+
+#include <ppasskeeper/param_prototype.h>
 
 #ifdef __cplusplus 
 extern "C"

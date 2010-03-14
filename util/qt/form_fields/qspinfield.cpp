@@ -19,6 +19,16 @@ QVariant QSpinField::value()
 	return spin->value();
 }
 
+int QSpinField::min()
+{
+	return spin->minimum();
+}
+
+int QSpinField::max()
+{
+	return spin->maximum();
+}
+
 QWidget* QSpinField::widget()
 {
 	return spin;

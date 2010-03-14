@@ -148,13 +148,13 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				value=default_value;
 
 			QTextField* lineEdit;
-			if(pparam->file_filter!=NULL)
-				if(QString::fromUtf8(pparam->file_filter)==QString::fromUtf8("directory"))
-					lineEdit = new QDirField(parent, 1000);
-				else
-					lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_filter));
+			if(pparam->user_type==ppk_proto_file_param)
+				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_params.file_filter));
+			else if(pparam->user_type==ppk_proto_directory_param)
+				lineEdit = new QDirField(parent, 1000);
 			else
 				lineEdit = new QTextField(parent);
+			
 			lineEdit->setDefaultValue(default_value);
 			lineEdit->setValue(value);
 			return (QAbstractFormField*)lineEdit;
@@ -164,12 +164,17 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 		{
 			int default_value=cvariant_get_int(pparam->default_value);
 			int value;
+			
 			if(cvariant_not_null(c_value))
 				value=cvariant_get_int(c_value);
 			else
 				value=default_value;
 
-			QSpinField* spinBox = new QSpinField(parent);
+			QSpinField* spinBox;
+			if(pparam->user_type==ppk_proto_ranged_int_param)
+				spinBox = new QSpinField(parent, pparam->ranged_int_params.lowest, pparam->ranged_int_params.greatest);
+			else
+				spinBox = new QSpinField(parent);
 			spinBox->setDefaultValue(default_value);
 			spinBox->setValue(value);
 			return (QAbstractFormField*)spinBox;
@@ -179,12 +184,17 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 		{
 			double default_value=cvariant_get_float(pparam->default_value);
 			double value;
+			
 			if(cvariant_not_null(c_value))
 				value=cvariant_get_float(c_value);
 			else
 				value=default_value;
 
-			QDoubleSpinField* doubleSpinBox = new QDoubleSpinField(parent);
+			QDoubleSpinField* doubleSpinBox;
+			if(pparam->user_type==ppk_proto_ranged_int_param)
+				doubleSpinBox = new QDoubleSpinField(parent, pparam->ranged_float_params.lowest, pparam->ranged_float_params.greatest);
+			else
+				doubleSpinBox = new QDoubleSpinField(parent);
 			doubleSpinBox->setDefaultValue(default_value);
 			doubleSpinBox->setValue(value);
 			return (QAbstractFormField*)doubleSpinBox;

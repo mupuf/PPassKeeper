@@ -124,6 +124,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 #include "form_fields/qdirfield.h"
 #include "form_fields/qspinfield.h"
 #include "form_fields/qdoublespinfield.h"
+#include "form_fields/qcombofield.h"
 
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
@@ -147,17 +148,19 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 			else
 				value=default_value;
 
-			QTextField* lineEdit;
+			QAbstractFormField* lineEdit;
 			if(pparam->user_type==ppk_proto_file_param)
 				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_params.file_filter));
 			else if(pparam->user_type==ppk_proto_directory_param)
 				lineEdit = new QDirField(parent, 1000);
+			else if(pparam->user_type==ppk_proto_list_param)
+				lineEdit = new QComboField(parent, pparam->list_params.list);
 			else
 				lineEdit = new QTextField(parent);
 			
 			lineEdit->setDefaultValue(default_value);
 			lineEdit->setValue(value);
-			return (QAbstractFormField*)lineEdit;
+			return lineEdit;
 		}
 
 		case cvariant_int:

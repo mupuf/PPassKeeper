@@ -20,6 +20,7 @@ typedef enum
 	ppk_proto_module_param=6,
 	ppk_proto_ranged_int_param=7,
 	ppk_proto_ranged_float_param=8,
+	ppk_proto_list_param=9,
 } ppk_param_type;
 
 ///Parameters of the 'ppk_file_param' parameter type
@@ -47,7 +48,7 @@ typedef struct
 	
 	///The greatest integer of the range
 	int greatest;
-} ppk_proto_param_range_int;
+} ppk_proto_param_ranged_int;
 
 ///Parameters of the 'ppk_ranged_float_param' parameter type
 typedef struct
@@ -57,7 +58,14 @@ typedef struct
 	
 	///The greatest integer of the range
 	int greatest;
-} ppk_proto_param_range_float;
+} ppk_proto_param_ranged_float;
+
+///Parameters of the 'ppk_proto_list_param' parameter type
+typedef struct
+{
+	///Null terminated string list
+	const char** list;
+} ppk_proto_param_list;
 
 ///Definition of the prototype of a parameter
 typedef struct
@@ -85,9 +93,11 @@ typedef struct
 		///Parameters of the 'ppk_module_param' parameter type
 		ppk_proto_param_module module_params;
 		///Parameters of the 'ppk_ranged_int_param' parameter type
-		ppk_proto_param_range_int ranged_int_params;
+		ppk_proto_param_ranged_int ranged_int_params;
 		///Parameters of the 'ppk_ranged_float_param' parameter type
-		ppk_proto_param_range_float ranged_float_params;
+		ppk_proto_param_ranged_float ranged_float_params;
+		///Parameters of the 'ppk_ranged_float_param' parameter type
+		ppk_proto_param_list list_params;
 	};
 	
 } ppk_proto_param;
@@ -110,6 +120,7 @@ ppk_proto_param* ppk_param_proto_create_directory(const char* name, const char* 
 ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_flags);
 ppk_proto_param* ppk_param_proto_create_ranged_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group, int lowest, int greatest);
 ppk_proto_param* ppk_param_proto_create_ranged_float(const char* name, const char* help_text, double default_value, const ppk_settings_group *group, double lowest, double greatest);
+ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char** list);
 void ppk_param_proto_free(ppk_proto_param* proto_param);
 
 //Accessors

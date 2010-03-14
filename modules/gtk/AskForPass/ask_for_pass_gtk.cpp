@@ -74,6 +74,25 @@ extern "C" void constructor()
 										ppk_settings_custom_texts);
 	proto_params[PARAM_MAIN_TEXT]=win_text;
 	
+	//Debug
+	ppk_proto_param *poulpe=ppk_param_proto_create_module("poulpe",
+                                                          "help text",
+                                                          "AskForPass_Qt",
+                                                          ppk_settings_custom_texts,
+                                                          PPK_TRUE,
+                                                          PPK_TRUE,
+                                                          ppk_sec_perfect,
+                                                          0);
+	proto_params["poulpe"]=poulpe;
+	
+	const char* list[]={"connard", "poulpe", "chacal", NULL};
+	ppk_proto_param *poulpe2=ppk_param_proto_create_list("poulpe2",
+                                                          "help text2",
+                                                          "chacal",
+                                                          ppk_settings_custom_texts,
+                                                          list);
+	proto_params["poulpe2"]=poulpe2;
+	
 	//Get a list of available parameters
 	availParams=new ppk_proto_param*[proto_params.size()+1];
 	int i=0;

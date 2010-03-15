@@ -11,6 +11,11 @@ void QComboField::setList(const char** list)
 	}
 }
 
+void QComboField::setList(const QList<QString> list)
+{
+	combo->addItems(list);
+}
+
 QComboField::QComboField(QWidget* parent, const char** list) : QAbstractFormField()
 {
 	combo=new QComboBox(parent);

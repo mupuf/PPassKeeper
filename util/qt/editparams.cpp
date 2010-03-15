@@ -125,6 +125,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 #include "form_fields/qspinfield.h"
 #include "form_fields/qdoublespinfield.h"
 #include "form_fields/qcombofield.h"
+#include "form_fields/qmodulefield.h"
 
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
@@ -153,6 +154,8 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_params.file_filter));
 			else if(pparam->user_type==ppk_proto_directory_param)
 				lineEdit = new QDirField(parent, 1000);
+			else if(pparam->user_type==ppk_proto_module_param)
+				lineEdit = new QModuleField(parent, QString::fromUtf8(module), &(pparam->module_params));
 			else if(pparam->user_type==ppk_proto_list_param)
 				lineEdit = new QComboField(parent, pparam->list_params.list);
 			else

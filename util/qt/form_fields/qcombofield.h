@@ -3,6 +3,7 @@
 
 #include "qabstractformfield.h"
 #include <QComboBox>
+#include <QList>
 
 class QComboField : public QAbstractFormField
 {
@@ -12,6 +13,7 @@ protected:
 	QComboBox* combo;
 
 	void setList(const char** list);
+	void setList(const QList<QString> list);
 
 public:
 	QComboField(QWidget* parent=NULL, const char** list=NULL);

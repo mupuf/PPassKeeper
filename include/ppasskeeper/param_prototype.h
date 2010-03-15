@@ -7,7 +7,7 @@
  * \date 13-03-2010
  */
 
-#include <ppasskeeper.h>
+#include "ppasskeeper.h"
 
 ///Parameter type
 typedef enum
@@ -36,8 +36,9 @@ typedef struct
 	ppk_boolean allow_self;
 	ppk_boolean writable_only;
 	ppk_security_level min_sec_level;
-	unsigned int needed_flags;
-	
+	unsigned int needed_read_flags;
+	unsigned int needed_write_flags;
+	unsigned int needed_listing_flags;
 } ppk_proto_param_module;
 
 ///Parameters of the 'ppk_ranged_int_param' parameter type
@@ -117,7 +118,7 @@ ppk_proto_param* ppk_param_proto_create_int(const char* name, const char* help_t
 ppk_proto_param* ppk_param_proto_create_float(const char* name, const char* help_text, float default_value, const ppk_settings_group *group);
 ppk_proto_param* ppk_param_proto_create_file(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* file_filter);
 ppk_proto_param* ppk_param_proto_create_directory(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group);
-ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_flags);
+ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_read_flags, unsigned int needed_write_flags, unsigned int needed_listing_flags);
 ppk_proto_param* ppk_param_proto_create_ranged_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group, int lowest, int greatest);
 ppk_proto_param* ppk_param_proto_create_ranged_float(const char* name, const char* help_text, double default_value, const ppk_settings_group *group, double lowest, double greatest);
 ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char** list);

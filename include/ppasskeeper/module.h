@@ -7,7 +7,7 @@
  * \date 27-07-2009
  */
 
-#include <ppasskeeper.h>
+#include "ppasskeeper.h"
 
 ///Maximum size of saved parameters
 #define PPK_PARAM_MAX 4096
@@ -40,7 +40,7 @@ typedef struct
 	cvariant value;
 } ppk_param;
 
-#include <ppasskeeper/param_prototype.h>
+#include "ppasskeeper/param_prototype.h"
 
 #ifdef __cplusplus 
 extern "C"
@@ -219,6 +219,7 @@ extern "C"
 	* \param module_id Module's ID.
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_module_export(const char* module_id, const char* exportFile);
+
 #ifdef __cplusplus
 }
 #endif

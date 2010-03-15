@@ -180,8 +180,8 @@ void printModuleDetails(const char* module)
 	printf("	Security: %i/3 --> %s\n", security_level, security_string);
 	printf("\n	Limits:\n");
 	printf("		Supports writing: %s\n", supports_writing==PPK_TRUE?"yes":"no");
-	printf("		Max string size (in byte): %lu\n", max_string_size);
-	printf("		Max blob size (in byte): %lu\n", max_blob_size);
+	printf("		Max string size (in byte): %ud\n", max_string_size);
+	printf("		Max blob size (in byte): %ud\n", max_blob_size);
 	printf("\n	Supported Flags:\n");
 	printf("		Read: "); listFlags(flags_read);
 	printf("		Write: "); listFlags(flags_write);
@@ -273,7 +273,7 @@ int main(int argc, char **argv)
 				die(ppk_error_get_string(err));
 			else
 			{
-				printf("Listing %s gave %lu results :\n", module_id, len);
+				printf("Listing %s gave %ud results :\n", module_id, len);
 				for (i = 0; i < len; i++)
 				{
 					char* type, entry[201];

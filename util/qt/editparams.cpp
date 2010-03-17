@@ -127,6 +127,7 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 #include "form_fields/qcombofield.h"
 #include "form_fields/qmodulefield.h"
 
+#include <stdio.h>
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
 	//Get Param's value
@@ -158,6 +159,8 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				lineEdit = new QModuleField(parent, QString::fromUtf8(module), &(pparam->module_params));
 			else if(pparam->user_type==ppk_proto_list_param)
 				lineEdit = new QComboField(parent, pparam->list_params.list);
+			else if(pparam->user_type==ppk_proto_validated_string_param)
+				lineEdit = new QTextField(parent, QRegExp(QString::fromUtf8(pparam->validated_string_params.validation_regexp)));
 			else
 				lineEdit = new QTextField(parent);
 			

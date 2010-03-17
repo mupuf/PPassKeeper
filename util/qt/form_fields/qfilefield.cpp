@@ -2,7 +2,7 @@
 #include <QVariant>
 #include <QFileDialog>
 
-QFileField::QFileField(QWidget* parent, int maxLength, QString filter) : QTextField(parent, maxLength)
+QFileField::QFileField(QWidget* parent, int maxLength, QString filter) : QTextField(parent, QRegExp(), maxLength)
 {
 	this->filter=filter;
 	_layout=new QHBoxLayout();

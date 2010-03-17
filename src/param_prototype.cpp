@@ -90,6 +90,18 @@ static void ppk_param_proto_free_list_parameters(ppk_proto_param_list param_list
 	}
 }
 
+static ppk_proto_param_validated_string ppk_param_proto_create_validated_string_parameters(const char* validation_regexp)
+{
+	ppk_proto_param_validated_string param_validated_string;
+	param_validated_string.validation_regexp=strdup(validation_regexp);
+	return param_validated_string;
+}
+
+static void ppk_param_proto_free_validated_string_parameters(ppk_proto_param_validated_string param_validated_string)
+{
+	free(const_cast<char*>(param_validated_string.validation_regexp));
+}
+
 #ifdef __cplusplus 
 extern "C"
 {
@@ -232,7 +244,22 @@ extern "C"
 		
 		return proto;
 	}
-
+	
+	#include <stdio.h>
+	ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* validation_regexp)
+	{
+		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
+															name, 
+															help_text, 
+															cvariant_from_string(default_value), 
+															group);
+		
+		proto->user_type=ppk_proto_validated_string_param;
+		proto->validated_string_params=ppk_param_proto_create_validated_string_parameters(validation_regexp);
+		
+		return proto;
+	}
+	
 	void ppk_param_proto_free(ppk_proto_param* proto_param)
 	{
 		free(const_cast<char*>(proto_param->name));
@@ -244,6 +271,8 @@ extern "C"
 			ppk_param_proto_free_file_parameters(proto_param->file_params);
 		else if(proto_param->user_type==ppk_proto_list_param)
 			ppk_param_proto_free_list_parameters(proto_param->list_params);
+		else if(proto_param->user_type==ppk_proto_validated_string_param)
+			ppk_param_proto_free_validated_string_parameters(proto_param->validated_string_params);
 		
 		free(proto_param);
 	}

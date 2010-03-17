@@ -21,6 +21,7 @@ typedef enum
 	ppk_proto_ranged_int_param=7,
 	ppk_proto_ranged_float_param=8,
 	ppk_proto_list_param=9,
+	ppk_proto_validated_string_param=10
 } ppk_param_type;
 
 ///Parameters of the 'ppk_file_param' parameter type
@@ -68,6 +69,13 @@ typedef struct
 	const char** list;
 } ppk_proto_param_list;
 
+///Parameters of the 'ppk_validated_string_param' parameter type
+typedef struct
+{
+	///The regexp which will validate the string
+	const char* validation_regexp;
+} ppk_proto_param_validated_string;
+
 ///Definition of the prototype of a parameter
 typedef struct
 {
@@ -99,6 +107,8 @@ typedef struct
 		ppk_proto_param_ranged_float ranged_float_params;
 		///Parameters of the 'ppk_ranged_float_param' parameter type
 		ppk_proto_param_list list_params;
+		///Parameters of the 'ppk_validated_string_param' parameter type
+		ppk_proto_param_validated_string validated_string_params;
 	};
 	
 } ppk_proto_param;
@@ -122,6 +132,7 @@ ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* hel
 ppk_proto_param* ppk_param_proto_create_ranged_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group, int lowest, int greatest);
 ppk_proto_param* ppk_param_proto_create_ranged_float(const char* name, const char* help_text, double default_value, const ppk_settings_group *group, double lowest, double greatest);
 ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char** list);
+ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* validation_regexp);
 void ppk_param_proto_free(ppk_proto_param* proto_param);
 
 //Accessors

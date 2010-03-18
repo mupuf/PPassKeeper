@@ -136,6 +136,19 @@ ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const
 void ppk_param_proto_free(ppk_proto_param* proto_param);
 
 //Accessors
+cvariant_type ppk_param_proto_expected_type(const ppk_proto_param* proto);
+ppk_param_type ppk_param_proto_user_type(const ppk_proto_param* proto);
+const char* ppk_param_proto_name(const ppk_proto_param* proto);
+const char* ppk_param_proto_help_text(const ppk_proto_param* proto);
+cvariant ppk_param_proto_default_value(const ppk_proto_param* proto);
+const ppk_settings_group* ppk_param_proto_settings_group(const ppk_proto_param* proto);
+const ppk_proto_param_file* ppk_param_proto_file_params(const ppk_proto_param* proto);
+const ppk_proto_param_module* ppk_param_proto_module_params(const ppk_proto_param* proto);
+const ppk_proto_param_ranged_int* ppk_param_proto_ranged_int_params(const ppk_proto_param* proto);
+const ppk_proto_param_ranged_float* ppk_param_proto_ranged_float_params(const ppk_proto_param* proto);
+const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* proto);
+const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(const ppk_proto_param* proto);
+
 
 #ifdef __cplusplus
 }

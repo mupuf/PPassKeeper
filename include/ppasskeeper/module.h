@@ -131,6 +131,9 @@ extern "C"
 	* \param flags You can specify flags which will change the way the entry list will be got. See listingFlag.
 	* \return  Returns the number of entries stored into entryList.*/
 	ppk_error ppk_module_get_entry_list(const char* module_id, int entry_types, ppk_entry ***entryList, size_t* nbEntries, unsigned int flags);
+	
+	/*! \brief Free an entry list
+	* \param entry_list The entry list to be freed*/
 	void ppk_module_free_entry_list(ppk_entry** entry_list);
 
 	/*! \brief Tells whether a module contains a specific entry or not.

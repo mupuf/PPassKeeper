@@ -119,36 +119,174 @@ extern "C"
 #endif
 
 //Groups creation and deletion
+/*! \brief Create a settings group
+* \param display_name The name of the group which will be shown to the user
+* \param description The description of the purpose of the group
+* \return  Return the newly created group*/
 ppk_settings_group* ppk_settings_group_create(const char *display_name, const char *description);
+
+/*! \brief Free a settings group
+* \param group The group to be freed*/
 void ppk_settings_group_free(ppk_settings_group* group);
 
 //Prototype of parameters creation
+/*! \brief Create a prototype of a string parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group);
+
+/*! \brief Create a prototype of an int parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group);
+
+/*! \brief Create a prototype of a float parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_float(const char* name, const char* help_text, float default_value, const ppk_settings_group *group);
+
+/*! \brief Create a prototype of a file parameter (get a filepath from the user)
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param file_filter The file filter. Syntax: "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml);;All files (*.*)"
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_file(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* file_filter);
+
+/*! \brief Create a prototype of a directory parameter (get a directory path from the user)
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_directory(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group);
+
+/*! \brief Create a prototype of a directory parameter (get a directory path from the user)
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param allow_self Should the module having this parameter be listed ?
+* \param writable_only Should only writable module be listed ?
+* \param min_sec_level The minimum security level required for a module to be listed
+* \param needed_read_flags The needed read flags required for a module to be listed
+* \param needed_write_flags The needed write flags required for a module to be listed
+* \param needed_listing_flags The needed listing flags required for a module to be listed
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_module(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, ppk_boolean allow_self, ppk_boolean writable_only, ppk_security_level min_sec_level, unsigned int needed_read_flags, unsigned int needed_write_flags, unsigned int needed_listing_flags);
+
+/*! \brief Create a prototype of a ranged-int parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param lowest The minimum value the int should have
+* \param greatest The maximum value the int should have
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_ranged_int(const char* name, const char* help_text, int default_value, const ppk_settings_group *group, int lowest, int greatest);
+
+/*! \brief Create a prototype of a ranged-float parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param lowest The minimum value the int should have
+* \param greatest The maximum value the int should have
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_ranged_float(const char* name, const char* help_text, double default_value, const ppk_settings_group *group, double lowest, double greatest);
+
+/*! \brief Create a prototype of a list parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param list A null terminated list (eg char** list={"object 1", "object2", NULL};)
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char** list);
+
+/*! \brief Create a prototype of a validated string parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \param validation_regexp The regexp that should be matched in order for the param. to be valid.
+* \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* validation_regexp);
+
+/*! \brief Free a prototype
+* \param proto_param The prototype to be freed*/
 void ppk_param_proto_free(ppk_proto_param* proto_param);
 
 //Accessors
+/*! \brief Get the expected type of a prototype parameter(int, float or string)
+* \param proto The prototype to get the info from
+* \return The expected type of a prototype parameter(int, float or string)*/
 cvariant_type ppk_param_proto_expected_type(const ppk_proto_param* proto);
-ppk_param_type ppk_param_proto_user_type(const ppk_proto_param* proto);
-const char* ppk_param_proto_name(const ppk_proto_param* proto);
-const char* ppk_param_proto_help_text(const ppk_proto_param* proto);
-cvariant ppk_param_proto_default_value(const ppk_proto_param* proto);
-const ppk_settings_group* ppk_param_proto_settings_group(const ppk_proto_param* proto);
-const ppk_proto_param_file* ppk_param_proto_file_params(const ppk_proto_param* proto);
-const ppk_proto_param_module* ppk_param_proto_module_params(const ppk_proto_param* proto);
-const ppk_proto_param_ranged_int* ppk_param_proto_ranged_int_params(const ppk_proto_param* proto);
-const ppk_proto_param_ranged_float* ppk_param_proto_ranged_float_params(const ppk_proto_param* proto);
-const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* proto);
-const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(const ppk_proto_param* proto);
 
+/*! \brief Get the user type of a prototype parameter(file, module, list, etc...)
+* \param proto The prototype to get the info from
+* \return The user type of a prototype parameter*/
+ppk_param_type ppk_param_proto_user_type(const ppk_proto_param* proto);
+
+/*! \brief Get the name of a prototype parameter
+* \param proto The prototype to get the info from
+* \return The name of a prototype parameter*/
+const char* ppk_param_proto_name(const ppk_proto_param* proto);
+
+/*! \brief Get the help text of a prototype parameter
+* \param proto The prototype to get the info from
+* \return The help text of a prototype parameter*/
+const char* ppk_param_proto_help_text(const ppk_proto_param* proto);
+
+/*! \brief Get the default value of a prototype parameter
+* \param proto The prototype to get the info from
+* \return The default value of a prototype parameter*/
+cvariant ppk_param_proto_default_value(const ppk_proto_param* proto);
+
+/*! \brief Get the settings group of a prototype parameter
+* \param proto The prototype to get the info from
+* \return The settings group of a prototype parameter*/
+const ppk_settings_group* ppk_param_proto_settings_group(const ppk_proto_param* proto);
+
+/*! \brief Get the file parameter of a file prototype parameter
+* \param proto The prototype to get the info from
+* \return the file parameters or NULL if proto is not a file prototype parameter*/
+const ppk_proto_param_file* ppk_param_proto_file_params(const ppk_proto_param* proto);
+
+/*! \brief Get the module parameters of a module prototype parameter
+* \param proto The prototype to get the info from
+* \return the module parameters or NULL if proto is not a module prototype parameter*/
+const ppk_proto_param_module* ppk_param_proto_module_params(const ppk_proto_param* proto);
+
+/*! \brief Get the ranged int parameters of a ranged int prototype parameter
+* \param proto The prototype to get the info from
+* \return the ranged int parameters or NULL if proto is not a ranged int prototype parameter*/
+const ppk_proto_param_ranged_int* ppk_param_proto_ranged_int_params(const ppk_proto_param* proto);
+
+/*! \brief Get the ranged float parameters of a ranged float prototype parameter
+* \param proto The prototype to get the info from
+* \return the ranged float parameters or NULL if proto is not a ranged float prototype parameter*/
+const ppk_proto_param_ranged_float* ppk_param_proto_ranged_float_params(const ppk_proto_param* proto);
+
+/*! \brief Get the list parameters of a list prototype parameter
+* \param proto The prototype to get the info from
+* \return the list parameters or NULL if proto is not a list prototype parameter*/
+const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* proto);
+
+/*! \brief Get the validated string parameters of a validated-string prototype parameter
+* \param proto The prototype to get the info from
+* \return the validated string parameters or NULL if proto is not a validated-string prototype parameter*/
+const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(const ppk_proto_param* proto);
 
 #ifdef __cplusplus
 }

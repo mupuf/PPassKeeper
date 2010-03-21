@@ -194,29 +194,30 @@ int do_decrypt(const unsigned char* key, const char* inpath, unsigned char** out
 }
 
 
-int main(int argc, char** argv)
+int cryptToFile(const char* data, const char* filepath, const char* passphrase)
 {
-	if(argc!=2)
-	{
-		printf("Usage: %s \"passphrase\"", argv[0]);
-		return 1;
-	}
-	
-	const char* passphrase=argv[1];
-	
 	//Create a key from the passphrase
-	printf("Create key from passphrase '%s'\n\n", passphrase);
 	unsigned char* key=createKey(passphrase, "ppk");
-	printf("Key = '%s'\n", key);
 	
-	do_crypt(key, (const unsigned char*)"je suis un connard", "poulpe.crypt");
-	
-	unsigned char* poulpe;
-	do_decrypt(key, "poulpe.crypt", &poulpe);
-	printf("Decrypt: out='%s'\n", (char*)poulpe);
+	//Encrypt the file
+	int ret=do_crypt(key, (const unsigned char*)data, filepath);
 	
 	//Free the key
 	free(key);
 	
-	return 0;
+	return ret;
+}
+
+int decryptFromFile(const char* filepath, char** data, const char* passphrase)
+{
+	//Create a key from the passphrase
+	unsigned char* key=createKey(passphrase, "ppk");
+	
+	//Decrypt the file
+	int ret=do_decrypt(key, filepath, (unsigned char**)data);
+	
+	//Free the key
+	free(key);
+	
+	return ret;
 }

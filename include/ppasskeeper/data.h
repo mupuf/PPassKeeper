@@ -58,6 +58,20 @@ extern "C"
 	* \return  Return the ppk_data corresponding to the parameters*/
 	ppk_data* ppk_blob_data_new(const void* data, size_t size);
 	
+	/*! \brief Generate a blob ppk_data from a base64 string
+	* \param base64_data The base64-encoded string to be stored as a blob.
+	* \return  Return the ppk_data corresponding to the parameters*/
+	ppk_data* ppk_blob_data_new_from_base64(const char* base64_data);
+	
+	/*! \brief Get a base64 string from a blob.
+	* \param data The blob to get the base64-encoded string from.
+	* \return  Return a base64-encoded string by the user or NULL if data is not a blob. The string returned must be freed using ppk_blob_data_to_base64()*/
+	char* ppk_blob_data_to_base64(const ppk_data* data);
+	
+	/*! \brief Free a string returned by ppk_blob_data_to_base64
+	* \param base64_data The blob string to be freed.*/
+	void ppk_blob_base64_string_free(char* base64_data);
+	
 	/*! \brief Get the type of a data entry
 	* \param data The ppk_data to get the type from.
 	* \return  Return the ppk_data_type of data*/

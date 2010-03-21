@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include "base64.h"
+
 extern "C" ppk_data* ppk_string_data_new(const char* string)
 {
 	ppk_data* data = new ppk_data;
@@ -21,6 +23,39 @@ extern "C" ppk_data* ppk_blob_data_new(const void* data, size_t size)
 	memcpy((char*)edata->blob.data, data, size);
 	const_cast<ppk_data_blob*>(&(edata->blob))->size=size;
 	return edata;
+}
+
+extern "C" ppk_data* ppk_blob_data_new_from_base64(const char* base64_data)
+{
+	int elen = ap_base64decode_len(base64_data, -1);
+	char *out = new char[elen + 1];
+
+	int len=ap_base64decode_binary((unsigned char *)out, base64_data, -1);
+	ppk_data* data=ppk_blob_data_new(out, len);
+	
+	delete[] out;
+	
+	return data;
+}
+
+extern "C" char* ppk_blob_data_to_base64(const ppk_data* data)
+{
+	if(ppk_get_data_type(data)==ppk_blob)
+	{
+		int elen = ap_base64decode_len((const char*)data->blob.data, data->blob.size);
+		char* out = new char[elen + 1];
+
+		/*int len=*/ap_base64encode_binary(out, (const unsigned char*)data->blob.data, data->blob.size);
+		return out;
+	}
+	else
+		return NULL;
+}
+
+extern "C" void ppk_blob_base64_string_free(char* base64_data)
+{
+	if(base64_data!=NULL)
+		delete[] base64_data;
 }
 
 extern "C" ppk_data_type ppk_get_data_type(const ppk_data* data)

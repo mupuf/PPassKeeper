@@ -16,7 +16,7 @@ void sha512(char* hash, const void* data, unsigned int length)
 		snprintf(hash+i*2, SHA512_HASH_SIZE+7, "%02x", sha512[i]);
 }
 
-char* createKey(const char* passphrase, const char* salt)
+unsigned char* createKey(const char* passphrase, const char* salt)
 {
 	//Salt the passphrase
 	char* salted_pwd=(char*)malloc((strlen(salt)+strlen(passphrase)+1)*sizeof(char));
@@ -31,7 +31,7 @@ char* createKey(const char* passphrase, const char* salt)
 	
 	free(salted_pwd);
 	
-	return key;
+	return (unsigned char*)key;
 }
 
 #include <openssl/evp.h>
@@ -78,89 +78,120 @@ char* createKey(const char* passphrase, const char* salt)
 	return 1;
 }*/
 
-int do_crypt(FILE *in, FILE *out, int do_encrypt)
+int do_crypt(const unsigned char* key, const unsigned char* in, const char* outpath)
 {
-	/* Allow enough space in output buffer for additional block */
-	inbuf[1024], outbuf[1024 + EVP_MAX_BLOCK_LENGTH];
-	int inlen, outlen;
-	/* Bogus key and IV: we'd normally set these from
-		* another source.
-		*/
-	unsigned char key[] = "0123456789";
-	unsigned char iv[] = "12345678";
+	//Get the length of in
+	int inlen=strlen((const char*)in)+1;
 	
+	// Allow enough space in output buffer for additional block
+	unsigned char* outbuf=(unsigned char*)malloc(inlen + EVP_MAX_BLOCK_LENGTH);
+	
+	//Fixed IV
+	const unsigned char iv[] = "12345678";
+	
+	//Set up the crypting method
 	EVP_CIPHER_CTX ctx;
 	EVP_CIPHER_CTX_init(&ctx);
 	EVP_EncryptInit(&ctx, EVP_bf_cbc(), key, iv);
 	
-	for(;;)
-	{
-		inlen = fread(inbuf, 1, 1024, in);
-		if(inlen <= 0) break;
-		if(!EVP_EncryptUpdate(&ctx, outbuf, &outlen, inbuf, inlen))
-		{
-			/* Error */
-			EVP_CIPHER_CTX_cleanup(&ctx);
-			return 0;
-		}
-		fwrite(outbuf, 1, outlen, out);
-	}
-	
-	if(!EVP_EncryptFinal(&ctx, outbuf, &outlen))
+	//Encrypt the chain
+	int outlen;
+	if(!EVP_EncryptUpdate(&ctx, outbuf, &outlen, in, inlen))
 	{
 		/* Error */
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return 0;
 	}
 	
-	fwrite(outbuf, 1, outlen, out);
+	if(!EVP_EncryptFinal(&ctx, outbuf+outlen, &outlen))
+	{
+		/* Error */
+		EVP_CIPHER_CTX_cleanup(&ctx);
+		return 0;
+	}
+	
 	EVP_CIPHER_CTX_cleanup(&ctx);
+	
+	printf("Crypt: in='%s'\nout='%s'\n", in, outbuf);
+	
+	//Save to disk
+	FILE* outFile=fopen(outpath, "wb");
+	if(outFile)
+	{
+		fwrite((char*)outbuf, strlen((char*)outbuf), sizeof(char), outFile);
+		fclose(outFile);
+	}
+	else
+	{
+		fprintf(stderr, "The file '%s' cannot be openned for writing purpose. Aborting.\n", outpath);
+		return 0;
+	}
+	
+	//Free buffers
+	free(outbuf);
 	
 	return 1;
 }
 
-
-int do_decrypt(FILE *in, FILE *out, int do_encrypt)
+int do_decrypt(const unsigned char* key, const char* inpath, unsigned char** out)
 {
-	/* Allow enough space in output buffer for additional block */
-	inbuf[1024], outbuf[1024 + EVP_MAX_BLOCK_LENGTH];
-	int inlen, outlen;
-	/* Bogus key and IV: we'd normally set these from
-		* another source.
-		*/
-	unsigned char key[] = "0123456789";
+	//Open the file
+	FILE* in=fopen(inpath, "rb");
+	if(!in)
+	{
+		fprintf(stderr, "The file '%s' cannot be openned for reading purpose. Aborting.\n", inpath);
+		return 0;
+	}
+	
+	//Get the file's length
+	int pos, end, inlen;
+	pos = ftell (in);
+	fseek (in, 0, SEEK_END);
+	end = ftell (in);
+	fseek (in, pos, SEEK_SET);
+	inlen=end-pos;
+	
+	//Allow enough space in output buffer for additional block
+	*out=(unsigned char*)malloc(inlen*sizeof(char));
+	int outpos=0;
+	
+	//Bogus IV
 	unsigned char iv[] = "12345678";
 	
 	EVP_CIPHER_CTX ctx;
 	EVP_CIPHER_CTX_init(&ctx);
 	EVP_DecryptInit(&ctx, EVP_bf_cbc(), key, iv);
 	
+	unsigned char inbuf[1024];
+	int outlen;
 	for(;;)
 	{
-		inlen = fread(inbuf, 1, 1024, in);
+		inlen = fread((char*)inbuf, 1, sizeof(inbuf), in);
 		if(inlen <= 0) break;
-		if(!EVP_DecryptUpdate(&ctx, outbuf, &outlen, inbuf, inlen))
+		if(!EVP_DecryptUpdate(&ctx, (*out)+outpos, &outlen, inbuf, inlen))
 		{
-			/* Error */
+			// Error
 			EVP_CIPHER_CTX_cleanup(&ctx);
 			return 0;
 		}
-		fwrite(outbuf, 1, outlen, out);
+		outpos+=outlen;
 	}
 	
-	if(!EVP_DecryptFinal(&ctx, outbuf, &outlen))
+	if(!EVP_DecryptFinal(&ctx, (*out)+outpos, &outlen))
 	{
-		/* Error */
+		// Error
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return 0;
 	}
+	outpos+=outlen;
 	
-	fwrite(outbuf, 1, outlen, out);
 	EVP_CIPHER_CTX_cleanup(&ctx);
+	
+	//Close the file
+	fclose(in);
 	
 	return 1;
 }
-
 
 
 int main(int argc, char** argv)
@@ -175,10 +206,14 @@ int main(int argc, char** argv)
 	
 	//Create a key from the passphrase
 	printf("Create key from passphrase '%s'\n\n", passphrase);
-	char* key=createKey(passphrase, "ppk");
+	unsigned char* key=createKey(passphrase, "ppk");
 	printf("Key = '%s'\n", key);
 	
-
+	do_crypt(key, (const unsigned char*)"je suis un connard", "poulpe.crypt");
+	
+	unsigned char* poulpe;
+	do_decrypt(key, "poulpe.crypt", &poulpe);
+	printf("Decrypt: out='%s'\n", (char*)poulpe);
 	
 	//Free the key
 	free(key);

@@ -4,13 +4,16 @@
 QT += network
 TARGET = project
 CONFIG += link_pkgconfig
-PKGCONFIG = ppasskeeper
+PKGCONFIG = ppasskeeper openssl
 TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
     ../entry.cpp \
-    ../safelock.cpp
+    ../safelock.cpp \
+    ../crypt.cpp \
+    ../sha512.c
 HEADERS += mainwindow.h \
     ../entry.h \
-    ../safelock.h
+    ../safelock.h \
+    ../sha512.h
 FORMS += mainwindow.ui

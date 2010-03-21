@@ -35,49 +35,6 @@ unsigned char* createKey(const char* passphrase, const char* salt)
 }
 
 #include <openssl/evp.h>
-/*int encrypt (const unsigned char* key, const unsigned char* iv, int infd, int outfd)
-{
-	unsigned char outbuf[10];
-	int olen, tlen, n;
-	char inbuff[8];
-	
-	EVP_CIPHER_CTX ctx;
-	EVP_CIPHER_CTX_init(&ctx);
-	EVP_EncryptInit(&ctx, EVP_bf_cbc(), key, iv);
-
-	while(true)
-	{
-		bzero (&inbuff, IP_SIZE);
-
-		if ((n = read (infd, inbuff, IP_SIZE)) == -1)
-		{
-			perror ("read error");
-			break;
-		}
-		else if (n == 0)
-			break;
-
-		if (EVP_EncryptUpdate(&ctx, outbuf, &olen, inbuff, n) != 1)
-		{
-			printf ("error in encrypt update\n");
-			return 0;
-		}
-
-		if (EVP_EncryptFinal(&ctx, outbuf+olen, &tlen) != 1)
-		{
-			printf ("error in encrypt final\n");
-			return 0;
-		}
-		
-		olen += tlen;
-		if ((n = write (outfd, outbuf, olen)) == -1)
-			perror ("write error");
-	}
-	EVP_CIPHER_CTX_cleanup(&ctx);
-	
-	return 1;
-}*/
-
 int do_crypt(const unsigned char* key, const unsigned char* in, const char* outpath)
 {
 	//Get the length of in
@@ -103,7 +60,8 @@ int do_crypt(const unsigned char* key, const unsigned char* in, const char* outp
 		return 0;
 	}
 	
-	if(!EVP_EncryptFinal(&ctx, outbuf+outlen, &outlen))
+	int tmplen;
+	if(!EVP_EncryptFinal(&ctx, outbuf+outlen, &tmplen))
 	{
 		/* Error */
 		EVP_CIPHER_CTX_cleanup(&ctx);
@@ -118,7 +76,7 @@ int do_crypt(const unsigned char* key, const unsigned char* in, const char* outp
 	FILE* outFile=fopen(outpath, "wb");
 	if(outFile)
 	{
-		fwrite((char*)outbuf, strlen((char*)outbuf), sizeof(char), outFile);
+		fwrite((char*)outbuf, sizeof(char), outlen+tmplen, outFile);
 		fclose(outFile);
 	}
 	else
@@ -163,10 +121,10 @@ int do_decrypt(const unsigned char* key, const char* inpath, unsigned char** out
 	EVP_DecryptInit(&ctx, EVP_bf_cbc(), key, iv);
 	
 	unsigned char inbuf[1024];
-	int outlen;
+	int outlen=inlen;
 	for(;;)
 	{
-		inlen = fread((char*)inbuf, 1, sizeof(inbuf), in);
+		inlen=fread((char*)inbuf, 1, sizeof(inbuf), in);
 		if(inlen <= 0) break;
 		if(!EVP_DecryptUpdate(&ctx, (*out)+outpos, &outlen, inbuf, inlen))
 		{
@@ -194,7 +152,7 @@ int do_decrypt(const unsigned char* key, const char* inpath, unsigned char** out
 }
 
 
-int cryptToFile(const char* data, const char* filepath, const char* passphrase)
+extern "C" int cryptToFile(const char* data, const char* filepath, const char* passphrase)
 {
 	//Create a key from the passphrase
 	unsigned char* key=createKey(passphrase, "ppk");
@@ -208,7 +166,7 @@ int cryptToFile(const char* data, const char* filepath, const char* passphrase)
 	return ret;
 }
 
-int decryptFromFile(const char* filepath, char** data, const char* passphrase)
+extern "C" int decryptFromFile(const char* filepath, char** data, const char* passphrase)
 {
 	//Create a key from the passphrase
 	unsigned char* key=createKey(passphrase, "ppk");

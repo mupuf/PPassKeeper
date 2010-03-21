@@ -13,18 +13,22 @@ private:
 	bool _isBlob;
 
 public:
+	Entry();
 	Entry(const ppk_entry* entry, const ppk_data* data);
 	Entry(const QString line);
 
-	QString toString();
-	QString entry();
-	QString data();
+	QString toString() const;
+	QString entry() const;
+	QString data() const;
 
-	ppk_entry* ppkEntry();
-	ppk_data* ppkData();
+	ppk_entry* ppkEntry() const;
+	ppk_data* ppkData() const;
 
-	bool isString();
-	bool isBlob();
+	bool isString() const;
+	bool isBlob() const;
+
+	bool operator==(const Entry& a);
+	bool operator!=(const Entry& a);
 };
 
 #endif // ENTRY_H

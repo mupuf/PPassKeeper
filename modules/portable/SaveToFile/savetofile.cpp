@@ -286,7 +286,7 @@ extern "C"
 		return fileExists(getKey(entry));
 	}
 	
-	extern "C" unsigned int maxDataSize(ppk_data_type type)
+	unsigned int maxDataSize(ppk_data_type type)
 	{
 		switch(type)
 		{

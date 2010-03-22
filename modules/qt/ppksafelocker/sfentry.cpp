@@ -16,7 +16,7 @@ SFEntry::SFEntry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 	//Copy the entry
 	size_t lenKey=ppk_key_length(entry);
 	char* key=new char[lenKey+1];
-	if(ppk_get_key(entry, key, lenKey-1)==PPK_FALSE)
+	if(ppk_get_key(entry, key, lenKey)==PPK_FALSE)
 	{
 		std::cerr << "Entry: Invalid key" << std::endl;
 		return;
@@ -27,12 +27,12 @@ SFEntry::SFEntry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 	if(ppk_get_data_type(data)==ppk_string)
 	{
 		this->_isBlob=false;
-		qdata=ppk_get_data_string(data);
+		qdata=QString::fromUtf8(ppk_get_data_string(data));
 	}
 	else
 	{
 		this->_isBlob=true;
-		qdata=ppk_blob_data_to_base64(data);
+		qdata=QString::fromUtf8(ppk_blob_data_to_base64(data));
 	}
 
 	this->_entry=QString::fromUtf8(key);
@@ -46,7 +46,7 @@ SFEntry::SFEntry(const QString line)
 	{
 		QStringList values=regexp.capturedTexts();
 
-		this->_isBlob=(values[1]=="b");
+		this->_isBlob=(values[1]==QString::fromUtf8("b"));
 		this->_entry=values[2];
 		this->_data=values[3];
 
@@ -76,12 +76,12 @@ QString SFEntry::data() const
 	return _data;
 }
 
-ppk_entry* SFEntry::ppkEntry() const
+ppk_entry* SFEntry::ppkEntry_new() const
 {
 	return ppk_entry_new_from_key(qPrintable(entry()));
 }
 
-ppk_data* SFEntry::ppkData() const
+ppk_data* SFEntry::ppkData_new() const
 {
 	if(isBlob())
 		return ppk_blob_data_new_from_base64(qPrintable(data()));

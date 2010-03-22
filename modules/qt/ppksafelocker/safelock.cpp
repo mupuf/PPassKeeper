@@ -6,6 +6,24 @@
 #include <QStringList>
 #include <QMapIterator>
 
+QString SafeLock::ppkEntryToString(const ppk_entry* entry) const
+{
+	//Get the key
+	size_t lenKey=ppk_key_length(entry);
+	char* key=new char[lenKey+1];
+	if(ppk_get_key(entry, key, lenKey)==PPK_FALSE)
+	{
+		std::cerr << "Entry: Invalid key" << std::endl;
+		return QString();
+	}
+	
+	QString key2=QString::fromUtf8(key);
+	
+	delete[] key;
+	
+	return key2;
+}
+
 QString SafeLock::createFile()
 {
 	QString file;
@@ -24,7 +42,7 @@ QString SafeLock::createFile()
 
 	file+=QString::fromUtf8("\n");
 
-	qDebug("File = '%s'", qPrintable(file));
+	//qDebug("File = '%s'", qPrintable(file));
 
 	return file;
 }
@@ -54,9 +72,9 @@ bool SafeLock::open(const char* passphrase_c)
 
 		//Get data
 		QString data=QString::fromUtf8(c_data);
-		QStringList lines=data.split('\n');
+		QStringList lines=data.split(QString::fromUtf8("\n"));
 
-		if(lines[0]=="#PPK_NETWORK")
+		if(lines[0]==QString::fromUtf8("#PPK_NETWORK"))
 		{
 			//The passphrase was right, get the information
 
@@ -147,12 +165,25 @@ bool SafeLock::add(SFEntry e)
 	return true;
 }
 
+bool SafeLock::reset(SFEntry e)
+{
+	entries[e.entry()]=e;
+	_hasBeenModified=true;
+
+	return true;
+}
+
 bool SafeLock::remove(QString entry)
 {
 	bool ret=entries.remove(entry)>0;
 	if(ret)
 		_hasBeenModified=true;
 	return ret;
+}
+
+bool SafeLock::remove(const ppk_entry* entry)
+{
+	return remove(ppkEntryToString(entry));
 }
 
 const SFEntry SafeLock::get(QString entry) const
@@ -162,22 +193,8 @@ const SFEntry SafeLock::get(QString entry) const
 
 const SFEntry SafeLock::get(const ppk_entry* entry) const
 {
-	//Get the key
-	size_t lenKey=ppk_key_length(entry);
-	char* key=new char[lenKey+1];
-	if(ppk_get_key(entry, key, lenKey-1)==PPK_FALSE)
-	{
-		std::cerr << "Entry: Invalid key" << std::endl;
-		return SFEntry();
-	}
-
 	//Get the entry
-	SFEntry e=entries[key];
-
-	//free the key
-	delete[] key;
-
-	return e;
+	return get(ppkEntryToString(entry));
 }
 
 QList<QString> SafeLock::list() const

@@ -134,8 +134,8 @@ void run(int argc, char** argv)
 		ASSERT(ok_listing && prev_count + 1 == count);
 		ASSERT(ok_listing && prev_count_same_type + 1 == count_same_type);
 		
-		if(ok_listing && prev_count_same_type + 1 != count_same_type)
-			printf("prev_count_same_type=%i, count_same_type=%i and i=%i\n", prev_count_same_type, count_same_type, i);
+		//if(ok_listing && prev_count_same_type + 1 != count_same_type)
+			//printf("prev_count_same_type=%i, count_same_type=%i and i=%i\n", prev_count_same_type, count_same_type, i);
 
 		// remove
 		ASSERT(ppk_module_remove_entry(module_id, entry, 0) == PPK_OK);

@@ -15,6 +15,7 @@ class SafeLock
 	QMap<QString, SFEntry> entries;
 	QString passphrase;
 
+	QString ppkEntryToString(const ppk_entry* entry) const;
 	QString createFile();
 
 public:
@@ -28,7 +29,9 @@ public:
 	bool isOpen() const;
 
 	bool add(SFEntry e);
+	bool reset(SFEntry e);
 	bool remove(QString entry);
+	bool remove(const ppk_entry* entry);
 	const SFEntry get(QString entry) const;
 	const SFEntry get(const ppk_entry* entry) const;
 	QList<QString> list() const;

@@ -30,9 +30,9 @@
 	#include <sys/types.h>
 	#include <sys/stat.h>
 	
-	int mkdir(const char* path, int chmod)
+	int ppk_mkdir(const char* path, int chmod)
 	{
-		return ::mkdir(path, chmod)==0;
+		return mkdir(path, chmod);
 	}
 	
 	std::string setting_dir()

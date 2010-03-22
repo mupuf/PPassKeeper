@@ -21,8 +21,8 @@ public:
 	QString entry() const;
 	QString data() const;
 
-	ppk_entry* ppkEntry() const;
-	ppk_data* ppkData() const;
+	ppk_entry* ppkEntry_new() const;
+	ppk_data* ppkData_new() const;
 
 	bool isString() const;
 	bool isBlob() const;

@@ -8,12 +8,12 @@ PKGCONFIG = ppasskeeper openssl
 TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
-    ../entry.cpp \
+	../sfentry.cpp \
     ../safelock.cpp \
     ../crypt.cpp \
     ../sha512.c
 HEADERS += mainwindow.h \
-    ../entry.h \
+	../sfentry.h \
     ../safelock.h \
     ../sha512.h
 FORMS += mainwindow.ui

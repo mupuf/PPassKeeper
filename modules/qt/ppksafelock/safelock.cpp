@@ -15,10 +15,10 @@ QString SafeLock::createFile()
 	file+=QString::fromUtf8("Revision: %1\n").arg(this->revision+1);
 	file+=QString::fromUtf8("Data:\n");
 
-	QMapIterator<QString, Entry> i(entries);
+	QMapIterator<QString, SFEntry> i(entries);
 	while (i.hasNext()) {
 		i.next();
-		if(i.value()!=Entry())
+		if(i.value()!=SFEntry())
 			file+=i.value().toString();
 	}
 
@@ -78,8 +78,8 @@ bool SafeLock::open(const char* passphrase_c)
 			//Add all the data
 			for(int i=4; i<lines.size(); i++)
 			{
-				Entry e(lines[i]);
-				if(e!=Entry())
+				SFEntry e(lines[i]);
+				if(e!=SFEntry())
 					entries[e.entry()]=e;
 			}
 		}
@@ -134,7 +134,7 @@ bool SafeLock::isOpen() const
 	return _isOpen;
 }
 
-bool SafeLock::add(Entry e)
+bool SafeLock::add(SFEntry e)
 {
 	if(entries.contains(e.entry()))
 		return false;
@@ -153,12 +153,12 @@ bool SafeLock::remove(QString entry)
 	return ret;
 }
 
-const Entry SafeLock::get(QString entry) const
+const SFEntry SafeLock::get(QString entry) const
 {
 	return entries[entry];
 }
 
-const Entry SafeLock::get(const ppk_entry* entry) const
+const SFEntry SafeLock::get(const ppk_entry* entry) const
 {
 	//Get the key
 	size_t lenKey=ppk_key_length(entry);
@@ -166,11 +166,11 @@ const Entry SafeLock::get(const ppk_entry* entry) const
 	if(ppk_get_key(entry, key, lenKey-1)==PPK_FALSE)
 	{
 		std::cerr << "Entry: Invalid key" << std::endl;
-		return Entry();
+		return SFEntry();
 	}
 
 	//Get the entry
-	Entry e=entries[key];
+	SFEntry e=entries[key];
 
 	//free the key
 	delete[] key;

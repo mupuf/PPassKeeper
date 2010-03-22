@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
 	SafeLock sl("poulpage.locked");
 	sl.open("passphrase");
-	sl.add(Entry("s\"poulpissimerie\":\"pompeuse\"\n"));
+	sl.add(SFEntry("s\"poulpissimerie\":\"pompeuse\"\n"));
 	sl.close();
 
 	return 0;

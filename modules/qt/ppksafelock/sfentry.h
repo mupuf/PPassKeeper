@@ -5,7 +5,7 @@
 
 #include <ppasskeeper.h>
 
-class Entry
+class SFEntry
 {
 private:
 	QString _entry;
@@ -13,9 +13,9 @@ private:
 	bool _isBlob;
 
 public:
-	Entry();
-	Entry(const ppk_entry* entry, const ppk_data* data);
-	Entry(const QString line);
+	SFEntry();
+	SFEntry(const ppk_entry* entry, const ppk_data* data);
+	SFEntry(const QString line);
 
 	QString toString() const;
 	QString entry() const;
@@ -27,8 +27,8 @@ public:
 	bool isString() const;
 	bool isBlob() const;
 
-	bool operator==(const Entry& a) const;
-	bool operator!=(const Entry& a) const;
+	bool operator==(const SFEntry& a) const;
+	bool operator!=(const SFEntry& a) const;
 };
 
 #endif // ENTRY_H

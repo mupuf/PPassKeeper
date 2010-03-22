@@ -1,4 +1,4 @@
-#include "entry.h"
+#include "sfentry.h"
 
 #include <QRegExp>
 #include <QStringList>
@@ -8,10 +8,10 @@
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
 
-Entry::Entry() : _isBlob(false)
+SFEntry::SFEntry() : _isBlob(false)
 {}
 
-Entry::Entry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
+SFEntry::SFEntry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 {
 	//Copy the entry
 	size_t lenKey=ppk_key_length(entry);
@@ -39,7 +39,7 @@ Entry::Entry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 	this->_data=qdata;
 }
 
-Entry::Entry(const QString line)
+SFEntry::SFEntry(const QString line)
 {
 	QRegExp regexp(QString::fromUtf8("(s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
 	if(regexp.exactMatch(line))
@@ -56,7 +56,7 @@ Entry::Entry(const QString line)
 		std::cerr << "Cannot create an entry from line '"<< qPrintable(line) << "'" << std::endl;*/
 }
 
-QString Entry::toString() const
+QString SFEntry::toString() const
 {
 	if(isString())
 		return QString::fromUtf8("s\"%1\":\"%2\"\n").arg(entry(), data());
@@ -66,22 +66,22 @@ QString Entry::toString() const
 		return QString();
 }
 
-QString Entry::entry() const
+QString SFEntry::entry() const
 {
 	return _entry;
 }
 
-QString Entry::data() const
+QString SFEntry::data() const
 {
 	return _data;
 }
 
-ppk_entry* Entry::ppkEntry() const
+ppk_entry* SFEntry::ppkEntry() const
 {
 	return ppk_entry_new_from_key(qPrintable(entry()));
 }
 
-ppk_data* Entry::ppkData() const
+ppk_data* SFEntry::ppkData() const
 {
 	if(isBlob())
 		return ppk_blob_data_new_from_base64(qPrintable(data()));
@@ -89,22 +89,22 @@ ppk_data* Entry::ppkData() const
 		return ppk_string_data_new(qPrintable(data()));
 }
 
-bool Entry::isString() const
+bool SFEntry::isString() const
 {
 	return !_isBlob;
 }
 
-bool Entry::isBlob() const
+bool SFEntry::isBlob() const
 {
 	return _isBlob;
 }
 
-bool Entry::operator==(const Entry& a) const
+bool SFEntry::operator==(const SFEntry& a) const
 {
 	return _data==a._data && _entry==a._entry && _isBlob==a._isBlob;
 }
 
-bool Entry::operator!=(const Entry& a) const
+bool SFEntry::operator!=(const SFEntry& a) const
 {
 	return !operator==(a);
 }

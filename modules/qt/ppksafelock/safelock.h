@@ -3,7 +3,7 @@
 
 #include <ppasskeeper.h>
 #include <QMap>
-#include "entry.h"
+#include "sfentry.h"
 
 class SafeLock
 {
@@ -12,7 +12,7 @@ class SafeLock
 	bool _hasBeenModified;
 
 	int revision;
-	QMap<QString, Entry> entries;
+	QMap<QString, SFEntry> entries;
 	QString passphrase;
 
 	QString createFile();
@@ -27,10 +27,10 @@ public:
 
 	bool isOpen() const;
 
-	bool add(Entry e);
+	bool add(SFEntry e);
 	bool remove(QString entry);
-	const Entry get(QString entry) const;
-	const Entry get(const ppk_entry* entry) const;
+	const SFEntry get(QString entry) const;
+	const SFEntry get(const ppk_entry* entry) const;
 	QList<QString> list() const;
 };
 

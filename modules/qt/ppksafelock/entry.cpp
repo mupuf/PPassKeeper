@@ -8,9 +8,10 @@
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
 
-Entry::Entry(){}
+Entry::Entry() : _isBlob(false)
+{}
 
-Entry::Entry(const ppk_entry* entry, const ppk_data* data)
+Entry::Entry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 {
 	//Copy the entry
 	size_t lenKey=ppk_key_length(entry);
@@ -40,7 +41,7 @@ Entry::Entry(const ppk_entry* entry, const ppk_data* data)
 
 Entry::Entry(const QString line)
 {
-	QRegExp regexp(QString::fromUtf8("(s|b)\"(.*)\":\"(.*)\"\n")); //match "entry":"data"
+	QRegExp regexp(QString::fromUtf8("(s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
 	if(regexp.exactMatch(line))
 	{
 		QStringList values=regexp.capturedTexts();
@@ -48,7 +49,11 @@ Entry::Entry(const QString line)
 		this->_isBlob=(values[1]=="b");
 		this->_entry=values[2];
 		this->_data=values[3];
+
+		//std::cout << "Create a " << std::string(isBlob()?"blob":"string") << " entry; entry='" << qPrintable(entry()) << "''; data='" << qPrintable(data()) << std::endl;
 	}
+	/*else
+		std::cerr << "Cannot create an entry from line '"<< qPrintable(line) << "'" << std::endl;*/
 }
 
 QString Entry::toString() const
@@ -94,12 +99,12 @@ bool Entry::isBlob() const
 	return _isBlob;
 }
 
-bool Entry::operator==(const Entry& a)
+bool Entry::operator==(const Entry& a) const
 {
 	return _data==a._data && _entry==a._entry && _isBlob==a._isBlob;
 }
 
-bool Entry::operator!=(const Entry& a)
+bool Entry::operator!=(const Entry& a) const
 {
 	return !operator==(a);
 }

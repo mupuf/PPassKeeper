@@ -9,6 +9,7 @@ class SafeLock
 {
 	QString safelockPath;
 	bool _isOpen;
+	bool _hasBeenModified;
 
 	int revision;
 	QMap<QString, Entry> entries;
@@ -18,6 +19,7 @@ class SafeLock
 
 public:
 	SafeLock(QString safelockPath);
+	~SafeLock();
 
 	bool open(const char* passphrase);
 	bool flushChanges();

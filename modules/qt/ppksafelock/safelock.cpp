@@ -1,6 +1,8 @@
 #include "safelock.h"
 #include "crypt.h"
 
+#include <stdio.h>
+#include <iostream>
 #include <QStringList>
 #include <QMapIterator>
 
@@ -16,7 +18,8 @@ QString SafeLock::createFile()
 	QMapIterator<QString, Entry> i(entries);
 	while (i.hasNext()) {
 		i.next();
-		file+=i.value().toString();
+		if(i.value()!=Entry())
+			file+=i.value().toString();
 	}
 
 	file+=QString::fromUtf8("\n");
@@ -26,32 +29,38 @@ QString SafeLock::createFile()
 	return file;
 }
 
-SafeLock::SafeLock(QString safelockPath) : safelockPath(safelockPath), _isOpen(false), revision(0)
+SafeLock::SafeLock(QString safelockPath) : safelockPath(safelockPath), _isOpen(false), _hasBeenModified(false), revision(0)
 {
 
 }
 
-bool SafeLock::open(const char* passphrase)
+SafeLock::~SafeLock()
+{
+	close();
+}
+
+bool SafeLock::open(const char* passphrase_c)
 {
 	if(isOpen())
 		return false; //it is already open
 
-	//copy values
-	this->passphrase=passphrase;
-	this->_isOpen=true;
-
 	char* c_data;
-	if(decryptFromFile(qPrintable(safelockPath), &c_data, passphrase)==1)
+	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, passphrase_c);
+	if(ret==crypt_ok || ret==crypt_file_cannot_be_oppenned)
 	{
+		//set attributes
+		this->passphrase=QString::fromUtf8(passphrase_c);
+		this->_isOpen=true;
+
+		//Get data
 		QString data=QString::fromUtf8(c_data);
 		QStringList lines=data.split('\n');
 
-		qDebug("lines[0]='%s'", qPrintable(lines[0]));
-		if(lines[0]!="#PPK_NETWORK")
+		if(lines[0]=="#PPK_NETWORK")
 		{
 			//The passphrase was right, get the information
 
-			/*QRegExp getVersion(QString::fromUtf8("Version: (\\d+\\.\\d+)\n")); //match 1.0
+			/*QRegExp getVersion(QString::fromUtf8("Version: (\\d+\\.\\d+)")); //match 1.0
 			if(getVersion.exactMatch(lines[1]))
 			{
 				QStringList matchedVars=getVersion.capturedTexts();
@@ -59,7 +68,7 @@ bool SafeLock::open(const char* passphrase)
 			}*/
 
 			//get the revision number
-			QRegExp getRevision(QString::fromUtf8("Revision: (\\d+)\n"));
+			QRegExp getRevision(QString::fromUtf8("Revision: (\\d+)"));
 			if(getRevision.exactMatch(lines[2]))
 			{
 				QStringList capTexts=getRevision.capturedTexts();
@@ -76,9 +85,15 @@ bool SafeLock::open(const char* passphrase)
 		}
 		else
 		{
+			fprintf(stderr, "SafeLock: Invalid format, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
 			close();
-			return false; //invalid passphrase	
+			return false;
 		}
+	}
+	else if(ret==crypt_invalid_key)
+	{
+		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
+		return false;
 	}
 
 	return true;
@@ -86,18 +101,25 @@ bool SafeLock::open(const char* passphrase)
 
 bool SafeLock::flushChanges()
 {
-	QString data=createFile();
-	return cryptToFile(qPrintable(data), qPrintable(safelockPath), qPrintable(passphrase))==1;
+	if(_hasBeenModified)
+	{
+		QString data=createFile();
+		return cryptToFile(qPrintable(safelockPath), qPrintable(data), qPrintable(this->passphrase))==crypt_ok;
+	}
+	else
+		return true;
 }
 
 bool SafeLock::close()
 {
 	if(isOpen())
 	{
-		passphrase=QString();
+		if(!flushChanges())
+			fprintf(stderr, "SafeLock: Flushing data failed.");
 
-		flushChanges();
+		//Clear secure data --> we should zero the memory space
 		entries.clear();
+		passphrase=QString();
 
 		this->_isOpen=false;
 
@@ -118,13 +140,42 @@ bool SafeLock::add(Entry e)
 		return false;
 
 	entries[e.entry()]=e;
+	_hasBeenModified=true;
 
 	return true;
 }
 
 bool SafeLock::remove(QString entry)
 {
-	return entries.remove(entry)>0;
+	bool ret=entries.remove(entry)>0;
+	if(ret)
+		_hasBeenModified=true;
+	return ret;
+}
+
+const Entry SafeLock::get(QString entry) const
+{
+	return entries[entry];
+}
+
+const Entry SafeLock::get(const ppk_entry* entry) const
+{
+	//Get the key
+	size_t lenKey=ppk_key_length(entry);
+	char* key=new char[lenKey+1];
+	if(ppk_get_key(entry, key, lenKey-1)==PPK_FALSE)
+	{
+		std::cerr << "Entry: Invalid key" << std::endl;
+		return Entry();
+	}
+
+	//Get the entry
+	Entry e=entries[key];
+
+	//free the key
+	delete[] key;
+
+	return e;
 }
 
 QList<QString> SafeLock::list() const

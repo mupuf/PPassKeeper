@@ -27,8 +27,8 @@ public:
 	bool isString() const;
 	bool isBlob() const;
 
-	bool operator==(const Entry& a);
-	bool operator!=(const Entry& a);
+	bool operator==(const Entry& a) const;
+	bool operator!=(const Entry& a) const;
 };
 
 #endif // ENTRY_H

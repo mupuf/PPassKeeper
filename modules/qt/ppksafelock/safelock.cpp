@@ -95,6 +95,8 @@ bool SafeLock::open(const char* passphrase_c)
 		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
 		return false;
 	}
+	else if(ret==crypt_unknown_error)
+		fprintf(stderr, "SafeLock: Unknown error. Create a new SafeLock at '%s'.\n", qPrintable(safelockPath));
 
 	return true;
 }

@@ -35,7 +35,8 @@ ppk_error grantAccess(const char* pwd="")
 	char hash_pwd[SHA512_HASH_SIZE*2+1];
 	char hash_file[SHA512_HASH_SIZE*2+1];
 
-	FILE* f=fopen((setting_dir()+"/lock").c_str(), "r");
+	std::string path=setting_dir()+"/lock";
+	FILE* f=fopen(path.c_str(), "r");
 	if(f!=NULL)
 	{
 		int ret=fread(hash_file, sizeof(char), sizeof(hash_file),f);
@@ -89,8 +90,9 @@ extern "C"
 		if(!isLocked())
 		{
 			char hash_pwd[SHA512_HASH_SIZE*2+1];
-
-			FILE* f=fopen((setting_dir()+"/lock").c_str(), "w");
+			
+			std::string path=setting_dir()+"/lock";
+			FILE* f=fopen(path.c_str(), "w");
 			if(f!=NULL)
 			{
 				sha512(hash_pwd, pwd, strlen(pwd));

@@ -9,17 +9,17 @@
 	
 	#include <direct.h>
 
-	bool mkdir(std::string path)
+	int mkdir(const char* path, int /*chmod*/)
 	{
-		return _mkdir(path.c_str())==0;
+		return _mkdir(path.c_str());
 	}
 	
 	std::string setting_dir()
 	{
 		std::string userprofile=getenv("USERPROFILE");
 		std::string dir=userprofile+"/ppasskeeper/";
-		mkdir(dir);
-		return dir;
+		mkdir(dir.c_str(), 0700);
+		return dir.c_str();
 	}
 	
 #else
@@ -30,17 +30,17 @@
 	#include <sys/types.h>
 	#include <sys/stat.h>
 	
-	bool mkdir(std::string path)
+	int mkdir(const char* path, int chmod)
 	{
-		return mkdir(path.c_str(), 0700)==0;
+		return ::mkdir(path, chmod)==0;
 	}
 	
 	std::string setting_dir()
 	{
 		std::string home=getenv("HOME");
 		std::string dir=home+"/.ppasskeeper/";
-		mkdir(dir);
-		return dir;
+		mkdir(dir.c_str(), 0700);
+		return dir.c_str();
 	}
 	
 #endif

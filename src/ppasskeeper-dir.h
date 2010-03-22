@@ -1,4 +1,4 @@
 #include <string>
 
-bool mkdir(std::string path);
+int mkdir(const char* path, int chmod);
 std::string setting_dir();

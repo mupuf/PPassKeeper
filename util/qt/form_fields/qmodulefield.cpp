@@ -28,13 +28,13 @@ QModuleField::QModuleField(QWidget* parent, QString cur_module, const ppk_proto_
 		ppk_module_read_flags(c_mod, &read_flags);
 		ppk_module_write_flags(c_mod, &write_flags);
 		ppk_module_listing_flags(c_mod, &listing_flags);
-		
+
 		//test the flags
 		if((read_flags&parameters->needed_read_flags)==read_flags)
 			continue;
-		if((write_flags&parameters->needed_write_flags)==write_flags)
+		if(parameters->writable_only==PPK_TRUE && (write_flags&parameters->needed_write_flags)==write_flags)
 			continue;
-		if((listing_flags&parameters->needed_listing_flags)==listing_flags)
+		if(parameters->writable_only==PPK_TRUE && (listing_flags&parameters->needed_listing_flags)==listing_flags)
 			continue;
 		
 		//Add to the list

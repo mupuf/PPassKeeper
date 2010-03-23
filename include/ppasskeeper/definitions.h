@@ -50,6 +50,7 @@ typedef enum
 
 	//Password Managers
 	PPK_CANNOT_OPEN_PASSWORD_MANAGER=600,
+	PPK_INVALID_PASSWORD=601,
 
 	//User
 	PPK_USER_CANCELLED=700,

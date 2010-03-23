@@ -9,6 +9,7 @@ typedef enum {
 extern "C"
 {
 #endif
+	char* getKeyFromPassphrase(const char* passphrase, const char* salt);
 	crypt_error cryptToFile(const char* filepath, const char* data, const char* passphrase);
 	crypt_error decryptFromFile(const char* filepath, char** data, const char* passphrase);
 #ifdef __cplusplus

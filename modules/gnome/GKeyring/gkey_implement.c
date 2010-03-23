@@ -99,11 +99,13 @@ void destructor(void)
 
 }
 
-char** getItemList(unsigned int flags)
+//char** getItemList(unsigned int flags)
+ppk_error getItemList(char*** name_list, unsigned int flags)
 {
 	GnomeKeyringItemInfo *info;
 	GList* list;
-	char** name_list=NULL;
+	
+	*name_list=NULL;
 	
 	//Create the keyring (shall soon move to somewhere else)
 	if(openKeyring(flags)==PPK_TRUE)
@@ -111,9 +113,9 @@ char** getItemList(unsigned int flags)
 		//List the ids of the ppasskeeper keyring
 		GnomeKeyringResult res=gnome_keyring_list_item_ids_sync(keyring_name, &list);
 		if(res!=GNOME_KEYRING_RESULT_OK)
-			return name_list;
+			return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 		
-		name_list=calloc(sizeof(char*), g_list_length(list)+1);
+		(*name_list)=calloc(sizeof(char*), g_list_length(list)+1);
 		
 		unsigned int i=0;
 		while(list!=NULL)
@@ -122,7 +124,7 @@ char** getItemList(unsigned int flags)
 			GnomeKeyringResult res = gnome_keyring_item_get_info_sync(keyring_name, GPOINTER_TO_UINT(list->data), &info); 
 			if(res==GNOME_KEYRING_RESULT_OK)
 			{
-				name_list[i]=gnome_keyring_item_info_get_display_name(info);
+				(*name_list)[i]=gnome_keyring_item_info_get_display_name(info);
 				list=g_list_next(list);
 				i++;
 			}
@@ -132,7 +134,7 @@ char** getItemList(unsigned int flags)
 		g_list_free(list);
 	}
 		
-	return name_list;
+	return PPK_OK;
 }
 
 ppk_error setNetworkPassword(const char* host, const char* login, unsigned short port, const char* protocol, const ppk_data* edata, unsigned int flags)

@@ -245,7 +245,11 @@ extern "C"
 				if(mod->getEntryListCount!=NULL)
 					return mod->getEntryListCount(entry_types, flags);
 				else if(mod->getSimpleEntryList!=NULL)
-					return returnEntryListCount(mod->getSimpleEntryList(flags), entry_types);
+				{
+					char** list;
+					/*ppk_error ret=*/mod->getSimpleEntryList(&list, flags);
+					return returnEntryListCount(list, entry_types);
+				}
 				else
 					return 0;
 			}
@@ -266,7 +270,19 @@ extern "C"
 				if(mod->getEntryList!=NULL)
 					return mod->getEntryList(entry_types, entryList, nbEntries, flags);
 				else if(mod->getSimpleEntryList!=NULL)
-					return returnEntryList(mod->getSimpleEntryList(flags), entry_types, entryList, nbEntries);
+				{
+					//get the list of entries
+					char** list;
+					ppk_error ret=mod->getSimpleEntryList(&list, flags);
+					
+					//If it worked, fill up entryList. Otherwise, set it to NULL
+					if(ret==PPK_OK)
+						returnEntryList(list, entry_types, entryList, nbEntries);
+					else
+						*entryList=NULL;
+					
+					return ret;
+				}
 				else
 					return PPK_UNSUPPORTED_METHOD;
 			}

@@ -174,13 +174,14 @@ extern "C"
 		}
 	#endif
 	
-	char** getSimpleEntryList(unsigned int flags)
+	ppk_error getSimpleEntryList(char*** list, unsigned int flags)
 	{
+		if(list==NULL)
+			return PPK_INVALID_ARGUMENTS;
+		
 		std::vector<std::string> entries=listEntries(setting_dir().c_str(), flags);
 		
-		if(entries.size()==0)
-			return NULL;
-		else
+		if(entries.size()>0)
 		{
 			//Get the length of the prefix in order to compare it later to 
 			//the begining of the entry name
@@ -213,21 +214,21 @@ extern "C"
 			}
 
 			//Copy to a char** list
-			char** ret=new char*[filtered.size()+1];
-			if(ret!=NULL)
+			(*list)=new char*[filtered.size()+1];
+			if((*list)!=NULL)
 			{
 				for(size_t i=0; i<filtered.size(); i++)
 				{
 					std::string val=filtered.at(i);
 
-					ret[i]=new char[val.size()];
-					strcpy(ret[i], val.c_str());
+					(*list)[i]=new char[val.size()];
+					strcpy((*list)[i], val.c_str());
 				}
-				ret[filtered.size()]=NULL;
+				(*list)[filtered.size()]=NULL;
 			}
-
-			return ret;
 		}
+		
+		return PPK_OK;
 	}
 
 	//Get and Set passwords

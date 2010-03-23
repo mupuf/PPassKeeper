@@ -22,7 +22,7 @@ public:
 	SafeLock(QString safelockPath);
 	~SafeLock();
 
-	bool open(const char* passphrase);
+	ppk_error open(const char* passphrase);
 	bool flushChanges();
 	bool close();
 

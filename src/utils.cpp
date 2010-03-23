@@ -188,6 +188,9 @@ extern "C"
 			case PPK_CANNOT_OPEN_PASSWORD_MANAGER:
 				msg="Cannot open the requested password manager";
 				break;
+			case PPK_INVALID_PASSWORD:
+				msg="The password given to the module is invalid";
+				break;
 			case PPK_USER_CANCELLED:
 				msg="User pressed cancel";
 				break;

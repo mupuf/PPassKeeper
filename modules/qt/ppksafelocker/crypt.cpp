@@ -18,7 +18,7 @@ void sha512(char* hash, const void* data, unsigned int length)
 		snprintf(hash+i*2, SHA512_HASH_SIZE+7, "%02x", sha512[i]);
 }
 
-unsigned char* createKey(const char* passphrase, const char* salt)
+char* getKeyFromPassphrase(const char* passphrase, const char* salt)
 {
 	//Salt the passphrase
 	char* salted_pwd=(char*)malloc((strlen(salt)+strlen(passphrase)+1)*sizeof(char));
@@ -33,11 +33,11 @@ unsigned char* createKey(const char* passphrase, const char* salt)
 
 	free(salted_pwd);
 
-	return (unsigned char*)key;
+	return key;
 }
 
 #include <openssl/evp.h>
-crypt_error do_crypt(const unsigned char* key, const unsigned char* in, const char* outpath)
+crypt_error do_crypt(const char* key, const unsigned char* in, const char* outpath)
 {
 	//Get the length of in
 	int inlen=strlen((const char*)in)+1;
@@ -51,7 +51,7 @@ crypt_error do_crypt(const unsigned char* key, const unsigned char* in, const ch
 	//Set up the crypting method
 	EVP_CIPHER_CTX ctx;
 	EVP_CIPHER_CTX_init(&ctx);
-	EVP_EncryptInit(&ctx, EVP_bf_cbc(), key, iv);
+	EVP_EncryptInit(&ctx, EVP_bf_cbc(), (const unsigned char*)key, iv);
 
 	//Encrypt the chain
 	int outlen=0, tmplen;
@@ -92,7 +92,7 @@ crypt_error do_crypt(const unsigned char* key, const unsigned char* in, const ch
 	return crypt_ok;
 }
 
-crypt_error do_decrypt(const unsigned char* key, const char* inpath, unsigned char** out)
+crypt_error do_decrypt(const char* key, const char* inpath, unsigned char** out)
 {
 	//Open the file
 	FILE* in=fopen(inpath, "rb");
@@ -119,7 +119,7 @@ crypt_error do_decrypt(const unsigned char* key, const char* inpath, unsigned ch
 
 	EVP_CIPHER_CTX ctx;
 	EVP_CIPHER_CTX_init(&ctx);
-	EVP_DecryptInit(&ctx, EVP_bf_cbc(), key, iv);
+	EVP_DecryptInit(&ctx, EVP_bf_cbc(), (const unsigned char*)key, iv);
 
 	unsigned char inbuf[1024];
 	int outlen;
@@ -155,7 +155,7 @@ crypt_error do_decrypt(const unsigned char* key, const char* inpath, unsigned ch
 extern "C" crypt_error cryptToFile(const char* filepath, const char* data, const char* passphrase)
 {
 	//Create a key from the passphrase
-	unsigned char* key=createKey(passphrase, "ppk");
+	char* key=getKeyFromPassphrase(passphrase, "ppk");
 
 	//Encrypt the file
 	crypt_error ret=do_crypt(key, (const unsigned char*)data, filepath);
@@ -169,7 +169,7 @@ extern "C" crypt_error cryptToFile(const char* filepath, const char* data, const
 extern "C" crypt_error decryptFromFile(const char* filepath, char** data, const char* passphrase)
 {
 	//Create a key from the passphrase
-	unsigned char* key=createKey(passphrase, "ppk");
+	char* key=getKeyFromPassphrase(passphrase, "ppk");
 
 	//Decrypt the file
 	crypt_error ret=do_decrypt(key, filepath, (unsigned char**)data);
@@ -179,30 +179,3 @@ extern "C" crypt_error decryptFromFile(const char* filepath, char** data, const 
 
 	return ret;
 }
-
-/*int main(int argc, char** argv)
-{
-	if(argc!=2)
-	{
-		printf("Usage: %s \"passphrase\"", argv[0]);
-		return 1;
-	}
-
-	const char* passphrase=argv[1];
-
-	//Create a key from the passphrase
-	printf("Create key from passphrase '%s'\n\n", passphrase);
-	unsigned char* key=createKey(passphrase, "ppk");
-	printf("Key = '%s'\n", key);
-
-	int res=do_crypt(key, (const unsigned char*)"je suis un connard de chez connard qui pue du poulpe de la mort et tout et tout !", "poulpe.crypt");
-
-	unsigned char* poulpe;
-	res=do_decrypt(key, "poulpe.crypt", &poulpe);
-	printf("Decrypt: res=%i, out='%s'\n", res, (char*)poulpe);
-
-	//Free the key
-	free(key);
-
-	return 0;
-}*/

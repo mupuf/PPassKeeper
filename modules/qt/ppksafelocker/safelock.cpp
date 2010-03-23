@@ -57,10 +57,10 @@ SafeLock::~SafeLock()
 	close();
 }
 
-bool SafeLock::open(const char* passphrase_c)
+ppk_error SafeLock::open(const char* passphrase_c)
 {
 	if(isOpen())
-		return false; //it is already open
+		return PPK_OK; //it is already open
 
 	char* c_data;
 	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, passphrase_c);
@@ -105,18 +105,18 @@ bool SafeLock::open(const char* passphrase_c)
 		{
 			fprintf(stderr, "SafeLock: Invalid format, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
 			close();
-			return false;
+			return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 		}
 	}
 	else if(ret==crypt_invalid_key)
 	{
 		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
-		return false;
+		return PPK_INVALID_PASSWORD;
 	}
-	else if(ret==crypt_unknown_error)
+	else if(ret==crypt_unknown_error) //TODO SafeLocker creation module
 		fprintf(stderr, "SafeLock: Unknown error. Create a new SafeLock at '%s'.\n", qPrintable(safelockPath));
 
-	return true;
+	return PPK_OK;
 }
 
 bool SafeLock::flushChanges()

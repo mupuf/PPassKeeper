@@ -89,9 +89,9 @@ extern "C" const int getABIVersion()
 	return 1;
 }
 
-extern "C" char** getSimpleEntryList(unsigned int flags)
+extern "C" ppk_error getSimpleEntryList(char*** list, unsigned int flags)
 {
-	return getItemList(flags);
+	return getItemList(list, flags);
 }
 
 extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)

@@ -81,7 +81,7 @@ extern "C"
 		*/
 		typedef ppk_error (*_getEntryList)(unsigned int entry_types, ppk_entry*** entryList, size_t* nbEntries, unsigned int flags);
 	//OR
-		typedef char** (*_getSimpleEntryList)(unsigned int flags);
+		typedef ppk_error (*_getSimpleEntryList)(char*** list, unsigned int flags);
 
 	/****************************************************************************************************/
 	/****************************************************************************************************/

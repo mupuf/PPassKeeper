@@ -285,10 +285,12 @@ ENDIF(PPK_KWALLET4)
 
 # PPK_SAFELOCKER
 IF(PPK_SAFELOCKER)
-  FILE(GLOB ppk_safelocker_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/"
-	"crypt.cpp" "safelock.cpp" "ppk_safelocker.cpp")
-  SET(ppk_safelocker_MOCS modulecreation.h)
-  SET(ppk_safelocker_UIS modulecreation.ui)
+  FILE(GLOB ppk_safelocker_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}"
+	"modules/qt/ppksafelocker/crypt.cpp" "modules/qt/ppksafelocker/safelock.cpp" 
+	"modules/qt/ppksafelocker/ppk_safelocker.cpp" "modules/qt/ppksafelocker/sha512.c"
+	"modules/qt/ppksafelocker/modulecreation.cpp" "modules/qt/ppksafelocker/sfentry.cpp")
+  SET(ppk_safelocker_MOCS "modulecreation.h")
+  SET(ppk_safelocker_UIS "modulecreation.ui")
 
   QT4_ADD_RESOURCES(ppasskeeper-qt_RCC_SRCS ${ppasskeeper-qt_RCC})
   FOREACH(MOC ${ppk_safelocker_MOCS})

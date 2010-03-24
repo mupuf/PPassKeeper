@@ -36,6 +36,12 @@ char* getKeyFromPassphrase(const char* passphrase, const char* salt)
 	return key;
 }
 
+void freeKeyFromPassphrase(char* key)
+{
+	if(key!=NULL)
+		free(key);
+}
+
 #include <openssl/evp.h>
 crypt_error do_crypt(const char* key, const unsigned char* in, const char* outpath)
 {
@@ -152,7 +158,7 @@ crypt_error do_decrypt(const char* key, const char* inpath, unsigned char** out)
 	return crypt_ok;
 }
 
-extern "C" crypt_error cryptToFile(const char* filepath, const char* data, const char* passphrase)
+extern "C" crypt_error cryptToFileUsingPassphrase(const char* filepath, const char* data, const char* passphrase)
 {
 	//Create a key from the passphrase
 	char* key=getKeyFromPassphrase(passphrase, "ppk");
@@ -166,7 +172,7 @@ extern "C" crypt_error cryptToFile(const char* filepath, const char* data, const
 	return ret;
 }
 
-extern "C" crypt_error decryptFromFile(const char* filepath, char** data, const char* passphrase)
+extern "C" crypt_error decryptFromFileUsingPassphrase(const char* filepath, char** data, const char* passphrase)
 {
 	//Create a key from the passphrase
 	char* key=getKeyFromPassphrase(passphrase, "ppk");
@@ -178,4 +184,15 @@ extern "C" crypt_error decryptFromFile(const char* filepath, char** data, const 
 	free(key);
 
 	return ret;
+}
+
+extern "C" crypt_error cryptToFile(const char* filepath, const char* data, const char* key)
+{
+	return do_crypt(key, (const unsigned char*)data, filepath);
+}
+
+extern "C" crypt_error decryptFromFile(const char* filepath, char** data, const char* key)
+{
+	//Decrypt the file
+	return do_decrypt(key, filepath, (unsigned char**)data);
 }

@@ -33,34 +33,8 @@ SafeLock& safeLock()
 
 ppk_error lazyInit()
 {
-	static QString passphrase;
-	
-	//get the passphrase
-	if(passphrase==QString())
-	{
-		const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
-		ppk_entry* entry=ppk_application_entry_new("passphrase", getModuleID());
-		
-		ppk_data* edata;
-		ppk_error res=ppk_module_get_entry(module, entry, &edata, ppk_rf_none);
-		ppk_entry_free(entry);
-		
-		if(res==PPK_OK)
-			passphrase=QString::fromUtf8(ppk_get_data_string(edata));
-		else
-			return res;
-	}
-	
 	if(!safeLock().isOpen())
-	{
-		ppk_error ret=safeLock().open(qPrintable(passphrase));
-		
-		//If the password is incorrect, reset the password
-		if(ret==PPK_INVALID_PASSWORD)
-			passphrase=QString();
-		
-		return ret;
-	}
+		return safeLock().open();
 	
 	return PPK_OK;
 }
@@ -116,6 +90,10 @@ extern "C"
 		//Set parameters's default value
 		parameters[PARAM_MOD_PASSPHRASE]=cvariant_from_string(PARAM_MOD_PASSPHRASE_DEFAULT);
  		parameters[PARAM_CLOSING_DELAY]=cvariant_from_int(PARAM_CLOSING_DELAY_DEFAULT);
+		
+		//Set up values
+		const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
+		safeLock().setPPKModuleForPassphrase(QString::fromUtf8(module));
 	}
 
 	void destructor()
@@ -286,7 +264,13 @@ extern "C"
 		if(key == PARAM_MOD_PASSPHRASE)
 		{
 			if(cvariant_get_type(value)==cvariant_string)
+			{
 				parameters[PARAM_MOD_PASSPHRASE]=value;
+				
+				//Update the module
+				const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
+				safeLock().setPPKModuleForPassphrase(QString::fromUtf8(module));
+			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 		}

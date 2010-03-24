@@ -10,8 +10,11 @@ extern "C"
 {
 #endif
 	char* getKeyFromPassphrase(const char* passphrase, const char* salt);
-	crypt_error cryptToFile(const char* filepath, const char* data, const char* passphrase);
-	crypt_error decryptFromFile(const char* filepath, char** data, const char* passphrase);
+	void freeKeyFromPassphrase(char* key);
+	crypt_error cryptToFileUsingPassphrase(const char* filepath, const char* data, const char* passphrase);
+	crypt_error decryptFromFileUsingPassphrase(const char* filepath, char** data, const char* passphrase);
+	crypt_error cryptToFile(const char* filepath, const char* data, const char* key);
+	crypt_error decryptFromFile(const char* filepath, char** data, const char* key);
 #ifdef __cplusplus
 }
 #endif

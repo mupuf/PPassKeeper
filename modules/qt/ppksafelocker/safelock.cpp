@@ -6,6 +6,8 @@
 #include <QStringList>
 #include <QMapIterator>
 
+extern "C" const char* getModuleID();
+
 QString SafeLock::ppkEntryToString(const ppk_entry* entry) const
 {
 	//Get the key
@@ -47,6 +49,42 @@ QString SafeLock::createFile()
 	return file;
 }
 
+bool SafeLock::isDBAvailable()
+{
+	//Decrypt the file
+	char* c_data;
+	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, ""/*empty key*/);
+	return ret!=crypt_file_cannot_be_oppenned;
+}
+
+ppk_error SafeLock::getKey(QString passphrase, QString& key)
+{
+	QString ret;
+	char* key_c;
+	
+	//Get the passphrase
+	if(passphrase==QString())
+	{
+		ppk_entry* entry=ppk_application_entry_new("passphrase", getModuleID());
+		
+		ppk_data* edata;
+		ppk_error res=ppk_module_get_entry(qPrintable(ppk_module_passphrase), entry, &edata, ppk_rf_none);
+		ppk_entry_free(entry);
+		
+		if(res==PPK_OK)
+			passphrase=QString::fromUtf8(ppk_get_data_string(edata));
+		else
+			return res;
+	}
+	
+	//Get the key
+	key_c=getKeyFromPassphrase(qPrintable(passphrase), "ppk");
+	ret=QString::fromUtf8(key_c);
+	freeKeyFromPassphrase(key_c);
+	
+	return PPK_OK;
+}
+
 SafeLock::SafeLock(QString safelockPath) : safelockPath(safelockPath), _isOpen(false), _hasBeenModified(false), revision(0)
 {
 
@@ -57,17 +95,36 @@ SafeLock::~SafeLock()
 	close();
 }
 
+#include "modulecreation.h"
 ppk_error SafeLock::open(const char* passphrase_c)
 {
+	QString passphrase=(passphrase_c==NULL?QString():QString::fromUtf8(passphrase_c));
+	
 	if(isOpen())
 		return PPK_OK; //it is already open
+	
+	//Check if the DB is available. if it is not, create the db
+	if(!isDBAvailable())
+	{
+		ModuleCreation m;
+		m.exec();
+		if(m.result()==QDialog::Accepted)
+			passphrase=m.passphrase();
+		else
+			return PPK_USER_CANCELLED;
+	}
+	
+	//get the blowfish key and store it
+	ppk_error retGetKey=getKey(QString::fromUtf8(passphrase_c), key);
+	if(retGetKey!=PPK_OK)
+		return retGetKey;
 
+	//Decrypt the file
 	char* c_data;
-	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, passphrase_c);
+	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, qPrintable(key));
 	if(ret==crypt_ok || ret==crypt_file_cannot_be_oppenned)
 	{
 		//set attributes
-		this->passphrase=QString::fromUtf8(passphrase_c);
 		this->_isOpen=true;
 
 		//Get data
@@ -111,6 +168,7 @@ ppk_error SafeLock::open(const char* passphrase_c)
 	else if(ret==crypt_invalid_key)
 	{
 		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
+		this->key=QString();
 		return PPK_INVALID_PASSWORD;
 	}
 	else if(ret==crypt_unknown_error) //TODO SafeLocker creation module
@@ -124,7 +182,7 @@ bool SafeLock::flushChanges()
 	if(_hasBeenModified)
 	{
 		QString data=createFile();
-		return cryptToFile(qPrintable(safelockPath), qPrintable(data), qPrintable(this->passphrase))==crypt_ok;
+		return cryptToFile(qPrintable(safelockPath), qPrintable(data), qPrintable(this->key))==crypt_ok;
 	}
 	else
 		return true;
@@ -139,7 +197,7 @@ bool SafeLock::close()
 
 		//Clear secure data --> we should zero the memory space
 		entries.clear();
-		passphrase=QString();
+		key=QString();
 
 		this->_isOpen=false;
 
@@ -147,6 +205,16 @@ bool SafeLock::close()
 	}
 
 	return false;
+}
+
+void SafeLock::setPPKModuleForPassphrase(QString ppk_passphrase_module)
+{
+	this->ppk_module_passphrase=ppk_passphrase_module;
+}
+
+QString SafeLock::PPKModuleForPassphrase()
+{
+	return this->ppk_module_passphrase;
 }
 
 bool SafeLock::isOpen() const

@@ -285,9 +285,18 @@ ENDIF(PPK_KWALLET4)
 
 # PPK_SAFELOCKER
 IF(PPK_SAFELOCKER)
-  FILE(GLOB ppk_safelocker_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"modules/qt/ppksafelocker/*.[ch]"
-	"modules/qt/ppksafelocker/*.cpp")
+  FILE(GLOB ppk_safelocker_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/"
+	"crypt.cpp" "safelock.cpp" "ppk_safelocker.cpp")
+  SET(ppk_safelocker_MOCS modulecreation.h)
+  SET(ppk_safelocker_UIS modulecreation.ui)
+
+  QT4_ADD_RESOURCES(ppasskeeper-qt_RCC_SRCS ${ppasskeeper-qt_RCC})
+  FOREACH(MOC ${ppk_safelocker_MOCS})
+	QT4_WRAP_CPP(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${MOC}")
+  ENDFOREACH(MOC ${ppk_safelocker_MOCS})
+  FOREACH(UI ${ppk_safelocker_UIS})
+	QT4_WRAP_UI(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${UI}")
+  ENDFOREACH(UI ${ppk_safelocker_UIS})
   ADD_LIBRARY(ppk_safelocker MODULE ${ppk_safelocker_SOURCES})
   TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${openssl_LIBRARIES} ppasskeeper)
   INSTALL(TARGETS ppk_safelocker DESTINATION lib/ppasskeeper)

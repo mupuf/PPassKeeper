@@ -7,6 +7,9 @@ class ModuleCreation : public QDialog, private Ui_createDB_dlg
 {
 Q_OBJECT
 
+private:
+	int secLevel(const QString& pwd, QString& tips);
+
 public:
 	ModuleCreation();
 	

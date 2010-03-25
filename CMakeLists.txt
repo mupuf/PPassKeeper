@@ -300,7 +300,7 @@ IF(PPK_SAFELOCKER)
 	QT4_WRAP_UI(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${UI}")
   ENDFOREACH(UI ${ppk_safelocker_UIS})
   ADD_LIBRARY(ppk_safelocker MODULE ${ppk_safelocker_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${openssl_LIBRARIES} ppasskeeper)
+  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${openssl_LIBRARIES} ppasskeeper m)
   INSTALL(TARGETS ppk_safelocker DESTINATION lib/ppasskeeper)
 ENDIF(PPK_SAFELOCKER)
 

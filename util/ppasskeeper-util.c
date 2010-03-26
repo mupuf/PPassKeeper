@@ -314,7 +314,7 @@ int main(int argc, char **argv)
 			return 1; // invalid key
 		}
 
-		ppk_data* edata;
+		ppk_data* edata=NULL;
 		if (password)
 		{
 			edata = ppk_string_data_new(password);

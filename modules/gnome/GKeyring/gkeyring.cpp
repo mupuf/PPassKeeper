@@ -145,7 +145,7 @@ extern "C" ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, uns
 	else
 		return PPK_UNKNOWN_ENTRY_TYPE;
 
-	ppk_error res;
+	ppk_error res = PPK_OK;
 	if(entry->type == ppk_network)
 		res=setNetworkPassword(entry->net.host, entry->net.login, entry->net.port, entry->net.protocol, edata_mod, flags);
 	else if(entry->type == ppk_application)

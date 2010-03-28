@@ -100,6 +100,9 @@ crypt_error do_crypt(const char* key, const unsigned char* in, const char* outpa
 
 crypt_error do_decrypt(const char* key, const char* inpath, unsigned char** out)
 {
+	//Set out to NULL in case we get an error
+	*out=NULL;
+
 	//Open the file
 	FILE* in=fopen(inpath, "rb");
 	if(!in)
@@ -137,6 +140,11 @@ crypt_error do_decrypt(const char* key, const char* inpath, unsigned char** out)
 		{
 			// Error
 			EVP_CIPHER_CTX_cleanup(&ctx);
+
+			//Free the output buffer
+			free(*out);
+			*out=NULL;
+
 			return crypt_unknown_error;
 		}
 		outpos+=outlen;
@@ -146,6 +154,11 @@ crypt_error do_decrypt(const char* key, const char* inpath, unsigned char** out)
 	{
 		// Error
 		EVP_CIPHER_CTX_cleanup(&ctx);
+
+		//Free the output buffer
+		free(*out);
+		*out=NULL;
+
 		return crypt_invalid_key;
 	}
 	outpos+=outlen;

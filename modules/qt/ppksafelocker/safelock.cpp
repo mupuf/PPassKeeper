@@ -115,20 +115,20 @@ ppk_error SafeLock::open(const char* passphrase_c)
 	}
 	
 	//get the blowfish key and store it
-	ppk_error retGetKey=getKey(QString::fromUtf8(passphrase_c), key);
+	ppk_error retGetKey=getKey(passphrase, key);
 	if(retGetKey!=PPK_OK)
 		return retGetKey;
 
 	//Decrypt the file
-	char* c_data;
+	char* c_data=NULL;
 	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, qPrintable(key));
-	if(ret==crypt_ok || ret==crypt_file_cannot_be_oppenned)
+	if(ret==crypt_ok)
 	{
 		//set attributes
 		this->_isOpen=true;
 
 		//Get data
-		QString data=QString::fromUtf8(c_data);
+		QString data=(c_data==NULL?QString():QString::fromUtf8(c_data));
 		QStringList lines=data.split(QString::fromUtf8("\n"));
 
 		if(lines[0]==QString::fromUtf8("#PPK_NETWORK"))
@@ -171,8 +171,16 @@ ppk_error SafeLock::open(const char* passphrase_c)
 		this->key=QString();
 		return PPK_INVALID_PASSWORD;
 	}
-	else if(ret==crypt_unknown_error) //TODO SafeLocker creation module
-		fprintf(stderr, "SafeLock: Unknown error. Create a new SafeLock at '%s'.\n", qPrintable(safelockPath));
+	else if(ret==crypt_file_cannot_be_oppenned || ret==crypt_unknown_error)
+	{
+		//Create a new safelock
+		fprintf(stderr, "SafeLock: Create a new SafeLock at '%s'.\n", qPrintable(safelockPath));
+
+		//Set the parameters of the new SafeLock
+		this->_isOpen=true;
+		this->revision=0;
+		this->entries.clear();
+	}
 
 	return PPK_OK;
 }

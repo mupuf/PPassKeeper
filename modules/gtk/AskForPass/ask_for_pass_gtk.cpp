@@ -74,12 +74,12 @@ extern "C" void constructor()
 										ppk_settings_custom_texts);
 	proto_params[PARAM_MAIN_TEXT]=win_text;
 	
-	ppk_proto_param* gaga=ppk_param_proto_create_validated_string("gaga",
+	/*ppk_proto_param* gaga=ppk_param_proto_create_validated_string("gaga",
 										"doit respecter \"mupuf_.*_connard\"",
 										"mupuf_le_connard",
 										ppk_settings_custom_texts,
 										"mupuf_.*_connard");
-	proto_params["gaga"]=gaga;
+	proto_params["gaga"]=gaga;*/
 	
 	//Get a list of available parameters
 	availParams=new ppk_proto_param*[proto_params.size()+1];

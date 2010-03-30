@@ -288,6 +288,43 @@ const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* p
 * \return the validated string parameters or NULL if proto is not a validated-string prototype parameter*/
 const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(const ppk_proto_param* proto);
 
+//Validation
+/*! \brief Validate a module parameter (does it comply with its prototype ?)
+* \param module_id The module that contains this parameter
+* \param params The prototype's parameter
+* \param value The value to be validated
+* \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
+ppk_boolean ppk_param_module_validation(const char* module_id, const ppk_proto_param_module* params, const char* module_value);
+
+/*! \brief Validate a ranged-int parameter (does it comply with its prototype ?)
+* \param module_id The module that contains this parameter
+* \param params The prototype's parameter
+* \param value The value to be validated
+* \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
+ppk_boolean ppk_param_ranged_int_validation(const char* module_id, const ppk_proto_param_ranged_int* params, int value);
+
+/*! \brief Validate a ranged-float parameter (does it comply with its prototype ?)
+* \param module_id The module that contains this parameter
+* \param params The prototype's parameter
+* \param value The value to be validated
+* \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
+ppk_boolean ppk_param_ranged_float_validation(const char* module_id, const ppk_proto_param_ranged_float* params, double value);
+
+/*! \brief Validate a list parameter (does it comply with its prototype ?)
+* \param module_id The module that contains this parameter
+* \param params The prototype's parameter
+* \param value The value to be validated
+* \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
+ppk_boolean ppk_param_list_validation(const char* module_id, const ppk_proto_param_list* params, const char* value);
+
+/*! \brief Validate a parameter (does it comply with its prototype ?)
+* \param module_id The module that contains this parameter
+* \param name The name of the parameter to be validated
+* \param value The value of the parameter to be validated
+* \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
+ppk_boolean ppk_param_validation(const char* module_id, const char* name, const cvariant value);
+
+
 #ifdef __cplusplus
 }
 #endif

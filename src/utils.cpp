@@ -173,6 +173,9 @@ extern "C"
 			case PPK_CANNOT_REMOVE_PARAM:
 				msg="The requested parameter could not be deleted";
 				break;
+			case PPK_CANNOT_VALIDATE_PARAM:
+				msg="The submited parameter cannot be validated";
+				break;
 			case PPK_ENTRY_UNAVAILABLE:
 				msg="The requested entry could not be retrieved";
 				break;

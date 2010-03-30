@@ -202,6 +202,12 @@ extern "C"
 	* \return Return a null-terminated list of ppk_proto_param**/
 	const ppk_proto_param** ppk_module_available_parameters(const char* module_id);
 
+	/*! \brief Get a parameters's prototype by name for a given module
+	* \param module_id Module's ID.
+	* \param name the name of the parameter
+	* \return Return the concerned ppk_proto_param**/
+	const ppk_proto_param* ppk_module_parameter_prototype(const char* module_id, const char* name);
+	
 	/*! \brief Allow to change the default password prompt message and replace it by your own.
 	* \param module_id Module's ID.
 	* \param customMessage Message to be used

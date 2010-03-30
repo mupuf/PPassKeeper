@@ -356,6 +356,132 @@ extern "C"
 			return NULL;
 	}
 	
+	//Validation
+	ppk_boolean ppk_param_module_validation(const char* module_id, const ppk_proto_param_module* params, const char* module_value)
+	{
+		//If one of the param is NULL
+		if(module_id==NULL || params==NULL || module_value==NULL)
+			return PPK_FALSE;
+		
+		//Check if the module exists
+		ppk_boolean avail=ppk_module_is_available(module_value);
+		if(avail==PPK_FALSE)
+			return PPK_FALSE;
+		
+		//get the flags
+		unsigned int read_flags, write_flags, listing_flags;
+		ppk_module_read_flags(module_value, &read_flags);
+		ppk_module_write_flags(module_value, &write_flags);
+		ppk_module_listing_flags(module_value, &listing_flags);
+		
+		//check if the value complies with what the module expects
+		if(params->allow_self==PPK_FALSE && strcmp(module_value, module_id)==0)
+			return PPK_FALSE;
+		else if(params->writable_only==PPK_TRUE && ppk_module_is_writable(module_value)==PPK_FALSE)
+			return PPK_FALSE;
+		else if(params->min_sec_level > ppk_module_security_level(module_value))
+			return PPK_FALSE;
+		else if((read_flags&params->needed_read_flags)==read_flags)
+			return PPK_FALSE;
+		else if(params->writable_only==PPK_TRUE && (write_flags&params->needed_write_flags)==write_flags)
+			return PPK_FALSE;
+		else if(params->writable_only==PPK_TRUE && (listing_flags&params->needed_listing_flags)==listing_flags)
+			return PPK_FALSE;
+		else
+			return PPK_TRUE;
+	}
+	
+	ppk_boolean ppk_param_ranged_int_validation(const char* /*module_id*/, const ppk_proto_param_ranged_int* param, int value)
+	{
+		return value>=param->lowest && value<=param->greatest?PPK_TRUE:PPK_FALSE;;
+	}
+	
+	ppk_boolean ppk_param_ranged_float_validation(const char* /*module_id*/, const ppk_proto_param_ranged_float* param, double value)
+	{
+		return value>=param->lowest && value<=param->greatest?PPK_TRUE:PPK_FALSE;;
+	}
+	
+	ppk_boolean ppk_param_list_validation(const char* /*module_id*/, const ppk_proto_param_list* param, const char* value)
+	{
+		const char** list=param->list;
+		
+		int i=0;
+		while(list!=NULL && list[i]!=NULL)
+		{
+			if(strcmp(list[i], value)==0)
+				return PPK_TRUE;
+			
+			i++;
+		}
+		
+		return PPK_FALSE;
+	}
+	
+	ppk_boolean ppk_param_validation(const char* module_id, const char* param_name, const cvariant param_value)
+	{
+		ppk_boolean ret=PPK_FALSE;
+		
+		//if the module_id or the param is NULL, just go out
+		if(module_id==NULL || param_name==NULL)
+			return PPK_FALSE;
+		
+		//Read the prototype corresponding to param
+		const ppk_proto_param* proto=ppk_module_parameter_prototype(module_id, param_name);
+		
+		//get the expected type
+		cvariant_type expected_type=ppk_param_proto_expected_type(proto);
+		if(cvariant_get_type(param_value)==expected_type)
+			return PPK_FALSE;
+		
+		//get the expected user type
+		ppk_param_type type=ppk_param_proto_user_type(proto);
+		
+		//Cases
+		if(type==ppk_proto_module_param)
+		{
+			//Get the proto parameters
+			const ppk_proto_param_module* params=ppk_param_proto_module_params(proto);
+			if(params==NULL)
+				return PPK_FALSE;
+			
+			return ppk_param_module_validation(module_id, params, cvariant_get_string(param_value));
+		}
+		else if(type==ppk_proto_ranged_int_param)
+		{
+			//Get the proto parameters
+			const ppk_proto_param_ranged_int* params=ppk_param_proto_ranged_int_params(proto);
+			if(params==NULL)
+				return PPK_FALSE;
+			
+			return ppk_param_ranged_int_validation(module_id, params, cvariant_get_int(param_value));
+		}
+		else if(type==ppk_proto_ranged_float_param)
+		{
+			//Get the proto parameters
+			const ppk_proto_param_ranged_float* params=ppk_param_proto_ranged_float_params(proto);
+			if(params==NULL)
+				return PPK_FALSE;
+			
+			return ppk_param_ranged_float_validation(module_id, params, cvariant_get_float(param_value));
+		}
+		else if(type==ppk_proto_list_param)
+		{
+			//Get the proto parameters
+			const ppk_proto_param_list* params=ppk_param_proto_list_params(proto);
+			if(params==NULL)
+				return PPK_FALSE;
+			
+			return ppk_param_list_validation(module_id, params, cvariant_get_string(param_value));
+		}
+		else if(type==ppk_proto_validated_string_param)
+		{
+			//TODO
+			return PPK_TRUE;
+		}
+		
+		return ret;
+	}
+
 #ifdef __cplusplus
 }
 #endif

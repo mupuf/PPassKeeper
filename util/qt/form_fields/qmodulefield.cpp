@@ -1,6 +1,8 @@
 #include "qmodulefield.h"
 #include <QVariant>
 
+#include <ppasskeeper/param_prototype.h>
+
 QModuleField::QModuleField(QWidget* parent, QString cur_module, const ppk_proto_param_module* parameters) : QComboField(parent)
 {
 	QList<QString> newList;
@@ -16,29 +18,9 @@ QModuleField::QModuleField(QWidget* parent, QString cur_module, const ppk_proto_
 		//increment the iterator pointer
 		i++;
 
-		if(parameters->allow_self==PPK_FALSE && cur_module==QString::fromUtf8(c_mod))
-			continue;
-		if(parameters->writable_only==PPK_TRUE && ppk_module_is_writable(c_mod)==PPK_FALSE)
-			continue;
-		if(parameters->min_sec_level>ppk_module_security_level(qPrintable(cur_module)))
-			continue;
-		
-		//get the flags
-		unsigned int read_flags, write_flags, listing_flags;
-		ppk_module_read_flags(c_mod, &read_flags);
-		ppk_module_write_flags(c_mod, &write_flags);
-		ppk_module_listing_flags(c_mod, &listing_flags);
-
-		//test the flags
-		if((read_flags&parameters->needed_read_flags)==read_flags)
-			continue;
-		if(parameters->writable_only==PPK_TRUE && (write_flags&parameters->needed_write_flags)==write_flags)
-			continue;
-		if(parameters->writable_only==PPK_TRUE && (listing_flags&parameters->needed_listing_flags)==listing_flags)
-			continue;
-		
 		//Add to the list
-		newList.push_back(QString::fromUtf8(c_mod));
+		if(ppk_param_module_validation(qPrintable(cur_module), parameters, c_mod))
+			newList.push_back(QString::fromUtf8(c_mod));
 	}
 
 	//Set the current list as the combo's list

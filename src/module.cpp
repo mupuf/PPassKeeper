@@ -388,6 +388,9 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
+			if(ppk_param_validation(module_id, key, value)==PPK_FALSE)
+				return PPK_CANNOT_VALIDATE_PARAM;
+			
 			VParam& param = VParam::instance();
 			if(param.saveParam(module_id, key, value))
 			{
@@ -479,12 +482,42 @@ extern "C"
 				if(mod->availableParameters!=NULL)
 					return mod->availableParameters();
 				else
-					return 0;
+					return NULL;
 			else
-				return 0;
+				return NULL;
 		}
 		else
-			return 0;
+			return NULL;
+	}
+	
+	const ppk_proto_param* ppk_module_parameter_prototype(const char* module_id, const char* name)
+	{
+		if(!ppk_is_locked())
+		{
+			const _module* mod=modules.getModuleByID(module_id);
+			if(mod!=NULL)
+			{
+				if(mod->availableParameters!=NULL)
+				{
+					const ppk_proto_param** list=mod->availableParameters();
+					
+					int i=0;
+					while(list!=NULL && list[i]!=NULL)
+					{
+						if(strcmp(list[i]->name, name)==0)
+							return list[i];
+					}
+					
+					return NULL;
+				}
+				else
+					return NULL;
+			}
+			else
+				return NULL;
+		}
+		else
+			return NULL;
 	}
 
 	ppk_error ppk_module_set_default(const char* module_id)

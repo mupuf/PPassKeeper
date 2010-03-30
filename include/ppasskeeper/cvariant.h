@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 /**
  * \file cvariant.h
- * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \author MùPùF - Martin Peres (martin dot peres at ensi-bourges dot fr)
  * \date 04-08-2009
  */
 
@@ -64,8 +64,13 @@ extern "C"
 		};
 	} cvariant;
 	
+	///Private: The "emtpy" string
 	#define CVARIANT_EMPTY_STRING NULL
+	
+	///Private: The "emtpy" int
 	#define CVARIANT_EMPTY_INT 0
+	
+	///Private: The "emtpy" float
 	#define CVARIANT_EMPTY_FLOAT 0.0
 	
 	//Setters

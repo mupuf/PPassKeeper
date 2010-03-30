@@ -3,7 +3,7 @@
 
 /**
  * \file entry.h
- * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \author MùPùF - Martin Peres (martin dot peres at ensi-bourges dot fr)
  * \date 27-07-2009
  */
 
@@ -70,6 +70,7 @@ extern "C"
 #endif
 
 	/*! \brief Generate a Network entry given a host, a login and a port.
+	* \param protocol The protocol (example: http)
 	* \param host The host (example : mupuf.org).
 	* \param login The login name (example : mupuf).
 	* \param port The service's port (example : 21, 0 means the default port).
@@ -94,7 +95,7 @@ extern "C"
 	ppk_entry_type ppk_get_entry_type(const ppk_entry* entry);
 
 	/*! \brief Frees a ppk_entry.
-	* \param data The ppk_entry to be freed.*/
+	* \param entry The ppk_entry to be freed.*/
 	void ppk_entry_free(ppk_entry* entry);
 
 #ifdef __cplusplus 

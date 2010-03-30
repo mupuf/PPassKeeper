@@ -3,7 +3,7 @@
 
 /**
  * \file module.h
- * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \author MùPùF - Martin Peres (martin dot peres at ensi-bourges dot fr)
  * \date 27-07-2009
  */
 
@@ -142,6 +142,7 @@ extern "C"
 	* \param module_id Module's ID.
 	* \param entry The entry to be listed.
 	* \param flags You can specify flags which will change the way the entry will be tested as accessible or not. See readFlags.
+	* \param [out] result Is set to PPK_TRUE if the module has the entry, PPK_FALSE otherwise
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_module_has_entry(const char* module_id, const ppk_entry* entry, unsigned int flags, ppk_boolean* result);
 
@@ -226,11 +227,13 @@ extern "C"
     
     /*! \brief Import entries from a dump file to a particular module
 	* \param module_id Module's ID.
+	* \param importFile The file to import the entries from.
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_module_import(const char* module_id, const char* importFile);
 
 	/*! \brief Export entries of a module to a dump file
 	* \param module_id Module's ID.
+	* \param exportFile The file to export the entries to.
 	* \return  Return a ppk_error (PPK_OK if it succeeded).*/
 	ppk_error ppk_module_export(const char* module_id, const char* exportFile);
 

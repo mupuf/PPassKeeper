@@ -4,7 +4,7 @@
 
 /**
  * \file ppasskeeper.h
- * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \author MùPùF - Martin Peres (martin dot peres at ensi-bourges dot fr)
  * \date 27-07-2009
  */
 

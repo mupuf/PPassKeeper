@@ -3,7 +3,7 @@
 
 /**
  * \file param_prototype.h
- * \author MùPùF - Martin Peres (martin<dot>peres<At>ensi-bourges<dot>fr)
+ * \author MùPùF - Martin Peres (martin dot peres at ensi-bourges dot fr)
  * \date 13-03-2010
  */
 
@@ -34,11 +34,22 @@ typedef struct
 ///Parameters of the 'ppk_module_param' parameter type
 typedef struct
 {
+	///Allow this parameter to reference its module_id
 	ppk_boolean allow_self;
+	
+	///Only allow writable modules
 	ppk_boolean writable_only;
+	
+	///Only allow modules with a security level above or equal min_sec_level
 	ppk_security_level min_sec_level;
+	
+	///Only allow modules having at least this read flags
 	unsigned int needed_read_flags;
+	
+	///Only allow modules having at least this write flags
 	unsigned int needed_write_flags;
+	
+	///Only allow modules having at least this listing flags
 	unsigned int needed_listing_flags;
 } ppk_proto_param_module;
 
@@ -292,7 +303,7 @@ const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(
 /*! \brief Validate a module parameter (does it comply with its prototype ?)
 * \param module_id The module that contains this parameter
 * \param params The prototype's parameter
-* \param value The value to be validated
+* \param module_value The value to be validated
 * \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
 ppk_boolean ppk_param_module_validation(const char* module_id, const ppk_proto_param_module* params, const char* module_value);
 

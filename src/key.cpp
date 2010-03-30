@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#define URL_PREFIX "ppasskeeper"
+
 static size_t digits(unsigned int number)
 {
 	int digits = 0;

@@ -55,6 +55,8 @@ extern "C"
 	* \return  Returns a null-terminated list of module ID*/
 	char** ppk_module_list_new();
 
+	/*! \brief Free a module list
+	* \param list the list to be freed*/
 	void ppk_module_list_free(char **list);
 
 	/*! \brief Reloads the plugins from the plugin dir and updates the module count and list.
@@ -184,6 +186,9 @@ extern "C"
 	* \param[out] list The output list.
 	* \return Returns the number of elements in the list.*/
 	size_t ppk_module_list_params(const char* module_id, char*** list);
+	
+	/*! \brief Free a parameter list
+	* \param list the list to be freed*/
 	void ppk_module_free_params_list(char** list);
 	
 	/*! \brief Delete a module parameter.

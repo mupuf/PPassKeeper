@@ -59,7 +59,6 @@ bool SafeLock::isDBAvailable()
 
 ppk_error SafeLock::getKey(QString passphrase, QString& key)
 {
-	QString ret;
 	char* key_c;
 	
 	//Get the passphrase
@@ -79,7 +78,7 @@ ppk_error SafeLock::getKey(QString passphrase, QString& key)
 	
 	//Get the key
 	key_c=getKeyFromPassphrase(qPrintable(passphrase), "ppk");
-	ret=QString::fromUtf8(key_c);
+	key=QString::fromUtf8(key_c);
 	freeKeyFromPassphrase(key_c);
 	
 	return PPK_OK;
@@ -109,7 +108,10 @@ ppk_error SafeLock::open(const char* passphrase_c)
 		ModuleCreation m;
 		m.exec();
 		if(m.result()==QDialog::Accepted)
+		{
 			passphrase=m.passphrase();
+			_hasBeenModified=true;
+		}
 		else
 			return PPK_USER_CANCELLED;
 	}

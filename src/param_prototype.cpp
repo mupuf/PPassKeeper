@@ -326,7 +326,7 @@ extern "C"
 	
 	const ppk_proto_param_ranged_int* ppk_param_proto_ranged_int_params(const ppk_proto_param* proto)
 	{
-		if(proto->user_type==ppk_proto_file_param)
+		if(proto->user_type==ppk_proto_ranged_int_param)
 			return &proto->ranged_int_params;
 		else
 			return NULL;
@@ -334,7 +334,7 @@ extern "C"
 	
 	const ppk_proto_param_ranged_float* ppk_param_proto_ranged_float_params(const ppk_proto_param* proto)
 	{
-		if(proto->user_type==ppk_proto_file_param)
+		if(proto->user_type==ppk_proto_ranged_float_param)
 			return &proto->ranged_float_params;
 		else
 			return NULL;
@@ -342,7 +342,7 @@ extern "C"
 	
 	const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* proto)
 	{
-		if(proto->user_type==ppk_proto_file_param)
+		if(proto->user_type==ppk_proto_list_param)
 			return &proto->list_params;
 		else
 			return NULL;

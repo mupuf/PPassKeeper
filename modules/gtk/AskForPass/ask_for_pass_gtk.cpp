@@ -158,11 +158,12 @@ extern "C" ppk_error getEntryList(unsigned int entry_types, ppk_entry*** entryLi
 	return PPK_UNSUPPORTED_METHOD;
 }
 
+#include <stdio.h>
 std::string str_replace(std::string pattern, std::string toReplace, std::string newText)
 {
 	int len = toReplace.size();
-	unsigned int pos;
-	while((pos=pattern.find(toReplace)) != std::string::npos)
+	int pos;
+	while((pos=pattern.find(toReplace)) > 0)
 	{
 		pattern.replace(pos, len, newText);
 	}
@@ -198,7 +199,7 @@ extern "C" ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned
 		}
 
 		std::string label;
-		if(label_pattern)
+		if(label_pattern!=NULL && strlen(label_pattern)>0)
 			label=str_replace(label_pattern, "%1", key);
 		else
 			label=str_replace(PARAM_MAIN_TEXT_DEFAULT, "%1", key);

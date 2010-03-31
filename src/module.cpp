@@ -388,15 +388,20 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
+			//Validate the parameter
 			if(ppk_param_validation(module_id, key, value)==PPK_FALSE)
 				return PPK_CANNOT_VALIDATE_PARAM;
+
+			const _module* mod=modules.getModuleByID(module_id);
+			if(mod==NULL)
+				return PPK_MODULE_UNAVAILABLE;
 			
+			//Save the param & set the new param to the module
 			VParam& param = VParam::instance();
 			if(param.saveParam(module_id, key, value))
 			{
-				const _module* mod=modules.getModuleByID(module_id);
-				if(mod!=NULL)
-					mod->setParam(key, value);
+				//set the new param to the module
+				mod->setParam(key, value);
 
 				return PPK_OK;
 			}
@@ -504,8 +509,10 @@ extern "C"
 			{
 				if(mod->availableParameters!=NULL)
 				{
+					//Get the prototype list
 					const ppk_proto_param** list=mod->availableParameters();
 					
+					//Return the prototype corresponding to the parameter 'name'
 					int i=0;
 					while(list!=NULL && list[i]!=NULL)
 					{
@@ -580,10 +587,11 @@ extern "C"
 	{
 		ppk_error globalRes=PPK_OK;
 		
-		//Remove all the parameters
+		//Get all the parameters
 		char** list;
 		size_t nbParameters=ppk_module_list_params(module_id, &list);
 		
+		//Remove all the parameters
 		for(size_t i=0;i<nbParameters; i++)
 		{
 			ppk_error res=ppk_module_remove_param(module_id, list[i]);
@@ -598,21 +606,23 @@ extern "C"
 	{
 		ppk_error globalRes=PPK_OK;
 
-		//Free all the entries
 		ppk_entry **entryList;
-        size_t nbEntries;
+		size_t nbEntries;
     
+		//Get the entry list
 		ppk_error res=ppk_module_get_entry_list(module_id, ppk_network|ppk_application|ppk_item, &entryList, &nbEntries, ppk_rf_none);
-        if(res!=PPK_OK)
+		if(res!=PPK_OK)
 			return res;
 		
-        for(size_t i=0; i<nbEntries; i++)
+		//remove every entry
+		for(size_t i=0; i<nbEntries; i++)
 		{
 			res=ppk_module_remove_entry(module_id, entryList[i], ppk_rf_none);
 			if(res!=PPK_OK && globalRes==PPK_OK)
 				globalRes=res;
 		}
-            
+
+		//Remove this list
 		ppk_module_free_entry_list(entryList);
 
 		return globalRes;

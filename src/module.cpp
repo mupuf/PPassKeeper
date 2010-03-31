@@ -422,14 +422,16 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
+			//Get the parameters
 			VParam& param = VParam::instance();
 			static std::vector<std::string> vlist;
 			vlist = param.listParams(module_id);
 			
+			//Create a list
 			char** l=*list;
-
 			l=new char*[vlist.size()+1];
 			
+			//Copy values to the list
 			size_t i;
 			for(i=0;i<vlist.size();i++)
 			{
@@ -437,6 +439,7 @@ extern "C"
 				strcpy(l[i], vlist[i].c_str());
 			}
 			
+			//End the list
 			l[vlist.size()+1]=NULL;
 
 			return i;
@@ -450,15 +453,17 @@ extern "C"
 		if(list==NULL)
 			return;
 		
+		//Read the list and delete elements after elements
 		int i=0;
 		char* l;
 		do
 		{
 			l=list[i];
 			if(l!=NULL)
-				delete l;
+				delete[] l;
 		}while(l!=NULL);
 		
+		//Remove the list
 		delete list;
 	}
 
@@ -536,7 +541,6 @@ extern "C"
 
 	const char* ppk_module_get_default()
 	{
-		//static char buf[PPK_PARAM_MAX];
 		cvariant cv=ppk_module_get_param(LIBPPK_MODULE_NAME, LIBPPK_KEY_DEFAULT_MODULE);
 		if(cvariant_not_null(cv))
 		{

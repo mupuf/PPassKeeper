@@ -129,6 +129,9 @@ ppk_error SafeLock::open(const char* passphrase_c)
 		//set attributes
 		this->_isOpen=true;
 
+		//remove all entries
+		entries.clear();
+
 		//Get data
 		QString data=(c_data==NULL?QString():QString::fromUtf8(c_data));
 		QStringList lines=data.split(QString::fromUtf8("\n"));

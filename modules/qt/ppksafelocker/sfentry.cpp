@@ -56,6 +56,7 @@ SFEntry::SFEntry(const QString line)
 		std::cerr << "Cannot create an entry from line '"<< qPrintable(line) << "'" << std::endl;*/
 }
 
+
 QString SFEntry::toString() const
 {
 	if(isString())

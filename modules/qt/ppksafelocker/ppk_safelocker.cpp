@@ -17,9 +17,17 @@ std::map<std::string, ppk_proto_param*> proto_params;
 ppk_proto_param** availParams;
 #define PARAM_MOD_PASSPHRASE "module passphrase"
 #define PARAM_CLOSING_DELAY "closing delay"
+#define PARAM_FTP_HOST "FTP host"
+#define PARAM_FTP_PORT "FTP port"
+#define PARAM_FTP_LOGIN "FTP login"
+#define PARAM_FTP_PWD "FTP password"
 
 #define PARAM_MOD_PASSPHRASE_DEFAULT "AskForPass_Qt"
 #define PARAM_CLOSING_DELAY_DEFAULT 10
+#define PARAM_FTP_HOST_DEFAULT ""
+#define PARAM_FTP_PORT_DEFAULT 21
+#define PARAM_FTP_LOGIN_DEFAULT ""
+#define PARAM_FTP_PWD_DEFAULT ""
 
 //
 extern "C" const char* getModuleID();
@@ -57,7 +65,7 @@ extern "C"
 		
 		
 		//Create the parameters' prototypes
-		ppk_proto_param *mod_passphrase, *close_dly;
+		ppk_proto_param *mod_passphrase, *close_dly, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd;
 		
 		mod_passphrase=ppk_param_proto_create_module(PARAM_MOD_PASSPHRASE,
 											"The ppk module you would like the passphrase to be got from.",
@@ -78,6 +86,32 @@ extern "C"
 											0,
 											99);
 		proto_params[PARAM_CLOSING_DELAY]=close_dly;
+		
+		ftp_host=ppk_param_proto_create_string(PARAM_FTP_HOST,
+											"The hostname of your ftp server",
+											PARAM_FTP_HOST_DEFAULT,
+											ppk_settings_network);
+		proto_params[PARAM_FTP_HOST]=ftp_host;
+		
+		ftp_port=ppk_param_proto_create_ranged_int(PARAM_FTP_PORT,
+											"The port of your ftp server",
+											PARAM_FTP_PORT_DEFAULT,
+											ppk_settings_network,
+											0,
+											65535);
+		proto_params[PARAM_FTP_PORT]=ftp_port;
+		
+		ftp_login=ppk_param_proto_create_string(PARAM_FTP_LOGIN,
+											"The login on your ftp server",
+											PARAM_FTP_LOGIN_DEFAULT,
+											ppk_settings_network);
+		proto_params[PARAM_FTP_LOGIN]=ftp_login;
+		
+		ftp_pwd=ppk_param_proto_create_string(PARAM_FTP_PWD,
+											"The password on your ftp server",
+											PARAM_FTP_PWD_DEFAULT,
+											ppk_settings_network);
+		proto_params[PARAM_FTP_PWD]=ftp_pwd;
 		
 		//Get a list of available parameters
 		availParams=new ppk_proto_param*[proto_params.size()+1];

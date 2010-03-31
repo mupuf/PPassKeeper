@@ -175,6 +175,7 @@ extern "C"
 				for(int i=0; i<entries.size(); i++)
 				{
 					QString entry=entries.at(i);
+					printf("Add entry: '%s'\n", qPrintable(entry));
 
 					(*list)[i]=new char[entry.size()];
 					strcpy((*list)[i], qPrintable(entry));
@@ -182,6 +183,8 @@ extern "C"
 				(*list)[entries.size()]=NULL;
 			}
 		}
+		else
+			*list=NULL;
 		
 		return PPK_OK;
 	}

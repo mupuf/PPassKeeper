@@ -506,6 +506,7 @@ extern "C"
 					{
 						if(strcmp(list[i]->name, name)==0)
 							return list[i];
+						i++;
 					}
 					
 					return NULL;

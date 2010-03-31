@@ -430,7 +430,7 @@ extern "C"
 		
 		//get the expected type
 		cvariant_type expected_type=ppk_param_proto_expected_type(proto);
-		if(cvariant_get_type(param_value)==expected_type)
+		if(cvariant_get_type(param_value)!=expected_type)
 			return PPK_FALSE;
 		
 		//get the expected user type

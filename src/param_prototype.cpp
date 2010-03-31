@@ -405,6 +405,7 @@ extern "C"
 	{
 		const char** list=param->list;
 		
+		//Is the item selected in the list ?
 		int i=0;
 		while(list!=NULL && list[i]!=NULL)
 		{
@@ -419,8 +420,6 @@ extern "C"
 	
 	ppk_boolean ppk_param_validation(const char* module_id, const char* param_name, const cvariant param_value)
 	{
-		ppk_boolean ret=PPK_FALSE;
-		
 		//if the module_id or the param is NULL, just go out
 		if(module_id==NULL || param_name==NULL)
 			return PPK_FALSE;
@@ -475,11 +474,11 @@ extern "C"
 		}
 		else if(type==ppk_proto_validated_string_param)
 		{
-			//TODO
+			//TODO, need advices on this
 			return PPK_TRUE;
 		}
 		
-		return ret;
+		return PPK_TRUE;
 	}
 
 #ifdef __cplusplus

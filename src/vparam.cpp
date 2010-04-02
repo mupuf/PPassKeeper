@@ -115,7 +115,7 @@ class VParamImpl
 			perror("kdbClose");
 
 		//avoid potential buffer overflows
-		returnedString[sizeof(returnedString)] = '\0';
+		returnedString[sizeof(returnedString)-1] = '\0';
 		std::string value=returnedString;
 
 		if(value.substr(0, strlen(STRING_TYPE TYPE_SEPARATOR))==STRING_TYPE TYPE_SEPARATOR)

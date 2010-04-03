@@ -209,10 +209,9 @@ extern "C"
 				for(int i=0; i<entries.size(); i++)
 				{
 					QString entry=entries.at(i);
-					printf("Add entry: '%s'\n", qPrintable(entry));
 
-					(*list)[i]=new char[entry.size()];
-					strcpy((*list)[i], qPrintable(entry));
+					(*list)[i]=(char*)malloc((val.size()+1)*sizeof(char));
+					strncpy((*list)[i], val.c_str(), val.size()+1);
 				}
 				(*list)[entries.size()]=NULL;
 			}

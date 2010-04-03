@@ -227,6 +227,8 @@ extern "C"
 				(*list)[filtered.size()]=NULL;
 			}
 		}
+		else
+			*list=NULL;
 		
 		return PPK_OK;
 	}

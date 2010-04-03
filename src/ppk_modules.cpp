@@ -168,8 +168,17 @@ void PPK_Modules::loadPlugin(std::string dirpath, std::string filename)
 			if(tm.removeEntry==NULL)std::cerr << "missing : removeEntry();";
 			if(tm.isWritable==NULL)std::cerr << "missing : isWritable();";
 			if(tm.securityLevel==NULL)std::cerr << "missing : securityLevel();";
-			if(tm.getEntryListCount==NULL)std::cerr << "missing : getEntryListCount();";
-			if(tm.getEntryList==NULL)std::cerr << "missing : getEntryList();";
+			/*if()std::cerr << "missing : getEntryListCount();";
+			if(tm.getEntryList==NULL)std::cerr << "missing : getEntryList();";*/
+			if(tm.getEntryList==NULL && tm.getEntryListCount==NULL && tm.getSimpleEntryList==NULL)
+				std::cerr << "missing : getSimpleEntryList() OR getEntryList() & getEntryListCount();";
+			if(tm.getSimpleEntryList==NULL)
+			{
+				if(tm.getEntryList!=NULL && tm.getEntryListCount==NULL )
+					std::cerr << "missing : getEntryListCount();";
+				if(tm.getEntryList==NULL && tm.getEntryListCount!=NULL )
+					std::cerr << "missing : getEntryList();";
+			}
 		#endif
 			
 			//if minimal functions are here, add the lib to available modules

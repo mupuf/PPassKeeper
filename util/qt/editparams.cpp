@@ -208,6 +208,19 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 			doubleSpinBox->setValue(value);
 			return (QAbstractFormField*)doubleSpinBox;
 		}
+		
+		case cvariant_boolean:
+		{
+			bool default_value=cvariant_get_bool(pparam->default_value)==cvariant_true;
+			bool value;
+			
+			if(cvariant_not_null(c_value))
+				value=cvariant_get_bool(c_value)==cvariant_true;
+			else
+				value=default_value;
+
+			return NULL;
+		}
 	}
 
 	return NULL;

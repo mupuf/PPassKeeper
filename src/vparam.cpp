@@ -1,10 +1,12 @@
 #include "vparam.h"
 
 #include <ppasskeeper.h>
+#include "tokenizer.h"
 
 #define STRING_TYPE "string"
 #define INT_TYPE "int"
 #define FLOAT_TYPE "float"
+#define BOOL_TYPE "boolean"
 #define TYPE_SEPARATOR ":"
 
 #ifdef USE_ELEKTRA
@@ -44,13 +46,19 @@ class VParamImpl
 
 		case cvariant_int:
 			type=INT_TYPE;
-			s_value=cvariant_get_int(value);
+			s_value=toString(cvariant_get_int(value));
 			break;
 
 		case cvariant_float:
 			type=FLOAT_TYPE;
-			s_value=cvariant_get_float(value);
+			s_value=toString(cvariant_get_float(value));
 			break;
+			
+		case cvariant_boolean:
+			type=BOOL_TYPE;
+			s_value=cvariant_get_bool(value)==cvariant_true?"true":"false";
+			break;
+			
 		case cvariant_none:
 			break;
 		}
@@ -128,6 +136,16 @@ class VParamImpl
 			value=value.substr(strlen(INT_TYPE TYPE_SEPARATOR));
 			result=cvariant_from_int(atoi(value.c_str()));
 		}
+		else if(value.substr(0, strlen(INT_TYPE TYPE_SEPARATOR))==INT_TYPE TYPE_SEPARATOR)
+		{
+			value=value.substr(strlen(FLOAT_TYPE TYPE_SEPARATOR));
+			result=cvariant_from_int(atof(value.c_str()));
+		}
+		else if(value.substr(0, strlen(INT_TYPE TYPE_SEPARATOR))==INT_TYPE TYPE_SEPARATOR)
+		{
+			value=value.substr(strlen(INT_TYPE TYPE_SEPARATOR));
+			result=cvariant_from_bool(value=="true"?cvariant_true:cvariant_false);
+		}
 
 		return result;
 	}
@@ -196,7 +214,6 @@ class VParamImpl
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "tokenizer.h"
 #include "xmlsp.h"
 
 #include <ppasskeeper/utils.h>
@@ -240,6 +257,8 @@ class VParamImpl : public XMLSP::Parser
 				params[pair]=std::make_pair(cvariant_int, attributes["value"]);
 			else if(attributes["type"]==FLOAT_TYPE)
 				params[pair]=std::make_pair(cvariant_float, attributes["value"]);
+			else if(attributes["type"]==BOOL_TYPE)
+				params[pair]=std::make_pair(cvariant_boolean, attributes["value"]);
 		}
 		return true;
 	}
@@ -278,6 +297,10 @@ class VParamImpl : public XMLSP::Parser
 					type=FLOAT_TYPE;
 					break;
 					
+				case cvariant_boolean:
+					type=BOOL_TYPE;
+					break;
+					
 				case cvariant_none:
 					break;
 				}
@@ -310,6 +333,10 @@ class VParamImpl : public XMLSP::Parser
 
 		case cvariant_float:
 			s_value=toString(cvariant_get_float(value));
+			break;
+			
+		case cvariant_boolean:
+			s_value=(cvariant_get_bool(value)==cvariant_true?"true":"false");
 			break;
 
 		case cvariant_none:

@@ -245,7 +245,6 @@ extern "C"
 		return proto;
 	}
 	
-	#include <stdio.h>
 	ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* validation_regexp)
 	{
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
@@ -256,6 +255,19 @@ extern "C"
 		
 		proto->user_type=ppk_proto_validated_string_param;
 		proto->validated_string_params=ppk_param_proto_create_validated_string_parameters(validation_regexp);
+		
+		return proto;
+	}
+	
+	ppk_proto_param* ppk_param_proto_create_boolean(const char* name, const char* help_text, cvariant_bool default_value, const ppk_settings_group *group)
+	{
+		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
+															name, 
+															help_text, 
+															cvariant_from_bool(default_value), 
+															group);
+		
+		proto->user_type=ppk_proto_boolean_param;
 		
 		return proto;
 	}
@@ -474,7 +486,7 @@ extern "C"
 		}
 		else if(type==ppk_proto_validated_string_param)
 		{
-			//TODO, need advices on this
+			//TODO, need advices on this (which library should I use, etc ...)
 			return PPK_TRUE;
 		}
 		

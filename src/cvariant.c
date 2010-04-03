@@ -80,6 +80,15 @@ cvariant cvariant_from_float(double value)
 	return cv;
 }
 
+cvariant cvariant_from_bool(cvariant_bool value)
+{
+	cvariant cv;
+	cv.type=cvariant_boolean;
+	cv.bool_value=value;
+	cv.to_free=0;
+	return cv;
+}
+
 //Getters
 ///returns a non-zero value if valid, 0 otherwise.
 int cvariant_not_null(cvariant cv)
@@ -127,6 +136,18 @@ double cvariant_get_float(cvariant cv)
 		return cv.float_value;
 	else
 		return CVARIANT_EMPTY_FLOAT;
+}
+
+/*!
+ * Get a bool from a cvariant. If the cvariant is not 
+ * a bool, cvariant_false is returned.
+ */
+cvariant_bool cvariant_get_bool(cvariant cv)
+{
+	if(cv.type==cvariant_boolean)
+		return cv.bool_value;
+	else
+		return CVARIANT_EMPTY_BOOL;
 }
 
 //Comparaison

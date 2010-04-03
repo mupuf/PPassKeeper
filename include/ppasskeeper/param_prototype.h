@@ -21,7 +21,8 @@ typedef enum
 	ppk_proto_ranged_int_param=7,
 	ppk_proto_ranged_float_param=8,
 	ppk_proto_list_param=9,
-	ppk_proto_validated_string_param=10
+	ppk_proto_validated_string_param=10,
+	ppk_proto_boolean_param=11
 } ppk_param_type;
 
 ///Parameters of the 'ppk_file_param' parameter type
@@ -233,6 +234,14 @@ ppk_proto_param* ppk_param_proto_create_list(const char* name, const char* help_
 * \param validation_regexp The regexp that should be matched in order for the param. to be valid.
 * \return  Return the prototype of the parameter*/
 ppk_proto_param* ppk_param_proto_create_validated_string(const char* name, const char* help_text, const char* default_value, const ppk_settings_group *group, const char* validation_regexp);
+
+/*! \brief Create a prototype of a boolean parameter
+* \param name The name of the parameter (must be unique)
+* \param help_text The help text to be displayed to the user
+* \param default_value The default value of the parameter
+* \param group The settings group of the parameter
+* \return  Return the prototype of the parameter*/
+ppk_proto_param* ppk_param_proto_create_boolean(const char* name, const char* help_text, cvariant_bool default_value, const ppk_settings_group *group);
 
 /*! \brief Free a prototype
 * \param proto_param The prototype to be freed*/

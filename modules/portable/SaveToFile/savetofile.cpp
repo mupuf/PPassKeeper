@@ -221,8 +221,8 @@ extern "C"
 				{
 					std::string val=filtered.at(i);
 
-					(*list)[i]=new char[val.size()];
-					strcpy((*list)[i], val.c_str());
+					(*list)[i]=(char*)malloc((val.size()+1)*sizeof(char));
+					strncpy((*list)[i], val.c_str(), val.size()+1);
 				}
 				(*list)[filtered.size()]=NULL;
 			}

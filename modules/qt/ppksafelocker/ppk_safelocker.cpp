@@ -210,8 +210,8 @@ extern "C"
 				{
 					QString entry=entries.at(i);
 
-					(*list)[i]=(char*)malloc((val.size()+1)*sizeof(char));
-					strncpy((*list)[i], val.c_str(), val.size()+1);
+					(*list)[i]=(char*)malloc((entry.size()+1)*sizeof(char));
+					strncpy((*list)[i], qPrintable(entry), entry.size()+1);
 				}
 				(*list)[entries.size()]=NULL;
 			}

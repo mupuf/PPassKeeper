@@ -21,6 +21,7 @@ ppk_proto_param** availParams;
 #define PARAM_FTP_PORT "FTP port"
 #define PARAM_FTP_LOGIN "FTP login"
 #define PARAM_FTP_PWD "FTP password"
+#define PARAM_FTP_PATH "FTP dir path"
 
 #define PARAM_MOD_PASSPHRASE_DEFAULT "AskForPass_Qt"
 #define PARAM_CLOSING_DELAY_DEFAULT 10
@@ -28,6 +29,7 @@ ppk_proto_param** availParams;
 #define PARAM_FTP_PORT_DEFAULT 21
 #define PARAM_FTP_LOGIN_DEFAULT ""
 #define PARAM_FTP_PWD_DEFAULT ""
+#define PARAM_FTP_PATH_DEFAULT ""
 
 //
 extern "C" const char* getModuleID();
@@ -65,7 +67,7 @@ extern "C"
 		
 		
 		//Create the parameters' prototypes
-		ppk_proto_param *mod_passphrase, *close_dly, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd;
+		ppk_proto_param *mod_passphrase, *close_dly, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd, *ftp_path;
 		
 		mod_passphrase=ppk_param_proto_create_module(PARAM_MOD_PASSPHRASE,
 											"The ppk module you would like the passphrase to be got from.",
@@ -113,6 +115,12 @@ extern "C"
 											ppk_settings_network);
 		proto_params[PARAM_FTP_PWD]=ftp_pwd;
 		
+		ftp_path=ppk_param_proto_create_string(PARAM_FTP_PATH,
+											"The path on your ftp server where you would like to store the safelocker (must already exist)",
+											PARAM_FTP_PATH_DEFAULT,
+											ppk_settings_network);
+		proto_params[PARAM_FTP_PATH]=ftp_pwd;
+		
 		//Get a list of available parameters
 		availParams=new ppk_proto_param*[proto_params.size()+1];
 		int i=0;
@@ -124,6 +132,11 @@ extern "C"
 		//Set parameters's default value
 		parameters[PARAM_MOD_PASSPHRASE]=cvariant_from_string(PARAM_MOD_PASSPHRASE_DEFAULT);
  		parameters[PARAM_CLOSING_DELAY]=cvariant_from_int(PARAM_CLOSING_DELAY_DEFAULT);
+		parameters[PARAM_FTP_HOST]=cvariant_from_string(PARAM_FTP_HOST_DEFAULT);
+ 		parameters[PARAM_FTP_PORT]=cvariant_from_int(PARAM_FTP_PORT_DEFAULT);
+ 		parameters[PARAM_FTP_LOGIN]=cvariant_from_string(PARAM_FTP_LOGIN_DEFAULT);
+		parameters[PARAM_FTP_PWD]=cvariant_from_string(PARAM_FTP_PWD_DEFAULT);
+		parameters[PARAM_FTP_PATH]=cvariant_from_string(PARAM_FTP_PATH_DEFAULT);
 		
 		//Set up values
 		const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
@@ -314,6 +327,41 @@ extern "C"
 		{
 			if(cvariant_get_type(value)==cvariant_int)
 				parameters[PARAM_CLOSING_DELAY]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_HOST)
+		{
+			if(cvariant_get_type(value)==cvariant_string)
+				parameters[PARAM_FTP_HOST]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_PORT)
+		{
+			if(cvariant_get_type(value)==cvariant_int)
+				parameters[PARAM_FTP_PORT]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_LOGIN)
+		{
+			if(cvariant_get_type(value)==cvariant_string)
+				parameters[PARAM_FTP_LOGIN]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_PWD)
+		{
+			if(cvariant_get_type(value)==cvariant_string)
+				parameters[PARAM_FTP_PWD]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_PATH)
+		{
+			if(cvariant_get_type(value)==cvariant_string)
+				parameters[PARAM_FTP_PATH]=value;
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 		}

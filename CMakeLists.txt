@@ -52,6 +52,7 @@ ENDIF(NOT PPK_BUILD_PLUGINS)
 ADD_DEFINITIONS("-Wall")
 
 IF(PPK_UTIL_QT OR PPK_AFP_QT OR PPK_SAFELOCKER)
+  SET(QT_USE_QTNETWORK true)
   FIND_PACKAGE(Qt4)
   IF(NOT QT4_FOUND)
 	SET(PPK_UTIL_QT OFF)
@@ -289,7 +290,7 @@ IF(PPK_SAFELOCKER)
 	"modules/qt/ppksafelocker/crypt.cpp" "modules/qt/ppksafelocker/safelock.cpp" 
 	"modules/qt/ppksafelocker/ppk_safelocker.cpp" "modules/qt/ppksafelocker/sha512.c"
 	"modules/qt/ppksafelocker/modulecreation.cpp" "modules/qt/ppksafelocker/sfentry.cpp")
-  SET(ppk_safelocker_MOCS "modulecreation.h")
+  SET(ppk_safelocker_MOCS "modulecreation.h" "safelock.h")
   SET(ppk_safelocker_UIS "modulecreation.ui")
 
   QT4_ADD_RESOURCES(ppasskeeper-qt_RCC_SRCS ${ppasskeeper-qt_RCC})
@@ -300,7 +301,7 @@ IF(PPK_SAFELOCKER)
 	QT4_WRAP_UI(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${UI}")
   ENDFOREACH(UI ${ppk_safelocker_UIS})
   ADD_LIBRARY(ppk_safelocker MODULE ${ppk_safelocker_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${openssl_LIBRARIES} ppasskeeper m)
+  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${openssl_LIBRARIES} ppasskeeper m)
   INSTALL(TARGETS ppk_safelocker DESTINATION lib/ppasskeeper)
 ENDIF(PPK_SAFELOCKER)
 

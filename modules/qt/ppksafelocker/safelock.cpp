@@ -44,8 +44,6 @@ QString SafeLock::createFile()
 
 	file+=QString::fromUtf8("\n");
 
-	//qDebug("File = '%s'", qPrintable(file));
-
 	return file;
 }
 
@@ -84,9 +82,43 @@ ppk_error SafeLock::getKey(QString passphrase, QString& key)
 	return PPK_OK;
 }
 
+void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir)
+{
+	Uploadfile.setFileName(filepath);
+	if(Uploadfile.open(QIODevice::ReadOnly))
+	{
+		QString name;
+		
+		//Get the file's name from its path
+		int index = filepath.lastIndexOf(QString::fromUtf8("/"));
+		if(index==-1)
+			index = filepath.lastIndexOf(QString::fromUtf8("\\"));
+		if(index!=-1)
+			name=filepath.mid(index+1);
+		else
+			name=filepath;
+		
+		//connect to the FTP Server
+		idConnect=ftp.connectToHost(host,port);
+
+		//Login
+		idLogin=ftp.login(login,pwd);
+
+		//open the wanted directory
+		if(remoteDir!=QString())
+			idCd=ftp.cd(remoteDir);
+
+		//Send the file
+		idPut=ftp.put(&Uploadfile,name);
+	}
+}
+
 SafeLock::SafeLock(QString safelockPath) : safelockPath(safelockPath), _isOpen(false), _hasBeenModified(false), revision(0)
 {
-
+	//Connect FTP signals
+	connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
+	connect(&ftp, SIGNAL(dataTransferProgress(qint64, qint64)), this, SLOT(dataTransferProgress(qint64, qint64)));
+	connect(&ftp, SIGNAL(commandStarted(int)), this, SLOT(commandStarted(int)));
 }
 
 SafeLock::~SafeLock()
@@ -211,7 +243,11 @@ bool SafeLock::close()
 		//Clear secure data --> we should zero the memory space
 		entries.clear();
 		key=QString();
+		
+		//Send onto the ftp
+		sendFile(FTP_Host, FTP_Port, FTP_Login, FTP_PWD, safelockPath, FTP_RemoteDir);
 
+		//Set the file as being closed
 		this->_isOpen=false;
 
 		return true;
@@ -281,4 +317,50 @@ const SFEntry SafeLock::get(const ppk_entry* entry) const
 QList<QString> SafeLock::list() const
 {
 	return entries.keys();
+}
+
+//Slots
+void SafeLock::commandStarted(int id)
+{
+	/*if(id==idConnect)
+		lbl_state->setText("State : Connection to " + host +":" + QString::number(port));
+	else if(id==idLogin)
+		lbl_state->setText("State : Authentification of the user '"+login+"'");
+	else if(id==idCd)
+		lbl_state->setText("State : Setting the right upload directory");
+	else if(id==idPut)
+	{
+		prevPos=0;
+		lbl_state->setText(QString(UPLOAD_STRING).arg(fileName).arg(getStringFromSizeInBytes(0)));
+		t_speed.start();
+		t_beginning.start();
+		t_refresh_title.start();
+	}*/
+}
+
+void SafeLock::dataTransferProgress(qint64 done, qint64 total)
+{
+	
+}
+
+void SafeLock::commandFinished(int id, bool error)
+{
+	if(error)
+	{
+		//Display the correct Error Message
+		/*if(id==idConnect)
+			notify(true,"Connection Error : The server is unreachable on this IP/port.\n\nCheck the host and the port, but maybe the server is just offline.\n\n"+ftp.errorString());
+		else if(id==idLogin)
+			notify(true,"Authentification Error : The login/Pwd is not valid on this server.\n\n"+ftp.errorString());
+		else if(id==idCd)
+			notify(true,"Error : The remote directory you would like to host uploaded file does not exist. Please create it or change the path in the settings.\n\n"+ftp.errorString());
+		else if(id==idPut)
+			notify(true,"Upload Error : The file's upload has failed.\n\n"+ftp.errorString());
+		*/
+	}
+	else if(id==idPut)
+	{
+		//OK
+		Uploadfile.close();
+	}
 }

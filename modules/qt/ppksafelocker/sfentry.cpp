@@ -8,10 +8,10 @@
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
 
-SFEntry::SFEntry() : _isBlob(false)
+SFEntry::SFEntry() : _isBlob(false), _revision(0), _timestamp()
 {}
 
-SFEntry::SFEntry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
+SFEntry::SFEntry(int revision, const ppk_entry* entry, const ppk_data* data) : _isBlob(false), _revision(revision), _timestamp(QDateTime::currentDateTime())
 {
 	//Copy the entry
 	size_t lenKey=ppk_key_length(entry);
@@ -41,14 +41,18 @@ SFEntry::SFEntry(const ppk_entry* entry, const ppk_data* data) : _isBlob(false)
 
 SFEntry::SFEntry(const QString line)
 {
-	QRegExp regexp(QString::fromUtf8("(s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
+	QRegExp regexp(QString::fromUtf8("(\\d+) (\\d+) (s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
 	if(regexp.exactMatch(line))
 	{
 		QStringList values=regexp.capturedTexts();
 
-		this->_isBlob=(values[1]==QString::fromUtf8("b"));
-		this->_entry=values[2];
-		this->_data=values[3];
+		this->_revision=values[1].toInt();
+
+		this->_timestamp=QDateTime::fromTime_t(values[2].toUInt());
+
+		this->_isBlob=(values[3]==QString::fromUtf8("b"));
+		this->_entry=values[4];
+		this->_data=values[5];
 
 		//std::cout << "Create a " << std::string(isBlob()?"blob":"string") << " entry; entry='" << qPrintable(entry()) << "''; data='" << qPrintable(data()) << std::endl;
 	}
@@ -59,12 +63,7 @@ SFEntry::SFEntry(const QString line)
 
 QString SFEntry::toString() const
 {
-	if(isString())
-		return QString::fromUtf8("s\"%1\":\"%2\"\n").arg(entry(), data());
-	else if(isBlob())
-		return QString::fromUtf8("b\"%1\":\"%2\"\n").arg(entry(), data());
-	else
-		return QString();
+	return QString::fromUtf8("%1 %2 %3\"%4\":\"%5\"\n").arg(revision()).arg(timestamp().toTime_t()).arg(QString::fromUtf8(isString()?"s":"b"), entry(), data());
 }
 
 QString SFEntry::entry() const
@@ -75,6 +74,16 @@ QString SFEntry::entry() const
 QString SFEntry::data() const
 {
 	return _data;
+}
+
+int SFEntry::revision() const
+{
+	return _revision;
+}
+
+QDateTime SFEntry::timestamp() const
+{
+	return _timestamp;
 }
 
 ppk_entry* SFEntry::ppkEntry_new() const
@@ -98,6 +107,11 @@ bool SFEntry::isString() const
 bool SFEntry::isBlob() const
 {
 	return _isBlob;
+}
+
+bool SFEntry::merge(const SFEntry& b)
+{
+	return true;
 }
 
 bool SFEntry::operator==(const SFEntry& a) const

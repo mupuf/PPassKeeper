@@ -5,7 +5,7 @@ includedir=${prefix}/include
 plugindir=${libdir}/ppasskeeper/
  
 Name: ppasskeeper
-Description: PPasskeeper is a library that means to create a portable password-storing interface.
+Description: PPasskeeper is a plugin-based library that means to abstract password-storing using a portable interface.
 Version: @PPK_VERSION@
 URL: http://ppasskeeper.mupuf.org
 Libs: -L${libdir} -lppasskeeper

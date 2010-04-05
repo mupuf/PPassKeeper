@@ -274,7 +274,7 @@ extern "C"
 		if(ret!=PPK_OK)
 			return ret;
 		
-		if(!safeLock().reset(SFEntry(entry, edata)))
+		if(!safeLock().reset(entry, edata))
 			return PPK_ENTRY_UNAVAILABLE;
 		else
 			return PPK_OK;

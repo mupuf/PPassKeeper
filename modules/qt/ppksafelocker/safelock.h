@@ -20,6 +20,8 @@ Q_OBJECT
 	QString key;
 
 	QString ppkEntryToString(const ppk_entry* entry) const;
+
+	void SetHasBeenModified();
 	
 	QString createFile();
 	bool isDBAvailable();
@@ -48,8 +50,8 @@ public:
 	
 	bool isOpen() const;
 
-	bool add(SFEntry e);
-	bool reset(SFEntry e);
+	bool add(const ppk_entry* entry, const ppk_data* data);
+	bool reset(const ppk_entry* entry, const ppk_data* data);
 	bool remove(QString entry);
 	bool remove(const ppk_entry* entry);
 	const SFEntry get(QString entry) const;

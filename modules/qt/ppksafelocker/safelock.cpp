@@ -26,13 +26,21 @@ QString SafeLock::ppkEntryToString(const ppk_entry* entry) const
 	return key2;
 }
 
+void SafeLock::SetHasBeenModified()
+{
+	if(!_hasBeenModified)
+		this->revision++;
+
+	_hasBeenModified=true;;
+}
+
 QString SafeLock::createFile()
 {
 	QString file;
 
 	file=QString::fromUtf8("#PPK_NETWORK\n");
 	file+=QString::fromUtf8("Version: 1.0\n");
-	file+=QString::fromUtf8("Revision: %1\n").arg(this->revision+1);
+	file+=QString::fromUtf8("Revision: %1\n").arg(this->revision);
 	file+=QString::fromUtf8("Data:\n");
 
 	QMapIterator<QString, SFEntry> i(entries);
@@ -142,7 +150,7 @@ ppk_error SafeLock::open(const char* passphrase_c)
 		if(m.result()==QDialog::Accepted)
 		{
 			passphrase=m.passphrase();
-			_hasBeenModified=true;
+			SetHasBeenModified();
 		}
 		else
 			return PPK_USER_CANCELLED;
@@ -271,21 +279,25 @@ bool SafeLock::isOpen() const
 	return _isOpen;
 }
 
-bool SafeLock::add(SFEntry e)
+bool SafeLock::add(const ppk_entry* entry, const ppk_data* data)
 {
+	SFEntry e(this->revision, entry, data);
+
 	if(entries.contains(e.entry()))
 		return false;
 
+	SetHasBeenModified();
 	entries[e.entry()]=e;
-	_hasBeenModified=true;
 
 	return true;
 }
 
-bool SafeLock::reset(SFEntry e)
+bool SafeLock::reset(const ppk_entry* entry, const ppk_data* data)
 {
+	SetHasBeenModified();
+
+	SFEntry e(this->revision, entry, data);
 	entries[e.entry()]=e;
-	_hasBeenModified=true;
 
 	return true;
 }
@@ -294,7 +306,7 @@ bool SafeLock::remove(QString entry)
 {
 	bool ret=entries.remove(entry)>0;
 	if(ret)
-		_hasBeenModified=true;
+		SetHasBeenModified();
 	return ret;
 }
 

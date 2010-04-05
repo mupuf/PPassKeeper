@@ -388,9 +388,12 @@ extern "C"
 	{
 		if(!ppk_is_locked())
 		{
-			//Validate the parameter
-			if(ppk_param_validation(module_id, key, value)==PPK_FALSE)
-				return PPK_CANNOT_VALIDATE_PARAM;
+			//Validate the parameter if it is not for the library itself (ppk)
+			if(strcmp(module_id, LIBPPK_MODULE_NAME)!=0)
+			{
+				if(ppk_param_validation(module_id, key, value)==PPK_FALSE)
+					return PPK_CANNOT_VALIDATE_PARAM;
+			}
 
 			const _module* mod=modules.getModuleByID(module_id);
 			if(mod==NULL)

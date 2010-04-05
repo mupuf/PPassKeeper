@@ -336,7 +336,12 @@ IF(PPK_UTIL_QT)
 	"icons/ppk_logo_mini*"
       )
 
-  SET(ppasskeeper-qt_MOCS addpwd.h mainwindow.h passwordlistmodel.h infomodule.h editparams.h form_fields/qabstractformfield.h form_fields/qdoublespinfield.h form_fields/qspinfield.h form_fields/qtextfield.h form_fields/qfilefield.h form_fields/qdirfield.h form_fields/qcombofield.h form_fields/qmodulefield.h)
+  SET(ppasskeeper-qt_MOCS addpwd.h mainwindow.h passwordlistmodel.h 
+		infomodule.h editparams.h form_fields/qabstractformfield.h 
+		form_fields/qdoublespinfield.h form_fields/qspinfield.h 
+		form_fields/qtextfield.h form_fields/qfilefield.h 
+		form_fields/qdirfield.h form_fields/qcombofield.h 
+		form_fields/qmodulefield.h form_fields/qcheckfield.h)
   SET(ppasskeeper-qt_UIS addpwd.ui mainwindow.ui infomodule.ui editparams.ui)
   SET(ppasskeeper-qt_RCC "util/qt/ressources.qrc")
 

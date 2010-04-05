@@ -94,18 +94,24 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 {
 	QVariant default_value;
 
-	switch(cvariant_get_type(pparam->default_value))
+	cvariant cvariant_default=ppk_param_proto_default_value(pparam);
+
+	switch(cvariant_get_type(cvariant_default))
 	{
 		case cvariant_string:
-			default_value=QString::fromUtf8(cvariant_get_string(pparam->default_value));
+			default_value=QString::fromUtf8(cvariant_get_string(cvariant_default));
 			break;
 
 		case cvariant_int:
-			default_value=cvariant_get_int(pparam->default_value);
+			default_value=cvariant_get_int(cvariant_default);
 			break;
 
 		case cvariant_float:
-			default_value=cvariant_get_float(pparam->default_value);
+			default_value=cvariant_get_float(cvariant_default);
+			break;
+
+		case cvariant_boolean:
+			default_value=(cvariant_get_bool(cvariant_default)==cvariant_true);
 			break;
 
 		default:
@@ -126,15 +132,16 @@ QString EditParams::createNameString(const ppk_proto_param* pparam)
 #include "form_fields/qdoublespinfield.h"
 #include "form_fields/qcombofield.h"
 #include "form_fields/qmodulefield.h"
+#include "form_fields/qcheckfield.h"
 
 #include <stdio.h>
 QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent, const ppk_proto_param* pparam)
 {
 	//Get Param's value
-	cvariant c_value=ppk_module_get_param(module, pparam->name);
+	cvariant c_value=ppk_module_get_param(module, ppk_param_proto_name(pparam));
 
 	//Create the widget
-	switch(pparam->expected_type)
+	switch(ppk_param_proto_expected_type(pparam))
 	{
 		case cvariant_none:
 		{
@@ -143,7 +150,7 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 
 		case cvariant_string:
 		{
-			QString default_value=QString::fromUtf8(cvariant_get_string(pparam->default_value));
+			QString default_value=QString::fromUtf8(cvariant_get_string(ppk_param_proto_default_value(pparam)));
 			QString value;
 			if(cvariant_not_null(c_value))
 				value=QString::fromUtf8(cvariant_get_string(c_value));
@@ -151,27 +158,28 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				value=default_value;
 
 			QAbstractFormField* lineEdit;
-			if(pparam->user_type==ppk_proto_file_param)
-				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(pparam->file_params.file_filter));
-			else if(pparam->user_type==ppk_proto_directory_param)
+			if(ppk_param_proto_user_type(pparam)==ppk_proto_file_param)
+				lineEdit = new QFileField(parent, 1000, QString::fromUtf8(ppk_param_proto_file_params(pparam)->file_filter));
+			else if(ppk_param_proto_user_type(pparam)==ppk_proto_directory_param)
 				lineEdit = new QDirField(parent, 1000);
-			else if(pparam->user_type==ppk_proto_module_param)
-				lineEdit = new QModuleField(parent, QString::fromUtf8(module), &(pparam->module_params));
-			else if(pparam->user_type==ppk_proto_list_param)
-				lineEdit = new QComboField(parent, pparam->list_params.list);
-			else if(pparam->user_type==ppk_proto_validated_string_param)
-				lineEdit = new QTextField(parent, QRegExp(QString::fromUtf8(pparam->validated_string_params.validation_regexp)));
+			else if(ppk_param_proto_user_type(pparam)==ppk_proto_module_param)
+				lineEdit = new QModuleField(parent, QString::fromUtf8(module), ppk_param_proto_module_params(pparam));
+			else if(ppk_param_proto_user_type(pparam)==ppk_proto_list_param)
+				lineEdit = new QComboField(parent, ppk_param_proto_list_params(pparam)->list);
+			else if(ppk_param_proto_user_type(pparam)==ppk_proto_validated_string_param)
+				lineEdit = new QTextField(parent, QRegExp(QString::fromUtf8(ppk_param_proto_validated_string_params(pparam)->validation_regexp)));
 			else
 				lineEdit = new QTextField(parent);
 			
 			lineEdit->setDefaultValue(default_value);
 			lineEdit->setValue(value);
+			
 			return lineEdit;
 		}
 
 		case cvariant_int:
 		{
-			int default_value=cvariant_get_int(pparam->default_value);
+			int default_value=cvariant_get_int(ppk_param_proto_default_value(pparam));
 			int value;
 			
 			if(cvariant_not_null(c_value))
@@ -180,8 +188,9 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				value=default_value;
 
 			QSpinField* spinBox;
-			if(pparam->user_type==ppk_proto_ranged_int_param)
-				spinBox = new QSpinField(parent, pparam->ranged_int_params.lowest, pparam->ranged_int_params.greatest);
+			const ppk_proto_param_ranged_int* ranged_int_parameters=ppk_param_proto_ranged_int_params(pparam);
+			if(ppk_param_proto_user_type(pparam)==ppk_proto_ranged_int_param)
+				spinBox = new QSpinField(parent, ranged_int_parameters->lowest, ranged_int_parameters->greatest);
 			else
 				spinBox = new QSpinField(parent);
 			spinBox->setDefaultValue(default_value);
@@ -191,7 +200,7 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 
 		case cvariant_float:
 		{
-			double default_value=cvariant_get_float(pparam->default_value);
+			double default_value=cvariant_get_float(ppk_param_proto_default_value(pparam));
 			double value;
 			
 			if(cvariant_not_null(c_value))
@@ -200,8 +209,9 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 				value=default_value;
 
 			QDoubleSpinField* doubleSpinBox;
-			if(pparam->user_type==ppk_proto_ranged_int_param)
-				doubleSpinBox = new QDoubleSpinField(parent, pparam->ranged_float_params.lowest, pparam->ranged_float_params.greatest);
+			const ppk_proto_param_ranged_float* ranged_float_parameters=ppk_param_proto_ranged_float_params(pparam);
+			if(ppk_param_proto_user_type(pparam)==ppk_proto_ranged_int_param)
+				doubleSpinBox = new QDoubleSpinField(parent, ranged_float_parameters->lowest, ranged_float_parameters->greatest);
 			else
 				doubleSpinBox = new QDoubleSpinField(parent);
 			doubleSpinBox->setDefaultValue(default_value);
@@ -211,15 +221,19 @@ QAbstractFormField* EditParams::abstractFormFieldFromParamProto(QWidget* parent,
 		
 		case cvariant_boolean:
 		{
-			bool default_value=cvariant_get_bool(pparam->default_value)==cvariant_true;
+			bool default_value=cvariant_get_bool(ppk_param_proto_default_value(pparam))==cvariant_true;
 			bool value;
 			
 			if(cvariant_not_null(c_value))
 				value=cvariant_get_bool(c_value)==cvariant_true;
 			else
 				value=default_value;
+			
+			QCheckField* checkbox=new QCheckField(parent, QString::fromUtf8(ppk_param_proto_help_text(pparam)));
+			checkbox->setDefaultValue(default_value);
+			checkbox->setValue(value);
 
-			return NULL;
+			return (QAbstractFormField*)checkbox;
 		}
 	}
 

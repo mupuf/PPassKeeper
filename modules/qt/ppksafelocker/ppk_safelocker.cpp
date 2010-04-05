@@ -17,6 +17,7 @@ std::map<std::string, ppk_proto_param*> proto_params;
 ppk_proto_param** availParams;
 #define PARAM_MOD_PASSPHRASE "module passphrase"
 #define PARAM_CLOSING_DELAY "closing delay"
+#define PARAM_FTP_USE "Use FTP"
 #define PARAM_FTP_HOST "FTP host"
 #define PARAM_FTP_PORT "FTP port"
 #define PARAM_FTP_LOGIN "FTP login"
@@ -25,6 +26,7 @@ ppk_proto_param** availParams;
 
 #define PARAM_MOD_PASSPHRASE_DEFAULT "AskForPass_Qt"
 #define PARAM_CLOSING_DELAY_DEFAULT 10
+#define PARAM_FTP_USE_DEFAULT cvariant_true
 #define PARAM_FTP_HOST_DEFAULT ""
 #define PARAM_FTP_PORT_DEFAULT 21
 #define PARAM_FTP_LOGIN_DEFAULT ""
@@ -65,9 +67,8 @@ extern "C"
 		params_group["Security"]=ppk_settings_security;
 		params_group["Network"]=ppk_settings_network;
 		
-		
 		//Create the parameters' prototypes
-		ppk_proto_param *mod_passphrase, *close_dly, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd, *ftp_path;
+		ppk_proto_param *mod_passphrase, *close_dly, *ftp_use, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd, *ftp_path;
 		
 		mod_passphrase=ppk_param_proto_create_module(PARAM_MOD_PASSPHRASE,
 											"The ppk module you would like the passphrase to be got from.",
@@ -88,6 +89,12 @@ extern "C"
 											0,
 											99);
 		proto_params[PARAM_CLOSING_DELAY]=close_dly;
+		
+		ftp_use=ppk_param_proto_create_boolean(PARAM_FTP_USE,
+											"Would you like to centralize your passwords on an FTP server ?",
+											PARAM_FTP_USE_DEFAULT,
+											ppk_settings_network);
+		proto_params[PARAM_FTP_USE]=ftp_use;
 		
 		ftp_host=ppk_param_proto_create_string(PARAM_FTP_HOST,
 											"The hostname of your ftp server",
@@ -123,15 +130,24 @@ extern "C"
 		
 		//Get a list of available parameters
 		availParams=new ppk_proto_param*[proto_params.size()+1];
-		int i=0;
+		/*int i=0;
 		std::map<std::string, ppk_proto_param*>::const_iterator itr;
 		for(itr = proto_params.begin(); itr != proto_params.end(); ++itr, ++i)
-			availParams[i]=itr->second;
-		availParams[proto_params.size()]=NULL;
+			availParams[i]=itr->second;*/
+		availParams[0]=mod_passphrase;
+		availParams[1]=close_dly;
+		availParams[2]=ftp_use;
+		availParams[3]=ftp_host;
+		availParams[4]=ftp_port;
+		availParams[5]=ftp_login;
+		availParams[6]=ftp_pwd;
+		availParams[7]=ftp_path;
+		availParams[8]=NULL;
 		
 		//Set parameters's default value
 		parameters[PARAM_MOD_PASSPHRASE]=cvariant_from_string(PARAM_MOD_PASSPHRASE_DEFAULT);
  		parameters[PARAM_CLOSING_DELAY]=cvariant_from_int(PARAM_CLOSING_DELAY_DEFAULT);
+		parameters[PARAM_FTP_USE]=cvariant_from_bool(PARAM_FTP_USE_DEFAULT);
 		parameters[PARAM_FTP_HOST]=cvariant_from_string(PARAM_FTP_HOST_DEFAULT);
  		parameters[PARAM_FTP_PORT]=cvariant_from_int(PARAM_FTP_PORT_DEFAULT);
  		parameters[PARAM_FTP_LOGIN]=cvariant_from_string(PARAM_FTP_LOGIN_DEFAULT);
@@ -327,6 +343,13 @@ extern "C"
 		{
 			if(cvariant_get_type(value)==cvariant_int)
 				parameters[PARAM_CLOSING_DELAY]=value;
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_FTP_USE)
+		{
+			if(cvariant_get_type(value)==cvariant_boolean)
+				parameters[PARAM_FTP_USE]=value;
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 		}

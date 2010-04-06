@@ -293,43 +293,43 @@ extern "C"
 //Accessors
 	cvariant_type ppk_param_proto_expected_type(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->expected_type;
 	}
 	
 	ppk_param_type ppk_param_proto_user_type(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->user_type;
 	}
 	
 	const char* ppk_param_proto_name(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->name;
 	}
 	
 	const char* ppk_param_proto_help_text(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->help_text;
 	}
 	
 	cvariant ppk_param_proto_default_value(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->default_value;
 	}
 	
 	const ppk_settings_group* ppk_param_proto_settings_group(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		return proto->group;
 	}
 	
 	const ppk_proto_param_file* ppk_param_proto_file_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_file_param)
 			return &proto->file_params;
 		else
@@ -338,7 +338,7 @@ extern "C"
 	
 	const ppk_proto_param_module* ppk_param_proto_module_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_module_param)
 			return &proto->module_params;
 		else
@@ -347,7 +347,7 @@ extern "C"
 	
 	const ppk_proto_param_ranged_int* ppk_param_proto_ranged_int_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_ranged_int_param)
 			return &proto->ranged_int_params;
 		else
@@ -356,7 +356,7 @@ extern "C"
 	
 	const ppk_proto_param_ranged_float* ppk_param_proto_ranged_float_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_ranged_float_param)
 			return &proto->ranged_float_params;
 		else
@@ -365,7 +365,7 @@ extern "C"
 	
 	const ppk_proto_param_list* ppk_param_proto_list_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_list_param)
 			return &proto->list_params;
 		else
@@ -374,7 +374,7 @@ extern "C"
 	
 	const ppk_proto_param_validated_string* ppk_param_proto_validated_string_params(const ppk_proto_param* proto)
 	{
-		assert(proto==NULL);
+		assert(proto!=NULL);
 		if(proto->user_type==ppk_proto_file_param)
 			return &proto->validated_string_params;
 		else

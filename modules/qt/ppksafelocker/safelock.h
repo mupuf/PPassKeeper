@@ -17,7 +17,7 @@ class SafeLock : private QThread
 {
 Q_OBJECT
 	//Keyring attributes
-	QString safelockPath;
+	QString _safelockPath;
 	int _closingDelay;
 	QString ppk_module_passphrase;
 	bool _isOpen;
@@ -63,6 +63,9 @@ public:
 	
 	void setPPKModuleForPassphrase(QString ppk_passphrase_module);
 	QString PPKModuleForPassphrase();
+
+	void setSafeLockPath(QString safelocker);
+	QString safeLockPath();
 
 	void setClosingDelay(int closingDelay);
 	int closingDelay();

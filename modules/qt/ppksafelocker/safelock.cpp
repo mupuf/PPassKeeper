@@ -76,7 +76,7 @@ bool SafeLock::isDBAvailable()
 {
 	//Decrypt the file
 	char* c_data;
-	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, ""/*empty key*/);
+	crypt_error ret=decryptFromFile(qPrintable(safeLockPath()), &c_data, ""/*empty key*/);
 	return ret!=crypt_file_cannot_be_oppenned;
 }
 
@@ -138,7 +138,7 @@ void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, 
 	}
 }
 
-SafeLock::SafeLock(QString safelockPath, int closingDelay) : safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0)
+SafeLock::SafeLock(QString safelockPath, int closingDelay) : _safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0)
 {
 	//Connect FTP signals
 	connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
@@ -191,7 +191,7 @@ ppk_error SafeLock::open(const char* passphrase_c)
 
 	//Decrypt the file
 	char* c_data=NULL;
-	crypt_error ret=decryptFromFile(qPrintable(safelockPath), &c_data, qPrintable(key));
+	crypt_error ret=decryptFromFile(qPrintable(_safelockPath), &c_data, qPrintable(key));
 	if(ret==crypt_ok)
 	{
 		//set attributes
@@ -240,21 +240,21 @@ ppk_error SafeLock::open(const char* passphrase_c)
 		}
 		else
 		{
-			fprintf(stderr, "SafeLock: Invalid format, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
+			fprintf(stderr, "SafeLock: Invalid format, cannot open the lock file '%s'.\n", qPrintable(_safelockPath));
 			close();
 			return PPK_CANNOT_OPEN_PASSWORD_MANAGER;
 		}
 	}
 	else if(ret==crypt_invalid_key)
 	{
-		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(safelockPath));
+		fprintf(stderr, "SafeLock: Invalid key, cannot open the lock file '%s'.\n", qPrintable(_safelockPath));
 		this->key=QString();
 		return PPK_INVALID_PASSWORD;
 	}
 	else if(ret==crypt_file_cannot_be_oppenned || ret==crypt_unknown_error)
 	{
 		//Create a new safelock
-		fprintf(stderr, "SafeLock: Create a new SafeLock at '%s'.\n", qPrintable(safelockPath));
+		fprintf(stderr, "SafeLock: Create a new SafeLock at '%s'.\n", qPrintable(_safelockPath));
 
 		//Set the parameters of the new SafeLock
 		this->_isOpen=true;
@@ -272,7 +272,7 @@ bool SafeLock::flushChanges()
 	if(_hasBeenModified)
 	{
 		QString data=createFile();
-		return cryptToFile(qPrintable(safelockPath), qPrintable(data), qPrintable(this->key))==crypt_ok;
+		return cryptToFile(qPrintable(_safelockPath), qPrintable(data), qPrintable(this->key))==crypt_ok;
 	}
 	else
 		return true;
@@ -290,7 +290,7 @@ bool SafeLock::close()
 		key=QString();
 		
 		//Send onto the ftp
-		sendFile(FTP_Host, FTP_Port, FTP_Login, FTP_PWD, safelockPath, FTP_RemoteDir);
+		sendFile(FTP_Host, FTP_Port, FTP_Login, FTP_PWD, _safelockPath, FTP_RemoteDir);
 
 		//Set the file as being closed
 		this->_isOpen=false;
@@ -312,6 +312,16 @@ QString SafeLock::PPKModuleForPassphrase()
 {
 	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 	return this->ppk_module_passphrase;
+}
+
+void SafeLock::setSafeLockPath(QString safelocker)
+{
+	this->_safelockPath=safelocker;
+}
+
+QString SafeLock::safeLockPath()
+{
+	return _safelockPath;
 }
 
 void SafeLock::setClosingDelay(int closingDelay)

@@ -17,6 +17,7 @@ std::map<std::string, ppk_proto_param*> proto_params;
 ppk_proto_param** availParams;
 #define PARAM_MOD_PASSPHRASE "module passphrase"
 #define PARAM_CLOSING_DELAY "closing delay"
+#define PARAM_SAFELOCKER_PATH "SafeLocker's filepath"
 #define PARAM_FTP_USE "Use FTP"
 #define PARAM_FTP_HOST "FTP host"
 #define PARAM_FTP_PORT "FTP port"
@@ -37,9 +38,15 @@ ppk_proto_param** availParams;
 extern "C" const char* getModuleID();
 
 //Private functions
+QString safelockDefaultPath()
+{
+	return QString::fromUtf8(ppk_settings_directory())+QString::fromUtf8("/ppk_safelock.crypted");
+}
+
 SafeLock& safeLock()
 {
-	static SafeLock sf(QString::fromUtf8(ppk_settings_directory())+QString::fromUtf8("/ppk_safelock.crypted"));
+	const char* path=cvariant_get_string(parameters[PARAM_SAFELOCKER_PATH]);
+	static SafeLock sf(QString::fromUtf8(path));
 	return sf;
 }
 

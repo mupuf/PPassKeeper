@@ -5,24 +5,41 @@
 #include <QMap>
 #include <QFtp>
 #include <QFile>
+#include <QThread>
+#include <QTimer>
+#include <QReadWriteLock>
+#include <QSharedPointer>
 #include "sfentry.h"
 
-class SafeLock : public QObject
+class QApplication;
+
+class SafeLock : private QThread
 {
 Q_OBJECT
+	//Keyring attributes
 	QString safelockPath;
+	int _closingDelay;
 	QString ppk_module_passphrase;
 	bool _isOpen;
 	bool _hasBeenModified;
 
+	//versionning and data
 	int revision;
 	QMap<QString, SFEntry> entries;
 	QString key;
 
+	//Multi-Threading
+	QSharedPointer<QApplication> app;
+	QReadWriteLock rwlock;
+	QTimer timer;
+
+	//Local functions
+	void getQApp();
 	QString ppkEntryToString(const ppk_entry* entry) const;
 
 	void SetHasBeenModified();
-	
+	void resetClosingTimer();
+
 	QString createFile();
 	bool isDBAvailable();
 	
@@ -38,12 +55,11 @@ Q_OBJECT
 	void sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir=QString());
 
 public:
-	SafeLock(QString safelockPath);
+	SafeLock(QString safelockPath, int closingDelay=0);
 	~SafeLock();
 
 	ppk_error open(const char* passphrase=NULL);
 	bool flushChanges();
-	bool close();
 	
 	void setPPKModuleForPassphrase(QString ppk_passphrase_module);
 	QString PPKModuleForPassphrase();
@@ -57,6 +73,9 @@ public:
 	const SFEntry get(QString entry) const;
 	const SFEntry get(const ppk_entry* entry) const;
 	QList<QString> list() const;
+
+public slots:
+	bool close();
 	
 private slots:
 	void commandStarted(int id);

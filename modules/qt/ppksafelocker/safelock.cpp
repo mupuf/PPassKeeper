@@ -5,8 +5,15 @@
 #include <iostream>
 #include <QStringList>
 #include <QMapIterator>
+#include <QApplication>
 
 extern "C" const char* getModuleID();
+
+void SafeLock::getQApp()
+{
+	if(qApp==NULL && app.data()==NULL)
+		app=QSharedPointer<QApplication>(new QApplication(0, NULL));
+}
 
 QString SafeLock::ppkEntryToString(const ppk_entry* entry) const
 {
@@ -34,6 +41,12 @@ void SafeLock::SetHasBeenModified()
 	_hasBeenModified=true;;
 }
 
+void SafeLock::resetClosingTimer()
+{
+	if(_closingDelay>0)
+		timer.setInterval(_closingDelay*60*1000);
+}
+
 QString SafeLock::createFile()
 {
 	QString file;
@@ -51,6 +64,8 @@ QString SafeLock::createFile()
 	}
 
 	file+=QString::fromUtf8("\n");
+
+	qDebug("File='%s'", qPrintable(file));
 
 	return file;
 }
@@ -121,30 +136,41 @@ void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, 
 	}
 }
 
-SafeLock::SafeLock(QString safelockPath) : safelockPath(safelockPath), _isOpen(false), _hasBeenModified(false), revision(0)
+SafeLock::SafeLock(QString safelockPath, int closingDelay) : safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0)
 {
 	//Connect FTP signals
 	connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
 	connect(&ftp, SIGNAL(dataTransferProgress(qint64, qint64)), this, SLOT(dataTransferProgress(qint64, qint64)));
 	connect(&ftp, SIGNAL(commandStarted(int)), this, SLOT(commandStarted(int)));
+
+	//Set the closing timer to the oneshot mode
+	timer.setSingleShot(true);
+
+	//connect closing timer signals
+	connect(&timer, SIGNAL(timeout()), this, SLOT(close()));
 }
 
 SafeLock::~SafeLock()
 {
 	close();
+	terminate();
 }
 
 #include "modulecreation.h"
 ppk_error SafeLock::open(const char* passphrase_c)
 {
+	QWriteLocker lock(&rwlock);
+
 	QString passphrase=(passphrase_c==NULL?QString():QString::fromUtf8(passphrase_c));
 	
-	if(isOpen())
+	if(_isOpen)
 		return PPK_OK; //it is already open
 	
 	//Check if the DB is available. if it is not, create the db
 	if(!isDBAvailable())
 	{
+		getQApp();
+
 		ModuleCreation m;
 		m.exec();
 		if(m.result()==QDialog::Accepted)
@@ -202,6 +228,13 @@ ppk_error SafeLock::open(const char* passphrase_c)
 				if(e!=SFEntry())
 					entries[e.entry()]=e;
 			}
+
+			//start the event loop
+			getQApp();
+			start();
+
+			//Start the closing timer
+			resetClosingTimer();
 		}
 		else
 		{
@@ -232,6 +265,8 @@ ppk_error SafeLock::open(const char* passphrase_c)
 
 bool SafeLock::flushChanges()
 {
+	QWriteLocker lock(&rwlock);
+
 	if(_hasBeenModified)
 	{
 		QString data=createFile();
@@ -266,21 +301,27 @@ bool SafeLock::close()
 
 void SafeLock::setPPKModuleForPassphrase(QString ppk_passphrase_module)
 {
+	QWriteLocker lock(&rwlock);
+
 	this->ppk_module_passphrase=ppk_passphrase_module;
 }
 
 QString SafeLock::PPKModuleForPassphrase()
 {
+	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 	return this->ppk_module_passphrase;
 }
 
 bool SafeLock::isOpen() const
 {
+	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 	return _isOpen;
 }
 
 bool SafeLock::add(const ppk_entry* entry, const ppk_data* data)
 {
+	QWriteLocker lock(&rwlock);
+
 	SFEntry e(this->revision, entry, data);
 
 	if(entries.contains(e.entry()))
@@ -294,6 +335,8 @@ bool SafeLock::add(const ppk_entry* entry, const ppk_data* data)
 
 bool SafeLock::reset(const ppk_entry* entry, const ppk_data* data)
 {
+	QWriteLocker lock(&rwlock);
+
 	SetHasBeenModified();
 
 	SFEntry e(this->revision, entry, data);
@@ -304,6 +347,8 @@ bool SafeLock::reset(const ppk_entry* entry, const ppk_data* data)
 
 bool SafeLock::remove(QString entry)
 {
+	QWriteLocker lock(&rwlock);
+
 	bool ret=entries.remove(entry)>0;
 	if(ret)
 		SetHasBeenModified();
@@ -317,17 +362,22 @@ bool SafeLock::remove(const ppk_entry* entry)
 
 const SFEntry SafeLock::get(QString entry) const
 {
+	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 	return entries[entry];
 }
 
 const SFEntry SafeLock::get(const ppk_entry* entry) const
 {
+	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
+
 	//Get the entry
 	return get(ppkEntryToString(entry));
 }
 
 QList<QString> SafeLock::list() const
 {
+	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
+
 	return entries.keys();
 }
 

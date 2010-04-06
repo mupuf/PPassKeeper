@@ -126,14 +126,10 @@ extern "C"
 											"The path on your ftp server where you would like to store the safelocker (must already exist)",
 											PARAM_FTP_PATH_DEFAULT,
 											ppk_settings_network);
-		proto_params[PARAM_FTP_PATH]=ftp_pwd;
+		proto_params[PARAM_FTP_PATH]=ftp_path;
 		
 		//Get a list of available parameters
 		availParams=new ppk_proto_param*[proto_params.size()+1];
-		/*int i=0;
-		std::map<std::string, ppk_proto_param*>::const_iterator itr;
-		for(itr = proto_params.begin(); itr != proto_params.end(); ++itr, ++i)
-			availParams[i]=itr->second;*/
 		availParams[0]=mod_passphrase;
 		availParams[1]=close_dly;
 		availParams[2]=ftp_use;

@@ -1,6 +1,8 @@
 #include "safelock.h"
 #include "crypt.h"
 
+#include "modulecreation.h"
+
 #include <stdio.h>
 #include <iostream>
 #include <QStringList>
@@ -44,7 +46,7 @@ void SafeLock::SetHasBeenModified()
 void SafeLock::resetClosingTimer()
 {
 	if(_closingDelay>0)
-		timer.setInterval(_closingDelay*60*1000);
+		timer.start(_closingDelay*60*1000);
 }
 
 QString SafeLock::createFile()
@@ -154,9 +156,9 @@ SafeLock::~SafeLock()
 {
 	close();
 	terminate();
+	this->wait(100);
 }
 
-#include "modulecreation.h"
 ppk_error SafeLock::open(const char* passphrase_c)
 {
 	QWriteLocker lock(&rwlock);
@@ -310,6 +312,16 @@ QString SafeLock::PPKModuleForPassphrase()
 {
 	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 	return this->ppk_module_passphrase;
+}
+
+void SafeLock::setClosingDelay(int closingDelay)
+{
+	this->_closingDelay=closingDelay;
+}
+
+int SafeLock::closingDelay()
+{
+	return this->_closingDelay;
 }
 
 bool SafeLock::isOpen() const

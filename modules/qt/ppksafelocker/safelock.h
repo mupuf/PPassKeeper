@@ -63,6 +63,9 @@ public:
 	
 	void setPPKModuleForPassphrase(QString ppk_passphrase_module);
 	QString PPKModuleForPassphrase();
+
+	void setClosingDelay(int closingDelay);
+	int closingDelay();
 	
 	bool isOpen() const;
 

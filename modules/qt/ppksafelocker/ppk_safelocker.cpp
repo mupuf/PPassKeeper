@@ -153,6 +153,8 @@ extern "C"
 		//Set up values
 		const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
 		safeLock().setPPKModuleForPassphrase(QString::fromUtf8(module));
+		int closingDelay=cvariant_get_int(parameters[PARAM_CLOSING_DELAY]);
+		safeLock().setClosingDelay(closingDelay);
 	}
 
 	void destructor()
@@ -338,7 +340,13 @@ extern "C"
 		else if(key == PARAM_CLOSING_DELAY)
 		{
 			if(cvariant_get_type(value)==cvariant_int)
+			{
 				parameters[PARAM_CLOSING_DELAY]=value;
+
+				//Update the value
+				int closingDelay=cvariant_get_int(parameters[PARAM_CLOSING_DELAY]);
+				safeLock().setClosingDelay(closingDelay);
+			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
 		}

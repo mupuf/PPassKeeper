@@ -2,6 +2,7 @@
 #include <ppasskeeper/param_prototype.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 //local functions
 static ppk_proto_param* ppk_param_proto_create_empty(cvariant_type type, const char* name, const char* help_text, cvariant default_value, const ppk_settings_group *group)
@@ -129,7 +130,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_string_param;
@@ -168,7 +169,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_file_param;
@@ -182,7 +183,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_directory_param;
@@ -195,7 +196,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_module_param;
@@ -237,7 +238,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_list_param;
@@ -251,7 +252,7 @@ extern "C"
 		ppk_proto_param* proto=ppk_param_proto_create_empty(cvariant_string, 
 															name, 
 															help_text, 
-															cvariant_from_string(default_value), 
+															cvariant_from_string_copy(default_value, 0), 
 															group);
 		
 		proto->user_type=ppk_proto_validated_string_param;

@@ -27,6 +27,7 @@ ppk_proto_param** availParams;
 
 #define PARAM_MOD_PASSPHRASE_DEFAULT "AskForPass_Qt"
 #define PARAM_CLOSING_DELAY_DEFAULT 10
+#define PARAM_SAFELOCKER_PATH_DEFAULT (qPrintable(safelockDefaultPath()))
 #define PARAM_FTP_USE_DEFAULT cvariant_true
 #define PARAM_FTP_HOST_DEFAULT ""
 #define PARAM_FTP_PORT_DEFAULT 21
@@ -40,7 +41,7 @@ extern "C" const char* getModuleID();
 //Private functions
 QString safelockDefaultPath()
 {
-	return QString::fromUtf8(ppk_settings_directory())+QString::fromUtf8("/ppk_safelock.crypted");
+	return QString::fromUtf8(ppk_settings_directory())+QString::fromUtf8("ppk_safelock.ppksl");
 }
 
 SafeLock& safeLock()
@@ -75,7 +76,7 @@ extern "C"
 		params_group["Network"]=ppk_settings_network;
 		
 		//Create the parameters' prototypes
-		ppk_proto_param *mod_passphrase, *close_dly, *ftp_use, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd, *ftp_path;
+		ppk_proto_param *mod_passphrase, *close_dly, *safelocker_path, *ftp_use, *ftp_host, *ftp_port, *ftp_login, *ftp_pwd, *ftp_path;
 		
 		mod_passphrase=ppk_param_proto_create_module(PARAM_MOD_PASSPHRASE,
 											"The ppk module you would like the passphrase to be got from.",
@@ -96,6 +97,13 @@ extern "C"
 											0,
 											99);
 		proto_params[PARAM_CLOSING_DELAY]=close_dly;
+		
+		safelocker_path=ppk_param_proto_create_file(PARAM_SAFELOCKER_PATH,
+											"Where would you like to save the safelock.",
+											qPrintable(safelockDefaultPath()),
+											ppk_settings_security,
+											"PPassKeeper's safeLocker files(*.ppksl)");
+		proto_params[PARAM_SAFELOCKER_PATH]=safelocker_path;
 		
 		ftp_use=ppk_param_proto_create_boolean(PARAM_FTP_USE,
 											"Would you like to centralize your passwords on an FTP server ?",
@@ -139,17 +147,19 @@ extern "C"
 		availParams=new ppk_proto_param*[proto_params.size()+1];
 		availParams[0]=mod_passphrase;
 		availParams[1]=close_dly;
-		availParams[2]=ftp_use;
-		availParams[3]=ftp_host;
-		availParams[4]=ftp_port;
-		availParams[5]=ftp_login;
-		availParams[6]=ftp_pwd;
-		availParams[7]=ftp_path;
-		availParams[8]=NULL;
+		availParams[2]=safelocker_path;
+		availParams[3]=ftp_use;
+		availParams[4]=ftp_host;
+		availParams[5]=ftp_port;
+		availParams[6]=ftp_login;
+		availParams[7]=ftp_pwd;
+		availParams[8]=ftp_path;
+		availParams[9]=NULL;
 		
 		//Set parameters's default value
 		parameters[PARAM_MOD_PASSPHRASE]=cvariant_from_string(PARAM_MOD_PASSPHRASE_DEFAULT);
  		parameters[PARAM_CLOSING_DELAY]=cvariant_from_int(PARAM_CLOSING_DELAY_DEFAULT);
+		parameters[PARAM_SAFELOCKER_PATH]=cvariant_from_string(qPrintable(safelockDefaultPath()));
 		parameters[PARAM_FTP_USE]=cvariant_from_bool(PARAM_FTP_USE_DEFAULT);
 		parameters[PARAM_FTP_HOST]=cvariant_from_string(PARAM_FTP_HOST_DEFAULT);
  		parameters[PARAM_FTP_PORT]=cvariant_from_int(PARAM_FTP_PORT_DEFAULT);
@@ -353,6 +363,19 @@ extern "C"
 				//Update the value
 				int closingDelay=cvariant_get_int(parameters[PARAM_CLOSING_DELAY]);
 				safeLock().setClosingDelay(closingDelay);
+			}
+			else
+				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
+		}
+		else if(key == PARAM_SAFELOCKER_PATH)
+		{
+			if(cvariant_get_type(value)==cvariant_string)
+			{
+				parameters[PARAM_SAFELOCKER_PATH]=value;
+				
+				//Update the module
+				const char* path=cvariant_get_string(parameters[PARAM_SAFELOCKER_PATH]);
+				safeLock().setSafeLockPath(QString::fromUtf8(path));
 			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);

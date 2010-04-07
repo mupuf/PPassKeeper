@@ -26,7 +26,6 @@ OPTION(PPK_STF "SaveToFile plugins" ON)
 OPTION(PPK_STR "SaveToRegistry module (WIN32)" ON)
 OPTION(PPK_AFP_GTK "Ask For Password GTK plugin" ON)
 OPTION(PPK_AFP_QT "Ask For Password Qt plugin" ON)
-OPTION(PPK_AFP_WIN32 "Ask For Password Win32 plugin" ON)
 OPTION(PPK_GNOMEKEYRING "GNOME Keyring plugin" ON)
 OPTION(PPK_KWALLET4 "KWallet4 plugin" ON)
 OPTION(PPK_SAFELOCKER "PPK SafeLocker plugin" ON)
@@ -43,7 +42,6 @@ IF(NOT PPK_BUILD_PLUGINS)
   SET(PPK_STR OFF)
   SET(PPK_AFP_QT OFF)
   SET(PPK_AFP_GTK OFF)
-  SET(PPK_AFP_WIN32 OFF)
   SET(PPK_GNOMEKEYRING OFF)
   SET(PPK_KWALLET4 OFF)
   SET(PPK_SAFELOCKER OFF)
@@ -100,7 +98,6 @@ IF(PPK_PYTHON)
 ENDIF(PPK_PYTHON)
 
 IF(NOT CMAKE_HOST_WIN32)
-  SET(PPK_AFP_WIN32 OFF)
   SET(PPK_STR OFF)
 ENDIF(NOT CMAKE_HOST_WIN32)
 
@@ -253,16 +250,6 @@ IF(PPK_AFP_QT)
 
   INSTALL(TARGETS ppk_afp_qt DESTINATION lib/ppasskeeper)
 ENDIF(PPK_AFP_QT)
-
-#Win32 plugin
-IF(PPK_AFP_WIN32)
-  FILE(GLOB ppk_afp_win32_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}
-	"modules/windows/AskForPass/*.[ch]"
-	"modules/windows/AskForPass/*.cpp")
-  ADD_LIBRARY(ppk_afp_win32 MODULE ${ppk_afp_win32_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_afp_win32 ppasskeeper)
-  INSTALL(TARGETS ppk_afp_win32 DESTINATION lib/ppasskeeper)
-ENDIF(PPK_AFP_WIN32)
 
 # GNOME plugin
 IF(PPK_GNOMEKEYRING)
@@ -468,7 +455,6 @@ MESSAGE("Modules : ${PPK_BUILD_PLUGINS} (-DPPK_BUILD_PLUGINS=OFF to deactivate)"
 MESSAGE("	SaveToFile : ${PPK_STF} (-DPPK_STF=OFF to deactivate)")
 MESSAGE("	Ask For Password GTK : ${PPK_AFP_GTK} (-DPPK_AFP_GTK=OFF to deactivate)")
 MESSAGE("	Ask For Password Qt : ${PPK_AFP_QT} (-DPPK_AFP_QT=OFF to deactivate)")
-MESSAGE("	Ask For Password Win32 : ${PPK_AFP_WIN32} (-DPPK_AFP_WIN32=OFF to deactivate)")
 MESSAGE("	Gnome Keyring : ${PPK_GNOMEKEYRING} (-DPPK_GNOME=OFF to deactivate)")
 MESSAGE("	KDE4 Wallet : ${PPK_KWALLET4} (-DPPK_KWALLET4=OFF to deactivate)")
 MESSAGE("	SafeLocker : ${PPK_SAFELOCKER} (-DPPK_SAFELOCKER=OFF to deactivate)")

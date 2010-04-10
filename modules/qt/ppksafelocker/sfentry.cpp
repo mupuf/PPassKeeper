@@ -111,6 +111,33 @@ bool SFEntry::isBlob() const
 
 bool SFEntry::merge(const SFEntry& b)
 {
+	if(entry()!=b.entry())
+		return false;
+	
+	if(data()!=b.data())
+	{
+		if(timestamp()<b.timestamp().addSecs(1800))
+		{
+			//We need to get the data from b
+			_data=b.data();
+			_isBlob=b.isBlob();
+			_revision=b.revision();
+			_timestamp=b.timestamp();
+		}
+		else if(timestamp().addSecs(1800)>b.timestamp())
+		{
+			//We have the latest version
+			//Nothing to do
+		}
+		else
+		{
+			//Merge conflict onto the timestamp
+			//TODO
+			
+			return false;
+		}
+	}
+	
 	return true;
 }
 

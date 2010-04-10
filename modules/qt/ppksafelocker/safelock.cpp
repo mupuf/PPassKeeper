@@ -55,7 +55,7 @@ QString SafeLock::createFile()
 
 	file=QString::fromUtf8("#PPK_NETWORK\n");
 	file+=QString::fromUtf8("Version: 1.0\n");
-	file+=QString::fromUtf8("Revision: %1\n").arg(this->revision);
+	file+=QString::fromUtf8("Revision: %1 %2\n").arg(this->revision).arg(this->timestamp.toTime_t());
 	file+=QString::fromUtf8("Data:\n");
 
 	QMapIterator<QString, SFEntry> i(entries);
@@ -138,7 +138,7 @@ void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, 
 	}
 }
 
-SafeLock::SafeLock(QString safelockPath, int closingDelay) : _safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0)
+SafeLock::SafeLock(QString safelockPath, int closingDelay) : _safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0), timestamp(QDateTime::currentDateTime())
 {
 	//Connect FTP signals
 	connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
@@ -216,11 +216,12 @@ ppk_error SafeLock::open(const char* passphrase_c)
 			}*/
 
 			//get the revision number
-			QRegExp getRevision(QString::fromUtf8("Revision: (\\d+)"));
+			QRegExp getRevision(QString::fromUtf8("Revision: (\\d+) (\\d+)"));
 			if(getRevision.exactMatch(lines[2]))
 			{
 				QStringList capTexts=getRevision.capturedTexts();
 				this->revision=capTexts[1].toInt();
+				this->timestamp.fromTime_t(capTexts[2].toUInt());
 			}
 
 			//Add all the data
@@ -401,6 +402,29 @@ QList<QString> SafeLock::list() const
 	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
 
 	return entries.keys();
+}
+
+bool SafeLock::merge(const SafeLock& b)
+{
+	QList<SFEntry> o_entries=b.entries.values();
+	
+	for(int i=0; i<o_entries.size(); i++)
+	{
+		const SFEntry e=o_entries[i].entry();
+		if(entries.contains(e.entry()))
+		{
+			if(!entries[e.entry()].merge(e))
+			{
+				//TODO: Merge error !
+			}
+		}
+		else
+		{
+			//This entry has been deleted or didn't already exist
+		}
+	}
+	
+	return true;
 }
 
 //Slots

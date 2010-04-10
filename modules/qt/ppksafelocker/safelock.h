@@ -25,6 +25,7 @@ Q_OBJECT
 
 	//versionning and data
 	int revision;
+	QDateTime timestamp;
 	QMap<QString, SFEntry> entries;
 	QString key;
 
@@ -79,6 +80,8 @@ public:
 	const SFEntry get(QString entry) const;
 	const SFEntry get(const ppk_entry* entry) const;
 	QList<QString> list() const;
+	
+	bool merge(const SafeLock& b);
 
 public slots:
 	bool close();

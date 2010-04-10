@@ -25,21 +25,40 @@ public:
 	///Read an existing entry from a line
 	SFEntry(const QString line);
 
+	///Serialization
 	QString toString() const;
+	
+	///get the entry
 	QString entry() const;
+	
+	///Get the data
 	QString data() const;
+	
+	///Get the revision number
 	int revision() const;
+	
+	///Get the timestamp
 	QDateTime timestamp() const;
 
+	///Get a ppk_entry from the entry. Must be freed
 	ppk_entry* ppkEntry_new() const;
+	
+	///Get a ppk_data from the data. Must be freed
 	ppk_data* ppkData_new() const;
 
+	///Is the entry a string ?
 	bool isString() const;
+	
+	///Is the entry a blob ?
 	bool isBlob() const;
 
+	///Merge b into this
 	bool merge(const SFEntry& b);
 
+	///overload the operators ==
 	bool operator==(const SFEntry& a) const;
+	
+	///overload the operators !=
 	bool operator!=(const SFEntry& a) const;
 };
 

@@ -66,7 +66,7 @@ extern "C" void constructor()
 	
 	win_cap=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
 										"The caption you would like to see",
-										PARAM_MAIN_TEXT_DEFAULT,
+										PARAM_WINDOW_CAPTION_DEFAULT,
 										ppk_settings_custom_texts);
 	proto_params[PARAM_WINDOW_CAPTION]=win_cap;
 	
@@ -97,7 +97,10 @@ extern "C" void destructor()
 	//Free the param prototypes
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
+	{
+		qDebug("Free param '%s'\n", itr->first.c_str());
 		ppk_param_proto_free(itr->second);
+	}
 	
 	//Free the setting groups
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;

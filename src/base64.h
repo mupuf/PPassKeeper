@@ -1,4 +1,3 @@
-
 /** @file util/crypt/base64.h
   * @brief Base64 encoding
   * @author Apache Software Foundation

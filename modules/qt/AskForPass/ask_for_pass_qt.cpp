@@ -98,7 +98,7 @@ extern "C" void destructor()
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
 	{
-		qDebug("Free param '%s'\n", itr->first.c_str());
+		printf("Free param '%s' at @%i\n", itr->first.c_str(), (unsigned long long)itr->second);
 		ppk_param_proto_free(itr->second);
 	}
 	

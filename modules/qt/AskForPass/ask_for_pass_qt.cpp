@@ -42,7 +42,7 @@ extern "C" void constructor()
 	
 	
 	//Create the parameters' prototypes
-	ppk_proto_param *img_app, *img_item, *win_cap, *win_text;
+	ppk_proto_param *img_app, *img_net, *img_item, *win_cap, *win_text;
 	img_app=ppk_param_proto_create_file(PARAM_IMG_APP,
 										"The image you would like to be displayed when you're ask to enter a application password",
 										"", //Default value
@@ -50,12 +50,12 @@ extern "C" void constructor()
 										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
 	proto_params[PARAM_IMG_APP]=img_app;
 	
-	img_item=ppk_param_proto_create_file(PARAM_IMG_NET,
+	img_net=ppk_param_proto_create_file(PARAM_IMG_NET,
 										"The image you would like to be displayed when you're ask to enter a network password",
 										"", //Default value
 										ppk_settings_display,
 										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
-	proto_params[PARAM_IMG_NET]=img_item;
+	proto_params[PARAM_IMG_NET]=img_net;
 	
 	img_item=ppk_param_proto_create_file(PARAM_IMG_ITEM,
 										"The image you would like to be displayed when you're ask to enter an item's value",

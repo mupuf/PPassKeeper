@@ -90,7 +90,6 @@ extern "C" void constructor()
 	parameters[PARAM_MAIN_TEXT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
 }
 
-#include <stdio.h>
 extern "C" void destructor()
 {
 	//Free the list of parameter
@@ -99,10 +98,7 @@ extern "C" void destructor()
 	//Free the param prototypes
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
-	{
-		printf("Free param '%s' at @%i\n", itr->first.c_str(), (unsigned long long)itr->second);
 		ppk_param_proto_free(itr->second);
-	}
 	
 	//Free the setting groups
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;

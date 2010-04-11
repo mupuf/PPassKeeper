@@ -97,10 +97,7 @@ extern "C" void destructor()
 	//Free the param prototypes
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
-	{
-		printf("Free param '%s' at @%i\n", itr->first.c_str(), (unsigned long long)itr->second);
 		ppk_param_proto_free(itr->second);
-	}
 	
 	//Free the setting groups
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;
@@ -281,18 +278,18 @@ extern "C" void setParam(const char* paramName, const cvariant value)
 }
 
 //Optionnal
-std::string* customPrompt()
+std::string& customPrompt()
 {
 	static std::string msg;
-	return &msg;
+	return msg;
 }
 
 extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 {
 	if(customMessage!=NULL)
-		*(customPrompt())=customMessage;
+		customPrompt()=customMessage;
 	else
-		*(customPrompt())=std::string();
+		customPrompt()=std::string();
 
 	return PPK_TRUE;
 }
@@ -317,9 +314,14 @@ extern "C" ppk_boolean setCustomPromptMessage(const char* customMessage)
 
 class PasswordDialog : public QDialog
 {
+	static QApplication* qapp;
+
 public:
 	static bool getPassword(const QString &title, const QString &label, const QString& icon, std::string &pwd)
 	{
+		if(qApp==NULL)
+			qapp=new QApplication(0, NULL);
+
 		PasswordDialog dialog(title, label, icon);
 		bool ok = dialog.exec() == QDialog::Accepted;
 		pwd=dialog.pwdEdit->text().toStdString();
@@ -373,26 +375,18 @@ private:
 	QLineEdit *pwdEdit;
 };
 
+QApplication* PasswordDialog::qapp=NULL;
+
 ppk_error Qt_Get_Password(QString title, QString label, QString icon, std::string& pwd)
 {
 	bool ok;
 
 	//If there is a custom text
-	if(*(customPrompt())!=std::string())
-		label=QString::fromUtf8(customPrompt()->c_str());
+	if(customPrompt()!=std::string())
+		label=QString::fromUtf8(customPrompt().c_str());
 
-	//Init Qt if it has not already been done
-	if(QApplication::instance()==0)
-	{
-		//create the instance
-		int argc;
-		QApplication app(argc,NULL);
-
-		//Retrieve the password
-		ok = PasswordDialog::getPassword(title, label, icon, pwd);
-	}
-	else
-		ok = PasswordDialog::getPassword(title, label, icon, pwd);
+	//Get the password
+	ok = PasswordDialog::getPassword(title, label, icon, pwd);
 
 	//if user pressed cancel
 	if(ok)

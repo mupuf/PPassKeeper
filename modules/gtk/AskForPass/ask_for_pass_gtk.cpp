@@ -40,7 +40,7 @@ extern "C" void constructor()
 	
 	
 	//Create the parameters' prototypes
-	ppk_proto_param *img_app, *img_item, *win_cap, *win_text;
+	ppk_proto_param *img_app, *img_net, *img_item, *win_cap, *win_text;
 	img_app=ppk_param_proto_create_file(PARAM_IMG_APP,
 										"The image you would like to be displayed when you're ask to enter a application password",
 										"", //Default value
@@ -48,12 +48,12 @@ extern "C" void constructor()
 										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
 	proto_params[PARAM_IMG_APP]=img_app;
 	
-	img_item=ppk_param_proto_create_file(PARAM_IMG_NET,
+	img_net=ppk_param_proto_create_file(PARAM_IMG_NET,
 										"The image you would like to be displayed when you're ask to enter a network password",
 										"", //Default value
 										ppk_settings_display,
 										"Images (*.bmp *.gif *.jpg *.jpeg *.mng *.png *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.svg);;All files (*.*)");
-	proto_params[PARAM_IMG_NET]=img_item;
+	proto_params[PARAM_IMG_NET]=img_net;
 	
 	img_item=ppk_param_proto_create_file(PARAM_IMG_ITEM,
 										"The image you would like to be displayed when you're ask to enter an item's value",
@@ -64,11 +64,11 @@ extern "C" void constructor()
 	
 	win_cap=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
 										"The caption you would like to see",
-										PARAM_MAIN_TEXT_DEFAULT,
+										PARAM_WINDOW_CAPTION_DEFAULT,
 										ppk_settings_custom_texts);
 	proto_params[PARAM_WINDOW_CAPTION]=win_cap;
 	
-	win_text=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
+	win_text=ppk_param_proto_create_string(PARAM_MAIN_TEXT,
 										"The main text you would like to shown.\nUse %1 were you actually want the key to be shown.",
 										PARAM_MAIN_TEXT_DEFAULT,
 										ppk_settings_custom_texts);
@@ -90,6 +90,7 @@ extern "C" void constructor()
 	parameters[PARAM_MAIN_TEXT]=cvariant_from_string(PARAM_MAIN_TEXT_DEFAULT);
 }
 
+#include <stdio.h>
 extern "C" void destructor()
 {
 	//Free the list of parameter
@@ -98,7 +99,10 @@ extern "C" void destructor()
 	//Free the param prototypes
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
+	{
+		printf("Free param '%s' at @%i\n", itr->first.c_str(), (unsigned long long)itr->second);
 		ppk_param_proto_free(itr->second);
+	}
 	
 	//Free the setting groups
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;

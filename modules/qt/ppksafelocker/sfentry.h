@@ -15,6 +15,14 @@ private:
 
 	int _revision;
 	QDateTime _timestamp;
+	
+	//Tags
+	unsigned int _tags;
+	enum Tags
+	{
+		entry_normal=0,
+		entry_deleted=1
+	};
 
 public:
 	SFEntry();
@@ -51,6 +59,12 @@ public:
 	
 	///Is the entry a blob ?
 	bool isBlob() const;
+	
+	///Marked as deleted ?
+	bool isMarkedDeleted();
+	
+	///Mark this entry as deleted
+	void markAsDeleted(bool value);
 
 	///Merge b into this
 	bool merge(const SFEntry& b);

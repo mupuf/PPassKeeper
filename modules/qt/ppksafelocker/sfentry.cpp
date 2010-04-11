@@ -8,10 +8,10 @@
 #define STR_STRING "str :"
 #define BLOB_STRING "blob:"
 
-SFEntry::SFEntry() : _isBlob(false), _revision(0), _timestamp()
+SFEntry::SFEntry() : _isBlob(false), _revision(0), _timestamp(), _tags(0)
 {}
 
-SFEntry::SFEntry(int revision, const ppk_entry* entry, const ppk_data* data) : _isBlob(false), _revision(revision), _timestamp(QDateTime::currentDateTime())
+SFEntry::SFEntry(int revision, const ppk_entry* entry, const ppk_data* data) : _isBlob(false), _revision(revision), _timestamp(QDateTime::currentDateTime()), _tags(0)
 {
 	//Copy the entry
 	size_t lenKey=ppk_key_length(entry);
@@ -41,7 +41,8 @@ SFEntry::SFEntry(int revision, const ppk_entry* entry, const ppk_data* data) : _
 
 SFEntry::SFEntry(const QString line)
 {
-	QRegExp regexp(QString::fromUtf8("(\\d+) (\\d+) (s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
+	//format is: revision timestamp tags type"key":"value"
+	QRegExp regexp(QString::fromUtf8("(\\d+) (\\d+) (\\d+) (s|b)\"(.+)\":\"(.+)\"\n?")); //match 's"entry":"data"'
 	if(regexp.exactMatch(line))
 	{
 		QStringList values=regexp.capturedTexts();
@@ -49,21 +50,23 @@ SFEntry::SFEntry(const QString line)
 		this->_revision=values[1].toInt();
 
 		this->_timestamp=QDateTime::fromTime_t(values[2].toUInt());
+		
+		this->_tags=values[3].toUInt();
 
-		this->_isBlob=(values[3]==QString::fromUtf8("b"));
-		this->_entry=values[4];
-		this->_data=values[5];
+		this->_isBlob=(values[4]==QString::fromUtf8("b"));
+		this->_entry=values[5];
+		this->_data=values[6];
 
-		//std::cout << "Create a " << std::string(isBlob()?"blob":"string") << " entry; entry='" << qPrintable(entry()) << "''; data='" << qPrintable(data()) << std::endl;
+		std::cout << "Create a " << std::string(isBlob()?"blob":"string") << " entry; entry='" << qPrintable(entry()) << "''; data='" << qPrintable(data()) << std::endl;
 	}
-	/*else
-		std::cerr << "Cannot create an entry from line '"<< qPrintable(line) << "'" << std::endl;*/
+	else
+		std::cerr << "Cannot create an entry from line '"<< qPrintable(line) << "'" << std::endl;
 }
 
 
 QString SFEntry::toString() const
 {
-	return QString::fromUtf8("%1 %2 %3\"%4\":\"%5\"\n").arg(revision()).arg(timestamp().toTime_t()).arg(QString::fromUtf8(isString()?"s":"b"), entry(), data());
+	return QString::fromUtf8("%1 %2 %3 %4\"%5\":\"%6\"\n").arg(revision()).arg(timestamp().toTime_t()).arg(_tags).arg(QString::fromUtf8(isString()?"s":"b"), entry(), data());
 }
 
 QString SFEntry::entry() const
@@ -107,6 +110,19 @@ bool SFEntry::isString() const
 bool SFEntry::isBlob() const
 {
 	return _isBlob;
+}
+
+bool SFEntry::isMarkedDeleted()
+{
+	return (_tags & entry_deleted)==entry_deleted;
+}
+
+void SFEntry::markAsDeleted(bool value)
+{
+	if(value)
+		_tags|=entry_deleted;
+	else
+		_tags|=~entry_deleted;
 }
 
 bool SFEntry::merge(const SFEntry& b)

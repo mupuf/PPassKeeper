@@ -70,7 +70,7 @@ extern "C" void constructor()
 										ppk_settings_custom_texts);
 	proto_params[PARAM_WINDOW_CAPTION]=win_cap;
 	
-	win_text=ppk_param_proto_create_string(PARAM_WINDOW_CAPTION,
+	win_text=ppk_param_proto_create_string(PARAM_MAIN_TEXT,
 										"The main text you would like to shown.\nUse %1 were you actually want the key to be shown.",
 										PARAM_MAIN_TEXT_DEFAULT,
 										ppk_settings_custom_texts);
@@ -94,9 +94,6 @@ extern "C" void constructor()
 
 extern "C" void destructor()
 {
-	//Free the list of parameter
-	delete[] availParams;
-	
 	//Free the param prototypes
 	std::map<std::string, ppk_proto_param*>::const_iterator itr;
 	for(itr = proto_params.begin(); itr != proto_params.end(); ++itr)
@@ -106,6 +103,9 @@ extern "C" void destructor()
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;
 	for(itr2 = params_group.begin(); itr2 != params_group.end(); ++itr2)
 		ppk_settings_group_free(itr2->second);
+
+	//Free the list of parameter
+	delete[] availParams;
 }
 
 extern "C" const char* getModuleID()

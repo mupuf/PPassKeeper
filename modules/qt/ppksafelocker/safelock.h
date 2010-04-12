@@ -58,7 +58,6 @@ Q_OBJECT
 	QString ppkEntryToString(const ppk_entry* entry) const;
 
 	void SetHasBeenModified();
-	void resetClosingTimer();
 
 	QString createFile();
 	bool isDBAvailable();
@@ -73,6 +72,9 @@ Q_OBJECT
 	qint16 FTP_Port;
 	
 	void sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir=QString());
+
+protected:
+	void run();
 
 public:
 	SafeLock(QString safelockPath, int closingDelay=0);
@@ -106,9 +108,13 @@ public slots:
 	bool close();
 	
 private slots:
+	void resetClosingTimer();
 	void commandStarted(int id);
 	void dataTransferProgress(qint64 done, qint64 total);
 	void commandFinished(int id, bool error);
+
+signals:
+	void newActionPerformed();
 };
 
 #endif // SAFELOCK_H

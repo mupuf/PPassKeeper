@@ -59,13 +59,22 @@ void SafeLock::SetHasBeenModified()
 	if(!_hasBeenModified)
 		this->revision++;
 
-	_hasBeenModified=true;;
+	_hasBeenModified=true;
+
+	//Reset the timer (if the thread is running <--> if the keyring is openned)
+	emit newActionPerformed();
 }
 
+//Should only be called by exec(), do not call directly
 void SafeLock::resetClosingTimer()
 {
 	if(_closingDelay>0)
+	{
+		timer.stop();
 		timer.start(_closingDelay*60*1000);
+	}
+	else
+		timer.stop();
 }
 
 QString SafeLock::createFile()
@@ -174,7 +183,7 @@ SafeLock::SafeLock(QString safelockPath, int closingDelay) : _safelockPath(safel
 SafeLock::~SafeLock()
 {
 	close();
-	terminate();
+	quit();
 	this->wait(100);
 }
 
@@ -255,8 +264,8 @@ ppk_error SafeLock::open(const char* passphrase_c)
 			getQApp();
 			start();
 
-			//Start the closing timer
-			resetClosingTimer();
+			//Set the timer thread afinity to our new thread
+			timer.moveToThread(this);
 		}
 		else
 		{
@@ -405,13 +414,15 @@ bool SafeLock::remove(const ppk_entry* entry)
 const SFEntry SafeLock::get(QString entry) const
 {
 	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
+
+	//Reset the timer (if the thread is running <--> if the keyring is openned)
+	const_cast<SafeLock*>(this)->newActionPerformed();
+
 	return entries[entry];
 }
 
 const SFEntry SafeLock::get(const ppk_entry* entry) const
 {
-	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
-
 	//Get the entry
 	return get(ppkEntryToString(entry));
 }
@@ -419,6 +430,9 @@ const SFEntry SafeLock::get(const ppk_entry* entry) const
 QList<QString> SafeLock::list() const
 {
 	QReadLocker lock(&const_cast<SafeLock*>(this)->rwlock);
+
+	//Reset the timer (if the thread is running <--> if the keyring is openned)
+	const_cast<SafeLock*>(this)->newActionPerformed();
 
 	return entries.keys();
 }
@@ -442,11 +456,25 @@ bool SafeLock::merge(const SafeLock& b)
 			//This entry has been deleted or didn't already exist
 		}
 	}
+
+	SetHasBeenModified();
 	
 	return true;
 }
 
 //Slots
+void SafeLock::run()
+{
+	//Start the closing timer
+	resetClosingTimer();
+
+	//Allow ourselves to reset the timer using this thread
+	connect(this, SIGNAL(newActionPerformed()), this, SLOT(resetClosingTimer()), Qt::QueuedConnection);
+
+	//Start the main eventloop
+	exec();
+}
+
 void SafeLock::commandStarted(int id)
 {
 	/*if(id==idConnect)

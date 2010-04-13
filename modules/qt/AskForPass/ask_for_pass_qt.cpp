@@ -106,6 +106,11 @@ extern "C" void destructor()
 
 	//Free the list of parameter
 	delete[] availParams;
+
+	//Free the parameters
+	std::map<std::string, cvariant>::const_iterator itr3;
+	for(itr3 = parameters.begin(); itr3 != parameters.end(); ++itr3)
+		cvariant_free(itr3->second);
 }
 
 extern "C" const char* getModuleID()
@@ -319,12 +324,24 @@ class PasswordDialog : public QDialog
 public:
 	static bool getPassword(const QString &title, const QString &label, const QString& icon, std::string &pwd)
 	{
+		/*                                  *****************
+									 * !! Warning !! *
+									 *****************
+
+		If qApp!=NULL, the QApplication instance already existing will be reused.
+		This will "work" as long as the main application doesn't exit while the user is being prompted.
+		I haven't found any other solution.
+		*/
 		if(qApp==NULL)
 			qapp=new QApplication(0, NULL);
 
+		//Fetch the password
 		PasswordDialog dialog(title, label, icon);
 		bool ok = dialog.exec() == QDialog::Accepted;
+
+		//Get the password
 		pwd=dialog.pwdEdit->text().toStdString();
+
 		return ok;
 	}
 

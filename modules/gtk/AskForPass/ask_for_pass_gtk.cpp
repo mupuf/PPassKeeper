@@ -123,6 +123,11 @@ extern "C" void destructor()
 	std::map<std::string, ppk_settings_group*>::const_iterator itr2;
 	for(itr2 = params_group.begin(); itr2 != params_group.end(); ++itr2)
 		ppk_settings_group_free(itr2->second);
+
+	//Free the parameters
+	std::map<std::string, cvariant>::const_iterator itr3;
+	for(itr3 = parameters.begin(); itr3 != parameters.end(); ++itr3)
+		cvariant_free(itr3->second);
 }
 
 extern "C" const char* getModuleID()

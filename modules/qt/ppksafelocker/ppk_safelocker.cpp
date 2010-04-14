@@ -18,16 +18,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ppasskeeper.h"
-#include "tokenizer.h"
+#include "ppasskeeper/data.h"
+#include "libsafelocker.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <map>
+
+#include <stdlib.h>
 #include <string.h>
-
-#include "safelock.h"
-
-#define STR_STRING "str :"
-#define BLOB_STRING "blob:"
 
 //Parameters
 std::map<std::string, cvariant> parameters;
@@ -53,30 +53,6 @@ ppk_proto_param** availParams;
 #define PARAM_FTP_LOGIN_DEFAULT ""
 #define PARAM_FTP_PWD_DEFAULT ""
 #define PARAM_FTP_PATH_DEFAULT ""
-
-//
-extern "C" const char* getModuleID();
-
-//Private functions
-QString safelockDefaultPath()
-{
-	return QString::fromUtf8(ppk_settings_directory())+QString::fromUtf8("ppk_safelock.ppksl");
-}
-
-SafeLock& safeLock()
-{
-	const char* path=cvariant_get_string(parameters[PARAM_SAFELOCKER_PATH]);
-	static SafeLock sf(QString::fromUtf8(path));
-	return sf;
-}
-
-ppk_error lazyInit()
-{
-	if(!safeLock().isOpen())
-		return safeLock().open();
-	
-	return PPK_OK;
-}
 
 //functions
 extern "C"
@@ -119,7 +95,7 @@ extern "C"
 		
 		safelocker_path=ppk_param_proto_create_file(PARAM_SAFELOCKER_PATH,
 											"Where would you like to save the safelock.",
-											qPrintable(safelockDefaultPath()),
+											qPrintable(_safelockDefaultPath()),
 											ppk_settings_security,
 											"PPassKeeper's safeLocker files(*.ppksl)");
 		proto_params[PARAM_SAFELOCKER_PATH]=safelocker_path;
@@ -178,7 +154,7 @@ extern "C"
 		//Set parameters's default value
 		parameters[PARAM_MOD_PASSPHRASE]=cvariant_from_string(PARAM_MOD_PASSPHRASE_DEFAULT);
  		parameters[PARAM_CLOSING_DELAY]=cvariant_from_int(PARAM_CLOSING_DELAY_DEFAULT);
-		parameters[PARAM_SAFELOCKER_PATH]=cvariant_from_string(qPrintable(safelockDefaultPath()));
+		parameters[PARAM_SAFELOCKER_PATH]=cvariant_from_string(qPrintable(_safelockDefaultPath()));
 		parameters[PARAM_FTP_USE]=cvariant_from_bool(PARAM_FTP_USE_DEFAULT);
 		parameters[PARAM_FTP_HOST]=cvariant_from_string(PARAM_FTP_HOST_DEFAULT);
  		parameters[PARAM_FTP_PORT]=cvariant_from_int(PARAM_FTP_PORT_DEFAULT);
@@ -188,9 +164,13 @@ extern "C"
 		
 		//Set up values
 		const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
-		safeLock().setPPKModuleForPassphrase(QString::fromUtf8(module));
+		_setPPKModuleForPassphrase(QString::fromUtf8(module));
+
+		const char* path=cvariant_get_string(parameters[PARAM_SAFELOCKER_PATH]);
+		_setSafeLockerPath(QString::fromUtf8(path));
+
 		int closingDelay=cvariant_get_int(parameters[PARAM_CLOSING_DELAY]);
-		safeLock().setClosingDelay(closingDelay);
+		_setClosingDelay(closingDelay);
 	}
 
 	void destructor()
@@ -207,6 +187,11 @@ extern "C"
 		std::map<std::string, ppk_settings_group*>::const_iterator itr2;
 		for(itr2 = params_group.begin(); itr2 != params_group.end(); ++itr2)
 			ppk_settings_group_free(itr2->second);
+
+		//Free the parameters
+		std::map<std::string, cvariant>::const_iterator itr3;
+		for(itr3 = parameters.begin(); itr3 != parameters.end(); ++itr3)
+			cvariant_free(itr3->second);
 	}
 	
 	const char* getModuleID()
@@ -256,12 +241,8 @@ extern "C"
 			return PPK_INVALID_ARGUMENTS;
 		
 		(*list)=NULL;
-			
-		ppk_error ret=lazyInit();
-		if(ret!=PPK_OK)
-			return ret;
 		
-		QList<QString> entries=safeLock().list();
+		QList<QString> entries=_listEntries();
 		
 		if(entries.size()>0)
 		{
@@ -286,56 +267,32 @@ extern "C"
 	}
 
 	//Get and Set passwords
-	#include "ppasskeeper/data.h"
 	ppk_error getEntry(const ppk_entry* entry, ppk_data **edata, unsigned int flags)
 	{
-		ppk_error ret=lazyInit();
-		if(ret!=PPK_OK)
-			return ret;
-		
-		const SFEntry sfentry=safeLock().get(entry);
-		if(sfentry==SFEntry())
-			return PPK_ENTRY_UNAVAILABLE;
-		
-		*edata=sfentry.ppkData_new();
-		
-		return PPK_OK;
+		return _getEntry(entry, edata, flags);
 	}
 
 	ppk_error setEntry(const ppk_entry* entry, const ppk_data* edata, unsigned int flags)
 	{
-		ppk_error ret=lazyInit();
-		if(ret!=PPK_OK)
-			return ret;
-		
-		if(!safeLock().reset(entry, edata))
-			return PPK_ENTRY_UNAVAILABLE;
-		else
-			return PPK_OK;
+		return _resetEntry(entry, edata, flags);
 	}
 	
 	ppk_error removeEntry(const ppk_entry* entry, unsigned int flags)
 	{
-		ppk_error ret=lazyInit();
-		if(ret!=PPK_OK)
-			return ret;
-		
-		if(safeLock().remove(entry)==false)
-			return PPK_ENTRY_UNAVAILABLE;
-		else
-			return PPK_OK;
+		return _removeEntry(entry, flags);;
 	}
 
 	ppk_boolean entryExists(const ppk_entry* entry, unsigned int flags)
 	{
-		ppk_error ret=lazyInit();
-		if(ret!=PPK_OK)
-			return PPK_FALSE;
-		
-		if(safeLock().get(entry)==SFEntry())
-			return PPK_FALSE;
-		else
+		ppk_data* edata=NULL;
+
+		if(getEntry(entry, &edata, flags)==PPK_OK)
+		{
+
 			return PPK_TRUE;
+		}
+		else
+			return PPK_FALSE;
 	}
 	
 	unsigned int maxDataSize(ppk_data_type type)
@@ -368,7 +325,7 @@ extern "C"
 				
 				//Update the module
 				const char* module=cvariant_get_string(parameters[PARAM_MOD_PASSPHRASE]);
-				safeLock().setPPKModuleForPassphrase(QString::fromUtf8(module));
+				_setPPKModuleForPassphrase(QString::fromUtf8(module));
 			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
@@ -381,7 +338,7 @@ extern "C"
 
 				//Update the value
 				int closingDelay=cvariant_get_int(parameters[PARAM_CLOSING_DELAY]);
-				safeLock().setClosingDelay(closingDelay);
+				_setClosingDelay(closingDelay);
 			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);
@@ -394,7 +351,7 @@ extern "C"
 				
 				//Update the module
 				const char* path=cvariant_get_string(parameters[PARAM_SAFELOCKER_PATH]);
-				safeLock().setSafeLockPath(QString::fromUtf8(path));
+				_setSafeLockerPath(QString::fromUtf8(path));
 			}
 			else
 				printf("%s: Wrong data type for the parameter '%s' !\n", getModuleID(), paramName);

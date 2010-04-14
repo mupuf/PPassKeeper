@@ -28,14 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QMapIterator>
 #include <QApplication>
 
-extern "C" const char* getModuleID();
-
-void SafeLock::getQApp()
-{
-	if(qApp==NULL && app.data()==NULL)
-		app=QSharedPointer<QApplication>(new QApplication(0, NULL));
-}
-
 QString SafeLock::ppkEntryToString(const ppk_entry* entry) const
 {
 	//Get the key
@@ -115,7 +107,7 @@ ppk_error SafeLock::getKey(QString passphrase, QString& key)
 	//Get the passphrase
 	if(passphrase==QString())
 	{
-		ppk_entry* entry=ppk_application_entry_new("passphrase", getModuleID());
+		ppk_entry* entry=ppk_application_entry_new("passphrase", "PPKSafeLocker");
 		
 		ppk_data* edata;
 		ppk_error res=ppk_module_get_entry(qPrintable(ppk_module_passphrase), entry, &edata, ppk_rf_none);
@@ -135,7 +127,7 @@ ppk_error SafeLock::getKey(QString passphrase, QString& key)
 	return PPK_OK;
 }
 
-void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir)
+/*void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir)
 {
 	Uploadfile.setFileName(filepath);
 	if(Uploadfile.open(QIODevice::ReadOnly))
@@ -164,20 +156,22 @@ void SafeLock::sendFile(QString host, quint16 port, QString login, QString pwd, 
 		//Send the file
 		idPut=ftp.put(&Uploadfile,name);
 	}
-}
+}*/
 
 SafeLock::SafeLock(QString safelockPath, int closingDelay) : _safelockPath(safelockPath), _closingDelay(closingDelay), _isOpen(false), _hasBeenModified(false), revision(0), timestamp(QDateTime::currentDateTime())
 {
 	//Connect FTP signals
-	connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
+	/*connect(&ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
 	connect(&ftp, SIGNAL(dataTransferProgress(qint64, qint64)), this, SLOT(dataTransferProgress(qint64, qint64)));
-	connect(&ftp, SIGNAL(commandStarted(int)), this, SLOT(commandStarted(int)));
+	connect(&ftp, SIGNAL(commandStarted(int)), this, SLOT(commandStarted(int)));*/
 
 	//Set the closing timer to the oneshot mode
 	timer.setSingleShot(true);
 
 	//connect closing timer signals
 	connect(&timer, SIGNAL(timeout()), this, SLOT(close()));
+
+	qDebug("SafeLock construit !");
 }
 
 SafeLock::~SafeLock()
@@ -199,8 +193,6 @@ ppk_error SafeLock::open(const char* passphrase_c)
 	//Check if the DB is available. if it is not, create the db
 	if(!isDBAvailable())
 	{
-		getQApp();
-
 		ModuleCreation m;
 		m.exec();
 		if(m.result()==QDialog::Accepted)
@@ -261,7 +253,6 @@ ppk_error SafeLock::open(const char* passphrase_c)
 			}
 
 			//start the event loop
-			getQApp();
 			start();
 
 			//Set the timer thread afinity to our new thread
@@ -319,7 +310,7 @@ bool SafeLock::close()
 		key=QString();
 		
 		//Send onto the ftp
-		sendFile(FTP_Host, FTP_Port, FTP_Login, FTP_PWD, _safelockPath, FTP_RemoteDir);
+		//sendFile(FTP_Host, FTP_Port, FTP_Login, FTP_PWD, _safelockPath, FTP_RemoteDir);
 
 		//Set the file as being closed
 		this->_isOpen=false;
@@ -475,9 +466,9 @@ void SafeLock::run()
 	exec();
 }
 
-void SafeLock::commandStarted(int id)
+/*void SafeLock::commandStarted(int id)
 {
-	/*if(id==idConnect)
+	if(id==idConnect)
 		lbl_state->setText("State : Connection to " + host +":" + QString::number(port));
 	else if(id==idLogin)
 		lbl_state->setText("State : Authentification of the user '"+login+"'");
@@ -490,7 +481,7 @@ void SafeLock::commandStarted(int id)
 		t_speed.start();
 		t_beginning.start();
 		t_refresh_title.start();
-	}*/
+	}
 }
 
 void SafeLock::dataTransferProgress(qint64 done, qint64 total)
@@ -503,7 +494,7 @@ void SafeLock::commandFinished(int id, bool error)
 	if(error)
 	{
 		//Display the correct Error Message
-		/*if(id==idConnect)
+		if(id==idConnect)
 			notify(true,"Connection Error : The server is unreachable on this IP/port.\n\nCheck the host and the port, but maybe the server is just offline.\n\n"+ftp.errorString());
 		else if(id==idLogin)
 			notify(true,"Authentification Error : The login/Pwd is not valid on this server.\n\n"+ftp.errorString());
@@ -511,11 +502,10 @@ void SafeLock::commandFinished(int id, bool error)
 			notify(true,"Error : The remote directory you would like to host uploaded file does not exist. Please create it or change the path in the settings.\n\n"+ftp.errorString());
 		else if(id==idPut)
 			notify(true,"Upload Error : The file's upload has failed.\n\n"+ftp.errorString());
-		*/
 	}
 	else if(id==idPut)
 	{
 		//OK
 		Uploadfile.close();
 	}
-}
+}*/

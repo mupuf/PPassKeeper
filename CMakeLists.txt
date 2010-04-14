@@ -272,22 +272,32 @@ ENDIF(PPK_KWALLET4)
 
 # PPK_SAFELOCKER
 IF(PPK_SAFELOCKER)
-  FILE(GLOB ppk_safelocker_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}"
-	"modules/qt/ppksafelocker/crypt.cpp" "modules/qt/ppksafelocker/safelock.cpp" 
-	"modules/qt/ppksafelocker/ppk_safelocker.cpp" "modules/qt/ppksafelocker/sha512.c"
-	"modules/qt/ppksafelocker/modulecreation.cpp" "modules/qt/ppksafelocker/sfentry.cpp")
-  SET(ppk_safelocker_MOCS "modulecreation.h" "safelock.h")
-  SET(ppk_safelocker_UIS "modulecreation.ui")
+  #Server
+  FILE(GLOB ppk_safelocker_server_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}"
+	"modules/qt/ppksafelocker/server/crypt.cpp" "modules/qt/ppksafelocker/server/safelock.cpp" 
+	"modules/qt/ppksafelocker/server/safelocker_main.cpp" "modules/qt/ppksafelocker/server/sha512.c"
+	"modules/qt/ppksafelocker/server/modulecreation.cpp" "modules/qt/ppksafelocker/server/sfentry.cpp")
+  SET(ppk_safelocker_server_MOCS "modulecreation.h" "safelock.h")
+  SET(ppk_safelocker_server_UIS "modulecreation.ui")
 
   QT4_ADD_RESOURCES(ppasskeeper-qt_RCC_SRCS ${ppasskeeper-qt_RCC})
-  FOREACH(MOC ${ppk_safelocker_MOCS})
-	QT4_WRAP_CPP(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${MOC}")
-  ENDFOREACH(MOC ${ppk_safelocker_MOCS})
-  FOREACH(UI ${ppk_safelocker_UIS})
-	QT4_WRAP_UI(ppk_safelocker_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/${UI}")
-  ENDFOREACH(UI ${ppk_safelocker_UIS})
+  FOREACH(MOC ${ppk_safelocker_server_MOCS})
+	QT4_WRAP_CPP(ppk_safelocker_server_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/server/${MOC}")
+  ENDFOREACH(MOC ${ppk_safelocker_server_MOCS})
+  FOREACH(UI ${ppk_safelocker_server_UIS})
+	QT4_WRAP_UI(ppk_safelocker_server_SOURCES "${CMAKE_SOURCE_DIR}/modules/qt/ppksafelocker/server/${UI}")
+  ENDFOREACH(UI ${ppk_safelocker_server_UIS})
+  
+  ADD_EXECUTABLE(safelocker_server ${ppk_safelocker_server_SOURCES})
+  TARGET_LINK_LIBRARIES(safelocker_server ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${openssl_LIBRARIES} ppasskeeper m)
+  INSTALL(TARGETS safelocker_server DESTINATION lib/ppasskeeper)
+  
+  #Client
+  FILE(GLOB ppk_safelocker_SOURCES RELATIVE "${CMAKE_SOURCE_DIR}"
+	"modules/qt/ppksafelocker/ppk_safelocker.cpp")
+	
   ADD_LIBRARY(ppk_safelocker MODULE ${ppk_safelocker_SOURCES})
-  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_LIBRARIES} ${QT_QTNETWORK_LIBRARY} ${openssl_LIBRARIES} ppasskeeper m)
+  TARGET_LINK_LIBRARIES(ppk_safelocker ${QT_QTNETWORK_LIBRARY})
   INSTALL(TARGETS ppk_safelocker DESTINATION lib/ppasskeeper)
 ENDIF(PPK_SAFELOCKER)
 

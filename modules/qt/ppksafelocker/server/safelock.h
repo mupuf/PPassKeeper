@@ -54,7 +54,6 @@ Q_OBJECT
 	QTimer timer;
 
 	//Local functions
-	void getQApp();
 	QString ppkEntryToString(const ppk_entry* entry) const;
 
 	void SetHasBeenModified();
@@ -65,19 +64,19 @@ Q_OBJECT
 	ppk_error getKey(QString passphrase, QString& key);
 
 	//FTP
-	QFtp ftp;
+	/*QFtp ftp;
 	QFile Uploadfile;
 	int idConnect, idLogin, idCd, idPut; //Commands'id
 	QString FTP_Host, FTP_Login, FTP_PWD, FTP_RemoteDir;
 	qint16 FTP_Port;
 	
-	void sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir=QString());
+	void sendFile(QString host, quint16 port, QString login, QString pwd, QString filepath, QString remoteDir=QString());*/
 
 protected:
 	void run();
 
 public:
-	SafeLock(QString safelockPath, int closingDelay=0);
+	SafeLock(QString safelockPath=QString(), int closingDelay=0);
 	~SafeLock();
 
 	ppk_error open(const char* passphrase=NULL);
@@ -109,9 +108,9 @@ public slots:
 	
 private slots:
 	void resetClosingTimer();
-	void commandStarted(int id);
+	/*void commandStarted(int id);
 	void dataTransferProgress(qint64 done, qint64 total);
-	void commandFinished(int id, bool error);
+	void commandFinished(int id, bool error);*/
 
 signals:
 	void newActionPerformed();

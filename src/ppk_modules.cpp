@@ -354,6 +354,14 @@ const char* PPK_Modules::getDisplayNameByID(const char* module_id)
 
 std::string PPK_Modules::autoModule()
 {
+	//First, check for the env. variable PPK_DEFAULT_MODULE
+	if(getenv("PPK_DEFAULT_MODULE")!=NULL && \
+		ppk_module_is_available(getenv("PPK_DEFAULT_MODULE")))
+	{
+		return getenv("PPK_DEFAULT_MODULE");
+	}
+	
+	//otherwise, try to guess which module would be the best
 	if(getenv("GNOME_KEYRING_PID")!=NULL && \
 	   getenv("GNOME_DESKTOP_SESSION_ID")!=NULL && \
 	   ppk_module_is_available("GKeyring")
@@ -374,6 +382,7 @@ std::string PPK_Modules::autoModule()
 		return "SaveToFile_PT";
 	else if(ppk_module_count()>1)
 	{
+		//Else, pick the first one in our list
 		char** list=ppk_module_list_new();
 		std::string module(list[0]);
 		ppk_module_list_free(list);

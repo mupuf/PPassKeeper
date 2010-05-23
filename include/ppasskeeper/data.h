@@ -57,7 +57,7 @@ typedef struct
 		///Basic text (UTF8)
 		const char *string;
 		///Binary value
-		const ppk_data_blob blob;
+		ppk_data_blob blob;
 	};
 } ppk_data;
 

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 	int mkdir(const char* path, int /*chmod*/)
 	{
-		return _mkdir(path.c_str());
+		return _mkdir(path);
 	}
 	
 	std::string setting_dir()

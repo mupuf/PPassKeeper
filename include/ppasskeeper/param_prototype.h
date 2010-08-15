@@ -363,7 +363,6 @@ ppk_boolean ppk_param_list_validation(const char* module_id, const ppk_proto_par
 * \return PPK_TRUE if the parameter is valid, PPK_FALSE otherwise*/
 ppk_boolean ppk_param_validation(const char* module_id, const char* name, const cvariant value);
 
-
 #ifdef __cplusplus
 }
 #endif
